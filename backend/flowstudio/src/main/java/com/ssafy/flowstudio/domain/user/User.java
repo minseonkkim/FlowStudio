@@ -27,22 +27,27 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
+    @Column
+    private String profileImage;
+
     @Column(name = "provider_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private ProviderType providerType;
 
     @Builder
-    private User(Long id, String username, String nickname, ProviderType providerType) {
+    private User(Long id, String username, String nickname, String profileImage, ProviderType providerType) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
+        this.profileImage = profileImage;
         this.providerType = providerType;
     }
 
-    public static User create(String username, String nickname, ProviderType providerType) {
+    public static User create(String username, String nickname, String profileImage, ProviderType providerType) {
         return User.builder()
                 .username(username)
                 .nickname(nickname)
+                .profileImage(profileImage)
                 .providerType(providerType)
                 .build();
     }

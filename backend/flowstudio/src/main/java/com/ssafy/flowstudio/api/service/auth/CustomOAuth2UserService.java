@@ -8,15 +8,12 @@ import com.ssafy.flowstudio.domain.user.User;
 import com.ssafy.flowstudio.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Slf4j
@@ -36,9 +33,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 oauth2User.getAttributes());
 
         String username = oauth2Response.getEmail();
+        String profileImage = oauth2Response.getProfileImage();
+        String nickname = oauth2Response.getNickname();
 
         User user = userRepository.findByUsername(username)
-                .orElseGet(() -> userRepository.save(User.create(username, "", providerType)));
+                .orElseGet(() -> userRepository.save(User.create(username, nickname, profileImage, providerType)));
 
         return new CustomOAuth2User(user);
     }

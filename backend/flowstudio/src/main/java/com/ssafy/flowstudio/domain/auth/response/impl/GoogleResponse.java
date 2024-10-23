@@ -14,18 +14,18 @@ public class GoogleResponse implements OAuth2Response {
 	}
 
 	@Override
-	public ProviderType getProvider() {
-		return ProviderType.GOOGLE;
-	}
-
-	@Override
-	public String getProviderId() {
-		return attribute.get("sub").toString();
-	}
-
-	@Override
 	public String getEmail() {
 		return attribute.get("email").toString();
+	}
+
+	@Override
+	public String getProfileImage() {
+		return attribute.get("picture") != null ? attribute.get("picture").toString() : "";
+	}
+
+	@Override
+	public String getNickname() {
+		return attribute.get("name").toString();
 	}
 
 }

@@ -45,10 +45,10 @@ public class SecurityConfig {
                     configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
                     return configuration;
                 }))
-//                .exceptionHandling(configurer -> configurer
-//                        .authenticationEntryPoint(authenticationEntryPoint)
-//                        .accessDeniedHandler(authenticationDeniedHandler)
-//                )
+                .exceptionHandling(configurer -> configurer
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(authenticationDeniedHandler)
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)

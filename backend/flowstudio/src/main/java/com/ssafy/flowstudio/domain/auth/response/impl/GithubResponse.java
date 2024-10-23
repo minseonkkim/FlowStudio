@@ -6,26 +6,25 @@ import com.ssafy.flowstudio.domain.user.ProviderType;
 import java.util.Map;
 
 public class GithubResponse implements OAuth2Response {
-	private final Map<String, Object> attribute;
+    private final Map<String, Object> attribute;
 
-	public GithubResponse(Map<String, Object> attribute) {
-		this.attribute = attribute;
-	}
+    public GithubResponse(Map<String, Object> attribute) {
+        this.attribute = attribute;
+    }
 
-	@Override
-	public ProviderType getProvider() {
-		return ProviderType.GITHUB;
-	}
+    @Override
+    public String getEmail() {
+        return attribute.get("login").toString() + "@github.com";
+    }
 
-	@Override
-	public String getProviderId() {
-		return attribute.get("id").toString();
-	}
+    @Override
+    public String getProfileImage() {
+        return attribute.get("avatar_url").toString();
+    }
 
-	@Override
-	public String getEmail() {
-		return attribute.get("email") != null ? attribute.get("email").toString() : "";
-	}
-
+    @Override
+    public String getNickname() {
+        return attribute.get("login").toString();
+    }
 
 }
