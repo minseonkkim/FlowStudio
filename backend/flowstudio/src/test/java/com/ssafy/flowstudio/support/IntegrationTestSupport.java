@@ -20,7 +20,7 @@ public abstract class IntegrationTestSupport {
 
     @BeforeEach
     public void setUp() {
-        User user = User.create("test-user", "test-user", ProviderType.GOOGLE);
+        User user = User.create("test-user", "test-user", "", ProviderType.GOOGLE);
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
     }
 }
