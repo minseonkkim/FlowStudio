@@ -21,6 +21,13 @@ import AnswerNode from '@/components/chatbot/customnode/AnswerNode'
 import QuestionClassifierNode from '@/components/chatbot/customnode/QuestionClassifierNode'
 import VariableAllocatorNode from '@/components/chatbot/customnode/VariableAllocatorNode'
 import StartNodeDetail from '@/components/chatbot/nodedetail/StartNodeDetail'
+import LlmNodeDetail from '@/components/chatbot/nodedetail/LlmNodeDetail'
+
+const models = [
+    { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+    { id: "gpt-4", name: "GPT-4" },
+    { id: "gpt-4-32k", name: "GPT-4 (32k)" },
+];
 
 const initialNodes: Node[] = [
   {
@@ -99,11 +106,21 @@ const Page = () => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);  // 현재 선택된 노드
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null); 
   
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
   }, []);
+
+
+  const updateSelectedModel = useCallback((nodeId: string, newModel: string) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId ? { ...node, data: { ...node.data, model: newModel } } : node
+      )
+    );
+  }, []);
+
 
   // 시작 노드 - 최대 글자수 업데이트
   const updateMaxChars = useCallback((nodeId: string, newMaxChars: number) => {
@@ -116,6 +133,18 @@ const Page = () => {
     );
   }, []);
 
+  // LLM 노드 - 프롬프트 관리
+  const updateNodePrompts = useCallback((nodeId: string, newPrompts: { type: string; text: string }[]) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, prompts: newPrompts } }
+          : node
+      )
+    );
+  }, []);
+
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
@@ -127,8 +156,13 @@ const Page = () => {
               updateMaxChars(selectedNode.id, newMaxChars)
             }
           />;
-      // case 'llmNode':
-      //   return <LlmNodeDetail />;
+      case 'llmNode':
+        return <LlmNodeDetail
+            prompts={selectedNode.data.prompts || []}
+            setPrompts={(newPrompts) => updateNodePrompts(selectedNode.id, newPrompts)}
+            selectedModel={selectedNode.data.model || models[0].id}
+            setModel={(newModel) => updateSelectedModel(selectedNode.id, newModel)}
+          />
       // case 'knowledgeNode':
       //   return <KnowledgeNodeDetail />;
       // case 'ifelseNode':
