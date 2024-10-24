@@ -7,6 +7,48 @@ spring:
   config:
     import: file:.env[.properties]
 
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-name: kakao
+            client-authentication-method: client_secret_post
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            scope:
+              - account_email
+              - profile_image
+              - profile_nickname
+          google:
+            client-name: google
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            scope:
+              - profile
+              - email
+          github:
+            client-name: github
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            scope:
+              - read:user
+              - user:email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: kakao_account
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: login
+
 ---
 spring:
   config:
@@ -28,21 +70,46 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: ${DEV_DDL_AUTO}
     show-sql: true
     properties:
       hibernate:
         format_sql: true
 
-logging:
-  level:
-    org.hibernate.SQL: debug
+  jwt:
+    secret: ${JWT_SECRET}
+    access-expire: 36000
+    refresh-expire: 8640000
+
+  logging:
+    level:
+      org.hibernate.SQL: debug
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+          google:
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+          github:
+            redirect-uri: http://localhost:8080/login/oauth2/code/github
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: https://your-production-url.com/login/oauth2/code/kakao
+          google:
+            redirect-uri: https://your-production-url.com/login/oauth2/code/google
 
 ---
 spring:
