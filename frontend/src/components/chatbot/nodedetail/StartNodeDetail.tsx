@@ -41,6 +41,7 @@ export default function StartNodeDetail({
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">최대 글자수를 입력하세요.</div>
       <input className="h-[36px] rounded-[5px] p-3 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+      type="number"
       value={maxChars}
       onChange={handleMaxCharsChange}/>
     </div>

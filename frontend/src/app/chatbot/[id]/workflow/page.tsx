@@ -26,7 +26,7 @@ const initialNodes: Node[] = [
   {
     id: '1',
     type: 'startNode',
-    data: { label: '1',  maxChars: NaN },
+    data: { label: '1',  maxChars: undefined },
     position: { x: 250, y: 100 },
   },
   {
