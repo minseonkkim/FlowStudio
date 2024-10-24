@@ -1,8 +1,11 @@
 import React from 'react'
-
+import CreateStep from '@/components/knowledge/CreateStep'
 const page = () => {
   return (
-    <div>지식 생성 페이지</div>
+    <>
+    <CreateStep/>
+
+    </>
   )
 }
 
