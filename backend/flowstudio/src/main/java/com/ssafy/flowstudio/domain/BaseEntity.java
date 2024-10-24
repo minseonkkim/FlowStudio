@@ -14,9 +14,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
-@Getter
-@MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@MappedSuperclass
+@Getter
 public abstract class BaseEntity {
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -32,3 +32,7 @@ public abstract class BaseEntity {
     private LocalDateTime updatedAt;
 
 }
+
+
+
+

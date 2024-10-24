@@ -1,11 +1,11 @@
 package com.ssafy.flowstudio.api.service.auth;
 
-import com.ssafy.flowstudio.domain.auth.response.CustomOAuth2User;
-import com.ssafy.flowstudio.domain.auth.response.CustomOAuthUserFactory;
-import com.ssafy.flowstudio.domain.auth.response.OAuth2Response;
-import com.ssafy.flowstudio.domain.user.ProviderType;
-import com.ssafy.flowstudio.domain.user.User;
-import com.ssafy.flowstudio.domain.user.UserRepository;
+import com.ssafy.flowstudio.common.security.oauth2user.CustomOAuth2User;
+import com.ssafy.flowstudio.common.security.oauth2user.CustomOAuthUserFactory;
+import com.ssafy.flowstudio.common.security.oauth2user.response.OAuth2Response;
+import com.ssafy.flowstudio.domain.user.entity.ProviderType;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
