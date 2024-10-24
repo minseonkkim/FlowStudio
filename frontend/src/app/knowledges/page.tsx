@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation'; 
 import Search from '@/components/common/Search';
-import PurpleButton from '@/components/common/PurpleButton';
+import ColorButton from '@/components/common/ColorButton';
 import { FaFile } from '@react-icons/all-files/fa/FaFile';
 
 interface FileData {
@@ -67,7 +67,7 @@ const Page = () => {
       </p>
       <div className='flex justify-between mb-8'>
         <Search onSearchChange={setSearchTerm} />  
-        <PurpleButton w='90px' h='40px' text='파일 추가' onHandelButton={goToCreatePage} />
+        <ColorButton w='90px' h='40px' text='파일 추가' onHandelButton={goToCreatePage} />
       </div>
 
       <table className='min-w-full table-auto border-collapse'>
