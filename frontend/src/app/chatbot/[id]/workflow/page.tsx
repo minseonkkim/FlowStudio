@@ -20,12 +20,13 @@ import IfelseNode from '@/components/chatbot/customnode/IfelseNode'
 import AnswerNode from '@/components/chatbot/customnode/AnswerNode'
 import QuestionClassifierNode from '@/components/chatbot/customnode/QuestionClassifierNode'
 import VariableAllocatorNode from '@/components/chatbot/customnode/VariableAllocatorNode'
+import StartNodeDetail from '@/components/chatbot/nodedetail/StartNodeDetail'
 
 const initialNodes: Node[] = [
   {
     id: '1',
     type: 'startNode',
-    data: { label: '1' },
+    data: { label: '1',  maxChars: NaN },
     position: { x: 250, y: 100 },
   },
   {
@@ -66,6 +67,7 @@ const initialNodes: Node[] = [
   },
 ];
 
+
 const nodeTypes = {
   startNode: StartNode,
   llmNode: LlmNode,
@@ -97,6 +99,51 @@ const Page = () => {
     setEdges((eds) => applyEdgeChanges(changes, eds));
   }, []);
 
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);  // 현재 선택된 노드
+  
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+  }, []);
+
+  // 시작 노드 - 최대 글자수 업데이트
+  const updateMaxChars = useCallback((nodeId: string, newMaxChars: number) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, maxChars: newMaxChars } }
+          : node
+      )
+    );
+  }, []);
+
+  const renderNodeDetail = () => {
+    if (!selectedNode) return null;
+
+    switch (selectedNode.type) {
+      case 'startNode':
+        return  <StartNodeDetail
+            maxChars={selectedNode.data.maxChars}
+            setMaxChars={(newMaxChars: number) =>
+              updateMaxChars(selectedNode.id, newMaxChars)
+            }
+          />;
+      // case 'llmNode':
+      //   return <LlmNodeDetail />;
+      // case 'knowledgeNode':
+      //   return <KnowledgeNodeDetail />;
+      // case 'ifelseNode':
+      //   return <IfelseNodeDetail />;
+      // case 'answerNode':
+      //   return <AnswerNodeDetail />;
+      // case 'questionclassifierNode':
+      //   return <QuestionClassifierNodeDetail />;
+      // case 'variableallocatorNode':
+      //   return <VariableAllocatorNodeDetail />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
@@ -109,6 +156,9 @@ const Page = () => {
           챗봇 생성
         </button>
       </div>
+      <div className="absolute top-[140px] right-[30px] z-[10]">
+        {renderNodeDetail()}
+      </div>
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
@@ -116,6 +166,7 @@ const Page = () => {
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
+            onNodeClick={onNodeClick}
             zoomOnScroll={true}
             zoomOnPinch={true}
             panOnScroll={true}
