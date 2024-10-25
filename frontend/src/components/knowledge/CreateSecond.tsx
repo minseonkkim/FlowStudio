@@ -18,8 +18,9 @@ export default function CreateSecond() {
             </div>
           </div>
           <div className="border-b border-b-[#EAECF0]"></div>
-          <div className='p-4 text-base font-normal'>
+          <div className='text-base font-normal'>
             <p>세그먼트 식별자</p>
+            <input type="text" spellCheck="false" className='border w-[490px] h-[43px] rounded-md bg-[#D9D9D9] opacity-50' />
             <p>최대 청크 길이</p>
             <p>청크 중첩</p>
           </div>

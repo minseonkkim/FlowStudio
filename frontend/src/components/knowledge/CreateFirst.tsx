@@ -68,7 +68,7 @@ export default function CreateFirst() {
               <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
             </div>
           </div>
-          <WhiteButton w='80px' h='40px' text='다음'/>
+          <WhiteButton w='80px' h='40px' text='다음' borderColor='#9A75BF' textColor='#9A75BF'/>
         </>
       ) : (
         <>
