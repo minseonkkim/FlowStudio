@@ -1,8 +1,8 @@
 package com.ssafy.flowstudio.support;
 
-import com.ssafy.flowstudio.domain.user.ProviderType;
-import com.ssafy.flowstudio.domain.user.User;
-import com.ssafy.flowstudio.domain.user.UserRepository;
+import com.ssafy.flowstudio.domain.user.entity.ProviderType;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,7 +20,7 @@ public abstract class IntegrationTestSupport {
 
     @BeforeEach
     public void setUp() {
-        User user = User.create("test-user", "test-user", ProviderType.GOOGLE);
+        User user = User.create("test-user", "test-user", "", ProviderType.GOOGLE);
         when(userRepository.findByUsername(any())).thenReturn(Optional.of(user));
     }
 }

@@ -1,10 +1,10 @@
 package com.ssafy.flowstudio.api.service.auth;
 
-import com.ssafy.flowstudio.core.exception.BaseException;
-import com.ssafy.flowstudio.core.exception.ErrorCode;
-import com.ssafy.flowstudio.domain.auth.response.CustomOAuth2User;
-import com.ssafy.flowstudio.domain.user.User;
-import com.ssafy.flowstudio.domain.user.UserRepository;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.security.oauth2user.CustomOAuth2User;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +17,7 @@ import java.util.function.Function;
 @Service
 @RequiredArgsConstructor
 public class CustomUserService implements UserDetailsService {
+
     private final UserRepository userRepository;
 
     @Override
@@ -30,4 +31,5 @@ public class CustomUserService implements UserDetailsService {
         return userDetails -> userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
     }
+
 }
