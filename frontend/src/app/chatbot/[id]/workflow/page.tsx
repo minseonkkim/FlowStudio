@@ -23,6 +23,7 @@ import VariableAllocatorNode from "@/components/chatbot/customnode/VariableAlloc
 import StartNodeDetail from "@/components/chatbot/nodedetail/StartNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/nodedetail/LlmNodeDetail";
 import KnowledgeNodeDetail from "@/components/chatbot/nodedetail/KnowledgeNodeDetail";
+import IfelseNodeDetail from "@/components/chatbot/nodedetail/IfelseNodeDetail";
 
 interface Model {
   id: string;
@@ -50,7 +51,7 @@ const initialNodes: Node[] = [
   {
     id: "2",
     type: "llmNode",
-    data: { label: "2", prompts: [], model: models[0].id },
+    data: { label: "2", prompts: [{type: "system", text: ""}], model: models[0].id },
     position: { x: 460, y: 100 },
   },
   {
@@ -121,6 +122,10 @@ export default function Page() {
     setSelectedNode(node);
   }, []);
 
+  const handleCloseDetail = useCallback(() => {
+    setSelectedNode(null); 
+  }, []);
+
   // 시작 노드 - 최대 글자 수 업데이트
   const updateMaxChars = useCallback((nodeId: string, newMaxChars: number) => {
     setNodes((nds) =>
@@ -163,6 +168,38 @@ export default function Page() {
     [selectedNode]
   );
 
+  // LLM 노드 - 프롬프트 삭제
+  const removePrompt = useCallback((nodeId: string, index: number) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? {
+                ...node,
+                data: {
+                  ...node.data,
+                  prompts: node.data.prompts.filter((_: any, i: number) => i !== index),
+                },
+              }
+            : node
+        )
+      );
+      
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode((prevNode) =>
+          prevNode
+            ? {
+                ...prevNode,
+                data: {
+                  ...prevNode.data,
+                  prompts: prevNode.data.prompts.filter((_: any, i: number) => i !== index),
+                },
+              }
+            : null
+        );
+      }
+    }, [selectedNode]);
+
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
@@ -174,6 +211,7 @@ export default function Page() {
             setMaxChars={(newMaxChars: number) =>
               updateMaxChars(selectedNode.id, newMaxChars)
             }
+            onClose={handleCloseDetail}
           />
         );
       case "llmNode":
@@ -183,10 +221,14 @@ export default function Page() {
             setPrompts={(newPrompts) => updateNodePrompts(selectedNode.id, newPrompts)}
             selectedModel={selectedNode.data.model || models[0].id}
             setModel={(newModel: string) => updateSelectedModel(selectedNode.id, newModel)}
+            removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
+            onClose={handleCloseDetail}
           />
         );
       case "knowledgeNode":
-        return <KnowledgeNodeDetail />;
+        return <KnowledgeNodeDetail onClose={handleCloseDetail} />;
+      case "ifelseNode":
+        return <IfelseNodeDetail onClose={handleCloseDetail}/>;
       default:
         return null;
     }

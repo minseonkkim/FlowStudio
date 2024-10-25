@@ -4,9 +4,14 @@ import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswer
 import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
+import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { useState } from "react"
 
-export default function KnowledgeNodeDetail() {
+export default function KnowledgeNodeDetail({
+  onClose
+}: {
+  onClose: () => void;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -15,9 +20,12 @@ export default function KnowledgeNodeDetail() {
 
   return <>
   <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)]">
-    <div className="flex flex-row items-center gap-1 mb-2">
-        <FiBookOpen className="text-[#F97316] size-8"/>
-        <div className="text-[25px] font-semibold">지식 검색</div>
+     <div className="flex flex-row justify-between items-center mb-2">
+      <div className="flex flex-row items-center gap-1">
+          <FiBookOpen className="text-[#F97316] size-8"/>
+          <div className="text-[25px] font-semibold">지식 검색</div>
+      </div>
+      <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
     </div>
     <div className="flex flex-col gap-2">
       <div className="flex flex-row justify-between items-center">

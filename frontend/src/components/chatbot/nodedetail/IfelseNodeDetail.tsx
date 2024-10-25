@@ -1,4 +1,3 @@
-import { IoPlay } from "@react-icons/all-files/io5/IoPlay"
 import { FaRobot } from "@react-icons/all-files/fa/FaRobot"
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
@@ -8,13 +7,9 @@ import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { useState } from "react"
 
-export default function StartNodeDetail({
-  maxChars,
-  setMaxChars,
+export default function IfelseNodeDetail({
   onClose
 }: {
-  maxChars: number | undefined;
-  setMaxChars: (value: number) => void;
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,47 +18,81 @@ export default function StartNodeDetail({
     setIsOpen(!isOpen);
   };
 
-  const handleMaxCharsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    if (value === "") {
-      setMaxChars(NaN); 
-    } else {
-      const numericValue = parseInt(value, 10);
-      if (!isNaN(numericValue)) {
-        setMaxChars(numericValue); 
-      }
-    }
-  };
-
   return <>
   <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)]">
     <div className="flex flex-row justify-between items-center mb-2">
       <div className="flex flex-row items-center gap-1">
-        <IoPlay className="text-[#95C447] size-8"/>
-        <div className="text-[25px] font-semibold">시작</div>
+          <IoGitBranchOutline className="text-[#EF4444] size-8"/>
+          <div className="text-[25px] font-semibold">IF/ELSE</div>
       </div>
       <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
     </div>
-    
     <div className="flex flex-col gap-2">
-      <div className="text-[16px]">최대 글자수를 입력하세요.</div>
-      <input className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
-      type="number"
-      value={maxChars}
-      onChange={handleMaxCharsChange}/>
+      <div className="flex flex-row justify-between items-start">
+        <div className="text-[16px]">IF</div>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
+            <div className="w-auto h-[36px] flex items-center">
+              <select>
+                  <option value="">변수1</option>
+                  <option value="">변수2</option>
+              </select>
+            </div>
+            <div className="w-auto h-[36px] flex items-center">
+              <select>
+                  <option value="">&gt;=</option>
+                  <option value="">&gt;</option>
+                  <option value="">==</option>
+                  <option value="">&lt;=</option>
+                  <option value="">&lt;</option>
+              </select>
+            </div>
+            <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" />
+          </div>
+          <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+            + 조건 추가
+          </div>
+        </div>        
+      </div>   
+      <div className="flex flex-row justify-between items-start">
+        <div className="text-[16px]">ELIF</div>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
+            <div className="w-auto h-[36px] flex items-center">
+              <select>
+                  <option value="">변수1</option>
+                  <option value="">변수2</option>
+              </select>
+            </div>
+            <div className="w-auto h-[36px] flex items-center">
+              <select>
+                  <option value="">&gt;=</option>
+                  <option value="">&gt;</option>
+                  <option value="">==</option>
+                  <option value="">&lt;=</option>
+                  <option value="">&lt;</option>
+              </select>
+            </div>
+            <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" />
+          </div>
+          <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+            + 조건 추가
+          </div>
+        </div>        
+      </div>     
     </div>
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">다음 블록을 추가하세요.</div>
       <div className="flex flex-row items-center justify-between">
-        <div className="bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-          <IoPlay className="text-[#95C447] size-8"/>
+        <div className="bg-[#FACECE] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+          <IoGitBranchOutline className="text-[#F97316] size-8"/>
         </div>
         <div className="bg-black h-[2px] w-[200px] absolute"></div>
         <div className="relative inline-block text-left">
           <div>
             <button
               type="button"
-              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#EF4444]"
               onClick={toggleDropdown}
             >
               다음 블록 선택

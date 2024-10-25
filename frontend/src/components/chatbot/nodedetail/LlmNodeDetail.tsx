@@ -4,6 +4,8 @@ import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswer
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
+import { IoClose } from "@react-icons/all-files/io5/ioClose"
+import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash"
 import { ChangeEvent, useEffect, useState } from "react";
 
 interface Model {
@@ -27,11 +29,15 @@ export default function LlmNodeDetail({
   setPrompts,
   selectedModel,
   setModel,
+  removePrompt,
+  onClose
 }: {
   prompts: { type: string; text: string }[];
   setPrompts: (prompts: { type: string; text: string }[]) => void;
   selectedModel: string;
   setModel: (model: string) => void;
+  removePrompt: (index: number) => void; 
+  onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -73,10 +79,14 @@ export default function LlmNodeDetail({
   return (
     <>
       <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
-        <div className="flex flex-row items-center gap-1 mb-2">
-          <FaRobot className="text-[#3B82F6] size-8" />
-          <div className="text-[25px] font-semibold">LLM</div>
+        <div className="flex flex-row justify-between items-center mb-2">
+          <div className="flex flex-row items-center gap-1">
+              <FaRobot className="text-[#3B82F6] size-8" />
+              <div className="text-[25px] font-semibold">LLM</div>
+          </div>
+          <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
         </div>
+        
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">모델을 선택하세요.</div>
           <select
@@ -97,22 +107,34 @@ export default function LlmNodeDetail({
         
         {localPrompts.map((prompt, index) => (
             <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white">
-              <select
-                id={`prompt_type_${index}`}
-                value={prompt.type}
-                onChange={(e) => handlePromptTypeChange(index, e)}
-                className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
-              >
-                <option value="system">system</option>
-                <option value="user">user</option>
-              </select>
+              <div className="flex flex-row justify-between items-center">
+                <select
+                  id={`prompt_type_${index}`}
+                  value={prompt.type}
+                  onChange={(e) => handlePromptTypeChange(index, e)}
+                  className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
+                >
+                  <option value="system">system</option>
+                  <option value="user">user</option>
+                </select>
+                {index !== 0 && 
+                  <IoMdTrash className="size-4 m-2 cursor-pointer text-[#9B9B9B]" onClick={() => removePrompt(index)}/>
+                }
+              </div>
+              
               <textarea
                 value={prompt.text}
                 onChange={(e) => handlePromptTextChange(index, e)}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = "90px";
+                  target.style.height = `${target.scrollHeight}px`;
+                }}
                 placeholder="프롬프트를 입력하세요."
                 className="bg-white rounded-[5px] w-full resize-none overflow-hidden px-2 py-1 mt-2 focus:outline-none shadow-none border-none"
                 style={{ minHeight: "90px" }}
               />
+
             </div>
           ))}
         
