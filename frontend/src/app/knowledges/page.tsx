@@ -1,11 +1,11 @@
 "use client"; 
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation'; 
 import Search from '@/components/common/Search';
-import PurpleButton from '@/components/common/PurpleButton';
+import ColorButton from '@/components/common/ColorButton';
 import { FaFile } from '@react-icons/all-files/fa/FaFile';
 
-// 더미 데이터 타입 정의
 interface FileData {
   id: number;
   fileName: string;
@@ -14,7 +14,6 @@ interface FileData {
   isPublic: boolean;
 }
 
-// 더미 데이터
 const dummyData: FileData[] = [
   {
     id: 1,
@@ -40,10 +39,14 @@ const dummyData: FileData[] = [
 ];
 
 const Page = () => {
-  const [fileData, setFileData] = useState<FileData[]>(dummyData);  // 파일 데이터 상태
-  const [searchTerm, setSearchTerm] = useState('');  // 검색어 상태
+  const [fileData, setFileData] = useState<FileData[]>(dummyData);
+  const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter(); // useRouter 사용
 
-  // 공개 상태 토글 함수
+  const goToCreatePage = (): void => {
+    router.push('/knowledge/create'); // 페이지 이동
+  };
+
   const togglePublicStatus = (id: number) => {
     setFileData((prevData) =>
       prevData.map((file) =>
@@ -52,9 +55,8 @@ const Page = () => {
     );
   };
 
-  // 검색어에 맞춰 파일명을 필터링
   const filteredData = fileData.filter(file => 
-    file.fileName.toLowerCase().includes(searchTerm.toLowerCase())  // 검색어에 맞춰 필터링
+    file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -65,7 +67,7 @@ const Page = () => {
       </p>
       <div className='flex justify-between mb-8'>
         <Search onSearchChange={setSearchTerm} />  
-        <PurpleButton w='90px' h='40px' text='파일 추가' />
+        <ColorButton w='90px' h='40px' text='파일 추가' onHandelButton={goToCreatePage} />
       </div>
 
       <table className='min-w-full table-auto border-collapse'>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import RecoilRootWrapper from "./RecoilWrapper";
 import "@/styles/globals.css";
 import Header from "@/components/common/Header";
 
@@ -17,7 +18,7 @@ export default function RootLayout({
       <body>
         <Header/>   
         <main className="mt-[60px]">
-          {children}
+        <RecoilRootWrapper>{children}</RecoilRootWrapper>
         </main>   
       </body>
     </html>
