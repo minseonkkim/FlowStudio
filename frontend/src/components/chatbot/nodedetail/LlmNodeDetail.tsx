@@ -83,7 +83,7 @@ export default function LlmNodeDetail({
             id="model"
             value={selectedModel}
             onChange={handleChangeModel}
-            className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6] sm:text-sm"
           >
             {models.map((model: Model) => (
               <option key={model.id} value={model.id}>
@@ -133,7 +133,7 @@ export default function LlmNodeDetail({
               <div>
                 <button
                   type="button"
-                  className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+                  className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
                   onClick={toggleDropdown}
                 >
                   다음 블록 선택

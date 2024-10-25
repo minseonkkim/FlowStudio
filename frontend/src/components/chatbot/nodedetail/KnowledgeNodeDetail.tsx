@@ -1,4 +1,3 @@
-import { IoPlay } from "@react-icons/all-files/io5/IoPlay"
 import { FaRobot } from "@react-icons/all-files/fa/FaRobot"
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
@@ -21,22 +20,25 @@ export default function KnowledgeNodeDetail() {
         <div className="text-[25px] font-semibold">지식 검색</div>
     </div>
     <div className="flex flex-col gap-2">
-      <div className="text-[16px]">지식을 선택하세요.</div>
-      <input className="h-[36px] rounded-[5px] p-3 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
-      type="number"/>
+      <div className="flex flex-row justify-between items-center">
+        <div className="text-[16px]">지식을 선택하세요.</div>
+        <div className="text-[21px] cursor-pointer">+</div>
+      </div>
+      
+      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">knowledge.pdf</div>
     </div>
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">다음 블록을 추가하세요.</div>
       <div className="flex flex-row items-center justify-between">
-        <div className="bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-          <IoPlay className="text-[#95C447] size-8"/>
+        <div className="bg-[#FFD3B5] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+          <FiBookOpen className="text-[#F97316] size-8"/>
         </div>
         <div className="bg-black h-[2px] w-[200px] absolute"></div>
         <div className="relative inline-block text-left">
           <div>
             <button
               type="button"
-              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#F97316]"
               onClick={toggleDropdown}
             >
               다음 블록 선택
