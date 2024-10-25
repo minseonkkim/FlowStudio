@@ -1,11 +1,12 @@
 import React from 'react';
 import { Meta, StoryFn } from '@storybook/react';
-import PurpleButton, { PurpleButtonProps } from './PurpleButton';
+import PurpleButton, { ColorButtonProps} from './ColorButton';
+import ColorButton from './ColorButton';
 
 // 스토리북에서 사용할 메타 정보
 export default {
-  title: 'Components/PurpleButton',
-  component: PurpleButton,
+  title: 'Components/ColorButton',
+  component: ColorButton,
   argTypes: {
     w: { control: 'text' },
     h: { control: 'text' },
@@ -14,7 +15,7 @@ export default {
 } as Meta<typeof PurpleButton>;
 
 // 기본 템플릿 생성
-const Template: StoryFn<PurpleButtonProps> = (args) => <PurpleButton {...args} />;
+const Template: StoryFn<ColorButtonProps> = (args) => <ColorButton {...args} />;
 
 // 기본 스토리
 export const Default = Template.bind({});
