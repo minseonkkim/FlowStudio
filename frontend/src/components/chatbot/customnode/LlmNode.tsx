@@ -9,6 +9,7 @@ interface Prompt {
 interface LlmNodeProps {
     data: {
         prompts: Prompt[];
+        model: string;
     };
 }
 
@@ -22,7 +23,7 @@ const LlmNode: React.FC<LlmNodeProps> = ({ data }) => {
           <div className="text-[11px] font-semibold">LLM</div>
         </div>
         <div className="flex flex-col gap-1 text-[8px]">
-          <div className="rounded-[5px] p-0.5 bg-white">gpt-4o-mini</div>
+          <div className="rounded-[5px] p-0.5 bg-white">{data.model}</div>
           {data.prompts && data.prompts.length > 0 && (
             data.prompts.map((prompt, index) => (
               prompt.text !== "" && ( 

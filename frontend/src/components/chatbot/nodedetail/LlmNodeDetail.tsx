@@ -17,7 +17,6 @@ const models: Model[] = [
   { id: "gpt-4-32k", name: "GPT-4 (32k)" },
 ];
 
-
 interface Prompt {
   type: string;
   text: string;
@@ -39,13 +38,13 @@ export default function LlmNodeDetail({
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
-
    
   const [localPrompts, setLocalPrompts] = useState<{ type: string; text: string }[]>(prompts);
 
   useEffect(() => {
     setLocalPrompts([...prompts]);
   }, [prompts]);
+  
 
   const handlePromptTypeChange = (index: number, e: ChangeEvent<HTMLSelectElement>) => {
     const updatedPrompts = [...localPrompts];
@@ -70,7 +69,6 @@ export default function LlmNodeDetail({
   const handleChangeModel = (e: ChangeEvent<HTMLSelectElement>) => {
     setModel(e.target.value);
   };
-
 
   return (
     <>
