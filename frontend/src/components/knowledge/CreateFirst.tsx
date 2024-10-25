@@ -6,12 +6,13 @@ import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
 import ColorButton from '../common/ColorButton';
 import WhiteButton from '../common/whiteButton';
 import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/atoms'; 
+import { currentStepState } from '@/store/atoms';
+import { fileNameState } from '@/store/atoms';  
 
 export default function CreateFirst() {
   const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>('');
   const [currentStep, setCurrentStep] = useRecoilState(currentStepState); 
+  const [fileName, setFileName] = useRecoilState(fileNameState);  
 
   // 파일 선택 시 호출되는 함수
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,8 +42,8 @@ export default function CreateFirst() {
   };
 
   // 단계 변경 함수 (Step 2로 이동)
-  const onChangeStep = () => {
-    setCurrentStep(2); // Recoil 상태를 2로 업데이트
+  const onChange2Step = () => {
+    setCurrentStep(2);
   };
 
   return (
@@ -76,7 +77,7 @@ export default function CreateFirst() {
             <span className=' group-hover:text-[#757575]'>{fileName}</span>
             <CgTrash className='h-6 w-6 cursor-pointer hidden group-hover:flex text-[#9A75BF]' onClick={clearFile} />
           </div>
-          <ColorButton w='80px' h='40px' text='다음' onHandelButton={onChangeStep} />
+          <ColorButton w='80px' h='40px' text='다음' onHandelButton={onChange2Step} />
         </>
       )}
     </div>

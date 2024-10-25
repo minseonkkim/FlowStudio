@@ -9,7 +9,7 @@ export default function Header(){
   const pathname = usePathname();
 
   return (
-  <header className="fixed inset-0 w-full h-[60px] px-[30px] flex justify-center border-b-[1px] bg-white bg-opacity-70">
+  <header className="z-50 fixed inset-0 w-full h-[60px] px-[30px] flex justify-center border-b-[1px] bg-white ">
       <div className="w-full flex flex-row justify-between items-center">
         <Link className="flex flex-row items-center gap-3" href="/">
           <Image src={Logo} alt="logo" className="w-8 h-8 object-cover"/>
