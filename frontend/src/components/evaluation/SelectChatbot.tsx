@@ -1,8 +1,9 @@
-"use client";
-
-import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
-import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import { useState } from "react";
+import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
+
+interface SelectChatbotProps {
+  onNext: () => void;
+}
 
 interface Chatbot {
   id: number;
@@ -56,23 +57,19 @@ const chatbots: Chatbot[] = [
   },
 ];
 
-export default function Page() {
+const categories = [
+  "모든 챗봇",
+  "금융",
+  "헬스케어",
+  "전자 상거래",
+  "여행",
+  "교육",
+  "엔터테이먼트",
+  "기타",
+];
+
+export default function SelectChatbot({ onNext }: SelectChatbotProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
-
-  const categories = [
-    "모든 챗봇",
-    "금융",
-    "헬스케어",
-    "전자 상거래",
-    "여행",
-    "교육",
-    "엔터테이먼트",
-    "기타",
-  ];
-
-  const popularChatbots = [...chatbots]
-    .sort((a, b) => b.shareNum - a.shareNum)
-    .slice(0, 4);
 
   const filteredChatbots = selectedCategory === "모든 챗봇"
     ? chatbots
@@ -81,29 +78,12 @@ export default function Page() {
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
-
+  
   return (
-    <div className="px-12 py-10">
-      <div>
-        <p className="mb-6 text-[22px] font-semibold">가장 인기있는 챗봇</p>
-        <div className="flex flex-row justify-between w-full gap-6">
-          {popularChatbots.map((chatbot) => (
-            <PopularChatbotCard
-              key={chatbot.id}
-              title={chatbot.title}
-              description={chatbot.description}
-              buttonText="작업 공간에 추가"
-              onButtonClick={() => console.log(`Added ${chatbot.title} to workspace`)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-16">
-        <p className="mb-6 text-[22px] font-semibold">챗봇 라운지</p>
-        
-        <div className="flex flex-wrap mb-8">
-          {categories.map((label) => (
+    <div>
+      {/* 카테고리 필터 */}
+      <div className="flex items-center mb-6">
+      {categories.map((label) => (
             <button
               key={label}
               onClick={() => handleCategoryClick(label)}
@@ -112,19 +92,16 @@ export default function Page() {
               {label}
             </button>
           ))}
-        </div>
+      </div>
 
-        <div className="flex flex-col gap-1">
-          {filteredChatbots.map((bot) => (
-            <ChatbotCard
-              key={bot.id}
-              title={bot.title}
-              description={bot.description}
-              buttonText="작업공간에 추가"
-              onButtonClick={() => console.log(`Selected ${bot.title}`)}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-3 gap-6 mb-8">
+        {filteredChatbots.map((chatbot) => (
+          <PopularChatbotCard
+            key={chatbot.id}
+            title={chatbot.title}
+            description={chatbot.description}
+          />
+        ))}
       </div>
     </div>
   );

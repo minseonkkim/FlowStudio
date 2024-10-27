@@ -89,7 +89,7 @@ export default function Page() {
           </button>
         </div>
 
-        <div className="mb-10">
+        <div className="mb-8">
           {categories.map((label) => (
             <button
               key={label}
