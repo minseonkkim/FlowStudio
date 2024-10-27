@@ -1,7 +1,8 @@
 "use client";
 
-import ChatbotCard from "@/components/chatbot/ChatbotCard";
+import { useRouter } from 'next/navigation';
 import React, { useState } from "react";
+import ChatbotCard from "@/components/chatbot/ChatbotCard";
 
 interface Chatbot {
   id: number;
@@ -50,6 +51,7 @@ const chatbots: Chatbot[] = [
 ];
 
 const Page = () => {
+  const router = useRouter();
   const categories = [
     "모든 챗봇",
     "금융",
@@ -71,16 +73,27 @@ const Page = () => {
     ? chatbots
     : chatbots.filter((chatbot) => chatbot.category === selectedCategory);
 
+  const handleEvaluationClick = () => {
+    router.push('/evaluation');
+  };
+
+  const handleResultClick = (id: number) => {
+    router.push(`/evaluation/${id}/result`);
+  };
+
   return (
     <div className="px-12 py-10">
-      <div className="flex items-center mb-6">
-        <h2 className="text-2xl font-bold mr-6">테스트 결과 확인</h2>
-        <button className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg">
-          챗봇 평가하기
-        </button>
+      <div className="flex items-center mb-4">
+        <p className="text-[22px] font-semibold mr-6">테스트 결과 확인</p>
+          <button
+            onClick={() => handleEvaluationClick()}
+            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
+          >
+            챗봇 평가하기
+          </button>
       </div>
 
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-8">
         {categories.map((label) => (
           <button
             key={label}
@@ -98,8 +111,8 @@ const Page = () => {
             key={chatbot.id}
             title={chatbot.title}
             description={chatbot.description}
-            buttonText="결과 다운로드"
-            onButtonClick={() => console.log(`Downloading results for ${chatbot.title}`)}
+            buttonText="결과 확인하기"
+            onButtonClick={() => handleResultClick(chatbot.id)}
           />
         ))}
       </div>
