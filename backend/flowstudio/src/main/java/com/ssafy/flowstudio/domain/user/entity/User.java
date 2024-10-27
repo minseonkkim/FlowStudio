@@ -21,6 +21,10 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "api_key_id")
+    private ApiKey apiKey;
+
     @Column(nullable = false)
     private String username;
 
@@ -35,8 +39,9 @@ public class User extends BaseEntity {
     private ProviderType providerType;
 
     @Builder
-    private User(Long id, String username, String nickname, String profileImage, ProviderType providerType) {
+    private User(Long id, ApiKey apiKey, String username, String nickname, String profileImage, ProviderType providerType) {
         this.id = id;
+        this.apiKey = apiKey;
         this.username = username;
         this.nickname = nickname;
         this.profileImage = profileImage;
@@ -46,6 +51,7 @@ public class User extends BaseEntity {
     public static User create(String username, String nickname, String profileImage, ProviderType providerType) {
         return User.builder()
                 .username(username)
+                .apiKey(ApiKey.empty())
                 .nickname(nickname)
                 .profileImage(profileImage)
                 .providerType(providerType)
