@@ -1,9 +1,11 @@
 interface PopularChatbotCardProps {
   title: string;
   description: string;
+  buttonText: string;
+  onButtonClick: () => void;
 }
 
-export default function PopularChatbotCard({ title, description }: PopularChatbotCardProps) {
+export default function PopularChatbotCard({ title, description, buttonText, onButtonClick }: PopularChatbotCardProps) {
   return (
     <div className="w-full h-[204px] px-6 py-4 rounded-xl shadow-[0px_2px_8px_rgba(0,0,0,0.25)] group cursor-pointer">
       <div className="mb-3 flex items-center gap-2">
@@ -12,10 +14,13 @@ export default function PopularChatbotCard({ title, description }: PopularChatbo
       </div>
       <div className="flex flex-col h-[122px] justify-between">
         <p className='text-[#333333]'>{description}</p>
-        <button className="flex items-center justify-center p-2 bg-[#9A75BF] text-white text-[14px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          작업 공간에 추가
+        <button
+          onClick={onButtonClick}
+          className="flex items-center justify-center p-2 bg-[#9A75BF] text-white text-[14px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          {buttonText}
         </button>
       </div>
     </div>
   );
-};
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import CreateChatbotModal from "@/components/chatbot/CreateChatbotModal";
+import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import { useState } from "react";
 
@@ -50,9 +51,11 @@ const chatbots: Chatbot[] = [
   },
 ];
 
+
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const categories = [
     "모든 챗봇",
@@ -100,11 +103,18 @@ export default function Page() {
 
         <div className="grid grid-cols-4 w-full gap-6">
           {filteredChatbots.map((bot) => (
-            <PopularChatbotCard key={bot.id} title={bot.title} description={bot.description} />
+            <PopularChatbotCard
+              key={bot.id}
+              title={bot.title}
+              description={bot.description}
+              buttonText="공유"
+              onButtonClick={() => setIsShareModalOpen(true)}
+            />
           ))}
         </div>
       </div>
 
+      {/* 챗봇 생성 모달 */}
       {isCreateModalOpen && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
@@ -112,6 +122,18 @@ export default function Page() {
         >
           <div onClick={(e) => e.stopPropagation()}>
             <CreateChatbotModal onClose={() => setIsCreateModalOpen(false)} />
+          </div>
+        </div>
+      )}
+
+      {/* 챗봇 공유 모달 */}
+      {isShareModalOpen && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          onClick={() => setIsShareModalOpen(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <ShareChatbotModal onClose={() => setIsShareModalOpen(false)} />
           </div>
         </div>
       )}
