@@ -80,7 +80,7 @@ export default function Page() {
     <div className="px-12 py-10">
       <div className="flex flex-col">
         <div className="mb-4 flex items-center">
-          <p className="text-[22px] mr-6">나의 챗봇</p>
+          <p className="text-[22px] font-semibold mr-6">나의 챗봇</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
