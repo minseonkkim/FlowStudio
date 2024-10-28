@@ -9,13 +9,13 @@ export default function Header(){
   const pathname = usePathname();
 
   return (
-  <header className="z-50 fixed inset-0 w-full h-[60px] px-[30px] flex justify-center border-b-[1px] bg-white ">
+  <header className="z-20 fixed inset-0 w-full h-[57px] px-12 flex justify-center border-b-[1px] bg-white ">
       <div className="w-full flex flex-row justify-between items-center">
         <Link className="flex flex-row items-center gap-3" href="/">
-          <Image src={Logo} alt="logo" className="w-8 h-8 object-cover"/>
-          <div className="text-[25px] font-bold text-[#5D2973]">Flow Studio</div>
+          <Image src={Logo} alt="logo" className="w-[22px] h-[22px]"/>
+          <div className="text-[22px] font-bold text-[#5D2973]">Flow Studio</div>
         </Link>
-        <nav className="flex flex-row gap-10 text-[18px] font-medium">
+        <nav className="flex flex-row gap-10 text-[16px] font-medium">
             <Link
             className={`cursor-pointer ${
               pathname === '/explore/chatbots' ? 'text-[#9A75BF] font-semibold' : 'hover:font-semibold'
