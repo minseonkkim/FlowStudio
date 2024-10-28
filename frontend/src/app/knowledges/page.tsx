@@ -41,11 +41,15 @@ const dummyData: FileData[] = [
 const Page = () => {
   const [fileData, setFileData] = useState<FileData[]>(dummyData);
   const [searchTerm, setSearchTerm] = useState('');
-  const router = useRouter(); // useRouter 사용
+  const router = useRouter(); 
 
   const goToCreatePage = (): void => {
-    router.push('/knowledge/create'); // 페이지 이동
+    router.push('/knowledge/create'); 
   };
+
+  const goToKnoweldgeDetail = (id: number): void => {
+    router.push(`/knowledge/${id}`)
+  }
 
   const togglePublicStatus = (id: number) => {
     setFileData((prevData) =>
@@ -88,7 +92,7 @@ const Page = () => {
               <td className='p-4'>
                 <div className='flex items-center'>
                   <FaFile />
-                  <p className='pl-2'>{file.fileName}</p>
+                  <p className='pl-2 cursor-pointer' onClick={() => goToKnoweldgeDetail(file.id)}>{file.fileName}</p>
                 </div>
               </td>
               <td className='p-4'>{file.wordCount}</td>
