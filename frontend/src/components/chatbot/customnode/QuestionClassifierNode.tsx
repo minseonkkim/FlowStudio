@@ -20,10 +20,10 @@ export default function QuestionClassifierNode({ data }: any){
             <div>클래스</div>
             {data.classes && data.classes.length > 0 && (
                 data.classes.map((cls:Class, index:number) => (
-                  cls && cls.text !== "" && (
+                  cls && (
                     <div key={index} className="rounded-[5px] p-0.5 bg-white flex flex-col gap-0.5">
                       <div className="font-bold text-[6px]">클래스 {index + 1}</div>
-                      <div>{cls.text}</div>
+                      {cls.text != "" && <div>{cls.text}</div>}
                     </div>
                   )
                 ))

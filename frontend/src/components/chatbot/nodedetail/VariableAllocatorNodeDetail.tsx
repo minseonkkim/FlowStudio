@@ -5,15 +5,11 @@ import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
-import { useCallback, useState } from "react"
+import { useState } from "react"
 
-export default function AnswerNodeDetail({
-  answer,
-  setAnswer,
+export default function VariableAllocatorNodeDetail({
   onClose
 }: {
-  answer: string;
-  setAnswer: (value: string) => void;
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,46 +18,39 @@ export default function AnswerNodeDetail({
     setIsOpen(!isOpen);
   };
 
-  const [localAnswer, setLocalAnswer] = useState(answer);
-
-  const handleAnswerChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      setLocalAnswer(value);
-      setAnswer(value);
-    },
-    [setAnswer]
-  );
 
   return <>
   <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)]">
     <div className="flex flex-row justify-between items-center mb-2">
       <div className="flex flex-row items-center gap-1">
-        <RiQuestionAnswerFill className="text-[#34D399] size-8"/>
-        <div className="text-[25px] font-semibold">답변</div>
+        <VscSymbolVariable className="text-[#6B7280] size-8"/>
+        <div className="text-[25px] font-semibold">변수 할당자</div>
       </div>
       <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
     </div>
-    
     <div className="flex flex-col gap-2">
-      <div className="text-[16px]">답변을 입력하세요.</div>
-      <input className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#BAEEDB]"
-      value={localAnswer}
-      onChange={handleAnswerChange}
-      />
-    </div>
+          <div className="text-[16px]">변수를 선택하세요.</div>
+          <select
+            id="model"
+            className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#6B7280] focus:border-[#6B7280] sm:text-sm"
+          >
+              <option>
+                변수1
+              </option>
+          </select>
+        </div>
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">다음 블록을 추가하세요.</div>
       <div className="flex flex-row items-center justify-between">
-        <div className="bg-[#BAEEDB] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-          <RiQuestionAnswerFill className="text-[#34D399] size-8"/>
+        <div className="bg-[#C5C5C5] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+          <VscSymbolVariable className="text-[#6B7280] size-8"/>
         </div>
         <div className="bg-black h-[2px] w-[200px] absolute"></div>
         <div className="relative inline-block text-left">
           <div>
             <button
               type="button"
-              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#BAEEDB]"
+              className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#6B7280]"
               onClick={toggleDropdown}
             >
               다음 블록 선택

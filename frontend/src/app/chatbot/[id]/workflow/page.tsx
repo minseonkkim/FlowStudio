@@ -26,6 +26,7 @@ import KnowledgeNodeDetail from "@/components/chatbot/nodedetail/KnowledgeNodeDe
 import IfelseNodeDetail from "@/components/chatbot/nodedetail/IfelseNodeDetail";
 import AnswerNodeDetail from "@/components/chatbot/nodedetail/AnswerNodeDetail";
 import QuestionClassifierNodeDetail from "@/components/chatbot/nodedetail/QuestionClassifierNodeDetail";
+import VariableAllocatorNodeDetail from "@/components/chatbot/nodedetail/VariableAllocatorNodeDetail";
 
 interface Model {
   id: string;
@@ -264,12 +265,12 @@ export default function Page() {
         return <IfelseNodeDetail onClose={handleCloseDetail}/>;
       case "answerNode":
         return (
-        <AnswerNodeDetail 
-          answer={selectedNode.data.answer}
-          setAnswer={(newAnswer: string) =>
-            updateAnswer(selectedNode.id, newAnswer)
-          }
-          onClose={handleCloseDetail}/>);
+          <AnswerNodeDetail 
+            answer={selectedNode.data.answer}
+            setAnswer={(newAnswer: string) =>
+              updateAnswer(selectedNode.id, newAnswer)
+            }
+            onClose={handleCloseDetail}/>);
       case "questionclassifierNode":
           return (
             <QuestionClassifierNodeDetail
@@ -279,7 +280,10 @@ export default function Page() {
             />
 
           );
-
+      case "variableallocatorNode":
+        return (
+          <VariableAllocatorNodeDetail onClose={handleCloseDetail}/>
+        );
       default:
         return null;
     }
