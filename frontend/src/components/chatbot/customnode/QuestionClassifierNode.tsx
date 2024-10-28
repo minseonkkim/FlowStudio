@@ -1,6 +1,10 @@
 import { Handle, Position } from "reactflow"
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 
+interface Class{
+  text: string;
+}
+
 export default function QuestionClassifierNode({ data }: any){
   return <>
   <div className="p-2 bg-[#E1E6F3] rounded-[16px] border-[1px] border-[#1E3A8A] text-[10px] w-[145px]">
@@ -14,17 +18,18 @@ export default function QuestionClassifierNode({ data }: any){
           <div className="rounded-[5px] p-0.5 bg-white">gpt-4o-mini</div>
           <div className="flex flex-col gap-0.5">
             <div>클래스</div>
-            <div className="rounded-[5px] p-0.5 bg-white flex flex-col gap-0.5">
-              <div className="font-bold text-[6px]">클래스1</div>
-              <div>Questions about weather</div>
-            </div>
-            <div className="rounded-[5px] p-0.5 bg-white flex flex-col gap-0.5">
-              <div className="font-bold text-[6px]">클래스2</div>
-              <div>Other questions</div>
-            </div>
+            {data.classes && data.classes.length > 0 && (
+                data.classes.map((cls:Class, index:number) => (
+                  cls && cls.text !== "" && (
+                    <div key={index} className="rounded-[5px] p-0.5 bg-white flex flex-col gap-0.5">
+                      <div className="font-bold text-[6px]">클래스 {index + 1}</div>
+                      <div>{cls.text}</div>
+                    </div>
+                  )
+                ))
+              )}
           </div>
         </div>
-        {/* <div>{data.label}</div> */}
       </div>
       <Handle type="source" position={Position.Right} />
     </div>

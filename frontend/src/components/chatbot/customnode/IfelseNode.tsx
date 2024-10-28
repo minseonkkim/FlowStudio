@@ -18,8 +18,6 @@ export default function IfelseNode({ data }: any){
           <div className="font-bold text-end">ELSE</div>
           
         </div>
-
-        {/* <div>{data.label}</div> */}
       </div>
       <Handle type="source" position={Position.Right} />
     </div>

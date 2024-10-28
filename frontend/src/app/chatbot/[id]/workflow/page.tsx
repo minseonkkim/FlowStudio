@@ -25,6 +25,7 @@ import LlmNodeDetail from "@/components/chatbot/nodedetail/LlmNodeDetail";
 import KnowledgeNodeDetail from "@/components/chatbot/nodedetail/KnowledgeNodeDetail";
 import IfelseNodeDetail from "@/components/chatbot/nodedetail/IfelseNodeDetail";
 import AnswerNodeDetail from "@/components/chatbot/nodedetail/AnswerNodeDetail";
+import QuestionClassifierNodeDetail from "@/components/chatbot/nodedetail/QuestionClassifierNodeDetail";
 
 interface Model {
   id: string;
@@ -76,7 +77,7 @@ const initialNodes: Node[] = [
   {
     id: "6",
     type: "questionclassifierNode",
-    data: { label: "6" },
+    data: { label: "6", classes: [{text: ""}, {text: ""}] },
     position: { x: 1300, y: 100 },
   },
   {
@@ -212,6 +213,26 @@ export default function Page() {
   }, []);
 
 
+  // 질문 분류기 노드 - 클래스 업데이트
+  const updateClasses = useCallback(
+    (nodeId: string, newClasses: {text: string}[]) => { 
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, classes: newClasses } }
+            : node
+        )
+      );
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode((prevNode) =>
+          prevNode ? { ...prevNode, data: { ...prevNode.data, classes: newClasses } } : null
+        );
+      }
+    },
+    [selectedNode]
+  );
+
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
@@ -244,11 +265,21 @@ export default function Page() {
       case "answerNode":
         return (
         <AnswerNodeDetail 
-        answer={selectedNode.data.answer}
-        setAnswer={(newAnswer: string) =>
-          updateAnswer(selectedNode.id, newAnswer)
-        }
-        onClose={handleCloseDetail}/>);
+          answer={selectedNode.data.answer}
+          setAnswer={(newAnswer: string) =>
+            updateAnswer(selectedNode.id, newAnswer)
+          }
+          onClose={handleCloseDetail}/>);
+      case "questionclassifierNode":
+          return (
+            <QuestionClassifierNodeDetail
+              classes={selectedNode.data.classes || []}
+              setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
+              onClose={handleCloseDetail}
+            />
+
+          );
+
       default:
         return null;
     }

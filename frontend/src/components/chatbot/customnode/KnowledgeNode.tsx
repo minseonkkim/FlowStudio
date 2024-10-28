@@ -11,8 +11,6 @@ export default function KnowledgeNode({ data }: any){
           <div className="text-[11px] font-semibold">지식 검색</div>
         </div>
         <div className="rounded-[5px] p-0.5 bg-white text-[8px]">knowledge.pdf</div>
-
-        {/* <div>{data.label}</div> */}
       </div>
       <Handle type="source" position={Position.Right} />
     </div>

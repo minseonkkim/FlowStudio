@@ -20,7 +20,6 @@ export default function VariableAllocatorNode({ data }: any){
             <div>3</div>
           </div>
         </div>
-        {/* <div>{data.label}</div> */}
       </div>
       <Handle type="source" position={Position.Right} />
     </div>
