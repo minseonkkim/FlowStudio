@@ -41,11 +41,15 @@ const dummyData: FileData[] = [
 const Page = () => {
   const [fileData, setFileData] = useState<FileData[]>(dummyData);
   const [searchTerm, setSearchTerm] = useState('');
-  const router = useRouter(); // useRouter 사용
+  const router = useRouter(); 
 
   const goToCreatePage = (): void => {
-    router.push('/knowledge/create'); // 페이지 이동
+    router.push('/knowledge/create'); 
   };
+
+  const goToKnoweldgeDetail = (id: number): void => {
+    router.push(`/knowledge/${id}`)
+  }
 
   const togglePublicStatus = (id: number) => {
     setFileData((prevData) =>
@@ -60,8 +64,8 @@ const Page = () => {
   );
 
   return (
-    <div className='max-w-[1000px] w-full mx-auto'>
-      <p className='text-2xl pt-12'>문서</p>
+    <div className="px-12 py-10">
+      <p className='text-[22px] font-semibold'>문서</p>
       <p className='text-base text-[#757575] pt-2 pb-12'>
         지식의 모든 파일이 여기에 표시되며, 전체 지식이 FlowStudio의 인용문이나 챗 플러그인을 통해 링크되거나 색인화될 수 있습니다.
       </p>
@@ -88,7 +92,7 @@ const Page = () => {
               <td className='p-4'>
                 <div className='flex items-center'>
                   <FaFile />
-                  <p className='pl-2'>{file.fileName}</p>
+                  <p className='pl-2 cursor-pointer' onClick={() => goToKnoweldgeDetail(file.id)}>{file.fileName}</p>
                 </div>
               </td>
               <td className='p-4'>{file.wordCount}</td>
