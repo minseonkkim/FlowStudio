@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import EvaluationFirst from "@/components/evaluation/SelectChatbot";
-import EvaluationSecond from "@/components/evaluation/TestcaseInput";
+import EvaluationSecond from "@/components/evaluation/TestCaseInput";
 import EvaluationThird from "@/components/evaluation/TestResult";
 
-const tabNames = ["챗봇 선택", "테스트 케이스 입력", "테스트 결과"];
+const tabNames = ["챗봇 선택", "테스트케이스 입력", "테스트 결과"];
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState<string>("챗봇 선택");
@@ -13,8 +13,8 @@ export default function Page() {
   const renderContent = () => {
     switch (selectedTab) {
       case "챗봇 선택":
-        return <EvaluationFirst onNext={() => setSelectedTab("테스트 케이스 입력")} />;
-      case "테스트 케이스 입력":
+        return <EvaluationFirst onNext={() => setSelectedTab("테스트케이스 입력")} />;
+      case "테스트케이스 입력":
         return (
           <EvaluationSecond
             onNext={() => setSelectedTab("테스트 결과")}
@@ -29,7 +29,7 @@ export default function Page() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-full">
       {/* 왼쪽 사이드바 */}
       <div className="w-1/5 p-4 border-r bg-gray-50">
         <h2 className="text-xl mb-4">챗봇 평가 단계</h2>
@@ -49,7 +49,6 @@ export default function Page() {
 
       {/* 메인 콘텐츠 */}
       <div className="flex-1 p-8">
-        {/* 헤더 */}
         <div className="flex justify-between mb-8">
           <p className="text-[22px] font-semibold">{selectedTab}</p>
         </div>
