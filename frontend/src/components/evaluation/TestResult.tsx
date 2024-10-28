@@ -26,29 +26,11 @@ const items = [
     rougeMetric: 0.95,
     crossEncoder: 0.95,
   },
-  {
-    id: 4,
-    testQuestion: "What is the boiling point of water?",
-    groundTruth: "100°C",
-    prediction: "100°C",
-    embeddingDistance: 0.95,
-    rougeMetric: 0.95,
-    crossEncoder: 0.95,
-  },
-  {
-    id: 5,
-    testQuestion: "What is the largest planet in our solar system?",
-    groundTruth: "Jupiter",
-    prediction: "Jupiter",
-    embeddingDistance: 0.95,
-    rougeMetric: 0.95,
-    crossEncoder: 0.95,
-  },
 ];
 
 export default function TestResult() {
   const calculateMeanAndVariance = (key: string) => {
-    const values = items.map((item) => item[key]);
+    const values = items.map((item) => item["id"]);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
     const variance =
       values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
