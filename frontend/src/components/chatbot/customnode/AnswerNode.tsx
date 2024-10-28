@@ -10,9 +10,10 @@ export default function AnswerNode({ data }: any){
           <RiQuestionAnswerFill className="text-[#34D399] size-3"/>
           <div className="text-[11px] font-semibold">답변</div>
         </div>
-        <div className="rounded-[5px] p-0.5 bg-white text-[8px]">I'm sorry, but I'm not sure what your question is. </div>
-
-        {/* <div>{data.label}</div> */}
+        <div className="rounded-[5px] p-0.5 bg-white text-[8px] flex flex-col gap-0.5">
+          <div className="text-[6px] font-bold">답변</div>
+          {data.answer}
+        </div>
       </div>
       <Handle type="source" position={Position.Right} />
     </div>

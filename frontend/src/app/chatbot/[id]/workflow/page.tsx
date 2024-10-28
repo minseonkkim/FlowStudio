@@ -24,6 +24,7 @@ import StartNodeDetail from "@/components/chatbot/nodedetail/StartNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/nodedetail/LlmNodeDetail";
 import KnowledgeNodeDetail from "@/components/chatbot/nodedetail/KnowledgeNodeDetail";
 import IfelseNodeDetail from "@/components/chatbot/nodedetail/IfelseNodeDetail";
+import AnswerNodeDetail from "@/components/chatbot/nodedetail/AnswerNodeDetail";
 
 interface Model {
   id: string;
@@ -69,7 +70,7 @@ const initialNodes: Node[] = [
   {
     id: "5",
     type: "answerNode",
-    data: { label: "5" },
+    data: { label: "5", answer: "" },
     position: { x: 1100, y: 100 },
   },
   {
@@ -199,6 +200,17 @@ export default function Page() {
       }
     }, [selectedNode]);
 
+  // 답변 노드 - 답변 업데이트
+  const updateAnswer = useCallback((nodeId: string, answer: string) => {
+    setNodes((nds) =>
+      nds.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, answer: answer } }
+          : node
+      )
+    );
+  }, []);
+
 
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
@@ -229,6 +241,14 @@ export default function Page() {
         return <KnowledgeNodeDetail onClose={handleCloseDetail} />;
       case "ifelseNode":
         return <IfelseNodeDetail onClose={handleCloseDetail}/>;
+      case "answerNode":
+        return (
+        <AnswerNodeDetail 
+        answer={selectedNode.data.answer}
+        setAnswer={(newAnswer: string) =>
+          updateAnswer(selectedNode.id, newAnswer)
+        }
+        onClose={handleCloseDetail}/>);
       default:
         return null;
     }
