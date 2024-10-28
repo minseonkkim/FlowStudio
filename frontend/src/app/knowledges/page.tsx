@@ -60,8 +60,8 @@ const Page = () => {
   );
 
   return (
-    <div className='max-w-[1000px] w-full mx-auto'>
-      <p className='text-2xl pt-12'>문서</p>
+    <div className="px-12 py-10">
+      <p className='text-[22px]'>문서</p>
       <p className='text-base text-[#757575] pt-2 pb-12'>
         지식의 모든 파일이 여기에 표시되며, 전체 지식이 FlowStudio의 인용문이나 챗 플러그인을 통해 링크되거나 색인화될 수 있습니다.
       </p>

@@ -50,7 +50,7 @@ export default function Page() {
       {/* 메인 콘텐츠 */}
       <div className="flex-1 p-8">
         <div className="flex justify-between mb-8">
-          <p className="text-[22px] font-semibold">{selectedTab}</p>
+          <p className="text-[22px]">{selectedTab}</p>
         </div>
         {renderContent()}
       </div>

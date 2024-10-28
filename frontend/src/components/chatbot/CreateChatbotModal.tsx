@@ -5,37 +5,47 @@ interface CreateChatbotModalProps {
 }
 
 export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps) {
-  const [category, setCategory] = useState("");
+  // const [category, setCategory] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
   const categories = ["금융", "헬스케어", "전자상거래", "여행", "교육", "엔터테인먼트", "기타"];
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prevCategories) =>
+      prevCategories.includes(category)
+        ? prevCategories.filter((cat) => cat !== category)
+        : [...prevCategories, category]
+    );
+  };
 
   const handleCreate = () => {
     onClose(); 
   };
 
   return (
-    <div className="flex flex-col bg-white w-[500px] h-[500px] p-8 rounded-xl shadow-lg">
+    <div className="flex flex-col bg-white w-[500px] h-[550px] p-8 rounded-xl shadow-lg">
       <p className="mb-4 text-[22px] font-semibold">챗봇 만들기</p>
       
       <div className="flex flex-col flex-grow">
         <div className="flex flex-col mb-4">
           <p className="mb-2 text-gray-700">카테고리 선택</p>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border border-gray-300 rounded-md p-2 bg-gray-100"
-          >
-            <option value="" disabled>
-              카테고리를 선택하세요
-            </option>
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
+              <button
+                key={cat}
+                onClick={() => toggleCategory(cat)}
+                className={`text-[12px] px-4 py-2 rounded-full transition-all duration-200 ease-in-out ${
+                  selectedCategories.includes(cat)
+                    ? 'border-2 font-semibold border-[#9A75BF] bg-[#F3E8FF] text-[#9A75BF]'
+                    : 'border-2 border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
                 {cat}
-              </option>
+              </button>
             ))}
-          </select>
+          </div>
         </div>
 
         <div className="flex flex-col mb-4">
