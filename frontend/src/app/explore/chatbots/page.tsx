@@ -85,7 +85,7 @@ export default function Page() {
   return (
     <div className="px-12 py-10">
       <div>
-        <p className="mb-6 text-[22px] font-semibold">가장 인기있는 챗봇</p>
+        <p className="mb-4 text-[20px]">가장 인기있는 챗봇</p>
         <div className="flex flex-row justify-between w-full gap-6">
           {popularChatbots.map((chatbot) => (
             <PopularChatbotCard
@@ -99,10 +99,10 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-16">
-        <p className="mb-6 text-[22px] font-semibold">챗봇 라운지</p>
+      <div className="mt-12">
+        <p className="mb-4 text-[22px] font-semibold">챗봇 라운지</p>
         
-        <div className="flex flex-wrap mb-8">
+        <div className="flex flex-wrap mb-6">
           {categories.map((label) => (
             <button
               key={label}
