@@ -21,7 +21,7 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "api_key_id")
     private ApiKey apiKey;
 
@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     @Column
     private String profileImage;
 
-    @Column(name = "provider_type", nullable = false)
+    @Column(name = "provider_type")
     @Enumerated(EnumType.STRING)
     private ProviderType providerType;
 
@@ -56,6 +56,10 @@ public class User extends BaseEntity {
                 .profileImage(profileImage)
                 .providerType(providerType)
                 .build();
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
     }
 
 }
