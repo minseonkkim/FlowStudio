@@ -39,7 +39,7 @@ public class SecurityConfig {
         return httpSecurity
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+                    configuration.setAllowedOrigins(List.of("http://localhost:5173", "https://k11c201.p.ssafy.io"));
                     configuration.setAllowedMethods(Collections.singletonList("*"));
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -58,9 +58,11 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/api/v1/auth/**",
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/login/**",
+                                "/oauth2/**"
                         ).permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .oauth2Login((oauth2) -> oauth2
                         .authorizationEndpoint(authorization ->
                                 authorization.baseUri("/oauth2/authorization")
