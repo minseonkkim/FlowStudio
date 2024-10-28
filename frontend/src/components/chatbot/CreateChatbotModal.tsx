@@ -26,7 +26,7 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
 
   return (
     <div className="flex flex-col bg-white w-[500px] h-[550px] p-8 rounded-xl shadow-lg">
-      <p className="mb-4 text-[22px] font-semibold">챗봇 만들기</p>
+      <p className="mb-4 text-[22px]">챗봇 만들기</p>
       
       <div className="flex flex-col flex-grow">
         <div className="flex flex-col mb-4">

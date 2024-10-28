@@ -89,7 +89,7 @@ export default function Page() {
   return (
     <div className="px-12 py-10">
       <div>
-        <p className="mb-6 text-[22px]">가장 인기있는 챗봇</p>
+        <p className="mb-4 text-[22px]">가장 인기있는 챗봇</p>
         <div className="flex flex-row justify-between w-full gap-4">
           {popularChatbots.map((chatbot) => (
             <PopularChatbotCard
@@ -103,8 +103,8 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-12">
-        <p className="mb-4 text-[22px]">챗봇 라운지</p>
+      <div className="mt-16">
+        <p className="mb-2 text-[22px]">챗봇 라운지</p>
         
         <div className="flex justify-between items-center mb-6">
           <div>

@@ -1,6 +1,6 @@
 import { IoSearchOutline } from "@react-icons/all-files/io5/IoSearchOutline";
 
-interface SearchProps {
+interface SearchProps { 
   onSearchChange: (searchTerm:string) => void
 }
 

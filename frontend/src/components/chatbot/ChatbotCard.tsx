@@ -5,7 +5,7 @@ interface ChatbotCardProps {
   description: string;
   buttonText: string;
   category: string[];
-  onButtonClick: () => void;
+  onButtonClick?: () => void;
 }
 
 export default function ChatbotCard({
@@ -16,7 +16,7 @@ export default function ChatbotCard({
   onButtonClick,
 }: ChatbotCardProps) {
   return (
-    <div className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#9A75BF] hover:bg-opacity-5 hover:border-opacity-70 cursor-pointer">
+    <div onClick={onButtonClick} className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#B99AD9] hover:bg-[#B99AD9] hover:bg-opacity-5 cursor-pointer">
       <div className="flex w-full">
         <div className="mr-6 w-[48px] h-[48px] rounded-lg bg-gray-200"></div>
         <div className="flex-1 flex-col">
@@ -32,14 +32,13 @@ export default function ChatbotCard({
                 # {cat}
               </span>
               ))}
-            {onButtonClick && (
-            <button
-              onClick={onButtonClick}
-            >
-              <FiShare size={18} className="ml-4 text-[#667085] group-hover:scale-110 group-hover:text-[#9A75BF]" />
-            </button>
-          )}
-          </div>
+                      {onButtonClick && (
+              <button
+              >
+                <FiShare size={18} className="ml-6 text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]" />
+              </button>
+            )}
+            </div>
           </div>
         </div>
       </div>

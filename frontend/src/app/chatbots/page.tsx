@@ -83,7 +83,7 @@ export default function Page() {
   return (
     <div className="px-12 py-10">
       <div className="flex flex-col">
-        <div className="mb-6 flex items-center">
+        <div className="mb-2 flex items-center">
           <p className="text-[22px] mr-6">나의 챗봇</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
@@ -107,7 +107,6 @@ export default function Page() {
           </div>
           <Search onSearchChange={setSearchTerm} />
         </div>
-
 
         <div className="grid grid-cols-4 w-full gap-4">
           {filteredChatbots.map((bot) => (
