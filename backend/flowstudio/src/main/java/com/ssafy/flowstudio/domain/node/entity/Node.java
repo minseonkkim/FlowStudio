@@ -45,9 +45,6 @@ public abstract class Node extends BaseEntity {
     @Embedded
     private Coordinate coordinate;
 
-    @Column
-    private String output_key;
-
     @OneToMany(mappedBy = "sourceNode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Edge> sourceEdges = new ArrayList<>();
 
@@ -55,12 +52,11 @@ public abstract class Node extends BaseEntity {
     private List<Edge> targetEdges = new ArrayList<>();
 
 
-    protected Node(Long id, String name, NodeType type, Coordinate coordinate, String output_key) {
+    protected Node(Long id, String name, NodeType type, Coordinate coordinate) {
         this.id = id;
         this.name = name;
         this.type = type;
         this.coordinate = coordinate;
-        this.output_key = output_key;
     }
 
 }

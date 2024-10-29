@@ -19,18 +19,17 @@ public class VariableAssigner extends Node {
     private String targetVariableType;
 
     @Builder
-    private VariableAssigner(String name, NodeType type, Coordinate coordinate, String output_key, String targetVariableName, String targetVariableType) {
-        super(null, name, type, coordinate, output_key);
+    private VariableAssigner(String name, NodeType type, Coordinate coordinate, String targetVariableName, String targetVariableType) {
+        super(null, name, type, coordinate);
         this.targetVariableName = targetVariableName;
         this.targetVariableType = targetVariableType;
     }
 
-    public static VariableAssigner create(String name, NodeType type, Coordinate coordinate, String output_key) {
+    public static VariableAssigner create(Coordinate coordinate) {
         return VariableAssigner.builder()
-            .name(name)
-            .type(type)
+            .name("Variable Assigner")
+            .type(NodeType.VARIABLE_ASSIGNER)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
     }
 

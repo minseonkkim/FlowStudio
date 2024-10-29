@@ -16,18 +16,16 @@ public class Start extends Node {
     private int maxLength;
 
     @Builder
-    private Start(String name, NodeType type, Coordinate coordinate, String output_key, int maxLength) {
-        super(null, name, type, coordinate, output_key);
+    private Start(String name, NodeType type, Coordinate coordinate, int maxLength) {
+        super(null, name, type, coordinate);
         this.maxLength = maxLength;
     }
 
-    public static Start create(String name, NodeType type, Coordinate coordinate, String output_key, int maxLength) {
+    public static Start create(Coordinate coordinate) {
         return Start.builder()
-            .name(name)
-            .type(type)
+            .name("Start")
+            .type(NodeType.START)
             .coordinate(coordinate)
-            .output_key(output_key)
-            .maxLength(maxLength)
             .build();
     }
 

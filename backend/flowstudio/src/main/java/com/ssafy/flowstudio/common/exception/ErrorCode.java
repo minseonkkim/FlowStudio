@@ -19,6 +19,10 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(2008, HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."),
     ACCESS_DENIED(2010, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     NICKNAME_ALREADY_EXISTS(2011, HttpStatus.BAD_REQUEST, "이미 존재하는 사용자 이름입니다."),
+
+
+    CHAT_FLOW_NOT_FOUND(3000, HttpStatus.NOT_FOUND, "챗플로우를 찾을 수 없습니다."),
+    INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
     ;
 
     private final int code;

@@ -10,12 +10,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,11 +29,11 @@ public class ChatFlow extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
     @OneToOne(fetch = FetchType.LAZY)
@@ -40,7 +41,7 @@ public class ChatFlow extends BaseEntity {
     private Category category;
 
     @Column(nullable = false)
-    private String name;
+    private String title;
 
     @Column
     private String description;
@@ -55,28 +56,41 @@ public class ChatFlow extends BaseEntity {
     private String publishUrl;
 
     @Builder
-    private ChatFlow(Long id, User owner, User author, Category category, String name, String description, boolean isPublic, int shareCount, String publishUrl) {
+    private ChatFlow(Long id, User owner, User author, Category category, String title, String description, boolean isPublic, int shareCount, String publishUrl) {
         this.id = id;
         this.owner = owner;
         this.author = author;
         this.category = category;
-        this.name = name;
+        this.title = title;
         this.description = description;
         this.isPublic = isPublic;
         this.shareCount = shareCount;
         this.publishUrl = publishUrl;
     }
 
-    public static ChatFlow create(User owner, User author, Category category, String name, String description, boolean isPublic, int shareCount, String publishUrl) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChatFlow chatFlow = (ChatFlow) o;
+        return Objects.equals(id, chatFlow.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public static ChatFlow create(User owner, User author, Category category, String title, String description) {
         return ChatFlow.builder()
                 .owner(owner)
                 .author(author)
                 .category(category)
-                .name(name)
+                .title(title)
                 .description(description)
-                .isPublic(isPublic)
-                .shareCount(shareCount)
-                .publishUrl(publishUrl)
+                .isPublic(false)
+                .shareCount(0)
+                .publishUrl("")
                 .build();
     }
 
