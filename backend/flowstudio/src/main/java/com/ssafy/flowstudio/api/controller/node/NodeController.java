@@ -29,7 +29,6 @@ public class NodeController {
             @CurrentUser User user,
             @Valid @RequestBody NodeCreateRequest request
     ) {
-        System.out.println("request.getChatFlowId() = " + request.getChatFlowId());
         return ApiResponse.ok(nodeService.createNode(user, request.toServiceRequest()));
     }
 
