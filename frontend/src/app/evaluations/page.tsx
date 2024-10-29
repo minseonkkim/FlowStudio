@@ -91,7 +91,7 @@ const Page = () => {
         <p className="text-[22px] mr-6">테스트 결과 확인</p>
           <button
             onClick={() => handleEvaluationClick()}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
+            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             챗봇 평가하기
           </button>
@@ -119,7 +119,6 @@ const Page = () => {
             title={chatbot.title}
             description={chatbot.description}
             category={chatbot.category}
-            buttonText="결과 확인하기"
             onButtonClick={() => handleResultClick(chatbot.id)}
           />
         ))}

@@ -67,15 +67,15 @@ export default function ShareChatbotModal({ onClose }: ShareChatbotModalProps) {
       </div>
 
       <div className="flex justify-end gap-4 mt-4">
-        <button
+      <button
           onClick={onClose}
-          className="w-[80px] h-[40px] border-2 border-[#9A75BF] text-[#9A75BF] rounded-lg"
+          className="w-[70px] h-[38px] border-2 border-[#9A75BF] text-[#9A75BF] rounded-lg hover:bg-[#f3e8ff] active:bg-[#e3d1f7]"
         >
           취소
         </button>
         <button
           onClick={handleShare}
-          className="w-[80px] h-[40px] bg-[#9A75BF] text-white rounded-lg"
+          className="w-[70px] h-[38px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
         >
           공유
         </button>

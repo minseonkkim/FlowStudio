@@ -2,8 +2,8 @@
 
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
-import { useState } from "react";
 import Search from "@/components/common/Search";
+import { useState } from "react";
 
 interface Chatbot {
   id: number;
@@ -56,6 +56,7 @@ const chatbots: Chatbot[] = [
     shareNum: 90,
   },
 ];
+
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -121,14 +122,14 @@ export default function Page() {
           <Search onSearchChange={setSearchTerm} />
         </div>
 
-        <div className="flex flex-col">
+
+        <div className="flex flex-col gap-1">
           {filteredChatbots.map((bot) => (
             <ChatbotCard
               key={bot.id}
               title={bot.title}
               description={bot.description}
               category={bot.category}
-              buttonText="작업공간에 추가"
               onButtonClick={() => console.log(`Selected ${bot.title}`)}
             />
           ))}

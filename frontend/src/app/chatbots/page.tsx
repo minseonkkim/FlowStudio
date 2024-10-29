@@ -87,12 +87,11 @@ export default function Page() {
           <p className="text-[22px] mr-6">나의 챗봇</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
+            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             챗봇 만들기
           </button>
         </div>
-
         <div className="flex justify-between items-center mb-6">
           <div>
             {categories.map((label) => (

@@ -3,7 +3,6 @@ import { FiShare } from '@react-icons/all-files/fi/FiShare';
 interface ChatbotCardProps {
   title: string;
   description: string;
-  buttonText: string;
   category: string[];
   onButtonClick?: () => void;
 }
@@ -11,7 +10,6 @@ interface ChatbotCardProps {
 export default function ChatbotCard({
   title,
   description,
-  buttonText,
   category,
   onButtonClick,
 }: ChatbotCardProps) {
