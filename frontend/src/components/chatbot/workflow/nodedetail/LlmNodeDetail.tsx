@@ -6,7 +6,7 @@ import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutlin
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash"
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 interface Model {
   id: string;
@@ -76,6 +76,17 @@ export default function LlmNodeDetail({
     setModel(e.target.value);
   };
 
+  const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+
+  useEffect(() => {
+    textAreaRefs.current.forEach((textarea) => {
+      if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    });
+  }, [localPrompts]);
+
   return (
     <>
       <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
@@ -123,12 +134,15 @@ export default function LlmNodeDetail({
               </div>
               
               <textarea
+                ref={(el) => {
+                  textAreaRefs.current[index] = el; 
+                }}
                 value={prompt.text}
                 onChange={(e) => handlePromptTextChange(index, e)}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
-                  target.style.height = "90px";
-                  target.style.height = `${target.scrollHeight}px`;
+                  target.style.height = "auto"; 
+                  target.style.height = `${target.scrollHeight}px`; 
                 }}
                 placeholder="프롬프트를 입력하세요."
                 className="bg-white rounded-[5px] w-full resize-none overflow-hidden px-2 py-1 mt-2 focus:outline-none shadow-none border-none"

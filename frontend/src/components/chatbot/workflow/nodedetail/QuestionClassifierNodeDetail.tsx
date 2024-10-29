@@ -30,9 +30,10 @@ export default function QuestionClassifierNodeDetail({
     setLocalClasses([...classes]);
   }, [classes]);
 
-
   const handleAddClass = () => {
-    setLocalClasses([...localClasses, {text: ""}]);
+    if (localClasses.length < 5) {
+      setLocalClasses([...localClasses, {text: ""}]);
+    }
   };
 
   const handleClassChange = (index: number, newValue: string) => {
@@ -63,32 +64,40 @@ export default function QuestionClassifierNodeDetail({
         <div className="text-[16px]">클래스를 추가하세요.</div>
 
         {localClasses.map((cls, index) => (
-          <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white p-2">
-            <div className="flex flex-row justify-between">
-              <div className="text-[13px] font-bold">클래스 {index + 1}</div>
-              {localClasses.length > 2 && (
-                <IoMdTrash
-                  className="size-4 m-2 cursor-pointer text-[#9B9B9B]"
-                  onClick={() => handleDeleteClass(index)}
-                />
-              )}
+            <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white p-2">
+              <div className="flex flex-row justify-between">
+                <div className="text-[13px] font-bold">클래스 {index + 1}</div>
+                {localClasses.length > 2 && (
+                  <IoMdTrash
+                    className="size-4 m-2 cursor-pointer text-[#9B9B9B]"
+                    onClick={() => handleDeleteClass(index)}
+                  />
+                )}
+              </div>
+              <textarea
+                ref={(el) => {
+                  if (el) {
+                    el.style.height = "0px";
+                    el.style.height = `${el.scrollHeight}px`;
+                  }
+                }}
+                value={cls?.text || ""}
+                onChange={(e) => handleClassChange(index, e.target.value)}
+                placeholder="주제 이름을 작성하세요."
+                className="bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
+                style={{ minHeight: "50px" }}
+              />
             </div>
-            <textarea
-              value={cls?.text || ""}
-              onChange={(e) => handleClassChange(index, e.target.value)}
-              placeholder="주제 이름을 작성하세요."
-              className="bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
-              style={{ minHeight: "50px" }}
-            />
-          </div>
-        ))}
+          ))}
 
-        <div
-          className="bg-[#E0E0E0] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]"
-          onClick={handleAddClass}
-        >
-          + 클래스 추가
-        </div>
+        {localClasses.length < 5 && (
+          <div
+            className="bg-[#E0E0E0] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]"
+            onClick={handleAddClass}
+          >
+            + 클래스 추가
+          </div>
+        )}
       </div>
 
     <div className="flex flex-col gap-2">
@@ -136,7 +145,7 @@ export default function QuestionClassifierNodeDetail({
                 </div>
                 <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
                   <FiBookOpen className="text-[18px]"/>
-                  <div>지식 검색</div>
+                  <div>지신 검색</div>
                 </div>
                 <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
                   <RiQuestionAnswerFill className="text-[18px]"/>
@@ -152,7 +161,7 @@ export default function QuestionClassifierNodeDetail({
                 </div>
                 <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
                   <VscSymbolVariable className="text-[18px]"/>
-                  <div>변수 할당자</div>
+                  <div>변수 할름자</div>
                 </div>
               </div>
             </div>

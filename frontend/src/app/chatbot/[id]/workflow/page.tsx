@@ -40,11 +40,6 @@ const models: Model[] = [
   { id: "gpt-4-32k", name: "GPT-4 (32k)" },
 ];
 
-interface Prompt {
-  type: string;
-  text: string;
-}
-
 const initialNodes: Node[] = [
   {
     id: "1",
@@ -329,8 +324,6 @@ export default function Page() {
       )
     );
   };
-
-
 
   const renderVariableDetail = () => {
     if (!showVariableDetail) return null;

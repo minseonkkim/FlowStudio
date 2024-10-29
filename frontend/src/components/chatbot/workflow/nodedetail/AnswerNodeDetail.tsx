@@ -5,7 +5,7 @@ import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 export default function AnswerNodeDetail({
   answer,
@@ -24,14 +24,28 @@ export default function AnswerNodeDetail({
 
   const [localAnswer, setLocalAnswer] = useState(answer);
 
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
   const handleAnswerChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = event.target.value;
       setLocalAnswer(value);
       setAnswer(value);
+
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto"; 
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
     },
     [setAnswer]
   );
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, []);
 
   return <>
   <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)]">
@@ -45,10 +59,13 @@ export default function AnswerNodeDetail({
     
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">답변을 입력하세요.</div>
-      <input className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#BAEEDB]"
+      <textarea
+      ref={textareaRef}
       value={localAnswer}
       onChange={handleAnswerChange}
-      />
+      className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
+      style={{ minHeight: "50px" }}
+    />
     </div>
     <div className="flex flex-col gap-2">
       <div className="text-[16px]">다음 블록을 추가하세요.</div>
