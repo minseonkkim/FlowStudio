@@ -83,7 +83,6 @@ export default function Page() {
       return matchesCategory && matchesSearch;
     });
 
-
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
@@ -91,14 +90,14 @@ export default function Page() {
   return (
     <div className="px-12 py-10">
       <div>
-        <p className="mb-6 text-[22px] font-semibold">가장 인기있는 챗봇</p>
-        <div className="flex flex-row justify-between w-full gap-6">
+        <p className="mb-4 text-[22px]">가장 인기있는 챗봇</p>
+        <div className="flex flex-row justify-between w-full gap-4">
           {popularChatbots.map((chatbot) => (
             <PopularChatbotCard
               key={chatbot.id}
               title={chatbot.title}
               description={chatbot.description}
-              buttonText="작업 공간에 추가"
+              category={chatbot.category}
               onButtonClick={() => console.log(`Added ${chatbot.title} to workspace`)}
             />
           ))}
@@ -106,7 +105,7 @@ export default function Page() {
       </div>
 
       <div className="mt-16">
-        <p className="mb-6 text-[22px] font-semibold">챗봇 라운지</p>
+        <p className="mb-2 text-[22px]">챗봇 라운지</p>
         
         <div className="flex justify-between items-center mb-6">
           <div>

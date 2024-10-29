@@ -10,7 +10,6 @@ interface ChatbotCardProps {
 export default function ChatbotCard({
   title,
   description,
-
   category,
   onButtonClick,
 }: ChatbotCardProps) {
@@ -19,7 +18,10 @@ export default function ChatbotCard({
       <div className="flex w-full">
         <div className="mr-6 w-[48px] h-[48px] rounded-lg bg-gray-200"></div>
         <div className="flex-1 flex-col">
+    
           <p className="mb-1 text-[16px] text-[#1D2939]">{title}</p>
+ 
+      
           <div className="flex justify-between items-center">
           <p className="text-[14px] text-[#667085]">{description}</p>
           <div className="flex gap-1 flex-wrap">

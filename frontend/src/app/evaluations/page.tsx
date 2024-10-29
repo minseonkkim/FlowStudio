@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState } from "react";
+import React, { useState } from "react";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from '@/components/common/Search';
 
@@ -51,7 +51,6 @@ const chatbots: Chatbot[] = [
   },
 ];
 
-
 const Page = () => {
   const router = useRouter();
   const categories = [
@@ -78,7 +77,6 @@ const Page = () => {
     return matchesCategory && matchesSearch;
   });
 
-
   const handleEvaluationClick = () => {
     router.push('/evaluation');
   };
@@ -89,8 +87,8 @@ const Page = () => {
 
   return (
     <div className="px-12 py-10">
-      <div className="flex items-center mb-4">
-        <p className="text-[22px] font-semibold mr-6">테스트 결과 확인</p>
+      <div className="flex items-center mb-2">
+        <p className="text-[22px] mr-6">테스트 결과 확인</p>
           <button
             onClick={() => handleEvaluationClick()}
             className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
@@ -114,8 +112,7 @@ const Page = () => {
           <Search onSearchChange={setSearchTerm} />
         </div>
 
-
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col">
         {filteredChatbots.map((chatbot) => (
           <ChatbotCard
             key={chatbot.id}

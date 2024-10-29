@@ -33,13 +33,16 @@ const Page = () => {
           <>
             <div className="fixed inset-0 bg-black bg-opacity-50 z-20"></div>
             
-            <div className="fixed inset-0 z-30 flex items-center justify-center">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-[309px] h-[234px] flex flex-col items-center justify-center">
-                <IoCheckmarkCircle className="text-[#9A75BF] w-12 h-12 mb-4"/>
-                <p className="text-lg mb-6 text-center">지식이 생성되었습니다.</p>
-                <ColorButton w="117px" h="30px" text="문서로 이동" onHandelButton={goToListPage}/>
+            <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-20">
+              <div className="bg-white p-6 rounded-lg shadow-lg w-[350px] h-[250px] flex flex-col items-center justify-center">
+                <IoCheckmarkCircle className="text-[#9A75BF] w-16 h-16 mb-4"/> 
+                <p className="text-[22px] font-bold mb-2 text-center">지식이 생성되었습니다</p> 
+                <p className="text-[16px] text-gray-500 mb-4 text-center">지식 목록으로 이동합니다.</p> 
+                <ColorButton w="100px" h="40px" text="문서로 이동" onHandelButton={goToListPage}/> 
               </div>
             </div>
+
+
           </>
         )}
       </div>

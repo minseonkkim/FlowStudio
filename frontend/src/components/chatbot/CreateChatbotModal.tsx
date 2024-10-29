@@ -5,9 +5,7 @@ interface CreateChatbotModalProps {
   onClose: () => void;
 }
 
-export default function CreateChatbotModal({
-  onClose,
-}: CreateChatbotModalProps) {
+export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedIcon, setSelectedIcon] = useState<string>("1");
   const [name, setName] = useState("");
@@ -24,6 +22,7 @@ export default function CreateChatbotModal({
   ];
   const icons = ["1", "2", "3", "4", "5", "6"];
 
+  // 카테고리 선택 및 해제
   const toggleCategory = (category: string) => {
     setSelectedCategories((prevCategories) =>
       prevCategories.includes(category)
@@ -33,14 +32,13 @@ export default function CreateChatbotModal({
   };
 
   const handleCreate = () => {
+    // 추가 로직을 추가할 수 있습니다.
     onClose();
   };
 
   return (
     <div className="flex flex-col bg-white w-[500px] h-[600px] p-8 rounded-xl shadow-lg">
-      <p className="mb-4 text-[22px] font-semibold text-gray-800">
-        챗봇 만들기
-      </p>
+      <p className="mb-4 text-[22px] text-gray-800">챗봇 만들기</p>
 
       <div className="flex flex-col flex-grow">
         {/* 카테고리 선택 */}
