@@ -101,13 +101,13 @@ export default function TestCaseInput({
         <div>
           <button
             onClick={() => onPrevious()}
-            className="px-4 py-2 border-2 border-[#9A75BF] text-[#9A75BF] rounded-md mr-4"
+            className="px-4 py-2 border-2 border-[#9A75BF] text-[#9A75BF] rounded-md mr-4 hover:bg-[#f3e8ff] active:bg-[#e3d1f7]"
           >
             이전
           </button>
           <button
             onClick={() => onNext()}
-            className="px-4 py-2 bg-[#9A75BF] text-white rounded-md"
+            className="px-4 py-2 bg-[#9A75BF] text-white rounded-md hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             테스트 시작
           </button>

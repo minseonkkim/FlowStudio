@@ -3,6 +3,7 @@
 import CreateChatbotModal from "@/components/chatbot/CreateChatbotModal";
 import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
+import Search from "@/components/common/Search";
 import { useState } from "react";
 
 interface Chatbot {
@@ -54,6 +55,7 @@ const chatbots: Chatbot[] = [
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
@@ -72,9 +74,11 @@ export default function Page() {
     setSelectedCategory(label);
   };
 
-  const filteredChatbots = selectedCategory === "모든 챗봇"
-    ? chatbots
-    : chatbots.filter((bot) => bot.category === selectedCategory);
+  const filteredChatbots = chatbots.filter((bot) => {
+    const matchesCategory = selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
+    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="px-12 py-10">
@@ -83,22 +87,24 @@ export default function Page() {
           <p className="text-[22px] font-semibold mr-6">나의 챗봇</p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
+            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             챗봇 만들기
           </button>
         </div>
-
-        <div className="mb-8">
-          {categories.map((label) => (
-            <button
-              key={label}
-              onClick={() => handleCategoryClick(label)}
-              className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            {categories.map((label) => (
+              <button
+                key={label}
+                onClick={() => handleCategoryClick(label)}
+                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <Search onSearchChange={setSearchTerm} />
         </div>
 
         <div className="grid grid-cols-4 w-full gap-6">

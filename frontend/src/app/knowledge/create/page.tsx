@@ -21,7 +21,7 @@ const Page = () => {
   return (
     <>
       <div className="flex relative">
-        <div className="w-60" style={{ height: 'calc(100vh - 60px)' }}>
+        <div className="w-60" style={{ height: 'calc(100vh - 57px)' }}>
           <CreateStep />
         </div>
 
