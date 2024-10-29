@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
 
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import lombok.AccessLevel;
@@ -17,16 +18,18 @@ public class Conditional extends Node {
     private String sub_conditional_list;
 
     @Builder
-    private Conditional(Long id, String name, NodeType type, Coordinate coordinate, String sub_conditional_list) {
-        super(id, name, type, coordinate);
+    private Conditional(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String sub_conditional_list) {
+        super(id, chatFlow, name, type, coordinate);
         this.sub_conditional_list = sub_conditional_list;
     }
 
-    public static Conditional create(Coordinate coordinate) {
+    public static Conditional create(ChatFlow chatFlow, Coordinate coordinate) {
         return Conditional.builder()
+            .chatFlow(chatFlow)
             .name("Conditional")
             .type(NodeType.CONDITIONAL)
             .coordinate(coordinate)
             .build();
     }
+
 }

@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AccessLevel;
@@ -16,17 +17,18 @@ public class Start extends Node {
     private int maxLength;
 
     @Builder
-    private Start(String name, NodeType type, Coordinate coordinate, int maxLength) {
-        super(null, name, type, coordinate);
+    private Start(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, int maxLength) {
+        super(id, chatFlow, name, type, coordinate);
         this.maxLength = maxLength;
     }
 
-    public static Start create(Coordinate coordinate) {
+    public static Start create(ChatFlow chatFlow, Coordinate coordinate) {
         return Start.builder()
-            .name("Start")
-            .type(NodeType.START)
-            .coordinate(coordinate)
-            .build();
+                .chatFlow(chatFlow)
+                .name("Start")
+                .type(NodeType.START)
+                .coordinate(coordinate)
+                .build();
     }
 
 }

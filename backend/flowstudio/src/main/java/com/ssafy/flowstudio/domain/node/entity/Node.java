@@ -1,20 +1,9 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,6 +23,10 @@ public abstract class Node extends BaseEntity {
     @Column(name = "node_id")
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chat_flow_id", nullable = false)
+    private ChatFlow chatFlow;
+
     @Column(nullable = false)
     private String name;
 
@@ -52,8 +45,9 @@ public abstract class Node extends BaseEntity {
     private List<Edge> targetEdges = new ArrayList<>();
 
 
-    protected Node(Long id, String name, NodeType type, Coordinate coordinate) {
+    protected Node(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate) {
         this.id = id;
+        this.chatFlow = chatFlow;
         this.name = name;
         this.type = type;
         this.coordinate = coordinate;

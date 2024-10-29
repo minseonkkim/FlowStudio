@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Coordinate {
+
     private float x;
     private float y;
 
@@ -24,4 +25,5 @@ public class Coordinate {
             .y(y)
             .build();
     }
+
 }
