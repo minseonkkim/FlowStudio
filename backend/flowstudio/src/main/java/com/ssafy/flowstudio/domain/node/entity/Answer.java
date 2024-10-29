@@ -1,6 +1,5 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import lombok.AccessLevel;
@@ -17,18 +16,16 @@ public class Answer extends Node {
     private String output_message;
 
     @Builder
-    private Answer(String name, NodeType type, Coordinate coordinate, String output_key, String output_message) {
-        super(null, name, type, coordinate, output_key);
+    private Answer(String name, NodeType type, Coordinate coordinate, String output_key) {
+        super(null, name, type, coordinate);
         this.output_message = output_message;
     }
 
-    public static Answer create(String name, NodeType type, Coordinate coordinate, String output_key, String output_message) {
+    public static Answer create(Coordinate coordinate) {
         return Answer.builder()
-            .name(name)
-            .type(type)
+            .name("Answer")
+            .type(NodeType.ANSWER)
             .coordinate(coordinate)
-            .output_key(output_key)
-            .output_message(output_message)
             .build();
     }
 

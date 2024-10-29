@@ -19,18 +19,17 @@ public class QuestionClassifier extends Node {
     private String model_param_list;
 
     @Builder
-    private QuestionClassifier(Long id, String name, NodeType type, Coordinate coordinate, String output_key, String class_list, String model_param_list) {
-        super(id, name, type, coordinate, output_key);
+    private QuestionClassifier(Long id, String name, NodeType type, Coordinate coordinate, String class_list, String model_param_list) {
+        super(id, name, type, coordinate);
         this.class_list = class_list;
         this.model_param_list = model_param_list;
     }
 
-    public static QuestionClassifier create(Coordinate coordinate, String output_key) {
+    public static QuestionClassifier create(Coordinate coordinate) {
         return QuestionClassifier.builder()
             .name("Question Classifier")
             .type(NodeType.QUESTION_CLASSIFIER)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
     }
 }

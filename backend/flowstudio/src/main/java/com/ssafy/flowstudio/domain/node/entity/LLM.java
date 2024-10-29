@@ -26,20 +26,19 @@ public class LLM extends Node {
     private String model_param_list;
 
     @Builder
-    private LLM(Long id, String name, NodeType type, Coordinate coordinate, String output_key, String prompt_system, String prompt_user, String context, String model_param_list) {
-        super(id, name, type, coordinate, output_key);
+    private LLM(Long id, String name, NodeType type, Coordinate coordinate, String prompt_system, String prompt_user, String context, String model_param_list) {
+        super(id, name, type, coordinate);
         this.prompt_system = prompt_system;
         this.prompt_user = prompt_user;
         this.context = context;
         this.model_param_list = model_param_list;
     }
 
-    public static LLM create(Coordinate coordinate, String output_key) {
+    public static LLM create(Coordinate coordinate) {
         return LLM.builder()
             .name("LLM")
             .type(NodeType.LLM)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
     }
 

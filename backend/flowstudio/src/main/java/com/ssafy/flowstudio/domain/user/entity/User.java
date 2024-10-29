@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Entity
 @Table(
         name = "users",
@@ -28,7 +30,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     private String nickname;
 
     @Column
@@ -46,6 +48,19 @@ public class User extends BaseEntity {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.providerType = providerType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public static User create(String username, String nickname, String profileImage, ProviderType providerType) {

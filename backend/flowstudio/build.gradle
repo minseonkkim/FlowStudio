@@ -114,7 +114,7 @@ jacocoTestReport {
 openapi3 {
     servers = [
             { url = 'https://k11c201.p.ssafy.io' },
-            { url = 'http://localhost:8080' }
+            { url = 'http://localhost:9090' }
     ]
     title = 'FlowStudio API'
     description = 'FlowStudio 문서입니다.'

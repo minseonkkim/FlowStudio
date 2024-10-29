@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.api.controller.node.request.CoordinateRequest;
 import com.ssafy.flowstudio.domain.document.entity.Document;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,13 +19,15 @@ public class Retriever extends Node {
     private Document document;
 
     @Builder
-    private Retriever(Document document) {
+    private Retriever(Document document, Coordinate coordinate) {
+        super(null, "Retriever", NodeType.RETRIEVER, coordinate);
         this.document = document;
     }
 
-    public static Retriever create(Document document) {
+    public static Retriever create(Coordinate coordinate) {
         return Retriever.builder()
-            .document(document)
+            .coordinate(coordinate)
             .build();
     }
+
 }
