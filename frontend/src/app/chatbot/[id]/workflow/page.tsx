@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useCallback, useState } from "react";
 import ReactFlow, {
@@ -13,20 +13,21 @@ import ReactFlow, {
   Node,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import StartNode from "@/components/chatbot/customnode/StartNode";
-import LlmNode from "@/components/chatbot/customnode/LlmNode";
-import KnowledgeNode from "@/components/chatbot/customnode/KnowledgeNode";
-import IfelseNode from "@/components/chatbot/customnode/IfelseNode";
-import AnswerNode from "@/components/chatbot/customnode/AnswerNode";
-import QuestionClassifierNode from "@/components/chatbot/customnode/QuestionClassifierNode";
-import VariableAllocatorNode from "@/components/chatbot/customnode/VariableAllocatorNode";
-import StartNodeDetail from "@/components/chatbot/nodedetail/StartNodeDetail";
-import LlmNodeDetail from "@/components/chatbot/nodedetail/LlmNodeDetail";
-import KnowledgeNodeDetail from "@/components/chatbot/nodedetail/KnowledgeNodeDetail";
-import IfelseNodeDetail from "@/components/chatbot/nodedetail/IfelseNodeDetail";
-import AnswerNodeDetail from "@/components/chatbot/nodedetail/AnswerNodeDetail";
-import QuestionClassifierNodeDetail from "@/components/chatbot/nodedetail/QuestionClassifierNodeDetail";
-import VariableAllocatorNodeDetail from "@/components/chatbot/nodedetail/VariableAllocatorNodeDetail";
+import StartNode from "@/components/chatbot/workflow/customnode/StartNode";
+import LlmNode from "@/components/chatbot/workflow/customnode/LlmNode";
+import KnowledgeNode from "@/components/chatbot/workflow/customnode/KnowledgeNode";
+import IfelseNode from "@/components/chatbot/workflow/customnode/IfelseNode";
+import AnswerNode from "@/components/chatbot/workflow/customnode/AnswerNode";
+import QuestionClassifierNode from "@/components/chatbot/workflow/customnode/QuestionClassifierNode";
+import VariableAllocatorNode from "@/components/chatbot/workflow/customnode/VariableAllocatorNode";
+import StartNodeDetail from "@/components/chatbot/workflow/nodedetail/StartNodeDetail";
+import LlmNodeDetail from "@/components/chatbot/workflow/nodedetail/LlmNodeDetail";
+import KnowledgeNodeDetail from "@/components/chatbot/workflow/nodedetail/KnowledgeNodeDetail";
+import IfelseNodeDetail from "@/components/chatbot/workflow/nodedetail/IfelseNodeDetail";
+import AnswerNodeDetail from "@/components/chatbot/workflow/nodedetail/AnswerNodeDetail";
+import QuestionClassifierNodeDetail from "@/components/chatbot/workflow/nodedetail/QuestionClassifierNodeDetail";
+import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetail/VariableAllocatorNodeDetail";
+import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 
 interface Model {
   id: string;
@@ -112,6 +113,7 @@ export default function Page() {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -123,10 +125,15 @@ export default function Page() {
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
+    setShowVariableDetail(false);
   }, []);
 
   const handleCloseDetail = useCallback(() => {
     setSelectedNode(null); 
+  }, []);
+
+  const handleVariableButtonClick = useCallback(() => {
+    setShowVariableDetail((prev) => !prev); 
   }, []);
 
   // 시작 노드 - 최대 글자 수 업데이트
@@ -213,7 +220,6 @@ export default function Page() {
     );
   }, []);
 
-
   // 질문 분류기 노드 - 클래스 업데이트
   const updateClasses = useCallback(
     (nodeId: string, newClasses: {text: string}[]) => { 
@@ -232,7 +238,6 @@ export default function Page() {
     },
     [selectedNode]
   );
-
 
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
@@ -270,7 +275,8 @@ export default function Page() {
             setAnswer={(newAnswer: string) =>
               updateAnswer(selectedNode.id, newAnswer)
             }
-            onClose={handleCloseDetail}/>);
+            onClose={handleCloseDetail}/>
+        );
       case "questionclassifierNode":
           return (
             <QuestionClassifierNodeDetail
@@ -278,7 +284,6 @@ export default function Page() {
               setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
               onClose={handleCloseDetail}
             />
-
           );
       case "variableallocatorNode":
         return (
@@ -289,18 +294,73 @@ export default function Page() {
     }
   };
 
+  // 변수 관리
+  const [variables, setVariables] = useState<
+    { name: string; value: string; type: string; isEditing: boolean }[]
+  >([{ name: "변수1", value: "", type: "string", isEditing: false }]);
+
+  const handleVariableChange = (
+    index: number,
+    key: "name" | "value" | "type",
+    newValue: string
+  ) => {
+    setVariables((prev) =>
+      prev.map((variable, i) =>
+        i === index ? { ...variable, [key]: newValue } : variable
+      )
+    );
+  };
+
+  const handleAddVariable = () => {
+    setVariables((prev) => [
+      ...prev,
+      { name: "", value: "", type: "string", isEditing: true },
+    ]);
+  };
+
+  const handleRemoveVariable = (index: number) => {
+    setVariables((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditToggle = (index: number) => {
+    setVariables((prev) =>
+      prev.map((variable, i) =>
+        i === index ? { ...variable, isEditing: !variable.isEditing } : variable
+      )
+    );
+  };
+
+
+
+  const renderVariableDetail = () => {
+    if (!showVariableDetail) return null;
+
+    return <VariableDetail
+        variables={variables}
+        handleVariableChange={handleVariableChange}
+        handleAddVariable={handleAddVariable}
+        handleRemoveVariable={handleRemoveVariable}
+        handleEditToggle={handleEditToggle}
+        onClose={() => setShowVariableDetail(false)}
+      />;
+  };
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
-        <button className="px-3 py-2.5 bg-white rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
+        <button
+          className="px-3 py-2.5 bg-white rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+          onClick={handleVariableButtonClick}
+        >
           변수
         </button>
         <button className="px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
           챗봇 생성
         </button>
       </div>
-      <div className="absolute top-[140px] right-[30px] z-[10]">
+      <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail()}
+        {renderVariableDetail()}
       </div>
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
