@@ -64,7 +64,9 @@ export default function Header() {
           </Link>
         </nav>
         <div className="flex flex-row gap-6">
-          <button>마이페이지</button>
+          <Link className={`cursor-pointer ${
+                pathname === '/evaluations' ? 'text-[#9A75BF] font-semibold' : 'hover:font-semibold'
+              }`} href="/profile">마이페이지</Link>
           <button>로그아웃</button>
         </div>
       </div>

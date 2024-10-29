@@ -11,7 +11,7 @@ interface Chatbot {
   title: string;
   description: string;
   category: string[];
-  iconId: number;
+  iconId: number; 
 }
 
 const chatbots: Chatbot[] = [
