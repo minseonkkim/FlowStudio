@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -69,6 +70,27 @@ class NodeControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data").exists());
+    }
+
+    @DisplayName("노드 아이디로 노드를 삭제한다.")
+    @WithMockUser
+    @Test
+    void deleteNode() throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                delete("/api/v1/chat-flows/nodes/{nodeId}", 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").isEmpty());
     }
 
 }

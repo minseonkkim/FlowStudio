@@ -8,9 +8,7 @@ import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -30,6 +28,22 @@ public class NodeController {
             @Valid @RequestBody NodeCreateRequest request
     ) {
         return ApiResponse.ok(nodeService.createNode(user, request.toServiceRequest()));
+    }
+
+    /**
+     * 노드 삭제
+     * @param user
+     * @param nodeId
+     * @return
+     */
+    @DeleteMapping("/api/v1/chat-flows/nodes/{nodeId}")
+    public ApiResponse<Void> deleteNode(
+            @CurrentUser User user,
+            @PathVariable Long nodeId
+    ) {
+        nodeService.deleteNode(user, nodeId);
+
+        return ApiResponse.ok();
     }
 
 }
