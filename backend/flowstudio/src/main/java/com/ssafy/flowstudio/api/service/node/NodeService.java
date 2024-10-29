@@ -26,9 +26,6 @@ public class NodeService {
 
     @Transactional
     public NodeCreateResponse createNode(User user, NodeCreateServiceRequest request) {
-        System.out.println("request.getChatFlowId() = " + request.getChatFlowId());
-        
-        
         ChatFlow chatFlow = chatFlowRepository.findById(request.getChatFlowId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
