@@ -51,7 +51,7 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
                 onClick={() => toggleCategory(cat)}
                 className={`text-[12px] px-3 py-1 rounded-full transition-all duration-200 ease-in-out ${
                   selectedCategories.includes(cat)
-                    ? "border-2 font-semibold border-[#9A75BF] bg-[#F3E8FF] text-[#9A75BF]"
+                    ? "border font-semibold border-[#9A75BF] bg-[#F3E8FF] text-[#9A75BF]"
                     : "border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
