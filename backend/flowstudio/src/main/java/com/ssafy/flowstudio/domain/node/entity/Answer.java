@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import lombok.AccessLevel;
@@ -16,13 +17,14 @@ public class Answer extends Node {
     private String output_message;
 
     @Builder
-    private Answer(String name, NodeType type, Coordinate coordinate, String output_key) {
-        super(null, name, type, coordinate);
+    private Answer(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String output_message) {
+        super(id, chatFlow, name, type, coordinate);
         this.output_message = output_message;
     }
 
-    public static Answer create(Coordinate coordinate) {
+    public static Answer create(ChatFlow chatFlow, Coordinate coordinate) {
         return Answer.builder()
+            .chatFlow(chatFlow)
             .name("Answer")
             .type(NodeType.ANSWER)
             .coordinate(coordinate)

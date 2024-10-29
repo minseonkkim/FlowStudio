@@ -4,6 +4,8 @@ import com.ssafy.flowstudio.api.controller.node.request.CoordinateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.NodeCreateRequest;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.domain.chatflow.entity.Category;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.node.entity.Start;
@@ -15,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -36,13 +37,20 @@ class NodeControllerTest extends ControllerTestSupport {
                 .y(1)
                 .build();
 
+        User user = User.builder()
+                .id(1L)
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.create(user, user, null, "title", "description");
+
         NodeCreateRequest request = NodeCreateRequest.builder()
                 .chatFlowId(1L)
                 .coordinate(coordinateRequest)
                 .nodeType(NodeType.START)
                 .build();
 
-        NodeCreateResponse response = NodeCreateResponse.from(Start.create(Coordinate.create(1, 1)));
+        NodeCreateResponse response = NodeCreateResponse.from(Start.create(chatFlow, Coordinate.create(1, 1)));
 
         given(nodeService.createNode(any(User.class), any(NodeCreateServiceRequest.class)))
                 .willReturn(response);
