@@ -41,4 +41,17 @@ public class NodeService {
         return NodeCreateResponse.from(savedNode);
     }
 
+    @Transactional
+    public boolean deleteNode(User user, Long nodeId) {
+        Node node = nodeRepository.findById(nodeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (!node.getChatFlow().getOwner().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        nodeRepository.delete(node);
+        return true;
+    }
+
 }

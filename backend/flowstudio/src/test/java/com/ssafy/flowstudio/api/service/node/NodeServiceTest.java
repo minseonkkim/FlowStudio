@@ -7,8 +7,10 @@ import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.node.entity.Coordinate;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.Start;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
@@ -18,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +39,9 @@ class NodeServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private ChatFlowRepository chatFlowRepository;
+
+    @Autowired
+    private NodeRepository nodeRepository;
 
     @DisplayName("Node를 생성하면 타입에 맞는 노드가 생성된다.")
     @Test
@@ -95,6 +102,107 @@ class NodeServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> nodeService.createNode(user, request))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.CHAT_FLOW_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("노드 아이디로 노드를 삭제한다.")
+    @Test
+    void deleteNode() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node node = Start.create(chatFlow, coordinate);
+
+        chatFlow.getNodes().add(node);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        boolean result = nodeService.deleteNode(user, node.getId());
+
+        // then
+        assertTrue(result);
+    }
+
+    @DisplayName("없는 아이디로 노드를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteNodeWithInvalidNodeId() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node node = Start.create(chatFlow, coordinate);
+
+        chatFlow.getNodes().add(node);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        assertThatThrownBy(() -> nodeService.deleteNode(user, node.getId() + 1))
+                .isInstanceOf(BaseException.class)
+                .hasMessage(ErrorCode.NODE_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("내가만든 챗플로우가 아닌 챗플로우의 노드를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteNodeWithNotMyChatFlowOwner() {
+        // given
+        User user1 = User.builder()
+                .username("test1")
+                .build();
+
+        User user2 = User.builder()
+                .username("test2")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user1)
+                .author(user1)
+                .title("title")
+                .build();
+
+        Node node = Start.create(chatFlow, coordinate);
+
+        chatFlow.getNodes().add(node);
+
+        userRepository.saveAll(List.of(user1, user2));
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        assertThatThrownBy(() -> nodeService.deleteNode(user2, node.getId()))
+                .isInstanceOf(BaseException.class)
+                .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
 }

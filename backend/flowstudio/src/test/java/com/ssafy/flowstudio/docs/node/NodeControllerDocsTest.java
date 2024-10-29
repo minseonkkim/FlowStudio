@@ -21,8 +21,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -98,6 +97,39 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                                                 .description("노드 타입")
                                 )
                                 .build())));
-
     }
+
+    @DisplayName("노드를 삭제한다.")
+    @Test
+    void deleteNode() throws Exception {
+        // when
+        ResultActions perform = mockMvc.perform(
+                delete("/api/v1/chat-flows/nodes/{nodeId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("delete-node",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Node")
+                                .summary("노드 삭제")
+                                .pathParameters(
+                                        parameterWithName("nodeId").description("노드 아이디")
+                                )
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data").type(JsonFieldType.NULL)
+                                                .description("data")
+                                )
+                                .build())));
+    }
+
 }
