@@ -28,6 +28,7 @@ import AnswerNodeDetail from "@/components/chatbot/workflow/nodedetail/AnswerNod
 import QuestionClassifierNodeDetail from "@/components/chatbot/workflow/nodedetail/QuestionClassifierNodeDetail";
 import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetail/VariableAllocatorNodeDetail";
 import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
+import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 
 interface Model {
   id: string;
@@ -234,65 +235,10 @@ export default function Page() {
     [selectedNode]
   );
 
-  const renderNodeDetail = () => {
-    if (!selectedNode) return null;
-
-    switch (selectedNode.type) {
-      case "startNode":
-        return (
-          <StartNodeDetail
-            maxChars={selectedNode.data.maxChars}
-            setMaxChars={(newMaxChars: number) =>
-              updateMaxChars(selectedNode.id, newMaxChars)
-            }
-            onClose={handleCloseDetail}
-          />
-        );
-      case "llmNode":
-        return (
-          <LlmNodeDetail
-            prompts={selectedNode.data.prompts || []}
-            setPrompts={(newPrompts) => updateNodePrompts(selectedNode.id, newPrompts)}
-            selectedModel={selectedNode.data.model || models[0].id}
-            setModel={(newModel: string) => updateSelectedModel(selectedNode.id, newModel)}
-            removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
-            onClose={handleCloseDetail}
-          />
-        );
-      case "knowledgeNode":
-        return <KnowledgeNodeDetail onClose={handleCloseDetail} />;
-      case "ifelseNode":
-        return <IfelseNodeDetail onClose={handleCloseDetail}/>;
-      case "answerNode":
-        return (
-          <AnswerNodeDetail 
-            answer={selectedNode.data.answer}
-            setAnswer={(newAnswer: string) =>
-              updateAnswer(selectedNode.id, newAnswer)
-            }
-            onClose={handleCloseDetail}/>
-        );
-      case "questionclassifierNode":
-          return (
-            <QuestionClassifierNodeDetail
-              classes={selectedNode.data.classes || []}
-              setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
-              onClose={handleCloseDetail}
-            />
-          );
-      case "variableallocatorNode":
-        return (
-          <VariableAllocatorNodeDetail onClose={handleCloseDetail}/>
-        );
-      default:
-        return null;
-    }
-  };
-
   // 변수 관리
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
-  >([{ name: "변수1", value: "", type: "string", isEditing: false }]);
+  >([{ name: "변수1", value: "", type: "string", isEditing: false }, { name: "변수2", value: "", type: "string", isEditing: false }]);
 
   const handleVariableChange = (
     index: number,
@@ -325,6 +271,61 @@ export default function Page() {
     );
   };
 
+  const renderNodeDetail = () => {
+    if (!selectedNode) return null;
+
+    switch (selectedNode.type) {
+      case "startNode":
+        return (
+          <StartNodeDetail
+            maxChars={selectedNode.data.maxChars}
+            setMaxChars={(newMaxChars: number) =>
+              updateMaxChars(selectedNode.id, newMaxChars)
+            }
+            onClose={handleCloseDetail}
+          />
+        );
+      case "llmNode":
+        return (
+          <LlmNodeDetail
+            prompts={selectedNode.data.prompts || []}
+            setPrompts={(newPrompts) => updateNodePrompts(selectedNode.id, newPrompts)}
+            selectedModel={selectedNode.data.model || models[0].id}
+            setModel={(newModel: string) => updateSelectedModel(selectedNode.id, newModel)}
+            removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
+            onClose={handleCloseDetail}
+          />
+        );
+      case "knowledgeNode":
+        return <KnowledgeNodeDetail onClose={handleCloseDetail} />;
+      case "ifelseNode":
+        return <IfelseNodeDetail variables={variables} onClose={handleCloseDetail}/>;
+      case "answerNode":
+        return (
+          <AnswerNodeDetail 
+            answer={selectedNode.data.answer}
+            setAnswer={(newAnswer: string) =>
+              updateAnswer(selectedNode.id, newAnswer)
+            }
+            onClose={handleCloseDetail}/>
+        );
+      case "questionclassifierNode":
+          return (
+            <QuestionClassifierNodeDetail
+              classes={selectedNode.data.classes || []}
+              setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
+              onClose={handleCloseDetail}
+            />
+          );
+      case "variableallocatorNode":
+        return (
+          <VariableAllocatorNodeDetail variables={variables} onClose={handleCloseDetail}/>
+        );
+      default:
+        return null;
+    }
+  };
+
   const renderVariableDetail = () => {
     if (!showVariableDetail) return null;
 
@@ -338,6 +339,33 @@ export default function Page() {
       />;
   };
 
+  const [showChatbotCreationModal, setShowChatbotCreationModal] = useState(false);
+
+  const handleChatbotCreationClick = useCallback(() => {
+    setShowChatbotCreationModal((prev) => !prev);
+  }, []);
+
+  const renderChatbotCreationModal = () => {
+    if (!showChatbotCreationModal) return null;
+
+    return (
+      <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
+        <button className="px-3 py-2.5 bg-[#9A75BF] rounded-[8px] text-white font-bold cursor-pointer">
+          업데이트
+        </button>
+        <div className="flex flex-col gap-3">
+          <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+            앱 실행<BsArrowUpRight/>
+          </button>
+          <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+            사이트에 삽입<BsArrowUpRight/>
+          </button>
+        </div>
+        
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
@@ -347,7 +375,7 @@ export default function Page() {
         >
           변수
         </button>
-        <button className="px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
+        <button onClick={handleChatbotCreationClick} className="px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
           챗봇 생성
         </button>
       </div>
@@ -355,6 +383,7 @@ export default function Page() {
         {renderNodeDetail()}
         {renderVariableDetail()}
       </div>
+      {renderChatbotCreationModal()}
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow

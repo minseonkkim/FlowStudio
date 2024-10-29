@@ -8,8 +8,10 @@ import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { useState } from "react"
 
 export default function IfelseNodeDetail({
+  variables,
   onClose
 }: {
+  variables: { name: string; value: string; type: string; isEditing: boolean }[];
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,8 +36,11 @@ export default function IfelseNodeDetail({
           <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
             <div className="w-auto h-[36px] flex items-center">
               <select>
-                  <option value="">변수1</option>
-                  <option value="">변수2</option>
+                {variables.map((variable, index) => (
+                  <option key={index} value={variable.name}>
+                    {variable.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="w-auto h-[36px] flex items-center">
@@ -60,8 +65,11 @@ export default function IfelseNodeDetail({
           <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
             <div className="w-auto h-[36px] flex items-center">
               <select>
-                  <option value="">변수1</option>
-                  <option value="">변수2</option>
+                {variables.map((variable, index) => (
+                  <option key={index} value={variable.name}>
+                    {variable.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="w-auto h-[36px] flex items-center">

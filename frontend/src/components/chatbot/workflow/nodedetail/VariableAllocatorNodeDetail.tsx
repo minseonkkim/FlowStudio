@@ -8,8 +8,10 @@ import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { useState } from "react"
 
 export default function VariableAllocatorNodeDetail({
+  variables,
   onClose
 }: {
+  variables: { name: string; value: string; type: string; isEditing: boolean }[];
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,9 +36,11 @@ export default function VariableAllocatorNodeDetail({
             id="model"
             className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#6B7280] focus:border-[#6B7280] sm:text-sm"
           >
-              <option>
-                변수1
-              </option>
+              {variables.map((variable, index) => (
+                <option key={index} value={variable.name}>
+                  {variable.name}
+                </option>
+              ))}
           </select>
         </div>
     <div className="flex flex-col gap-2">
