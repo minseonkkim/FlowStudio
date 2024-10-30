@@ -6,7 +6,7 @@ import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutlin
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash"
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 
 interface Model {
   id: string;
@@ -19,17 +19,13 @@ const models: Model[] = [
   { id: "gpt-4-32k", name: "GPT-4 (32k)" },
 ];
 
-interface Prompt {
-  type: string;
-  text: string;
-}
-
 export default function LlmNodeDetail({
   prompts,
   setPrompts,
   selectedModel,
   setModel,
   removePrompt,
+  addNode,
   onClose
 }: {
   prompts: { type: string; text: string }[];
@@ -37,6 +33,7 @@ export default function LlmNodeDetail({
   selectedModel: string;
   setModel: (model: string) => void;
   removePrompt: (index: number) => void; 
+  addNode: (type: string) => void;
   onClose: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -86,6 +83,14 @@ export default function LlmNodeDetail({
       }
     });
   }, [localPrompts]);
+
+  const handleNodeTypeClick = useCallback(
+    (type: string) => {
+      addNode(type);
+      onClose();
+    },
+    [addNode, onClose]
+  );
 
   return (
     <>
@@ -196,31 +201,31 @@ export default function LlmNodeDetail({
                   aria-orientation="vertical"
                   aria-labelledby="menu-button"
                 >
-                  <div className="py-1 text-[15px]" role="none">
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <FaRobot className="text-[18px]" />
-                      <div>LLM</div>
-                    </div>
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <FiBookOpen className="text-[18px]" />
-                      <div>지식 검색</div>
-                    </div>
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <RiQuestionAnswerFill className="text-[18px]" />
-                      <div>답변</div>
-                    </div>
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <GrTree className="text-[18px]" />
-                      <div>질문 분류기</div>
-                    </div>
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <IoGitBranchOutline className="text-[18px]" />
-                      <div>IF/ELSE</div>
-                    </div>
-                    <div className="px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
-                      <VscSymbolVariable className="text-[18px]" />
-                      <div>변수 할당자</div>
-                    </div>
+                  <div className="p-1 text-[15px]" role="none">
+                    <div onClick={() => handleNodeTypeClick("llmNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <FaRobot className="text-[18px]"/>
+                    <div>LLM</div>
+                  </div>
+                  <div onClick={() => handleNodeTypeClick("knowledgeNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <FiBookOpen className="text-[18px]"/>
+                    <div>지식 검색</div>
+                  </div>
+                  <div onClick={() => handleNodeTypeClick("answerNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <RiQuestionAnswerFill className="text-[18px]"/>
+                    <div>답변</div>
+                  </div>
+                  <div onClick={() => handleNodeTypeClick("questionclassifierNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <GrTree className="text-[18px]"/>
+                    <div>질문 분류기</div>
+                  </div>
+                  <div onClick={() => handleNodeTypeClick("ifelseNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <IoGitBranchOutline className="text-[18px]"/>
+                    <div>IF/ELSE</div>
+                  </div>
+                  <div onClick={() => handleNodeTypeClick("variableallocatorNode")} className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2">
+                    <VscSymbolVariable className="text-[18px]"/>
+                    <div>변수 할당자</div>
+                  </div>
                   </div>
                 </div>
               )}

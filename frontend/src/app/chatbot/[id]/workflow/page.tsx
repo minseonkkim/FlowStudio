@@ -29,6 +29,8 @@ import QuestionClassifierNodeDetail from "@/components/chatbot/workflow/nodedeta
 import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetail/VariableAllocatorNodeDetail";
 import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
+import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
+import { v4 as uuidv4 } from "uuid";
 
 interface Model {
   id: string;
@@ -45,43 +47,43 @@ const initialNodes: Node[] = [
   {
     id: "1",
     type: "startNode",
-    data: { label: "1", maxChars: undefined },
+    data: { maxChars: undefined },
     position: { x: 250, y: 100 },
   },
   {
     id: "2",
     type: "llmNode",
-    data: { label: "2", prompts: [{type: "system", text: ""}], model: models[0].id },
+    data: { prompts: [{type: "system", text: ""}], model: models[0].id },
     position: { x: 460, y: 100 },
   },
   {
     id: "3",
     type: "knowledgeNode",
-    data: { label: "3" },
+    data: {  },
     position: { x: 700, y: 100 },
   },
   {
     id: "4",
     type: "ifelseNode",
-    data: { label: "4" },
+    data: {  },
     position: { x: 900, y: 100 },
   },
   {
     id: "5",
     type: "answerNode",
-    data: { label: "5", answer: "" },
+    data: { answer: "" },
     position: { x: 1100, y: 100 },
   },
   {
     id: "6",
     type: "questionclassifierNode",
-    data: { label: "6", classes: [{text: ""}, {text: ""}] },
+    data: { classes: [{text: ""}, {text: ""}] },
     position: { x: 1300, y: 100 },
   },
   {
     id: "7",
     type: "variableallocatorNode",
-    data: { label: "7" },
+    data: {  },
     position: { x: 1500, y: 100 },
   },
 ];
@@ -271,6 +273,64 @@ export default function Page() {
     );
   };
 
+  const addNode = useCallback(
+    (type: string) => {
+      if (!selectedNode) return;
+
+      const isPositionOccupied = (x: number, y: number) => {
+        return nodes.some(
+          (node) =>
+            Math.abs(node.position.x - x) < 200 &&
+            Math.abs(node.position.y - y) < 160
+        );
+      };
+
+      let newX = selectedNode.position.x + 200;
+      let newY = selectedNode.position.y;
+
+      while (isPositionOccupied(newX, newY)) {
+        newY += 160;
+      }
+
+      const newNode = {
+        id: uuidv4(),
+        type,
+        data: (() => {
+          switch (type) {
+            case "startNode":
+              return { maxChars: undefined };
+            case "llmNode":
+              return { prompts: [{ type: "system", text: "" }], model: models[0].id };
+            case "knowledgeNode":
+              return {};
+            case "ifelseNode":
+              return {};
+            case "answerNode":
+              return {};
+            case "questionclassifierNode":
+              return { classes: [{ text: "" }, { text: "" }] };
+            case "variableallocatorNode":
+              return {};
+            default:
+              return {};
+          }
+        })(),
+        position: { x: newX, y: newY },
+      };
+
+      const newEdge = {
+        id: `e${selectedNode.id}-${newNode.id}`,
+        source: selectedNode.id,
+        target: newNode.id,
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setEdges((eds) => [...eds, newEdge]);
+    },
+    [selectedNode, nodes]
+  );
+
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
@@ -282,6 +342,7 @@ export default function Page() {
             setMaxChars={(newMaxChars: number) =>
               updateMaxChars(selectedNode.id, newMaxChars)
             }
+            addNode={addNode}
             onClose={handleCloseDetail}
           />
         );
@@ -293,13 +354,14 @@ export default function Page() {
             selectedModel={selectedNode.data.model || models[0].id}
             setModel={(newModel: string) => updateSelectedModel(selectedNode.id, newModel)}
             removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
+            addNode={addNode}
             onClose={handleCloseDetail}
           />
         );
       case "knowledgeNode":
-        return <KnowledgeNodeDetail onClose={handleCloseDetail} />;
+        return <KnowledgeNodeDetail addNode={addNode} onClose={handleCloseDetail} />;
       case "ifelseNode":
-        return <IfelseNodeDetail variables={variables} onClose={handleCloseDetail}/>;
+        return <IfelseNodeDetail variables={variables} addNode={addNode} onClose={handleCloseDetail}/>;
       case "answerNode":
         return (
           <AnswerNodeDetail 
@@ -307,6 +369,7 @@ export default function Page() {
             setAnswer={(newAnswer: string) =>
               updateAnswer(selectedNode.id, newAnswer)
             }
+            addNode={addNode}
             onClose={handleCloseDetail}/>
         );
       case "questionclassifierNode":
@@ -314,12 +377,13 @@ export default function Page() {
             <QuestionClassifierNodeDetail
               classes={selectedNode.data.classes || []}
               setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
+              addNode={addNode}
               onClose={handleCloseDetail}
             />
           );
       case "variableallocatorNode":
         return (
-          <VariableAllocatorNodeDetail variables={variables} onClose={handleCloseDetail}/>
+          <VariableAllocatorNodeDetail variables={variables} addNode={addNode} onClose={handleCloseDetail}/>
         );
       default:
         return null;
@@ -375,8 +439,8 @@ export default function Page() {
         >
           변수
         </button>
-        <button onClick={handleChatbotCreationClick} className="px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
-          챗봇 생성
+        <button onClick={handleChatbotCreationClick} className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
+          챗봇 생성 <MdKeyboardArrowDown className="size-4"/>
         </button>
       </div>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
