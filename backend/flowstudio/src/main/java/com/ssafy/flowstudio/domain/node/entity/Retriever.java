@@ -1,7 +1,7 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
-import com.ssafy.flowstudio.domain.document.entity.Document;
+import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToOne;
@@ -16,12 +16,12 @@ import lombok.NoArgsConstructor;
 public class Retriever extends Node {
 
     @OneToOne(fetch = FetchType.LAZY)
-    private Document document;
+    private Knowledge knowledge;
 
     @Builder
-    public Retriever(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, Document document) {
+    public Retriever(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, Knowledge knowledge) {
         super(id, chatFlow, name, type, coordinate);
-        this.document = document;
+        this.knowledge = knowledge;
     }
 
     public static Retriever create(ChatFlow chatFlow, Coordinate coordinate) {
