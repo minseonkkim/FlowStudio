@@ -11,11 +11,14 @@ interface LlmNodeProps {
         prompts: Prompt[];
         model: string;
     };
+    selected: boolean;
 }
 
-const LlmNode: React.FC<LlmNodeProps> = ({ data }) => {
+const LlmNode: React.FC<LlmNodeProps> = ({ data, selected }) => {
   return <>
-  <div className="p-2 bg-[#EAF2FF] rounded-[16px] border-[1px] border-[#3B82F6] text-[10px] w-[145px]">
+  <div className={`p-2 bg-[#EAF2FF] rounded-[16px] ${
+        selected ? "border-[2px]" : "border-[1px]"
+      } border-[#3B82F6] text-[10px] w-[145px]`}>
       <Handle type="target" position={Position.Left} />
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-row items-center gap-1">

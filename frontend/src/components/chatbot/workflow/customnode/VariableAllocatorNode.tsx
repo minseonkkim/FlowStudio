@@ -1,9 +1,11 @@
 import { Handle, Position } from "reactflow"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 
-export default function VariableAllocatorNode({ data }: any){
+export default function VariableAllocatorNode({ data, selected }: any){
   return <>
-  <div className="p-2 bg-[#D8D8D8] rounded-[16px] border-[1px] border-[#6B7280] text-[10px] w-[145px]">
+  <div className={`p-2 bg-[#D8D8D8] rounded-[16px] border-[#6B7280] ${
+        selected ? "border-[2px]" : "border-[1px]"
+      } text-[10px] w-[145px]`}>
       <Handle type="target" position={Position.Left} />
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-row items-center gap-1">

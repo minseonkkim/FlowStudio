@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -112,6 +112,7 @@ export default function Page() {
   const [edges, setEdges] = useState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((nds) => applyNodeChanges(changes, nds));
@@ -122,6 +123,7 @@ export default function Page() {
   }, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    setSelectedNodeId(node.id); 
     setSelectedNode(node);
     setShowVariableDetail(false);
   }, []);
@@ -326,9 +328,21 @@ export default function Page() {
 
       setNodes((nds) => [...nds, newNode]);
       setEdges((eds) => [...eds, newEdge]);
+
+      setSelectedNode(newNode);
+      setSelectedNodeId(newNode.id);
     },
     [selectedNode, nodes]
   );
+
+  useEffect(() => {
+    if (selectedNodeId) {
+      const selected = nodes.find((node) => node.id === selectedNodeId);
+      setSelectedNode(selected || null);
+    }
+  }, [selectedNodeId, nodes]);
+
+
 
 
   const renderNodeDetail = () => {
@@ -430,6 +444,11 @@ export default function Page() {
     );
   };
 
+  const nodesWithSelection = nodes.map((node) => ({
+    ...node, 
+    selected: node.id === selectedNodeId,
+  }));
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
@@ -451,7 +470,7 @@ export default function Page() {
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
-            nodes={nodes}
+            nodes={nodesWithSelection}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
