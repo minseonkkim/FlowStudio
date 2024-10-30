@@ -151,8 +151,7 @@ const Page = () => {
         fill: true,
         backgroundColor: 'rgba(154, 117, 191, 0.3)',
         borderColor: 'rgba(154, 117, 191, 1)',
-        borderWidth: 2,
-        pointRadius: 3,
+       
       }
     ],
   }
@@ -246,7 +245,7 @@ const Page = () => {
             <div className="flex mb-4 border border-[#9A75BF] rounded-lg w-[100px] overflow-hidden">
               <button
                 onClick={() => setViewMode('daily')}
-                className={`flex-1 py-1 font-semibold ${
+                className={`flex-1 py-1 font-medium ${
                   viewMode === 'daily' 
                     ? 'bg-white text-[#9A75BF]' 
                     : 'text-[#D3B3E7]'
@@ -259,7 +258,7 @@ const Page = () => {
               </button>
               <button
                 onClick={() => setViewMode('weekly')}
-                className={`flex-1 py-1 font-semibold ${
+                className={`flex-1 py-1 font-medium ${
                   viewMode === 'weekly' 
                     ? 'bg-white text-[#9A75BF]' 
                     : 'text-[#D3B3E7]'
@@ -271,23 +270,19 @@ const Page = () => {
           </div>
 
           <div className="flex justify-center w-full px-4 items-center">
-            <button onClick={handlePrevious} className="bg-white px-4 py-2 rounded-full shadow-lg">
-              <MdKeyboardArrowLeft className="text-[#9A75BF] text-3xl" />
-            </button>
-
-            <div className="relative w-full max-w-[1000px] h-[500px] mx-4">
+            { viewMode === 'daily' && (
+              <button onClick={handlePrevious} className="border bg-white px-2 py-2 rounded-full mb-16">
+                <MdKeyboardArrowLeft className="text-3xl" />
+              </button>
+            )}
+            <div className="relative w-full max-w-[1000px] h-[500px] ml-4">
               <Line data={chartData} options={chartOptions} />
             </div>
-
-            <button onClick={handleNext} className="bg-white px-4 py-2 rounded-full shadow-lg">
-              <MdKeyboardArrowRight className="text-[#9A75BF] text-3xl" />
-            </button>
+             { viewMode === 'daily' && (            
+              <button onClick={handleNext} className="border bg-white px-2 py-2 rounded-full mb-16">
+              <MdKeyboardArrowRight className="text-3xl" />
+              </button> )} 
           </div>
-
-
-
-
-
         </div>
       </div>
     </>
