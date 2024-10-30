@@ -4,11 +4,13 @@ import { useState } from 'react';
 import { VscSettings } from '@react-icons/all-files/vsc/VscSettings';
 import { FaFile } from '@react-icons/all-files/fa/FaFile';
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
+import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosInformationCircleOutline';
 import { useRecoilState } from 'recoil';
 import { fileNameState } from '@/store/atoms'; 
 import { currentStepState } from '@/store/atoms';
 import ColorButton from '../common/ColorButton';
 import WhiteButton from '../common/whiteButton';
+import { Tooltip } from 'react-tooltip';
 
 export default function CreateSecond() {
   const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  // 세그먼트 식별자
@@ -41,7 +43,6 @@ export default function CreateSecond() {
     setIsPreviewOpen(!isPreviewOpen)
   }
 
-
   return (
     <>
       <div className="pl-10 flex relative">
@@ -64,7 +65,26 @@ export default function CreateSecond() {
             
             <div className='flex flex-col items-center text-base font-normal mt-4'>
               <div className="w-[490px]">
-                <p>세그먼트 식별자</p>
+                <div className='flex gap-2 items-center'>
+                  <p>세그먼트 식별자</p>
+                  <IoIosInformationCircleOutline 
+                    data-tooltip-id="info-tooltip" 
+                    className='w-4 h-4 mt-1 text-[#4F4F4F]' 
+                  />
+                  <Tooltip 
+                    id="info-tooltip" 
+                    content="구분 기호는 텍스트를 구분하는 데 사용되는 문자입니다." 
+                    style={{
+                      backgroundColor: 'white',
+                      color: 'black',
+                      border: '1px solid #D1D5DB', 
+                      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)', 
+                      borderRadius: '0.375rem',  
+                      padding: '0.5rem 0.75rem', 
+                      width: '15rem'            
+                    }}
+                  />
+                </div>
                 <input 
                   value={segmentIdentifier} 
                   onChange={(e) => setSegmentIdentifier(e.target.value)}  
@@ -84,7 +104,28 @@ export default function CreateSecond() {
                 />
               </div>
               <div className="w-[490px] mt-4">
-                <p>청크 중첩</p>
+                <div className='flex gap-2 items-center'>
+                  <p>청크 중첩</p>
+                  <IoIosInformationCircleOutline 
+                    data-tooltip-id="info-tooltip1" 
+                    className="w-4 h-4 mt-1 text-[#4F4F4F]" 
+                  />
+                  <Tooltip 
+                    id="info-tooltip1" 
+                    content="청크 중첩은 데이터 청크가 겹쳐지는 부분을 설정하여 텍스트 처리 및 검색결과의 일관성과 정확성을 높입니다." 
+                    style={{
+                      backgroundColor: 'white',
+                      color: 'black',
+                      border: '1px solid #D1D5DB', 
+                      boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)', 
+                      borderRadius: '0.375rem',  
+                      padding: '0.5rem 0.75rem', 
+                      width: '13rem'            
+                    }}
+                  />
+
+
+                </div>
                 <input 
                   value={chunkOverlap}
                   onChange={(e) => setChunkOverlap(parseInt(e.target.value, 10))} 
@@ -116,7 +157,7 @@ export default function CreateSecond() {
             </div>
           </div>
           <div className='flex gap-3 mt-6 mb-8'>
-            <WhiteButton w='110px' h='40px' borderColor='#9A75BF' textColor='#9A75BF' text='이전 단계' onHandelButton={onChangeBack}/>
+            <WhiteButton w='80px' h='40px' borderColor='#9A75BF' textColor='#9A75BF' text='이전 단계' onHandelButton={onChangeBack}/>
             <ColorButton w='110px' h='40px' text='저장하고 처리' onHandelButton={onChange3Step}/>
           </div>
         </div>

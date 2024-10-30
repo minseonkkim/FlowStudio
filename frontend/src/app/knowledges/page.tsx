@@ -67,7 +67,7 @@ const Page = () => {
     <div className="px-12 py-10">
       <div className='flex gap-4 mb-1'>
         <p className='text-[22px]'>문서</p>
-        <ColorButton w='90px' h='40px' text='파일 추가' onHandelButton={goToCreatePage} />
+        <ColorButton w='90px' h='38px' text='파일 추가' onHandelButton={goToCreatePage} />
       </div>
       <div className='flex justify-between mb-8'>
         <p className='text-base text-[#757575] pt-2 pb-12'>
@@ -93,7 +93,7 @@ const Page = () => {
         <td className='p-4'>{file.id}</td>
         <td className='p-4'>
           <div className='flex items-center'>
-            <FaFile />
+            <FaFile className='text-[#757575]'/>
             <p className='pl-2 cursor-pointer' onClick={() => goToKnoweldgeDetail(file.id)}>{file.fileName}</p>
           </div>
         </td>
