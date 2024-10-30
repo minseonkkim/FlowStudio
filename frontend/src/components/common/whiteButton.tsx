@@ -12,7 +12,7 @@ export interface WhiteButtonProps {
 export default function WhiteButton({ w, h, text, borderColor, textColor, onHandelButton }: WhiteButtonProps) {
   return (
     <button
-      className={`flex justify-center items-center rounded-lg font-semibold text-base`}
+      className={`flex justify-center items-center rounded-lg text-[14px] font-medium`}
       style={{ 
         width: w, 
         height: h, 

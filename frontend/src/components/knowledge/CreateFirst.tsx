@@ -53,22 +53,22 @@ export default function CreateFirst() {
       
       {!file ? (
         <>
-          <div className="w-[995px] h-[160px] bg-gray-200 border rounded-lg p-4 flex flex-col justify-center items-center gap-2 mb-6"
-               onDrop={handleDrop}
-               onDragOver={handleDragOver}>
-            <div className='flex gap-2 justify-center items-center'>
-              <IoCloudDownloadOutline className='h-8 w-8' />
-              <p className="opacity-80 text-center">파일을 끌어다 놓거나</p>
-              <label htmlFor="file-upload" className="cursor-pointer">
-                찾아보기
-              </label>
-              <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
+          <label htmlFor="file-upload" className="cursor-pointer">
+            <div className="w-[995px] h-[160px] bg-gray-200 border rounded-lg p-4 flex flex-col justify-center items-center gap-2 mb-6"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}>
+              <div className='flex gap-2 justify-center items-center'>
+                <IoCloudDownloadOutline className='h-8 w-8' />
+                <p className="opacity-80 text-center">파일을 끌어다 놓거나 찾아보기</p>
+                  찾아보기
+                <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
+              </div>
+              <div className='text-center'>
+                <p className="opacity-50 text-base">TXT, MARKDOWN, PDF, HTML, XLSX, XLS, DOCX, CSV, EML, MSG, PPTX, PPT, XML, EPUB을(를) 지원합니다.</p>
+                <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
+              </div>
             </div>
-            <div className='text-center'>
-              <p className="opacity-50 text-base">TXT, MARKDOWN, PDF, HTML, XLSX, XLS, DOCX, CSV, EML, MSG, PPTX, PPT, XML, EPUB을(를) 지원합니다.</p>
-              <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
-            </div>
-          </div>
+          </label>
           <WhiteButton w='80px' h='40px' text='다음' borderColor='#9A75BF' textColor='#9A75BF'/>
         </>
       ) : (

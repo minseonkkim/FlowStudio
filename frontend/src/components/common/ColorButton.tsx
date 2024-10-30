@@ -11,7 +11,7 @@ export interface ColorButtonProps {
 export default function ColorButton({ w, h, text, bgColor = '#9A75BF', onHandelButton }: ColorButtonProps) {
   return (
     <button
-      className={`flex justify-center items-center border rounded-lg text-white font-semibold text-base`}
+      className={`flex justify-center items-center border rounded-lg text-white text-[14px]`}
       style={{ width: w, height: h, backgroundColor: bgColor }}  
       onClick={onHandelButton}
     >
