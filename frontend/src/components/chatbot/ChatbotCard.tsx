@@ -14,7 +14,7 @@ export default function ChatbotCard({
   onButtonClick,
 }: ChatbotCardProps) {
   return (
-    <div onClick={onButtonClick} className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-5 cursor-pointer">
+    <div onClick={onButtonClick} className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 cursor-pointer">
       <div className="flex w-full">
         <div className="mr-6 w-[48px] h-[48px] rounded-lg bg-gray-200"></div>
         <div className="flex-1 flex-col">

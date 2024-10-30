@@ -97,8 +97,8 @@ export default function Page() {
               key={chatbot.id}
               title={chatbot.title}
               description={chatbot.description}
+              type="all"
               category={chatbot.category}
-              onButtonClick={() => console.log(`Added ${chatbot.title} to workspace`)}
             />
           ))}
         </div>
