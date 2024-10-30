@@ -123,8 +123,6 @@ export default function CreateSecond() {
                       width: '13rem'            
                     }}
                   />
-
-
                 </div>
                 <input 
                   value={chunkOverlap}
