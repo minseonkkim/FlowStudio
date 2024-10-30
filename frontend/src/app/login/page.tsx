@@ -6,7 +6,7 @@ import { RiKakaoTalkFill } from '@react-icons/all-files/ri/RiKakaoTalkFill'
 
 const page = () => {
   return (
-    <div className="flex items-center justify-center w-full" style={{ height: 'calc(100vh - 60px)' }}>
+    <div className="flex items-center justify-center w-full" style={{ height: 'calc(100vh - 57px)' }}>
       <div className='flex flex-col items-center justify-center'>
         <div>
           <Image src={Logo} alt="logo" width={128} height={128} />
