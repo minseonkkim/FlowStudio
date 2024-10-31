@@ -16,9 +16,9 @@ export default function CreateSecond() {
   const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  // 세그먼트 식별자
   const [maxChunkLength, setMaxChunkLength] = useState<number>(500); // 최대 청크 길이
   const [chunkOverlap, setChunkOverlap] = useState<number>(50); // 청크 중첩
-  const [predictedChunkCount, setPredictedChunkCount] = useState<number>(0); // 예상 청크 수 
-  const [fileName, setFileName] = useRecoilState(fileNameState); // 파일 이름
-  const [currentStep, setCurrentStep] = useRecoilState(currentStepState); 
+  const [predictedChunkCount, ] = useState<number>(0); // 예상 청크 수 
+  const [fileName, ] = useRecoilState(fileNameState); // 파일 이름
+  const [, setCurrentStep] = useRecoilState(currentStepState); 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 열기
 
   // 더미데이터

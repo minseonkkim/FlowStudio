@@ -44,7 +44,7 @@ export default function Header() {
           </Link>
           <Link
             className={`cursor-pointer ${
-              pathname === "/knowledges"
+              pathname.startsWith("/knowledge")
                 ? "text-[#9A75BF] font-semibold"
                 : "hover:font-semibold"
             }`}

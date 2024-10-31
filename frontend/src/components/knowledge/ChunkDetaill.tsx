@@ -12,8 +12,8 @@ export default function ChunkDetail({ data, onItemSelect }: ChunkDetailProps) {
         <div
           key={item.id}
           onClick={() => onItemSelect(item.content, item.id)}
-          className="w-full h-[190px] px-6 py-4 rounded-xl border-2 cursor-pointer group
-                     hover:border-black  hover:bg-opacity-5"
+          className="w-full h-[190px] px-6 py-4 rounded-xl border-2 cursor-pointer
+                     hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10"
         >
           <div className="border border-gray-400 w-[60px] h-[24px] rounded-lg text-center mb-4 ">
             <p>{item.id}</p>

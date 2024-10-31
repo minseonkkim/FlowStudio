@@ -12,7 +12,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const Page = () => {
   const [nickname, setNickName] = useState<string>("김싸피")
-  const [email, setEmail] = useState<string>('ssafy@naver.com')
+  const [email,] = useState<string>('ssafy@naver.com')
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily')

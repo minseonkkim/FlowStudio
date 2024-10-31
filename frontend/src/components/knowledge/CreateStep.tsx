@@ -5,7 +5,7 @@ import { useRecoilState } from 'recoil';
 import { currentStepState } from '@/store/atoms'; 
 
 export default function CreateStep() {
-  const [currentStep, setCurrentStep] = useRecoilState(currentStepState); 
+  const [currentStep, ] = useRecoilState(currentStepState); 
 
   return (
     <div className="border-r border-r-[#E0E0E0] bg-gray-50">
