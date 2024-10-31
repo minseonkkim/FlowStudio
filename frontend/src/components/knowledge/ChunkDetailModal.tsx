@@ -3,8 +3,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import { HiOutlinePencilAlt } from '@react-icons/all-files/hi/HiOutlinePencilAlt';
 import { BsTextareaT } from '@react-icons/all-files/bs/BsTextareaT';
 import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
-import ColorButton from '../common/ColorButton';
-import WhiteButton from '../common/whiteButton';
 
 interface ChunkDetailModalProps {
   contentId: string;
@@ -36,7 +34,7 @@ export default function ChunkDetailModal({
   }, [isEditing]);
 
   const [textLength, setTextLength] = useState(content.length); // 초기 글자 수
-  const [searchCount, setSearchCount] = useState(0); // 검색횟수
+  const [searchCount, ] = useState(0); // 검색횟수
 
   const handleEditClick = () => {
     onEdit();
@@ -60,8 +58,16 @@ export default function ChunkDetailModal({
           <div className='flex gap-3'>
             {isEditing ? (
               <>
-                <WhiteButton w='47px' h='30px' text='취소' borderColor='#9A75BF' textColor='#9A75BF' onHandelButton={handleCancelClick} />
-                <ColorButton w='47px' h='30px' text='수정' onHandelButton={handleSaveClick} />
+              <button 
+                className='py-1 px-2 border border-[#9A75BF] text-[#9A75BF] hover:bg-[#f3e8ff] active:bg-[#e3d1f7] rounded-md text-sm'
+                onClick={handleCancelClick}>
+                취소
+              </button>
+              <button
+                className='py-1 px-2 border rounded-md text-sm bg-[#9A75BF] text-white hover:bg-[#874aa5] active:bg-[#733d8a]'
+                onClick={handleSaveClick}>
+                수정
+              </button>
               </>
             ) : (
               <button onClick={handleEditClick} className="text-gray-500 hover:text-gray-700">

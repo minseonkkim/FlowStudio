@@ -11,7 +11,7 @@ import { fileNameState } from '@/store/atoms';
 
 export default function CreateFirst() {
   const [file, setFile] = useState<File | null>(null);
-  const [currentStep, setCurrentStep] = useRecoilState(currentStepState); 
+  const [, setCurrentStep] = useRecoilState(currentStepState); 
   const [fileName, setFileName] = useRecoilState(fileNameState);  
 
   // 파일 선택 시 호출되는 함수

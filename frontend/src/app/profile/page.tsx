@@ -12,11 +12,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const Page = () => {
   const [nickname, setNickName] = useState<string>("김싸피")
-  const [email, setEmail] = useState<string>('ssafy@naver.com')
+  const [email,] = useState<string>('ssafy@naver.com')
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily')
   const [currentDayIndex, setCurrentDayIndex] = useState(0)
+  const [openAi, setOpenAi] = useState("12345-ABCDE-67890-FGHIJ")
+  const [gemini, setGemini] = useState("ZYXWV-54321-UTSRQ-98765")
+  const [claude, setClaude] = useState("09876-LMNOP-43210-KJIHG")
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => setNickName(e.target.value)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,6 +27,10 @@ const Page = () => {
       setProfileImage(URL.createObjectURL(e.target.files[0]))
     }
   }
+  const handleSave = () => {
+    setIsEditing(false)
+  }
+
 
   const data = [
     { Date: "2024-08-01", Usage: 54 },
@@ -177,7 +184,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="px-24 py-14 flex flex-col justify-center items-center">
+            <div className="px-24 py-14 flex flex-col justify-center items-center">
         <div className="w-full max-w-[1200px] border rounded-lg px-8 py-4 shadow-sm">
           <h2 className="font-semibold text-xl mb-6 ml-8">내 정보</h2>
 
@@ -207,7 +214,7 @@ const Page = () => {
               )}
             </div>
 
-            <div className="ml-8 flex-1 grid grid-cols-1 gap-y-4">
+            <div className="ml-8 flex-1 grid grid-cols-1 gap-y-2">
               <div className="flex items-center">
                 <p className="w-[80px] font-semibold text-base">닉네임</p>
                 {isEditing ? (
@@ -222,17 +229,59 @@ const Page = () => {
                   <p className="text-base text-gray-600">{nickname}</p>
                 )}
               </div>
-
               <div className="flex items-center">
                 <p className="w-[80px] font-semibold text-base">이메일</p>
                 <p className="text-base text-gray-600">{email}</p>
-                
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="border bg-[#DBDBDB] hover:bg-[#B0B0B0] rounded-md w-[80px] h-[35px] font-semibold ml-auto"
-                >
-                  {isEditing ? "저장" : "설정"}
-                </button>
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center pb-1.5">
+                  <p className="w-[80px] font-semibold text-base">OpenAI</p>
+                  {isEditing ? (
+                    <input
+                      spellCheck="false"
+                      type="text"
+                      value={openAi}
+                      onChange={(e) => setOpenAi(e.target.value)}
+                      className="border rounded-md w-64 px-3 py-2 text-gray-700"
+                    />
+                  ) : (
+                    <p className="text-base text-gray-600">{openAi}</p>
+                  )}
+                </div>
+                <div className="flex items-center pb-1.5">
+                  <p className="w-[80px] font-semibold text-base">Claude</p>
+                  {isEditing ? (
+                    <input
+                      spellCheck="false"
+                      type="text"
+                      value={claude}
+                      onChange={(e) => setClaude(e.target.value)}
+                      className="border rounded-md w-64 px-3 py-2 text-gray-700"
+                    />
+                  ) : (
+                    <p className="text-base text-gray-600">{claude}</p>
+                  )}
+                </div>
+                <div className="flex items-center">
+                  <p className="w-[80px] font-semibold text-base">Gemini</p>
+                  {isEditing ? (
+                    <input
+                      spellCheck="false"
+                      type="text"
+                      value={gemini}
+                      onChange={(e) => setGemini(e.target.value)}
+                      className="border rounded-md w-64 px-3 py-2 text-gray-700"
+                    />
+                  ) : (
+                    <p className="text-base text-gray-600">{gemini}</p>
+                  )}
+                  <button
+                    onClick={isEditing ? handleSave : () => setIsEditing(true)}
+                    className="border bg-[#DBDBDB] hover:bg-[#B0B0B0] rounded-md w-[80px] h-[35px] font-semibold ml-auto"
+                  >
+                    {isEditing ? "저장" : "설정"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
