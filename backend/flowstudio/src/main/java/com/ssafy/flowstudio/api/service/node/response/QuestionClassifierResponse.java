@@ -15,8 +15,8 @@ public class QuestionClassifierResponse extends NodeResponse {
     private final String classList;
 
     @Builder
-    private QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> sourceEdges, List<EdgeResponse> targetEdges, String classList) {
-        super(nodeId, name, type, coordinate, sourceEdges, targetEdges);
+    public QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String classList) {
+        super(nodeId, name, type, coordinate, outputEdges, inputEdges);
         this.classList = classList;
     }
 
@@ -26,8 +26,8 @@ public class QuestionClassifierResponse extends NodeResponse {
                 .name(questionClassifier.getName())
                 .type(questionClassifier.getType())
                 .coordinate(CoordinateResponse.from(questionClassifier.getCoordinate()))
-                .sourceEdges(questionClassifier.getSourceEdges().stream().map(EdgeResponse::from).toList())
-                .targetEdges(questionClassifier.getTargetEdges().stream().map(EdgeResponse::from).toList())
+                .outputEdges(questionClassifier.getOutputEdges().stream().map(EdgeResponse::from).toList())
+                .inputEdges(questionClassifier.getInputEdges().stream().map(EdgeResponse::from).toList())
                 .classList(questionClassifier.getClassList())
                 .build();
     }

@@ -5,7 +5,6 @@ import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,11 +38,10 @@ public abstract class Node extends BaseEntity {
     private Coordinate coordinate;
 
     @OneToMany(mappedBy = "sourceNode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Edge> sourceEdges = new ArrayList<>();
+    private List<Edge> outputEdges = new ArrayList<>();
 
     @OneToMany(mappedBy = "targetNode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Edge> targetEdges = new ArrayList<>();
-
+    private List<Edge> inputEdges = new ArrayList<>();
 
     protected Node(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate) {
         this.id = id;

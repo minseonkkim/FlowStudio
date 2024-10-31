@@ -15,8 +15,8 @@ public class StartResponse extends NodeResponse {
     private final int maxLength;
 
     @Builder
-    private StartResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> sourceEdges, List<EdgeResponse> targetEdges, int maxLength) {
-        super(nodeId, name, type, coordinate, sourceEdges, targetEdges);
+    public StartResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, int maxLength) {
+        super(nodeId, name, type, coordinate, outputEdges, inputEdges);
         this.maxLength = maxLength;
     }
 
@@ -26,8 +26,8 @@ public class StartResponse extends NodeResponse {
                 .name(start.getName())
                 .type(start.getType())
                 .coordinate(CoordinateResponse.from(start.getCoordinate()))
-                .sourceEdges(start.getSourceEdges().stream().map(EdgeResponse::from).toList())
-                .targetEdges(start.getTargetEdges().stream().map(EdgeResponse::from).toList())
+                .outputEdges(start.getOutputEdges().stream().map(EdgeResponse::from).toList())
+                .inputEdges(start.getInputEdges().stream().map(EdgeResponse::from).toList())
                 .maxLength(start.getMaxLength())
                 .build();
     }

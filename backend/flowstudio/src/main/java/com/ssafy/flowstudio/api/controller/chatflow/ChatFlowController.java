@@ -40,7 +40,7 @@ public class ChatFlowController {
             @CurrentUser User user,
             @Valid @RequestBody ChatFlowCreateRequest request
     ) {
-        return ApiResponse.ok(chatFlowService.createChatFlow(user, request));
+        return ApiResponse.ok(chatFlowService.createChatFlow(user, request.toServiceRequest()));
     }
 
     @PatchMapping(value = "/api/v1/chat-flows/{chatFlowId}")

@@ -12,12 +12,12 @@ import java.util.List;
 @Getter
 public class ConditionalResponse extends NodeResponse {
 
-    private final String sub_conditional_list;
+    private final String subConditionalList;
 
     @Builder
-    private ConditionalResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> sourceEdges, List<EdgeResponse> targetEdges, String subConditionalList) {
-        super(nodeId, name, type, coordinate, sourceEdges, targetEdges);
-        sub_conditional_list = subConditionalList;
+    public ConditionalResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String subConditionalList) {
+        super(nodeId, name, type, coordinate, outputEdges, inputEdges);
+        this.subConditionalList = subConditionalList;
     }
 
     public static ConditionalResponse from(Conditional conditional) {
@@ -26,8 +26,8 @@ public class ConditionalResponse extends NodeResponse {
                 .name(conditional.getName())
                 .type(conditional.getType())
                 .coordinate(CoordinateResponse.from(conditional.getCoordinate()))
-                .sourceEdges(conditional.getSourceEdges().stream().map(EdgeResponse::from).toList())
-                .targetEdges(conditional.getTargetEdges().stream().map(EdgeResponse::from).toList())
+                .outputEdges(conditional.getOutputEdges().stream().map(EdgeResponse::from).toList())
+                .inputEdges(conditional.getInputEdges().stream().map(EdgeResponse::from).toList())
                 .subConditionalList(conditional.getSubConditionalList())
                 .build();
     }

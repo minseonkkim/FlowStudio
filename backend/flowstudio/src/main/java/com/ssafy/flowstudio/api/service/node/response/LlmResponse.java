@@ -16,8 +16,8 @@ public class LlmResponse extends NodeResponse {
     private final String promptUser;
 
     @Builder
-    private LlmResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> sourceEdges, List<EdgeResponse> targetEdges, String promptSystem, String promptUser) {
-        super(nodeId, name, type, coordinate, sourceEdges, targetEdges);
+    public LlmResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String promptSystem, String promptUser) {
+        super(nodeId, name, type, coordinate, outputEdges, inputEdges);
         this.promptSystem = promptSystem;
         this.promptUser = promptUser;
     }
@@ -28,8 +28,8 @@ public class LlmResponse extends NodeResponse {
                 .name(llm.getName())
                 .type(llm.getType())
                 .coordinate(CoordinateResponse.from(llm.getCoordinate()))
-                .sourceEdges(llm.getSourceEdges().stream().map(EdgeResponse::from).toList())
-                .targetEdges(llm.getTargetEdges().stream().map(EdgeResponse::from).toList())
+                .outputEdges(llm.getOutputEdges().stream().map(EdgeResponse::from).toList())
+                .inputEdges(llm.getInputEdges().stream().map(EdgeResponse::from).toList())
                 .promptSystem(llm.getPromptSystem())
                 .promptUser(llm.getPromptUser())
                 .build();
