@@ -17,27 +17,16 @@ public abstract class NodeResponse {
     private String name;
     private NodeType type;
     private CoordinateResponse coordinate;
-    private List<EdgeResponse> sourceEdges;
-    private List<EdgeResponse> targetEdges;
+    private List<EdgeResponse> outputEdges;
+    private List<EdgeResponse> inputEdges;
 
-    protected NodeResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> sourceEdges, List<EdgeResponse> targetEdges) {
+    protected NodeResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges) {
         this.nodeId = nodeId;
         this.name = name;
         this.type = type;
         this.coordinate = coordinate;
-        this.sourceEdges = sourceEdges;
-        this.targetEdges = targetEdges;
+        this.outputEdges = outputEdges;
+        this.inputEdges = inputEdges;
     }
-
-//    public static NodeResponse from(Node node) {
-//        return NodeResponse.builder()
-//                .nodeId(node.getId())
-//                .name(node.getName())
-//                .type(node.getType())
-//                .coordinate(CoordinateResponse.from(node.getCoordinate()))
-//                .sourceEdges(node.getSourceEdges().stream().map(EdgeResponse::from).collect(Collectors.toList()))
-//                .targetEdges(node.getTargetEdges().stream().map(EdgeResponse::from).collect(Collectors.toList()))
-//                .build();
-//    }
 
 }

@@ -22,7 +22,7 @@ public class Knowledge extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "document_id")
+    @Column(name = "knowledge_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
