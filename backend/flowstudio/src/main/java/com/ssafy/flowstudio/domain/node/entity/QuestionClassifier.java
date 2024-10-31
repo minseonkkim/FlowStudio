@@ -14,16 +14,16 @@ import lombok.NoArgsConstructor;
 public class QuestionClassifier extends Node {
 
     @Lob
-    private String class_list;
+    private String classList;
 
     @Lob
-    private String model_param_list;
+    private String modelParamList;
 
     @Builder
-    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String class_list, String model_param_list) {
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList) {
         super(id, chatFlow, name, type, coordinate);
-        this.class_list = class_list;
-        this.model_param_list = model_param_list;
+        this.classList = classList;
+        this.modelParamList = modelParamList;
     }
 
     public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {

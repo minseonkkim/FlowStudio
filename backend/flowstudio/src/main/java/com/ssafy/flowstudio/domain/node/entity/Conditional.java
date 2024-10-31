@@ -15,12 +15,12 @@ import lombok.NoArgsConstructor;
 public class Conditional extends Node {
 
     @Lob
-    private String sub_conditional_list;
+    private String subConditionalList;
 
     @Builder
-    private Conditional(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String sub_conditional_list) {
+    private Conditional(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String subConditionalList) {
         super(id, chatFlow, name, type, coordinate);
-        this.sub_conditional_list = sub_conditional_list;
+        this.subConditionalList = subConditionalList;
     }
 
     public static Conditional create(ChatFlow chatFlow, Coordinate coordinate) {
