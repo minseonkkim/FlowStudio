@@ -20,7 +20,7 @@ public class ChatFlowCategory {
     @JoinColumn(name = "chat_flow_id", nullable = false)
     private ChatFlow chatFlow;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
