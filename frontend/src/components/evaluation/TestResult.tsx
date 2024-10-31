@@ -29,8 +29,8 @@ const items = [
 ];
 
 export default function TestResult() {
-  const calculateMeanAndVariance = (key: string) => {
-    const values = items.map((item) => item["id"]);
+  const calculateMeanAndVariance = (key: keyof typeof items[0]) => {
+    const values = items.map((item) => item[key] as number);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
     const variance =
       values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /

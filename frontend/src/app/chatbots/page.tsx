@@ -4,60 +4,69 @@ import CreateChatbotModal from "@/components/chatbot/CreateChatbotModal";
 import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "@/components/common/Search";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { selectedChatbotState } from "@/store/chatbotAtoms";
 
 interface Chatbot {
   id: number;
   title: string;
   description: string;
   category: string[];
-  iconId: number; 
+  iconId: number;
 }
 
 const chatbots: Chatbot[] = [
   {
     id: 1,
     title: "Workflow Planning Assistant",
-    description: "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
+    description:
+      "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
     category: ["교육", "금융"],
     iconId: 1,
   },
   {
     id: 2,
     title: "Financial Advisor Bot",
-    description: "Provides insights and suggestions for better financial planning (v1.2.3).",
+    description:
+      "Provides insights and suggestions for better financial planning (v1.2.3).",
     category: ["교육", "금융"],
-    iconId: 1,
+    iconId: 2,
   },
   {
     id: 3,
     title: "Health Tracker Assistant",
-    description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
+    description:
+      "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
     category: ["헬스케어"],
-    iconId: 1,
+    iconId: 3,
   },
   {
     id: 4,
     title: "E-Commerce Helper",
-    description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
+    description:
+      "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
     category: ["전자 상거래", "헬스케어"],
-    iconId: 1,
+    iconId: 4,
   },
   {
     id: 5,
     title: "Travel Itinerary Planner",
-    description: "Helps you create and organize your travel plans with ease (v0.8.7).",
+    description:
+      "Helps you create and organize your travel plans with ease (v0.8.7).",
     category: ["여행"],
-    iconId: 1,
+    iconId: 5,
   },
 ];
-
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
+  const router = useRouter();
 
   const categories = [
     "모든 챗봇",
@@ -74,9 +83,23 @@ export default function Page() {
     setSelectedCategory(label);
   };
 
+  const handleCreateClick = () => {
+    setSelectedChatbot(null); 
+    setIsCreateModalOpen(true); 
+  };
+
+  const handleUpdateClick = (chatbot: Chatbot) => {
+    setSelectedChatbot(chatbot); 
+    setIsCreateModalOpen(true); 
+  };
+
   const filteredChatbots = chatbots.filter((bot) => {
-    const matchesCategory = selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
-    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" ||
+      bot.category.includes(selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -86,7 +109,7 @@ export default function Page() {
         <div className="mb-2 flex items-center">
           <p className="text-[22px] mr-6">나의 챗봇</p>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={handleCreateClick}
             className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             챗봇 만들기
@@ -111,10 +134,14 @@ export default function Page() {
           {filteredChatbots.map((bot) => (
             <PopularChatbotCard
               key={bot.id}
+              iconId={bot.iconId}
               title={bot.title}
               description={bot.description}
+              type="my"
               category={bot.category}
-              onButtonClick={() => setIsShareModalOpen(true)}
+              onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
+              onButtonUpdateClick={() => handleUpdateClick(bot)}
+              onButtonShareClick={() => setIsShareModalOpen(true)}
             />
           ))}
         </div>

@@ -62,7 +62,7 @@ export default function TestCaseInput({
                 onChange={(e) =>
                   updateItem(item.id, "testQuestion", e.target.value)
                 }
-                className="w-full p-2 border rounded-md bg-gray-100"
+                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                 placeholder="Enter test question"
               />
             </div>
@@ -75,7 +75,7 @@ export default function TestCaseInput({
                 onChange={(e) =>
                   updateItem(item.id, "groundTruth", e.target.value)
                 }
-                className="w-full p-2 border rounded-md bg-gray-100"
+                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                 placeholder="Enter ground truth"
               />
             </div>
