@@ -83,6 +83,16 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+def generated = 'src/main/generated'
+
+tasks.withType(JavaCompile).configureEach{
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
+}
+
+clean {
+    delete file(generated)
+}
+
 jacoco {
     toolVersion = "0.8.8"
 }

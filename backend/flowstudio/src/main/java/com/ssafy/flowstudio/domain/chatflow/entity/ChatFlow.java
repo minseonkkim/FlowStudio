@@ -93,4 +93,23 @@ public class ChatFlow extends BaseEntity {
                 .build();
     }
 
+    public void update(String title, String description, String thumbnail, List<Category> categories) {
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+
+        updateCategories(categories);
+    }
+
+    public void updateCategories(List<Category> categories) {
+        this.categories.clear();
+        for (Category category : categories) {
+            this.categories.add(ChatFlowCategory.create(this, category));
+        }
+    }
+
+    public void addNode(Node node) {
+        this.nodes.add(node);
+    }
+
 }

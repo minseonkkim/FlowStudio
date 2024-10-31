@@ -1,14 +1,13 @@
 package com.ssafy.flowstudio.api.controller.chatflow;
 
-import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowCreateRequest;
-import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowCreateServiceRequest;
+import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
+import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
 import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.StartResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
-import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
@@ -152,7 +151,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
     @Test
     void createChatFlows() throws Exception {
         // given
-        ChatFlowCreateRequest request = ChatFlowCreateRequest.builder()
+        ChatFlowRequest request = ChatFlowRequest.builder()
                 .title("title")
                 .thumbnail("thumbnail")
                 .description("description")
@@ -204,7 +203,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .nodes(List.of(node1, node2, node3))
                 .build();
 
-        given(chatFlowService.createChatFlow(any(User.class), any(ChatFlowCreateServiceRequest.class)))
+        given(chatFlowService.createChatFlow(any(User.class), any(ChatFlowServiceRequest.class)))
                 .willReturn(response);
 
         // when
@@ -228,7 +227,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
     @Test
     void updateChatFlows() throws Exception {
         // given
-        ChatFlowCreateRequest request = ChatFlowCreateRequest.builder()
+        ChatFlowRequest request = ChatFlowRequest.builder()
                 .title("title")
                 .thumbnail("thumbnail")
                 .description("description")
@@ -242,7 +241,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .thumbnail("thumbnail")
                 .build();
 
-        given(chatFlowService.updateChatFlow(any(User.class), any(Long.class), any(ChatFlowCreateServiceRequest.class)))
+        given(chatFlowService.updateChatFlow(any(User.class), any(Long.class), any(ChatFlowServiceRequest.class)))
                 .willReturn(response);
 
         // when

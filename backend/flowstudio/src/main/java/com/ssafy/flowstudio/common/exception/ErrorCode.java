@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.common.exception;
 
+import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -22,8 +23,11 @@ public enum ErrorCode {
 
 
     CHAT_FLOW_NOT_FOUND(3000, HttpStatus.NOT_FOUND, "챗플로우를 찾을 수 없습니다."),
+
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
     NODE_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "노드를 찾을 수 없습니다."),
+
+    CATEGORY_NOT_FOUND(5000, HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
     ;
 
     private final int code;
