@@ -60,8 +60,16 @@ export default function ChunkDetailModal({
           <div className='flex gap-3'>
             {isEditing ? (
               <>
-                <WhiteButton w='47px' h='30px' text='취소' borderColor='#9A75BF' textColor='#9A75BF' onHandelButton={handleCancelClick} />
-                <ColorButton w='47px' h='30px' text='수정' onHandelButton={handleSaveClick} />
+              <button 
+                className='py-1 px-2 border border-gray-800 rounded-md text-sm'
+                onClick={handleCancelClick}>
+                취소
+              </button>
+              <button
+                className='py-1 px-2 border rounded-md text-sm text-white bg-gray-800 border-gray-800'
+                onClick={handleSaveClick}>
+                수정
+              </button>
               </>
             ) : (
               <button onClick={handleEditClick} className="text-gray-500 hover:text-gray-700">

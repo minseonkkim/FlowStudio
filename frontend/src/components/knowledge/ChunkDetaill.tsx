@@ -12,10 +12,10 @@ export default function ChunkDetail({ data, onItemSelect }: ChunkDetailProps) {
         <div
           key={item.id}
           onClick={() => onItemSelect(item.content, item.id)}
-          className="w-full h-[204px] px-6 py-4 rounded-xl border-2 group cursor-pointer
-                     transform transition-transform duration-300 hover:scale-105 hover:shadow-md"
+          className="w-full h-[190px] px-6 py-4 rounded-xl border-2 cursor-pointer group
+                     hover:border-black  hover:bg-opacity-5"
         >
-          <div className="border border-gray-400 w-[60px] h-[24px] rounded-lg text-center mb-4">
+          <div className="border border-gray-400 w-[60px] h-[24px] rounded-lg text-center mb-4 ">
             <p>{item.id}</p>
           </div>
           <div className="flex flex-col h-[122px] justify-between">
