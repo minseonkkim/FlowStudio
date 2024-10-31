@@ -47,5 +47,6 @@ public class Edge extends BaseEntity {
                 .targetNode(targetNode)
                 .build();
     }
+
 }
 

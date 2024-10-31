@@ -14,12 +14,12 @@ import lombok.NoArgsConstructor;
 public class Answer extends Node {
 
     @Lob
-    private String output_message;
+    private String outputMessage;
 
     @Builder
-    private Answer(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String output_message) {
+    private Answer(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String outputMessage) {
         super(id, chatFlow, name, type, coordinate);
-        this.output_message = output_message;
+        this.outputMessage = outputMessage;
     }
 
     public static Answer create(ChatFlow chatFlow, Coordinate coordinate) {

@@ -31,15 +31,14 @@ public class ChatFlow extends BaseEntity {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    private Category category;
-
     @Column(nullable = false)
     private String title;
 
     @Column
     private String description;
+
+    @Column
+    private String thumbnail;
 
     @Column
     private boolean isPublic;
@@ -51,16 +50,19 @@ public class ChatFlow extends BaseEntity {
     private String publishUrl;
 
     @OneToMany(mappedBy = "chatFlow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatFlowCategory> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatFlow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Node> nodes = new ArrayList<>();
 
     @Builder
-    private ChatFlow(Long id, User owner, User author, Category category, String title, String description, boolean isPublic, int shareCount, String publishUrl) {
+    private ChatFlow(Long id, User owner, User author, String title, String description, String thumbnail, boolean isPublic, int shareCount, String publishUrl) {
         this.id = id;
         this.owner = owner;
         this.author = author;
-        this.category = category;
         this.title = title;
         this.description = description;
+        this.thumbnail = thumbnail;
         this.isPublic = isPublic;
         this.shareCount = shareCount;
         this.publishUrl = publishUrl;
@@ -79,15 +81,14 @@ public class ChatFlow extends BaseEntity {
         return Objects.hashCode(id);
     }
 
-    public static ChatFlow create(User owner, User author, Category category, String title, String description) {
+    public static ChatFlow create(User owner, User author, String title, String description, String thumbnail) {
         return ChatFlow.builder()
                 .owner(owner)
                 .author(author)
-                .category(category)
                 .title(title)
                 .description(description)
+                .thumbnail(thumbnail)
                 .isPublic(false)
-                .shareCount(0)
                 .publishUrl("")
                 .build();
     }
