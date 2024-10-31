@@ -92,9 +92,9 @@ const initialEdges = [
   { id: "e1-2", source: "1", target: "2" },
   { id: "e2-3", source: "2", target: "3" },
   { id: "e3-4", source: "3", target: "4" },
-  { id: "e4-5", source: "4", target: "5" },
+  { id: "e4-5", source: "4", target: "5", sourceHandle: "elifsource" },
   { id: "e5-6", source: "5", target: "6" },
-  { id: "e6-7", source: "6", target: "7" },
+  { id: "e6-7", source: "6", target: "7", sourceHandle: "handle2" },
 ];
 
 const nodeTypes = {
@@ -119,8 +119,13 @@ export default function Page() {
   }, []);
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    setEdges((eds) => applyEdgeChanges(changes, eds));
-  }, []);
+  setEdges((eds) =>
+    applyEdgeChanges(changes, eds).map(edge => ({
+      ...edge,
+      sourceHandle: edge.sourceHandle ?? "" 
+    }))
+  );
+}, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNodeId(node.id); 
