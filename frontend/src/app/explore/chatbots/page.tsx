@@ -36,7 +36,7 @@ const chatbots: Chatbot[] = [
     title: "Health Tracker Assistant",
     description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
     category: ["헬스케어"],
-    iconId: 1,
+    iconId: 2,
     shareNum: 180,
   },
   {
@@ -44,7 +44,7 @@ const chatbots: Chatbot[] = [
     title: "E-Commerce Helper",
     description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
     category: ["전자 상거래"],
-    iconId: 1,
+    iconId: 3,
     shareNum: 150,
   },
   {
@@ -52,7 +52,7 @@ const chatbots: Chatbot[] = [
     title: "Travel Itinerary Planner",
     description: "Helps you create and organize your travel plans with ease (v0.8.7).",
     category: ["여행"],
-    iconId: 1,
+    iconId: 6,
     shareNum: 90,
   },
 ];
@@ -97,6 +97,7 @@ export default function Page() {
               key={chatbot.id}
               title={chatbot.title}
               description={chatbot.description}
+              iconId={chatbot.iconId}
               type="all"
               category={chatbot.category}
             />
@@ -129,6 +130,7 @@ export default function Page() {
               key={bot.id}
               title={bot.title}
               description={bot.description}
+              iconId={bot.iconId}
               category={bot.category}
               onButtonClick={() => console.log(`Selected ${bot.title}`)}
             />

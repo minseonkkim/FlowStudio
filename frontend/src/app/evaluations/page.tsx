@@ -26,28 +26,28 @@ const chatbots: Chatbot[] = [
     title: "Financial Advisor Bot",
     description: "Provides insights and suggestions for better financial planning (v1.2.3).",
     category: ["금융"],
-    iconId: 1,
+    iconId: 5,
   },
   {
     id: 3,
     title: "Health Tracker Assistant",
     description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
     category: ["헬스케어"],
-    iconId: 1,
+    iconId: 2,
   },
   {
     id: 4,
     title: "E-Commerce Helper",
     description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
     category: ["전자 상거래"],
-    iconId: 1,
+    iconId: 3,
   },
   {
     id: 5,
     title: "Travel Itinerary Planner",
     description: "Helps you create and organize your travel plans with ease (v0.8.7).",
     category: ["여행"],
-    iconId: 1,
+    iconId: 4,
   },
 ];
 
@@ -118,6 +118,7 @@ const Page = () => {
             key={chatbot.id}
             title={chatbot.title}
             description={chatbot.description}
+            iconId={chatbot.iconId}
             category={chatbot.category}
             onButtonClick={() => handleResultClick(chatbot.id)}
           />

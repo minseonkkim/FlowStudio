@@ -6,6 +6,8 @@ import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "@/components/common/Search";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { selectedChatbotState } from "@/store/chatbotAtoms";
 
 interface Chatbot {
   id: number;
@@ -30,7 +32,7 @@ const chatbots: Chatbot[] = [
     description:
       "Provides insights and suggestions for better financial planning (v1.2.3).",
     category: ["교육", "금융"],
-    iconId: 1,
+    iconId: 2,
   },
   {
     id: 3,
@@ -38,7 +40,7 @@ const chatbots: Chatbot[] = [
     description:
       "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
     category: ["헬스케어"],
-    iconId: 1,
+    iconId: 3,
   },
   {
     id: 4,
@@ -46,7 +48,7 @@ const chatbots: Chatbot[] = [
     description:
       "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
     category: ["전자 상거래", "헬스케어"],
-    iconId: 1,
+    iconId: 4,
   },
   {
     id: 5,
@@ -54,7 +56,7 @@ const chatbots: Chatbot[] = [
     description:
       "Helps you create and organize your travel plans with ease (v0.8.7).",
     category: ["여행"],
-    iconId: 1,
+    iconId: 5,
   },
 ];
 
@@ -63,6 +65,7 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const router = useRouter();
 
   const categories = [
@@ -78,6 +81,16 @@ export default function Page() {
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
+  };
+
+  const handleCreateClick = () => {
+    setSelectedChatbot(null); 
+    setIsCreateModalOpen(true); 
+  };
+
+  const handleUpdateClick = (chatbot: Chatbot) => {
+    setSelectedChatbot(chatbot); 
+    setIsCreateModalOpen(true); 
   };
 
   const filteredChatbots = chatbots.filter((bot) => {
@@ -96,7 +109,7 @@ export default function Page() {
         <div className="mb-2 flex items-center">
           <p className="text-[22px] mr-6">나의 챗봇</p>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={handleCreateClick}
             className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
           >
             챗봇 만들기
@@ -121,12 +134,13 @@ export default function Page() {
           {filteredChatbots.map((bot) => (
             <PopularChatbotCard
               key={bot.id}
+              iconId={bot.iconId}
               title={bot.title}
               description={bot.description}
               type="my"
               category={bot.category}
               onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
-              onButtonUpdateClick={() => setIsCreateModalOpen(true)}
+              onButtonUpdateClick={() => handleUpdateClick(bot)}
               onButtonShareClick={() => setIsShareModalOpen(true)}
             />
           ))}

@@ -1,11 +1,13 @@
 import { FiShare } from "@react-icons/all-files/fi/FiShare";
 import { BsThreeDots } from "@react-icons/all-files/bs/BsThreeDots";
 import { useState } from "react";
+import Image from "next/image";
 
 interface PopularChatbotCardProps {
   title: string;
   description: string;
   category: string[];
+  iconId: number;
   type?: "my" | "all";
   onCardClick?: () => void;
   onButtonUpdateClick?: () => void;
@@ -16,6 +18,7 @@ export default function PopularChatbotCard({
   title,
   description,
   category,
+  iconId,
   type,
   onCardClick,
   onButtonUpdateClick,
@@ -26,12 +29,18 @@ export default function PopularChatbotCard({
   return (
     <div
       onClick={onCardClick}
-      className={`w-full h-[190px] px-6 py-4 rounded-xl border-2 cursor-pointer hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 ${
+      className={`w-full h-[194px] px-6 py-5 rounded-xl border-2 cursor-pointer hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 ${
         type === "all" ? "group" : ""
       }`}
     >
-      <div className="mb-3 flex items-center gap-2">
-        <div className="mr-2 w-[36px] h-[36px] rounded-md bg-gray-200"></div>
+      <div className="mb-3 flex items-center gap-4">
+        <Image
+          src={`/chatbot-icon/${iconId}.jpg`}
+          alt="Selected Icon"
+          width={40}
+          height={40}
+          className="rounded-lg border border-gray-300"
+        />
         <p className="text-[16px]">{title}</p>
       </div>
 
@@ -66,10 +75,7 @@ export default function PopularChatbotCard({
               className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
             >
               <button>
-                <BsThreeDots
-                  size={18}
-                  className="text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
-                />
+                <BsThreeDots size={18} className="text-[#667085]" />
               </button>
 
               {/* 드롭다운 메뉴 */}
