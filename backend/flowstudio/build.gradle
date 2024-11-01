@@ -5,6 +5,7 @@ plugins {
     id "org.asciidoctor.jvm.convert" version "3.3.2"
     id 'com.epages.restdocs-api-spec' version '0.18.4'
     id 'jacoco'
+    id "org.sonarqube" version "5.1.0.4882"
 }
 
 group = 'com.ssafy'
@@ -91,6 +92,14 @@ tasks.withType(JavaCompile).configureEach{
 
 clean {
     delete file(generated)
+}
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", System.getenv("SONAR_PROJECT_KEY")
+        property "sonar.host.url", System.getenv("SONAR_HOST_URL")
+        property "sonar.login", System.getenv("SONAR_LOGIN")
+    }
 }
 
 jacoco {
