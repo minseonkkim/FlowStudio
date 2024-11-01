@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
@@ -53,20 +53,20 @@ const initialNodes: Node[] = [
   {
     id: "2",
     type: "llmNode",
-    data: { prompts: [{type: "system", text: ""}], model: models[0].id },
+    data: { prompts: [{ type: "system", text: "" }], model: models[0].id },
     position: { x: 460, y: 100 },
   },
   {
     id: "3",
     type: "knowledgeNode",
-    data: {  },
+    data: {},
     position: { x: 700, y: 100 },
   },
   {
     id: "4",
     type: "ifelseNode",
-    data: {  },
-    position: { x: 900, y: 100 },
+    data: {},
+    position: { x: 880, y: 80 },
   },
   {
     id: "5",
@@ -77,13 +77,13 @@ const initialNodes: Node[] = [
   {
     id: "6",
     type: "questionclassifierNode",
-    data: { classes: [{text: ""}, {text: ""}] },
+    data: { classes: [{ text: "" }, { text: "" }] },
     position: { x: 1300, y: 100 },
   },
   {
     id: "7",
     type: "variableallocatorNode",
-    data: {  },
+    data: {},
     position: { x: 1500, y: 100 },
   },
 ];
@@ -119,26 +119,26 @@ export default function Page() {
   }, []);
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-  setEdges((eds) =>
-    applyEdgeChanges(changes, eds).map(edge => ({
-      ...edge,
-      sourceHandle: edge.sourceHandle ?? "" 
-    }))
-  );
-}, []);
+    setEdges((eds) =>
+      applyEdgeChanges(changes, eds).map((edge) => ({
+        ...edge,
+        sourceHandle: edge.sourceHandle ?? "",
+      }))
+    );
+  }, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id); 
+    setSelectedNodeId(node.id);
     setSelectedNode(node);
     setShowVariableDetail(false);
   }, []);
 
   const handleCloseDetail = useCallback(() => {
-    setSelectedNode(null); 
+    setSelectedNode(null);
   }, []);
 
   const handleVariableButtonClick = useCallback(() => {
-    setShowVariableDetail((prev) => !prev); 
+    setShowVariableDetail((prev) => !prev);
   }, []);
 
   // 시작 노드 - 최대 글자 수 업데이트
@@ -152,21 +152,26 @@ export default function Page() {
     );
   }, []);
 
-  // LLM 노드 - 모델 업데이트
-  const updateSelectedModel = useCallback((nodeId: string, newModel: string) => {
-    setNodes((nds) =>
-      nds.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, model: newModel } }
-          : node
-      )
-    );
-    if (selectedNode && selectedNode.id === nodeId) {
-      setSelectedNode((prevNode) => prevNode ? { ...prevNode, data: { ...prevNode.data, model: newModel } } : null);
-    }
-  }, [selectedNode]);
+  // LLM - 모델 업데이트
+  const updateSelectedModel = useCallback(
+    (nodeId: string, newModel: string) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, model: newModel } }
+            : node
+        )
+      );
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode((prevNode) =>
+          prevNode ? { ...prevNode, data: { ...prevNode.data, model: newModel } } : null
+        );
+      }
+    },
+    [selectedNode]
+  );
 
-  // LLM 노드 - 프롬프트 업데이트
+  // LLM - 프롬프트 업데이트
   const updateNodePrompts = useCallback(
     (nodeId: string, newPrompts: { type: string; text: string }[]) => {
       setNodes((nds) =>
@@ -177,14 +182,22 @@ export default function Page() {
         )
       );
       if (selectedNode && selectedNode.id === nodeId) {
-        setSelectedNode((prevNode) => prevNode ? { ...prevNode, data: { ...prevNode.data, prompts: newPrompts } } : null);
+        setSelectedNode((prevNode) =>
+          prevNode
+            ? {
+                ...prevNode,
+                data: { ...prevNode.data, prompts: newPrompts },
+              }
+            : null
+        );
       }
     },
     [selectedNode]
   );
 
-  // LLM 노드 - 프롬프트 삭제
-  const removePrompt = useCallback((nodeId: string, index: number) => {
+  // LLM - 프롬프트 삭제
+  const removePrompt = useCallback(
+    (nodeId: string, index: number) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -192,13 +205,13 @@ export default function Page() {
                 ...node,
                 data: {
                   ...node.data,
-                  prompts: node.data.prompts.filter((_: any, i: number) => i !== index),
+                  prompts: node.data.prompts.filter((_: unknown, i: number) => i !== index),
                 },
               }
             : node
         )
       );
-      
+
       if (selectedNode && selectedNode.id === nodeId) {
         setSelectedNode((prevNode) =>
           prevNode
@@ -206,15 +219,20 @@ export default function Page() {
                 ...prevNode,
                 data: {
                   ...prevNode.data,
-                  prompts: prevNode.data.prompts.filter((_: any, i: number) => i !== index),
+                  prompts: prevNode.data.prompts.filter(
+                    (_: unknown, i: number) => i !== index
+                  ),
                 },
               }
             : null
         );
       }
-    }, [selectedNode]);
+    },
+    [selectedNode]
+  );
 
-  // 답변 노드 - 답변 업데이트
+
+  // 답변 - 답변 업데이트
   const updateAnswer = useCallback((nodeId: string, answer: string) => {
     setNodes((nds) =>
       nds.map((node) =>
@@ -225,9 +243,9 @@ export default function Page() {
     );
   }, []);
 
-  // 질문 분류기 노드 - 클래스 업데이트
+  // 질문 분류기 - 클래스 업데이트
   const updateClasses = useCallback(
-    (nodeId: string, newClasses: {text: string}[]) => { 
+    (nodeId: string, newClasses: { text: string }[]) => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -244,10 +262,12 @@ export default function Page() {
     [selectedNode]
   );
 
-  // 변수 관리
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
-  >([{ name: "변수1", value: "", type: "string", isEditing: false }, { name: "변수2", value: "", type: "string", isEditing: false }]);
+  >([
+    { name: "변수1", value: "", type: "string", isEditing: false },
+    { name: "변수2", value: "", type: "string", isEditing: false },
+  ]);
 
   const handleVariableChange = (
     index: number,
@@ -347,11 +367,27 @@ export default function Page() {
     }
   }, [selectedNodeId, nodes]);
 
+  const getConnectedNodes = (nodeId: string) => {
+    return edges
+      .filter((edge) => edge.source === nodeId)
+      .map((edge) => {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+      });
+  };
 
-
+  const handleRemoveNode = (sourceNodeId: string, targetNodeId: string) => {
+    setEdges((currentEdges) =>
+      currentEdges.filter(
+        (edge) => !(edge.source === sourceNodeId && edge.target === targetNodeId)
+      )
+    );
+  };
 
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
+
+    const connectedNodeDetails = getConnectedNodes(selectedNode.id);
 
     switch (selectedNode.type) {
       case "startNode":
@@ -363,6 +399,10 @@ export default function Page() {
             }
             addNode={addNode}
             onClose={handleCloseDetail}
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+              handleRemoveNode(selectedNode.id, targetNodeId)
+            }
           />
         );
       case "llmNode":
@@ -375,35 +415,67 @@ export default function Page() {
             removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
             addNode={addNode}
             onClose={handleCloseDetail}
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+              handleRemoveNode(selectedNode.id, targetNodeId)
+            }
           />
         );
       case "knowledgeNode":
-        return <KnowledgeNodeDetail addNode={addNode} onClose={handleCloseDetail} />;
+        return (
+          <KnowledgeNodeDetail 
+            addNode={addNode} 
+            onClose={handleCloseDetail} 
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+                handleRemoveNode(selectedNode.id, targetNodeId)
+              }/>);
       case "ifelseNode":
-        return <IfelseNodeDetail variables={variables} addNode={addNode} onClose={handleCloseDetail}/>;
+        return (
+        <IfelseNodeDetail 
+          variables={variables} 
+          addNode={addNode} 
+          onClose={handleCloseDetail} 
+          connectedNodes={connectedNodeDetails}
+          setConnectedNodes={(targetNodeId) =>
+                handleRemoveNode(selectedNode.id, targetNodeId)
+              }/>);
       case "answerNode":
         return (
-          <AnswerNodeDetail 
+          <AnswerNodeDetail
             answer={selectedNode.data.answer}
-            setAnswer={(newAnswer: string) =>
-              updateAnswer(selectedNode.id, newAnswer)
-            }
+            setAnswer={(newAnswer: string) => updateAnswer(selectedNode.id, newAnswer)}
             addNode={addNode}
-            onClose={handleCloseDetail}/>
+            onClose={handleCloseDetail}
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+                handleRemoveNode(selectedNode.id, targetNodeId)
+              }
+          />
         );
       case "questionclassifierNode":
-          return (
-            <QuestionClassifierNodeDetail
-              classes={selectedNode.data.classes || []}
-              setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
-              addNode={addNode}
-              onClose={handleCloseDetail}
-            />
-          );
+        return (
+          <QuestionClassifierNodeDetail
+            classes={selectedNode.data.classes || []}
+            setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
+            addNode={addNode}
+            onClose={handleCloseDetail}
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+                handleRemoveNode(selectedNode.id, targetNodeId)
+              }
+          />
+        );
       case "variableallocatorNode":
         return (
-          <VariableAllocatorNodeDetail variables={variables} addNode={addNode} onClose={handleCloseDetail}/>
-        );
+          <VariableAllocatorNodeDetail 
+            variables={variables} 
+            addNode={addNode} 
+            onClose={handleCloseDetail} 
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+                handleRemoveNode(selectedNode.id, targetNodeId)
+              }/>);
       default:
         return null;
     }
@@ -412,14 +484,16 @@ export default function Page() {
   const renderVariableDetail = () => {
     if (!showVariableDetail) return null;
 
-    return <VariableDetail
+    return (
+      <VariableDetail
         variables={variables}
         handleVariableChange={handleVariableChange}
         handleAddVariable={handleAddVariable}
         handleRemoveVariable={handleRemoveVariable}
         handleEditToggle={handleEditToggle}
         onClose={() => setShowVariableDetail(false)}
-      />;
+      />
+    );
   };
 
   const [showChatbotCreationModal, setShowChatbotCreationModal] = useState(false);
@@ -438,19 +512,18 @@ export default function Page() {
         </button>
         <div className="flex flex-col gap-3">
           <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
-            앱 실행<BsArrowUpRight/>
+            앱 실행<BsArrowUpRight />
           </button>
           <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
-            사이트에 삽입<BsArrowUpRight/>
+            사이트에 삽입<BsArrowUpRight />
           </button>
         </div>
-        
       </div>
     );
   };
 
   const nodesWithSelection = nodes.map((node) => ({
-    ...node, 
+    ...node,
     selected: node.id === selectedNodeId,
   }));
 
@@ -463,15 +536,18 @@ export default function Page() {
         >
           변수
         </button>
-        <button onClick={handleChatbotCreationClick} className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer">
-          챗봇 생성 <MdKeyboardArrowDown className="size-4"/>
+        <button
+          onClick={handleChatbotCreationClick}
+          className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+        >
+          챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
       </div>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail()}
         {renderVariableDetail()}
       </div>
-      {renderChatbotCreationModal()}
+      {renderChatbotCreationModal}
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow

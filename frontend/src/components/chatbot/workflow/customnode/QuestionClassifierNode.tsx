@@ -12,10 +12,8 @@ export default function QuestionClassifierNode({ data, selected }: any) {
   const [handlePositions, setHandlePositions] = useState<number[]>([]);
 
   useEffect(() => {
-    // Clean up classRefs to match the current number of classes
     classRefs.current = classRefs.current.slice(0, data.classes.length);
     
-    // Update positions based on the latest refs and offset positions
     const newPositions = classRefs.current.map((el) => {
       if (el) {
         const { offsetTop, offsetHeight } = el;
@@ -24,7 +22,7 @@ export default function QuestionClassifierNode({ data, selected }: any) {
       return 0;
     });
     setHandlePositions(newPositions);
-  }, [data.classes]); // Re-run effect when classes change
+  }, [data.classes]);
 
   return (
     <div
