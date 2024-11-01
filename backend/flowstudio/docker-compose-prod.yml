@@ -21,7 +21,7 @@ services:
     environment:
       SWAGGER_JSON: /usr/share/nginx/html/docs/openapi3.yml
     volumes:
-      - ./build/api-spec:/usr/share/nginx/html/docs
+      - /var/jenkins_home/workspace/flow-studio-backend/backend/flowstudio/build/api-spec:/usr/share/nginx/html/docs
 
   cache-database:
     image: redis:7.4-rc2-alpine
