@@ -93,7 +93,7 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div>
-        <p className="mb-4 text-[22px]">가장 인기있는 챗봇</p>
+        <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
         <div className="md:hidden">
           <Swiper
             spaceBetween={16}
@@ -139,7 +139,7 @@ export default function Page() {
       </div>
 
       <div className="mt-16">
-        <p className="mb-2 text-[22px]">챗봇 라운지</p>
+        <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
 
         {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">

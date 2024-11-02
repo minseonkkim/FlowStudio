@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from '@/components/common/Search';
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
+import PurpleButton from '@/components/common/PurpleButton';
 
 interface Chatbot {
   id: number;
@@ -89,13 +90,8 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex items-center mb-2">
-        <p className="text-[22px] mr-6">챗봇 평가 결과</p>
-          <button
-            onClick={() => handleEvaluationClick()}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
-          >
-            챗봇 평가하기
-          </button>
+        <p className="font-semibold text-[24px] text-gray-700 mr-6">챗봇 평가 결과</p>
+        <PurpleButton text='챗봇 평가하기' onHandelButton={() => handleEvaluationClick()} />
       </div>
 
       {/* 카테고리 선택 */}

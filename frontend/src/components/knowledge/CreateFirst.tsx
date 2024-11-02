@@ -3,11 +3,10 @@
 import { useState } from 'react';
 import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
-import ColorButton from '../common/ColorButton';
-import WhiteButton from '../common/whiteButton';
 import { useRecoilState } from 'recoil';
 import { currentStepState } from '@/store/atoms';
 import { fileNameState } from '@/store/atoms';  
+import PurpleButton from '../common/PurpleButton';
 
 export default function CreateFirst() {
   const [file, setFile] = useState<File | null>(null);
@@ -69,7 +68,14 @@ export default function CreateFirst() {
               </div>
             </div>
           </label>
-          <WhiteButton w='80px' h='40px' text='다음' borderColor='#9A75BF' textColor='#9A75BF'/>
+   
+          <p className="text-sm text-red-500 mb-2">파일을 추가해주세요</p>
+          <button
+            disabled
+            className='py-2 px-4 text-[14px] bg-[#c4b2d6] text-white rounded-lg cursor-not-allowed'
+          >
+            다음
+          </button>
         </>
       ) : (
         <>
@@ -77,7 +83,7 @@ export default function CreateFirst() {
             <span className=' group-hover:text-[#757575]'>{fileName}</span>
             <CgTrash className='h-6 w-6 cursor-pointer hidden group-hover:flex text-[#9A75BF]' onClick={clearFile} />
           </div>
-          <ColorButton w='80px' h='40px' text='다음' onHandelButton={onChange2Step} />
+          <PurpleButton text='다음' onHandelButton={onChange2Step} />
         </>
       )}
     </div>

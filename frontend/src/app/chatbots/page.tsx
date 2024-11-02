@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
+import PurpleButton from "@/components/common/PurpleButton";
 
 interface Chatbot {
   id: number;
@@ -107,13 +108,8 @@ export default function Page() {
     <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
         <div className="mb-2 flex items-center">
-          <p className="text-[22px] mr-6">나의 챗봇</p>
-          <button
-            onClick={handleCreateClick}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
-          >
-            챗봇 만들기
-          </button>
+          <p className="font-semibold text-[24px] text-gray-700 mr-6">나의 챗봇</p>
+          <PurpleButton text='챗봇 만들기' onHandelButton={handleCreateClick} />
         </div>
         
         {/* 카테고리 선택 */}

@@ -29,7 +29,7 @@ export default function ShareChatbotModal({ onClose }: ShareChatbotModalProps) {
 
   return (
     <div className="flex flex-col bg-white w-[500px] h-[400px] p-8 rounded-xl shadow-lg">
-      <p className="mb-4 text-[22px]">챗봇 공유하기</p>
+      <p className="mb-4 text-[22px]">챗봇 공유</p>
       <p className="mb-2 text-gray-700">포함된 문서</p>
       
       <div className="flex-grow overflow-y-auto">

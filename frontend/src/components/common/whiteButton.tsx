@@ -1,25 +1,12 @@
-import React from 'react';
-
 export interface WhiteButtonProps {
-  w: string;   // 너비
-  h: string;   // 높이
-  text: string; // 텍스트
-  borderColor: string; // 테두리 색깔
-  textColor: string; // 텍스트 색깔
-  onHandelButton?: (event: React.MouseEvent<HTMLButtonElement>) => void; // 버튼 클릭 함수
+  text: string; 
+  onHandelButton?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-export default function WhiteButton({ w, h, text, borderColor, textColor, onHandelButton }: WhiteButtonProps) {
+export default function WhiteButton({ text, onHandelButton }: WhiteButtonProps) {
   return (
     <button
-      className={`flex justify-center items-center rounded-lg text-[14px] font-medium`}
-      style={{ 
-        width: w, 
-        height: h, 
-        border: `2px solid ${borderColor}`, 
-        color: textColor, 
-        backgroundColor: 'white' 
-      }}  
+      className='py-2 px-4 text-[14px] border-2 border-[#9A75BF] text-[#9A75BF] rounded-lg hover:bg-[#f3e8ff] active:bg-[#e3d1f7]'
       onClick={onHandelButton}
     >
       {text}

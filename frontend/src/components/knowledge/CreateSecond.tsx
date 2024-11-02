@@ -8,9 +8,9 @@ import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosIn
 import { useRecoilState } from 'recoil';
 import { fileNameState } from '@/store/atoms'; 
 import { currentStepState } from '@/store/atoms';
-import ColorButton from '../common/ColorButton';
 import WhiteButton from '../common/whiteButton';
 import { Tooltip } from 'react-tooltip';
+import PurpleButton from '../common/PurpleButton';
 
 export default function CreateSecond() {
   const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  // 세그먼트 식별자
@@ -133,7 +133,7 @@ export default function CreateSecond() {
                 />
               </div>
               <div className="w-[490px] mt-4">
-                <ColorButton w='85px' h='33px' text='미리보기' onHandelButton={onChangePreview}/>
+                <PurpleButton text='미리보기' onHandelButton={onChangePreview}/>
               </div>
             </div>
           </div>
@@ -155,8 +155,8 @@ export default function CreateSecond() {
             </div>
           </div>
           <div className='flex gap-3 mt-6 mb-8'>
-            <WhiteButton w='80px' h='40px' borderColor='#9A75BF' textColor='#9A75BF' text='이전 단계' onHandelButton={onChangeBack}/>
-            <ColorButton w='110px' h='40px' text='저장하고 처리' onHandelButton={onChange3Step}/>
+            <WhiteButton text='이전' onHandelButton={onChangeBack}/>
+            <PurpleButton text='저장하고 처리' onHandelButton={onChange3Step}/>
           </div>
         </div>
 

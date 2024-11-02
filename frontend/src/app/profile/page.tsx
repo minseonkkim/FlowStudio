@@ -7,6 +7,7 @@ import { MdKeyboardArrowRight } from '@react-icons/all-files/md/MdKeyboardArrowR
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import Image from 'next/image'
+import PurpleButton from '@/components/common/PurpleButton';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
@@ -175,7 +176,7 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10 flex flex-col items-center space-y-8">
       {/* 내 정보 */}
-      <div className="w-full max-w-[900px] border rounded-lg py-8 px-10">
+      <div className="w-full max-w-[900px] border-2 rounded-lg py-8 px-10">
         <h2 className="font-semibold text-[24px] text-gray-700 mb-5">내 정보</h2>
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
@@ -250,17 +251,12 @@ export default function Page() {
         </div>
 
         <div className="flex justify-end mt-4">
-          <button
-            onClick={isEditing ? handleSave : () => setIsEditing(true)}
-            className="w-[70px] h-[38px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
-          >
-            {isEditing ? "저장" : "수정"}
-          </button>
+          <PurpleButton text={isEditing ? "저장" : "수정"} onHandelButton={isEditing ? handleSave : () => setIsEditing(true)} />
         </div>
       </div>
 
       {/* 토큰 사용량 */}
-      <div className="w-full max-w-[900px] border rounded-lg py-8 px-10 bg-white">
+      <div className="w-full max-w-[900px] border-2 rounded-lg py-8 px-10">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-semibold text-[24px] text-gray-700">토큰 사용량</h3>
           <div className="flex border border-[#9A75BF] rounded-md overflow-hidden">
