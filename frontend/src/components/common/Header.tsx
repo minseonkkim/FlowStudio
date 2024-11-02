@@ -22,7 +22,7 @@ export default function Header() {
   };
 
   const MobileHeader = () => (
-    <header className="z-20 fixed inset-0 w-full h-[57px] px-6 flex justify-between items-center border-b-[1px] bg-white">
+    <header className="z-20 fixed inset-0 w-full h-[57px] px-6 flex justify-between items-center border border-1 bg-white">
       <div className="flex flex-row items-center gap-3">
         <button
           className="text-2xl"
