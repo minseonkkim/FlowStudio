@@ -1,6 +1,5 @@
 import { Meta, StoryFn } from '@storybook/react';
-import WhiteButton from './whiteButton';
-import { WhiteButtonProps } from './whiteButton';
+import WhiteButton, { WhiteButtonProps } from './whiteButton';
 
 // 스토리북에서 사용할 메타 정보
 export default {
