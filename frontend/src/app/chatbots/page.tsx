@@ -104,7 +104,7 @@ export default function Page() {
   });
 
   return (
-    <div className="px-12 py-10">
+    <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
         <div className="mb-2 flex items-center">
           <p className="text-[22px] mr-6">나의 챗봇</p>
@@ -115,8 +115,10 @@ export default function Page() {
             챗봇 만들기
           </button>
         </div>
+        
+        {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">
-          <div>
+          <div className="hidden md:flex">
             {categories.map((label) => (
               <button
                 key={label}
@@ -127,25 +129,39 @@ export default function Page() {
               </button>
             ))}
           </div>
-          <Search onSearchChange={setSearchTerm} />
-        </div>
-
-        <div className="grid grid-cols-4 w-full gap-4">
-          {filteredChatbots.map((bot) => (
-            <PopularChatbotCard
-              key={bot.id}
-              iconId={bot.iconId}
-              title={bot.title}
-              description={bot.description}
-              type="my"
-              category={bot.category}
-              onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
-              onButtonUpdateClick={() => handleUpdateClick(bot)}
-              onButtonShareClick={() => setIsShareModalOpen(true)}
-            />
-          ))}
+          <div className="md:hidden w-full mr-2">
+            <select
+              onChange={(e) => handleCategoryClick(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              value={selectedCategory}
+            >
+              {categories.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+            <Search onSearchChange={setSearchTerm} />
         </div>
       </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
+        {filteredChatbots.map((bot) => (
+          <PopularChatbotCard
+            key={bot.id}
+            iconId={bot.iconId}
+            title={bot.title}
+            description={bot.description}
+            type="my"
+            category={bot.category}
+            onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
+            onButtonUpdateClick={() => handleUpdateClick(bot)}
+            onButtonShareClick={() => setIsShareModalOpen(true)}
+          />
+        ))}
+      </div>
+    
 
       {/* 챗봇 생성 모달 */}
       {isCreateModalOpen && (
