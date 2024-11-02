@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from "react";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from '@/components/common/Search';
+import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 
 interface Chatbot {
   id: number;
@@ -51,7 +52,7 @@ const chatbots: Chatbot[] = [
   },
 ];
 
-const Page = () => {
+export default function Page() {
   const router = useRouter();
   const categories = [
     "모든 챗봇",
@@ -86,7 +87,7 @@ const Page = () => {
   };
 
   return (
-    <div className="px-12 py-10">
+    <div className="px-4 md:px-12 py-10">
       <div className="flex items-center mb-2">
         <p className="text-[22px] mr-6">테스트 결과 확인</p>
           <button
@@ -97,35 +98,63 @@ const Page = () => {
           </button>
       </div>
 
+      {/* 카테고리 선택 */}
       <div className="flex justify-between items-center mb-6">
-          <div>
-            {categories.map((label) => (
-              <button
-                key={label}
-                onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <Search onSearchChange={setSearchTerm} />
+        <div className="hidden md:flex">
+          {categories.map((label) => (
+            <button
+              key={label}
+              onClick={() => handleCategoryClick(label)}
+              className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-
-      <div className="flex flex-col">
-        {filteredChatbots.map((chatbot) => (
+        <div className="md:hidden w-full mr-2">
+          <select
+            onChange={(e) => handleCategoryClick(e.target.value)}
+            className="w-full p-2 border rounded-md"
+            value={selectedCategory}
+          >
+            {categories.map((label) => (
+              <option key={label} value={label}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+          <Search onSearchChange={setSearchTerm} />
+      </div>
+   
+      <div className="hidden md:flex flex-col gap-1">
+        {filteredChatbots.map((bot) => (
           <ChatbotCard
-            key={chatbot.id}
-            title={chatbot.title}
-            description={chatbot.description}
-            iconId={chatbot.iconId}
-            category={chatbot.category}
-            onButtonClick={() => handleResultClick(chatbot.id)}
+            key={bot.id}
+            title={bot.title}
+            description={bot.description}
+            iconId={bot.iconId}
+            category={bot.category}
+            onCardClick={() => handleResultClick(bot.id)}
+            type="eval"
+          />
+        ))}
+      </div>
+
+      <div className="md:hidden flex flex-col gap-2">
+        {filteredChatbots.map((bot) => (
+          <PopularChatbotCard
+            key={bot.id}
+            title={bot.title}
+            description={bot.description}
+            iconId={bot.iconId}
+            category={bot.category}
+            type="eval"
+            onCardClick={() => handleResultClick(bot.id)}
           />
         ))}
       </div>
     </div>
-  );
+);
 }
 
-export default Page;

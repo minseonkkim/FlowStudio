@@ -141,21 +141,20 @@ export default function Page() {
       <div className="mt-16">
         <p className="mb-2 text-[22px]">챗봇 라운지</p>
 
+        {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">
           <div className="hidden md:flex">
             {categories.map((label) => (
               <button
                 key={label}
                 onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${
-                  selectedCategory === label ? "font-semibold" : "text-gray-600"
-                }`}
+                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
               >
                 {label}
               </button>
             ))}
           </div>
-          <div className="md:hidden mr-2">
+          <div className="md:hidden w-full mr-2">
             <select
               onChange={(e) => handleCategoryClick(e.target.value)}
               className="w-full p-2 border rounded-md"
@@ -168,7 +167,7 @@ export default function Page() {
               ))}
             </select>
           </div>
-          <Search onSearchChange={setSearchTerm} />
+            <Search onSearchChange={setSearchTerm} />
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
@@ -179,6 +178,7 @@ export default function Page() {
               description={bot.description}
               iconId={bot.iconId}
               category={bot.category}
+              type="all"
             />
           ))}
         </div>
