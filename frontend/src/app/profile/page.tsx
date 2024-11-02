@@ -175,7 +175,7 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10 flex flex-col items-center space-y-8">
       {/* 내 정보 */}
-      <div className="w-full max-w-[800px] border rounded-lg py-8 px-10">
+      <div className="w-full max-w-[900px] border rounded-lg py-8 px-10">
         <h2 className="font-semibold text-[24px] text-gray-700 mb-5">내 정보</h2>
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
@@ -260,7 +260,7 @@ export default function Page() {
       </div>
 
       {/* 토큰 사용량 */}
-      <div className="w-full max-w-[800px] border rounded-lg py-8 px-10 bg-white">
+      <div className="w-full max-w-[900px] border rounded-lg py-8 px-10 bg-white">
         <div className="flex justify-between items-center mb-6">
           <h3 className="font-semibold text-[24px] text-gray-700">토큰 사용량</h3>
           <div className="flex border border-[#9A75BF] rounded-md overflow-hidden">
@@ -298,7 +298,7 @@ export default function Page() {
             <MdKeyboardArrowLeft className="text-4xl" />
           </button>
 
-          <div className="w-full max-w-[600px] min-h-[450px]">
+          <div className="w-full min-h-[450px]">
             <Line data={chartData} options={chartOptions} />
           </div>
 
