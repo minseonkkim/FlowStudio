@@ -219,7 +219,7 @@ export default function Page() {
                   type="text"
                   value={nickname}
                   onChange={handleNicknameChange}
-                  className="border rounded-md w-full px-2 py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                  className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                 />
               ) : (
                 <p className="mt-2 mb-2 text-base text-gray-700">{nickname}</p>
@@ -239,7 +239,7 @@ export default function Page() {
                     type="text"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
-                    className="border rounded-md w-full px-2 py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                    className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                   />
                 ) : (
                   <p className="mt-2 mb-2 text-base text-gray-700">{value}</p>
