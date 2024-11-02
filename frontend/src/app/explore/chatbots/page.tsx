@@ -183,7 +183,7 @@ export default function Page() {
           ))}
         </div>
 
-        <div className="md:hidden flex flex-col gap-2">
+        <div className="md:hidden flex flex-col gap-4">
           {filteredChatbots.map((bot) => (
             <PopularChatbotCard
               key={bot.id}

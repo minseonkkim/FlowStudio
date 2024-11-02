@@ -89,7 +89,7 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex items-center mb-2">
-        <p className="text-[22px] mr-6">테스트 결과 확인</p>
+        <p className="text-[22px] mr-6">챗봇 평가 결과</p>
           <button
             onClick={() => handleEvaluationClick()}
             className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
@@ -141,7 +141,7 @@ export default function Page() {
         ))}
       </div>
 
-      <div className="md:hidden flex flex-col gap-2">
+      <div className="md:hidden flex flex-col gap-4">
         {filteredChatbots.map((bot) => (
           <PopularChatbotCard
             key={bot.id}
