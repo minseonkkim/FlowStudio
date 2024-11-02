@@ -4,6 +4,8 @@ import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from "@/components/common/Search";
 import { useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
 
 interface Chatbot {
   id: number;
@@ -57,10 +59,10 @@ const chatbots: Chatbot[] = [
   },
 ];
 
-
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [activeSlide, setActiveSlide] = useState<number>(0); 
 
   const categories = [
     "모든 챗봇",
@@ -77,21 +79,52 @@ export default function Page() {
     .sort((a, b) => b.shareNum - a.shareNum)
     .slice(0, 4);
 
-    const filteredChatbots = chatbots.filter((bot) => {
-      const matchesCategory = selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
-      const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
+  const filteredChatbots = chatbots.filter((bot) => {
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
+    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
 
   return (
-    <div className="px-12 py-10">
+    <div className="px-4 md:px-12 py-10">
       <div>
         <p className="mb-4 text-[22px]">가장 인기있는 챗봇</p>
-        <div className="flex flex-row justify-between w-full gap-4">
+        <div className="md:hidden">
+          <Swiper
+            spaceBetween={16}
+            slidesPerView={1}
+            onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
+          >
+            {popularChatbots.map((chatbot) => (
+              <SwiperSlide key={chatbot.id}>
+                <PopularChatbotCard
+                  title={chatbot.title}
+                  description={chatbot.description}
+                  iconId={chatbot.iconId}
+                  type="all"
+                  category={chatbot.category}
+                />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          {/* 현재 슬라이드 인덱스 표시 */}
+          <div className="flex justify-center mt-2">
+            {popularChatbots.map((_, index) => (
+              <span
+                key={index}
+                className={`h-2 w-2 rounded-full mx-1 ${
+                  index === activeSlide ? "bg-[#9A75BF]" : "bg-gray-300"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 w-full gap-4">
           {popularChatbots.map((chatbot) => (
             <PopularChatbotCard
               key={chatbot.id}
@@ -107,24 +140,38 @@ export default function Page() {
 
       <div className="mt-16">
         <p className="mb-2 text-[22px]">챗봇 라운지</p>
-        
+
         <div className="flex justify-between items-center mb-6">
-          <div>
+          <div className="hidden md:flex">
             {categories.map((label) => (
               <button
                 key={label}
                 onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+                className={`mr-6 ${
+                  selectedCategory === label ? "font-semibold" : "text-gray-600"
+                }`}
               >
                 {label}
               </button>
             ))}
           </div>
+          <div className="md:hidden mr-2">
+            <select
+              onChange={(e) => handleCategoryClick(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              value={selectedCategory}
+            >
+              {categories.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
           <Search onSearchChange={setSearchTerm} />
         </div>
 
-
-        <div className="flex flex-col gap-1">
+        <div className="hidden md:flex flex-col gap-1">
           {filteredChatbots.map((bot) => (
             <ChatbotCard
               key={bot.id}
@@ -132,7 +179,19 @@ export default function Page() {
               description={bot.description}
               iconId={bot.iconId}
               category={bot.category}
-              onButtonClick={() => console.log(`Selected ${bot.title}`)}
+            />
+          ))}
+        </div>
+
+        <div className="md:hidden flex flex-col gap-2">
+          {filteredChatbots.map((bot) => (
+            <PopularChatbotCard
+              key={bot.id}
+              title={bot.title}
+              description={bot.description}
+              iconId={bot.iconId}
+              category={bot.category}
+              type="all"
             />
           ))}
         </div>
