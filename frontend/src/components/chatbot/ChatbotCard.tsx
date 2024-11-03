@@ -6,7 +6,8 @@ interface ChatbotCardProps {
   description: string;
   category: string[];
   iconId: number;
-  onButtonClick?: () => void;
+  onCardClick?: () => void;
+  type: "all" | "eval"
 }
 
 export default function ChatbotCard({
@@ -14,11 +15,12 @@ export default function ChatbotCard({
   description,
   category,
   iconId,
-  onButtonClick,
+  onCardClick,
+  type,
 }: ChatbotCardProps) {
   return (
     <div
-      onClick={onButtonClick}
+      onClick={onCardClick}
       className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 cursor-pointer"
     >
       <div className="flex items-center w-full">
@@ -43,7 +45,7 @@ export default function ChatbotCard({
                   # {cat}
                 </span>
               ))}
-              {onButtonClick && (
+              {type === "all" && (
                 <button>
                   <FiShare
                     size={18}

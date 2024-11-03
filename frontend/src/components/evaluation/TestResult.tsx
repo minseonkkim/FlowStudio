@@ -46,7 +46,7 @@ export default function TestResult() {
     <div className="container">
       {items.map((item) => (
         <div key={item.id} className="border-2 rounded-xl mb-4">
-          <details open className="py-4 px-6">
+          <details className="py-4 px-6">
             <summary className="font-semibold">테스트 케이스 {item.id}</summary>
             <div className="mt-4">
               <label className="block mb-2">평가 결과</label>
