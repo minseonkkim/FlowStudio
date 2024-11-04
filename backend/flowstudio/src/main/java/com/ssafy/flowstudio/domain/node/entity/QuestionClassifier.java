@@ -21,16 +21,11 @@ public class QuestionClassifier extends Node {
     @Lob
     private String modelParamList;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "model_id", nullable = true)
-    private Model model;
-
     @Builder
-    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList, Model model) {
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList) {
         super(id, chatFlow, name, type, coordinate);
         this.classList = classList;
         this.modelParamList = modelParamList;
-        this.model = model;
     }
 
     public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {
