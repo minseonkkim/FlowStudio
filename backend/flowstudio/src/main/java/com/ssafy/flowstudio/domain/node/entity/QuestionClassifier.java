@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
@@ -36,7 +37,7 @@ public class QuestionClassifier extends Node {
     }
 
     @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
     }
 }
