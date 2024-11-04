@@ -7,9 +7,9 @@ import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow"; 
-import { nodeConfig } from "@/utils/nodeConfig";
+import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
+import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 
 interface Model {
   id: string;
@@ -186,7 +186,10 @@ export default function LlmNodeDetail({
                 {nodeConfig[node.name]?.icon}
                 <span>{nodeConfig[node.name]?.label || node.name}</span>
                 <AiOutlineClose
-                  className="cursor-pointer ml-auto text-gray-500 hover:text-red-500"
+                  className="cursor-pointer ml-auto"
+                  style={{
+                    color: deleteIconColors[node.name] || "gray",
+                  }}
                   onClick={() => setConnectedNodes(node.id)}
                 />
               </div>

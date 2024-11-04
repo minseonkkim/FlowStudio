@@ -7,8 +7,8 @@ import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { IoClose } from "@react-icons/all-files/io5/ioClose"
 import { useCallback, useState } from "react"
 import { ConnectedNode } from "@/types/workflow"
+import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig"
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
-import { nodeConfig } from "@/utils/nodeConfig"
 
 export default function KnowledgeNodeDetail({
   addNode,
@@ -36,7 +36,7 @@ export default function KnowledgeNodeDetail({
   );
 
   return <>
-  <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)]">
+  <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
      <div className="flex flex-row justify-between items-center mb-2">
       <div className="flex flex-row items-center gap-1">
           <FiBookOpen className="text-[#F97316] size-8"/>
@@ -69,7 +69,10 @@ export default function KnowledgeNodeDetail({
                 {nodeConfig[node.name]?.icon}
                 <span>{nodeConfig[node.name]?.label || node.name}</span>
                 <AiOutlineClose
-                  className="cursor-pointer ml-auto text-gray-500 hover:text-red-500"
+                  className="cursor-pointer ml-auto"
+                  style={{
+                    color: deleteIconColors[node.name] || "gray",
+                  }}
                   onClick={() => setConnectedNodes(node.id)}
                 />
               </div>

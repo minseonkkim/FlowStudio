@@ -31,6 +31,7 @@ import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
 import { v4 as uuidv4 } from "uuid";
+import ConfirmationModal from "@/components/common/ConfirmationModal";
 
 interface Model {
   id: string;
@@ -106,6 +107,16 @@ const nodeTypes = {
   questionclassifierNode: QuestionClassifierNode,
   variableallocatorNode: VariableAllocatorNode,
 };
+
+const nodeTypeLabels: { [key: string]: string } = {
+    startNode: "시작",
+    llmNode: "LLM",
+    knowledgeNode: "지식 검색",
+    ifelseNode: "IF/ELSE",
+    answerNode: "답변",
+    questionclassifierNode: "질문 분류기",
+    variableallocatorNode: "변수 할당자",
+  };
 
 export default function Page() {
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
@@ -527,18 +538,53 @@ export default function Page() {
     selected: node.id === selectedNodeId,
   }));
 
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [nodeToDelete, setNodeToDelete] = useState<string | null>(null);
+  const [nodeTypeToDelete, setNodeTypeToDelete] = useState<string | null>(null);
+
+  const deleteNode = useCallback(
+    (nodeId: string) => {
+        setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+        setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+        setSelectedNode(null);
+        setShowConfirmationModal(false);
+        setNodeToDelete(null);
+        setNodeTypeToDelete(null);
+      },
+      [setNodes, setEdges]
+    );
+  
+  const openDeleteModal = (nodeId: string, nodeType: string) => {
+    setShowConfirmationModal(true);
+    setNodeToDelete(nodeId);
+    setNodeTypeToDelete(nodeTypeLabels[nodeType] || "");
+  };
+
+  const handleConfirmDelete = () => {
+    if (nodeToDelete) {
+      deleteNode(nodeToDelete);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmationModal(false);
+    setNodeToDelete(null);
+    setNodeTypeToDelete(null);
+  };
+
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
         <button
-          className="px-3 py-2.5 bg-white rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+            className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
           onClick={handleVariableButtonClick}
         >
           변수
         </button>
         <button
           onClick={handleChatbotCreationClick}
-          className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+          className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
         >
           챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
@@ -547,11 +593,17 @@ export default function Page() {
         {renderNodeDetail()}
         {renderVariableDetail()}
       </div>
-      {renderChatbotCreationModal}
+      {renderChatbotCreationModal()}
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
-            nodes={nodesWithSelection}
+            nodes={nodesWithSelection.map((node) => ({
+            ...node,
+            data: {
+              ...node.data,
+              onDelete: () => openDeleteModal(node.id, node.type ?? ""),
+            },
+          }))}
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
@@ -577,6 +629,13 @@ export default function Page() {
           </ReactFlow>
         </div>
       </ReactFlowProvider>
+      {showConfirmationModal && (
+        <ConfirmationModal
+          message={`${nodeTypeToDelete} 노드를 삭제하시겠습니까?`}
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
+      )}
     </>
   );
 }

@@ -1,12 +1,14 @@
 import { Handle, Position } from "reactflow";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { useRef, useEffect, useState } from "react";
+import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
 interface Class {
   text: string;
 }
 
 export default function QuestionClassifierNode({ data, selected }: any) {
+  const { onDelete } = data;
   const classRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [handlePositions, setHandlePositions] = useState<number[]>([]);
@@ -33,9 +35,17 @@ export default function QuestionClassifierNode({ data, selected }: any) {
     >
       <Handle type="target" position={Position.Left} />
       <div className="flex flex-col gap-1.5">
-        <div className="flex flex-row items-center gap-1">
-          <GrTree className="text-[#1E3A8A] size-3" />
-          <div className="text-[11px] font-semibold">질문 분류기</div>
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row items-center gap-1">
+            <GrTree className="text-[#1E3A8A] size-3" />
+            <div className="text-[11px] font-semibold">질문 분류기</div>
+          </div>
+          {selected && (
+              <MdDelete
+                className="cursor-pointer text-[#1E3A8A] size-3.5"
+                onClick={onDelete}
+              />
+            )}
         </div>
         <div className="flex flex-col gap-1 text-[8px]">
           <div className="rounded-[5px] p-0.5 bg-white">gpt-4o-mini</div>

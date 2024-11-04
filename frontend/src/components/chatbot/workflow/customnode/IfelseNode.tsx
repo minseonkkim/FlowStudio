@@ -1,8 +1,10 @@
 import { Handle, Position } from "reactflow";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { useRef, useLayoutEffect, useState } from "react";
+import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
 export default function IfelseNode({ data, selected }: any) {
+  const { onDelete } = data;
   const elifDivRef = useRef<HTMLDivElement>(null);
   const elseDivRef = useRef<HTMLDivElement>(null);
   const [elifTop, setElifTop] = useState(0);
@@ -36,9 +38,17 @@ export default function IfelseNode({ data, selected }: any) {
       >
         <Handle type="target" position={Position.Left} />
         <div className="flex flex-col gap-1.5">
-          <div className="flex flex-row items-center gap-1">
-            <IoGitBranchOutline className="text-[#EF4444] size-3" />
-            <div className="text-[11px] font-semibold">IF/ELSE</div>
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row items-center gap-1">
+              <IoGitBranchOutline className="text-[#EF4444] size-3" />
+              <div className="text-[11px] font-semibold">IF/ELSE</div>
+            </div>
+            {selected && (
+              <MdDelete
+                className="cursor-pointer text-[#EF4444] size-3.5"
+                onClick={onDelete}
+              />
+            )}
           </div>
           <div className="flex flex-col gap-0.5 text-[8px]">
             <div className="font-bold text-end">IF</div>

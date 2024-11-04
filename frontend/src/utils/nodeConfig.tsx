@@ -23,3 +23,13 @@ export const nodeConfig: Record<string, NodeConfig> = {
   questionclassifierNode: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
   variableallocatorNode: { label: "변수 할당자", icon: icons.VscSymbolVariable, color: "D8D8D8" },
 };
+
+export const deleteIconColors: { [key: string]: string } = {
+    startNode: "#95C447",
+    llmNode: "#3B82F6",
+    knowledgeNode: "#F97316",
+    ifelseNode: "#EF4444",
+    answerNode: "#34D399",
+    questionclassifierNode: "#1E3A8A",
+    variableallocatorNode: "#6B7280",
+};
