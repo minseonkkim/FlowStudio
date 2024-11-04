@@ -16,7 +16,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
 
-  const savedToken: string | null = localStorage.getItem('Token');
+  const savedToken = typeof window !== "undefined" ? localStorage.getItem("Token") : null;
 
   const handleLogout = () => {
     localStorage.removeItem("Token");
