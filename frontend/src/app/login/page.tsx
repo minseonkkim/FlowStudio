@@ -1,3 +1,4 @@
+'use client'
 import Logo from '@/assets/common/logo.png'
 import Image from 'next/image'
 import { FaGithub } from "@react-icons/all-files/fa/FaGithub";
@@ -19,15 +20,21 @@ export default function page() {
         </div>
 
         <div className="flex flex-col gap-4 items-center mt-10 w-full md:w-[350px]">
-          <button className="w-full h-[54px] border border-gray-300 font-semibold rounded-xl bg-white flex justify-center items-center">
+          <button
+           className="w-full h-[54px] border border-gray-300 font-semibold rounded-xl bg-white flex justify-center items-center"
+           onClick={() => window.location.href = 'https://k11c201.p.ssafy.io/oauth2/authorization/google'}>
             <FcGoogle className="mr-2"/>
             <p>구글 계정으로 시작하기</p>
           </button>
-          <button className="w-full h-[54px] rounded-xl font-semibold bg-[#FEE500] flex justify-center items-center">
+          <button
+           className="w-full h-[54px] rounded-xl font-semibold bg-[#FEE500] flex justify-center items-center"
+           onClick={() => window.location.href = 'https://k11c201.p.ssafy.io/oauth2/authorization/kakao'}>
             <RiKakaoTalkFill className="mr-2"/>
             <p>카카오 계정으로 시작하기</p>
           </button>
-          <button className="w-full h-[54px] text-white rounded-xl font-semibold bg-black flex justify-center items-center">
+          <button
+           className="w-full h-[54px] text-white rounded-xl font-semibold bg-black flex justify-center items-center"
+           onClick={() => window.location.href = 'https://k11c201.p.ssafy.io/oauth2/authorization/github'}>
             <FaGithub className="mr-2"/>
             <p>깃허브 계정으로 시작하기</p>
           </button>
