@@ -1,6 +1,9 @@
 package com.ssafy.flowstudio.api.controller.rag;
 
+import com.azure.core.annotation.Patch;
+import com.drew.lang.annotations.NotNull;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeCreateRequest;
+import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeRequest;
 import com.ssafy.flowstudio.api.service.rag.KnowledgeService;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
@@ -19,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -54,10 +58,40 @@ public class KnowledgeController {
     }
 
     /**
+     * 문서 수정
+     * @param user
+     * @param knowledgeId
+     * @param request
+     * @return KnowledgeResponse
+     */
+    @PutMapping("{knowledgeId}")
+    public ApiResponse<KnowledgeResponse> updateKnowledge(
+            @CurrentUser User user,
+            @PathVariable Long knowledgeId,
+            @RequestBody KnowledgeRequest request
+    ) {
+        return ApiResponse.ok(knowledgeService.updateKnowledge(user, knowledgeId, request.toServiceRequest()));
+    }
+
+    /**
+     * 문서 삭제
+     * @param user
+     * @param knowledgeId
+     * @return Boolean
+     */
+    @DeleteMapping("{knowledgeId}")
+    public ApiResponse<Boolean> deleteKnowledge(
+            @CurrentUser User user,
+            @PathVariable Long knowledgeId
+    ) {
+        return ApiResponse.ok(knowledgeService.deleteKnowledge(user, knowledgeId));
+    }
+
+    /**
      * 청크 미리보기
      * @param user
      * @param request
-     * @return
+     * @return List<String>
      */
     @GetMapping("chunks")
     public ApiResponse<List<String>> knowledgeChunks(
@@ -71,9 +105,9 @@ public class KnowledgeController {
      * 청크 목록 보기
      * @param user
      * @param knowledgeId
-     * @return
+     * @return ChunkListResponse
      */
-    @GetMapping("{knowledgeId}")
+    @GetMapping("{knowledgeId}/chunks")
     public ApiResponse<ChunkListResponse> knowledgeDetails(
             @CurrentUser User user,
             @PathVariable Long knowledgeId
@@ -86,7 +120,7 @@ public class KnowledgeController {
      * @param user
      * @param knowledgeId
      * @param chunkId
-     * @return
+     * @return List<ChunkResponse>
      */
     @GetMapping("{knowledgeId}/chunks/{chunkId}")
     public ApiResponse<List<ChunkResponse>> knowledgeChunkDetails(
@@ -103,18 +137,16 @@ public class KnowledgeController {
      * @param knowledgeId
      * @param chunkId
      * @param content
-     * @return
+     * @return Boolean
      */
     @PostMapping("{knowledgeId}/chunks/{chunkId}")
-    public ApiResponse knowledgeChunkUpdate(
+    public ApiResponse<Boolean> knowledgeChunkUpdate(
             @CurrentUser User user,
             @PathVariable Long knowledgeId,
             @PathVariable Long chunkId,
-            String content
+            @NotNull @RequestBody Map<String, String> request
     ) {
-        KnowledgeResponse knowledgeResponse = knowledgeService.getKnowledge(user, knowledgeId);
-        vectorStoreService.upsertChunk(user, knowledgeResponse, chunkId, content);
-        return ApiResponse.ok();
+        return ApiResponse.ok(vectorStoreService.upsertChunk(user, knowledgeService.getKnowledge(user, knowledgeId), chunkId, request.get("content")));
     }
 
     /**
@@ -122,16 +154,15 @@ public class KnowledgeController {
      * @param user
      * @param knowledgeId
      * @param chunkId
-     * @return
+     * @return Boolean
      */
     @DeleteMapping("{knowledgeId}/chunks/{chunkId}")
-    public ApiResponse knowledgeChunkDelete(
+    public ApiResponse<Boolean> knowledgeChunkDelete(
             @CurrentUser User user,
             @PathVariable Long knowledgeId,
             @PathVariable Long chunkId
     ) {
-        vectorStoreService.deleteChunk(user, knowledgeService.getKnowledge(user, knowledgeId), chunkId);
-        return ApiResponse.ok();
+        return ApiResponse.ok(vectorStoreService.deleteChunk(user, knowledgeService.getKnowledge(user, knowledgeId), chunkId));
     }
 
     @GetMapping("{knowledgeId}/search")
