@@ -29,8 +29,8 @@ const items = [
 ];
 
 export default function TestResult() {
-  const calculateMeanAndVariance = (key: string) => {
-    const values = items.map((item) => item["id"]);
+  const calculateMeanAndVariance = (key: keyof typeof items[0]) => {
+    const values = items.map((item) => item[key] as number);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
     const variance =
       values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
@@ -46,7 +46,7 @@ export default function TestResult() {
     <div className="container">
       {items.map((item) => (
         <div key={item.id} className="border-2 rounded-xl mb-4">
-          <details open className="py-4 px-6">
+          <details className="py-4 px-6">
             <summary className="font-semibold">테스트 케이스 {item.id}</summary>
             <div className="mt-4">
               <label className="block mb-2">평가 결과</label>

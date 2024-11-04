@@ -7,7 +7,9 @@ export default {
 };
 
 // 기본 템플릿 생성
-const Template = () => <Search/>;
+const Template = () => <Search onSearchChange={function (): void {
+  throw new Error('Function not implemented.');
+} }/>;
 
 // 기본 스토리
 export const Default = Template.bind({});

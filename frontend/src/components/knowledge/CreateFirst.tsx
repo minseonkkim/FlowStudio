@@ -3,15 +3,14 @@
 import { useState } from 'react';
 import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
-import ColorButton from '../common/ColorButton';
-import WhiteButton from '../common/whiteButton';
 import { useRecoilState } from 'recoil';
 import { currentStepState } from '@/store/atoms';
 import { fileNameState } from '@/store/atoms';  
+import PurpleButton from '../common/PurpleButton';
 
 export default function CreateFirst() {
   const [file, setFile] = useState<File | null>(null);
-  const [currentStep, setCurrentStep] = useRecoilState(currentStepState); 
+  const [, setCurrentStep] = useRecoilState(currentStepState); 
   const [fileName, setFileName] = useRecoilState(fileNameState);  
 
   // 파일 선택 시 호출되는 함수
@@ -53,23 +52,30 @@ export default function CreateFirst() {
       
       {!file ? (
         <>
-          <div className="w-[995px] h-[160px] bg-gray-200 border rounded-lg p-4 flex flex-col justify-center items-center gap-2 mb-6"
-               onDrop={handleDrop}
-               onDragOver={handleDragOver}>
-            <div className='flex gap-2 justify-center items-center'>
-              <IoCloudDownloadOutline className='h-8 w-8' />
-              <p className="opacity-80 text-center">파일을 끌어다 놓거나</p>
-              <label htmlFor="file-upload" className="cursor-pointer">
-                찾아보기
-              </label>
-              <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
+          <label htmlFor="file-upload" className="cursor-pointer">
+            <div className="w-[995px] h-[160px] bg-gray-200 border rounded-lg p-4 flex flex-col justify-center items-center gap-2 mb-6"
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}>
+              <div className='flex gap-2 justify-center items-center'>
+                <IoCloudDownloadOutline className='h-8 w-8' />
+                <p className="opacity-80 text-center">파일을 끌어다 놓거나 찾아보기</p>
+                  찾아보기
+                <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
+              </div>
+              <div className='text-center'>
+                <p className="opacity-50 text-base">TXT, MARKDOWN, PDF, HTML, XLSX, XLS, DOCX, CSV, EML, MSG, PPTX, PPT, XML, EPUB을(를) 지원합니다.</p>
+                <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
+              </div>
             </div>
-            <div className='text-center'>
-              <p className="opacity-50 text-base">TXT, MARKDOWN, PDF, HTML, XLSX, XLS, DOCX, CSV, EML, MSG, PPTX, PPT, XML, EPUB을(를) 지원합니다.</p>
-              <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
-            </div>
-          </div>
-          <WhiteButton w='80px' h='40px' text='다음' borderColor='#9A75BF' textColor='#9A75BF'/>
+          </label>
+   
+          <p className="text-sm text-red-500 mb-2">파일을 추가해주세요</p>
+          <button
+            disabled
+            className='py-2 px-4 text-[14px] bg-[#c4b2d6] text-white rounded-lg cursor-not-allowed'
+          >
+            다음
+          </button>
         </>
       ) : (
         <>
@@ -77,7 +83,7 @@ export default function CreateFirst() {
             <span className=' group-hover:text-[#757575]'>{fileName}</span>
             <CgTrash className='h-6 w-6 cursor-pointer hidden group-hover:flex text-[#9A75BF]' onClick={clearFile} />
           </div>
-          <ColorButton w='80px' h='40px' text='다음' onHandelButton={onChange2Step} />
+          <PurpleButton text='다음' onHandelButton={onChange2Step} />
         </>
       )}
     </div>

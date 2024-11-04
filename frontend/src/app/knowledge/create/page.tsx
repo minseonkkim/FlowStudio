@@ -1,16 +1,15 @@
 'use client';
 
-import React from 'react';
 import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';
 import { useRecoilState } from 'recoil';
 import { currentStepState } from '@/store/atoms'; 
 import { useRouter } from 'next/navigation'; 
-import ColorButton from '@/components/common/ColorButton';
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
+import PurpleButton from '@/components/common/PurpleButton';
 
-const Page = () => {
+export default function Page() {
   const [currentStep, setCurrentStep] = useRecoilState(currentStepState); // Recoil 상태 사용
   const router = useRouter(); // useRouter 사용
   const goToListPage = (): void => {
@@ -37,17 +36,13 @@ const Page = () => {
               <div className="bg-white p-6 rounded-lg shadow-lg w-[350px] h-[250px] flex flex-col items-center justify-center">
                 <IoCheckmarkCircle className="text-[#9A75BF] w-16 h-16 mb-4"/> 
                 <p className="text-[22px] font-bold mb-2 text-center">지식이 생성되었습니다</p> 
-                <p className="text-[16px] text-gray-500 mb-4 text-center">지식 목록으로 이동합니다.</p> 
-                <ColorButton w="100px" h="40px" text="문서로 이동" onHandelButton={goToListPage}/> 
+                <p className="text-[14px] text-gray-500 mb-4 text-center">지식 목록으로 이동합니다.</p> 
+                <PurpleButton text="문서로 이동" onHandelButton={goToListPage}/> 
               </div>
             </div>
-
-
           </>
         )}
       </div>
     </>
   );
 };
-
-export default Page;

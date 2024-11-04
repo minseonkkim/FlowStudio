@@ -1,11 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRecoilState } from "recoil";
+import { selectedChatbotState } from "@/store/chatbotAtoms";
+import PurpleButton from "../common/PurpleButton";
+import WhiteButton from "../common/whiteButton";
 
 interface CreateChatbotModalProps {
   onClose: () => void;
 }
 
-export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps) {
+export default function CreateChatbotModal({
+  onClose,
+}: CreateChatbotModalProps) {
+  const [selectedChatbot, setSelectedChatbot] =
+    useRecoilState(selectedChatbotState);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedIcon, setSelectedIcon] = useState<string>("1");
   const [name, setName] = useState("");
@@ -22,6 +31,16 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
   ];
   const icons = ["1", "2", "3", "4", "5", "6"];
 
+  // 수정 모드일 경우 선택된 챗봇 데이터로 초기화
+  useEffect(() => {
+    if (selectedChatbot) {
+      setName(selectedChatbot.title);
+      setDescription(selectedChatbot.description);
+      setSelectedCategories(selectedChatbot.category);
+      setSelectedIcon(String(selectedChatbot.iconId));
+    }
+  }, [selectedChatbot]);
+
   // 카테고리 선택 및 해제
   const toggleCategory = (category: string) => {
     setSelectedCategories((prevCategories) =>
@@ -31,14 +50,17 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
     );
   };
 
-  const handleCreate = () => {
-    // 추가 로직을 추가할 수 있습니다.
+  const handleCreateOrUpdate = () => {
+    // 생성 또는 수정 처리 로직 추가 가능
     onClose();
+    setSelectedChatbot(null); // 수정 모드일 경우 선택된 챗봇 데이터 초기화
   };
 
   return (
     <div className="flex flex-col bg-white w-[500px] h-[600px] p-8 rounded-xl shadow-lg">
-      <p className="mb-4 text-[22px] text-gray-800">챗봇 만들기</p>
+      <p className="mb-4 text-[22px] text-gray-800">
+        {selectedChatbot ? "챗봇 수정" : "챗봇 만들기"}
+      </p>
 
       <div className="flex flex-col flex-grow">
         {/* 카테고리 선택 */}
@@ -63,7 +85,7 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
 
         {/* 아이콘 선택 */}
         <div className="flex flex-col mb-4">
-          <p className="mb-2 text-gray-700 font-medium">앱 아이콘 선택</p>
+          <p className="mb-2 text-gray-700">앱 아이콘 선택</p>
           <div className="flex gap-2">
             {icons.map((icon) => (
               <div
@@ -86,7 +108,7 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
 
         {/* 앱 이름 입력 */}
         <div className="flex flex-col mb-4">
-          <p className="mb-2 text-gray-700 font-medium">앱 이름</p>
+          <p className="mb-2 text-gray-700">앱 이름</p>
           <div className="flex items-center gap-4">
             <div className="w-[40px] h-[40px] rounded-lg">
               <Image
@@ -94,7 +116,7 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
                 alt="Selected Icon"
                 width={40}
                 height={40}
-                className="rounded-lg"
+                className="rounded-lg border border-gray-300"
               />
             </div>
             <input
@@ -102,37 +124,27 @@ export default function CreateChatbotModal({ onClose }: CreateChatbotModalProps)
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="앱 이름을 입력하세요"
-              className="flex-1 px-2 py-1 border border-gray-300 rounded-md"
+              className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:border-2 focus:border-[#9A75BF] focus:outline-none"
             />
           </div>
         </div>
 
         {/* 챗봇 설명 */}
         <div className="flex flex-col mb-4">
-          <p className="mb-2 text-gray-700 font-medium">설명</p>
+          <p className="mb-2 text-gray-700">설명</p>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="챗봇 설명을 입력하세요"
-            className="w-full h-[110px] p-2 border border-gray-300 rounded-md bg-gray-100 resize-none"
+            className="w-full h-[110px] p-2 border border-gray-300 rounded-md bg-gray-100 resize-none focus:border-2 focus:border-[#9A75BF] focus:outline-none"
           />
         </div>
       </div>
 
-      {/* 취소 및 생성 버튼 */}
+      {/* 취소 및 생성/수정 버튼 */}
       <div className="flex justify-end gap-4">
-        <button
-          onClick={onClose}
-          className="w-[70px] h-[38px] border-2 border-[#9A75BF] text-[#9A75BF] rounded-lg hover:bg-[#f3e8ff] active:bg-[#e3d1f7]"
-        >
-          취소
-        </button>
-        <button
-          onClick={handleCreate}
-          className="w-[70px] h-[38px] bg-[#9A75BF] text-white rounded-lg hover:bg-[#874aa5] active:bg-[#733d8a]"
-        >
-          생성
-        </button>
+        <WhiteButton text='취소' onHandelButton={onClose} />
+        <PurpleButton text={selectedChatbot ? "수정" : "생성"} onHandelButton={handleCreateOrUpdate} />
       </div>
     </div>
   );
