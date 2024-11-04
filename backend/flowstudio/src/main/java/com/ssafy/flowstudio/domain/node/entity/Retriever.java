@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import jakarta.persistence.Entity;
@@ -32,7 +33,7 @@ public class Retriever extends Node {
     }
 
     @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
     }
 }

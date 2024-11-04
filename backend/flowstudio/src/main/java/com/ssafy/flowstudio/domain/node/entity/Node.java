@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import jakarta.persistence.*;
@@ -51,6 +52,6 @@ public abstract class Node extends BaseEntity {
         this.coordinate = coordinate;
     }
 
-    public abstract void accept(NodeVisitor visitor);
+    public abstract void accept(NodeVisitor visitor, Chat chat);
 }
 
