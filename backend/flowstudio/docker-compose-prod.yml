@@ -22,7 +22,7 @@ services:
       SWAGGER_JSON: /usr/share/nginx/html/docs/openapi3.yml
       BASE_URL: /docs
     volumes:
-      - /home/ubuntu/jenkins-data/workspace/flow-studio-backend/docs-data/:/usr/share/nginx/html/docs
+      - /home/ubuntu/jenkins-data/workspace/flow-studio-backend/docs-data:/usr/share/nginx/html/docs
 
   cache-database:
     image: redis:7.4-rc2-alpine
