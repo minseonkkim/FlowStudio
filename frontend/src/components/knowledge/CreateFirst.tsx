@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
 import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/atoms';
-import { fileNameState } from '@/store/atoms';  
+import { currentStepState } from '@/store/knoweldgeAtoms';
+import { fileNameState } from '@/store/knoweldgeAtoms';  
 import PurpleButton from '../common/PurpleButton';
 
 export default function CreateFirst() {
