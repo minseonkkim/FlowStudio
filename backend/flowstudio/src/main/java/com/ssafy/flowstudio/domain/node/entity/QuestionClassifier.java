@@ -34,4 +34,9 @@ public class QuestionClassifier extends Node {
             .coordinate(coordinate)
             .build();
     }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

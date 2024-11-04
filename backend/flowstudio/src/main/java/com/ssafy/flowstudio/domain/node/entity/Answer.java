@@ -31,4 +31,8 @@ public class Answer extends Node {
             .build();
     }
 
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }
