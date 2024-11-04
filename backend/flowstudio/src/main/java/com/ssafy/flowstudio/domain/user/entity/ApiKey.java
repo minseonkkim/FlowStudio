@@ -20,24 +20,31 @@ public class ApiKey {
     private Long id;
 
     @Column
-    private String open_ai_key;
+    private String openAiKey;
 
     @Column
-    private String cloude_key;
+    private String claudeKey;
 
     @Column
-    private String gemini_key;
+    private String geminiKey;
 
     @Column
-    private String clova_key;
+    private String clovaKey;
 
     @Builder
-    private ApiKey(Long id, String open_ai_key, String cloude_key, String gemini_key, String clova_key) {
+    private ApiKey(Long id, String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
         this.id = id;
-        this.open_ai_key = open_ai_key;
-        this.cloude_key = cloude_key;
-        this.gemini_key = gemini_key;
-        this.clova_key = clova_key;
+        this.openAiKey = openAiKey;
+        this.claudeKey = claudeKey;
+        this.geminiKey = geminiKey;
+        this.clovaKey = clovaKey;
+    }
+
+    public void update(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
+        this.openAiKey = openAiKey;
+        this.claudeKey = claudeKey;
+        this.geminiKey = geminiKey;
+        this.clovaKey = clovaKey;
     }
 
     public static ApiKey empty() {
