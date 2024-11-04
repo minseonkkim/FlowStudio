@@ -35,7 +35,7 @@ public class ApiKeyController {
     }
 
     /**
-     * Api Key 수정
+     * Api Key 조회
      * @param user
      * @return ApiKeyResponse
      */
