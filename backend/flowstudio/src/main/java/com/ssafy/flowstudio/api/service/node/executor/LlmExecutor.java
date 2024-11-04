@@ -1,16 +1,16 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class LlmExecutor extends NodeExecutor {
 
-    public LlmExecutor(RedisTemplate<String, Object> redisTemplate) {
-        super(redisTemplate);
+    public LlmExecutor(RedisService redisService) {
+        super(redisService);
     }
 
     @Override
