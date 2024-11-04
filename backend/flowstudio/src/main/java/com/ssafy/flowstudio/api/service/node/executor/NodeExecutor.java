@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,6 @@ public abstract class NodeExecutor {
 
     protected final RedisTemplate<String, Object> redisTemplate;
 
-    public abstract void execute(Node node);
+    public abstract void execute(Node node, Chat chat);
     public abstract NodeType getNodeType();
 }
