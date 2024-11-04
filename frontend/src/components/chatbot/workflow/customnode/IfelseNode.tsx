@@ -45,7 +45,7 @@ export default function IfelseNode({ data, selected }: any) {
             </div>
             {selected && (
               <MdDelete
-                className="cursor-pointer text-[#EF4444] size-3.5"
+                className="cursor-pointer text-[#EF4444] hover:text-[#B53030] size-3.5"
                 onClick={onDelete}
               />
             )}

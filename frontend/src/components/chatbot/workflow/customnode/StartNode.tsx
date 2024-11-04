@@ -20,7 +20,7 @@ export default function StartNode({ data, selected }: { data: any; selected: boo
             </div>
             {selected && (
               <MdDelete
-                className="cursor-pointer text-[#95C447] size-3.5"
+                className="cursor-pointer text-[#95C447] hover:text-[#6F9335] size-3.5"
                 onClick={onDelete}
               />
             )}

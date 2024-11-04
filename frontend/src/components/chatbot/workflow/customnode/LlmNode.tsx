@@ -32,7 +32,7 @@ const LlmNode: React.FC<LlmNodeProps> = ({ data, selected }: { data: any; select
           </div>
           {selected && (
               <MdDelete
-                className="cursor-pointer text-[#3B82F6] size-3.5"
+                className="cursor-pointer text-[#3B82F6] hover:text-[#2E63B4] size-3.5"
                 onClick={onDelete}
               />
             )}

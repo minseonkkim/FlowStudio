@@ -18,7 +18,7 @@ export default function AnswerNode({ data, selected }: any){
           </div>
           {selected && (
               <MdDelete
-                className="cursor-pointer text-[#34D399] size-3.5"
+                className="cursor-pointer text-[#34D399] hover:text-[#29A377] size-3.5"
                 onClick={onDelete}
               />
             )}

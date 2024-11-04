@@ -42,7 +42,7 @@ export default function QuestionClassifierNode({ data, selected }: any) {
           </div>
           {selected && (
               <MdDelete
-                className="cursor-pointer text-[#1E3A8A] size-3.5"
+                className="cursor-pointer text-[#1E3A8A] hover:text-[#031750] size-3.5"
                 onClick={onDelete}
               />
             )}

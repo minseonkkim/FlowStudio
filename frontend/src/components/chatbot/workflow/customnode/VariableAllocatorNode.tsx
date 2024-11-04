@@ -18,7 +18,7 @@ export default function VariableAllocatorNode({ data, selected }: any){
           </div>
           {selected && (
               <MdDelete
-                className="cursor-pointer text-[#6B7280] size-3.5"
+                className="cursor-pointer text-[#6B7280] hover:text-[#4B5057] size-3.5"
                 onClick={onDelete}
               />
             )}
