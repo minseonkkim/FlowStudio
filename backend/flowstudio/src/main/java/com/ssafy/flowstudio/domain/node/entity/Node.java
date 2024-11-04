@@ -51,5 +51,6 @@ public abstract class Node extends BaseEntity {
         this.coordinate = coordinate;
     }
 
+    public abstract void accept(NodeVisitor visitor);
 }
 
