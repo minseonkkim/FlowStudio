@@ -6,8 +6,8 @@ import { FcGoogle } from "@react-icons/all-files/fc/FcGoogle";
 import { RiKakaoTalkFill } from '@react-icons/all-files/ri/RiKakaoTalkFill'
 
 export default function page() {
-  const url = process.env.NEXT_PUBLIC_API_URL
-  console.log(url)
+  const url = process.env.NEXT_PUBLIC_FRONT_URL
+
   return (
     <div className="flex items-center justify-center w-full py-12" style={{ minHeight: 'calc(100vh - 57px)' }}>
       <div className="flex flex-col items-center justify-center px-6 md:px-0 w-full">
