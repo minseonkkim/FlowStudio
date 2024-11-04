@@ -50,7 +50,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // Vector Database
-    implementation 'io.milvus:milvus-sdk-java:2.4.5'
+    implementation ('io.milvus:milvus-sdk-java:2.4.5') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'
+    }
 
     // LangChain4j
     implementation ('dev.langchain4j:langchain4j:0.35.0') {
