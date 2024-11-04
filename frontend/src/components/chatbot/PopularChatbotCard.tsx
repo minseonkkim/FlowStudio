@@ -7,7 +7,7 @@ interface PopularChatbotCardProps {
   title: string;
   description: string;
   category: string[];
-  iconId: number;
+  iconId: string;
   type?: "my" | "all" | "eval";
   onCardClick?: () => void;
   onButtonUpdateClick?: () => void;

@@ -9,55 +9,44 @@ import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import PurpleButton from "@/components/common/PurpleButton";
+import { ChatFlow } from "@/types/chatbot"
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-}
-
-const chatbots: Chatbot[] = [
+const chatFlows: ChatFlow[] = [
   {
-    id: 1,
-    title: "Workflow Planning Assistant",
+    chatFlowId: 1,
+    title: "챗봇 1",
     description:
-      "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: ["교육", "금융"],
-    iconId: 1,
+      "챗봇 1 묘사",
+    author: {
+      id: 1,
+      username: "김싸피",
+      nickname: "김싸피",
+      profileImage: "kim.png",
+    },
+    thumbnail: "1",
+    categories: [
+      { categoryId: 1, name: "교육" },
+      { categoryId: 2, name: "금융" },
+    ],
+    public: true,
   },
   {
-    id: 2,
-    title: "Financial Advisor Bot",
+    chatFlowId: 2,
+    title: "챗봇 2",
     description:
-      "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: ["교육", "금융"],
-    iconId: 2,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description:
-      "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: ["헬스케어"],
-    iconId: 3,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description:
-      "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: ["전자 상거래", "헬스케어"],
-    iconId: 4,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description:
-      "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: ["여행"],
-    iconId: 5,
+      "챗봇 2 묘사",
+    author: {
+      id: 2,
+      username: "정싸피",
+      nickname: "정싸피",
+      profileImage: "jeong.png",
+    },
+    thumbnail: "2",
+    categories: [
+      { categoryId: 1, name: "금융" },
+      { categoryId: 3, name: "교육" },
+    ],
+    public: true,
   },
 ];
 
@@ -89,15 +78,15 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const handleUpdateClick = (chatbot: Chatbot) => {
-    setSelectedChatbot(chatbot); 
+  const handleUpdateClick = (chatFlow: ChatFlow) => {
+    setSelectedChatbot(chatFlow); 
     setIsCreateModalOpen(true); 
   };
 
-  const filteredChatbots = chatbots.filter((bot) => {
+  const filteredChatFlows = chatFlows.filter((bot) => {
     const matchesCategory =
       selectedCategory === "모든 챗봇" ||
-      bot.category.includes(selectedCategory);
+      bot.categories.some((category) => category.name === selectedCategory);
     const matchesSearch = bot.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -138,26 +127,25 @@ export default function Page() {
               ))}
             </select>
           </div>
-            <Search onSearchChange={setSearchTerm} />
+          <Search onSearchChange={setSearchTerm} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {filteredChatbots.map((bot) => (
+        {filteredChatFlows.map((bot) => (
           <PopularChatbotCard
-            key={bot.id}
-            iconId={bot.iconId}
+            key={bot.chatFlowId}
+            iconId={bot.thumbnail}
             title={bot.title}
             description={bot.description}
             type="my"
-            category={bot.category}
-            onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
+            category={bot.categories.map((cat) => cat.name)}
+            onCardClick={() => router.push(`/chatbot/${bot.chatFlowId}/workflow`)}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonShareClick={() => setIsShareModalOpen(true)}
           />
         ))}
       </div>
-    
 
       {/* 챗봇 생성 모달 */}
       {isCreateModalOpen && (

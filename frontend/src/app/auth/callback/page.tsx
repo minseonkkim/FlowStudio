@@ -10,7 +10,7 @@ function CallbackContent() {
     const token = searchParams.get('accessToken');
 
     if (token) {
-      localStorage.setItem('Token', token);
+      localStorage.setItem('accessToken', token);
       router.push('/');
     } else {
       console.error('accessToken not found in query parameters');
