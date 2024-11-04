@@ -16,7 +16,7 @@ public class ApiKeyRequest {
     private String clovaKey;
 
     @Builder
-    public ApiKeyRequest(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
+    private ApiKeyRequest(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
         this.openAiKey = openAiKey;
         this.claudeKey = claudeKey;
         this.geminiKey = geminiKey;

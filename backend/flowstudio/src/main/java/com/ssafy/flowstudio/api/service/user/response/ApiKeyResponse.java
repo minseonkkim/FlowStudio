@@ -13,7 +13,7 @@ public class ApiKeyResponse {
     private String clovaKey;
 
     @Builder
-    public ApiKeyResponse(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
+    private ApiKeyResponse(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
         this.openAiKey = openAiKey;
         this.claudeKey = claudeKey;
         this.geminiKey = geminiKey;
