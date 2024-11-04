@@ -20,4 +20,10 @@ public class ApiKeyService {
 
         return ApiKeyResponse.from(apiKey);
     }
+
+    public ApiKeyResponse getApiKey(User user) {
+        ApiKey apiKey = user.getApiKey();
+
+        return ApiKeyResponse.from(apiKey);
+    }
 }

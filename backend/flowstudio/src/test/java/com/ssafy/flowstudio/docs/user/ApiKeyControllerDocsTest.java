@@ -6,14 +6,11 @@ import com.ssafy.flowstudio.api.controller.user.request.ApiKeyRequest;
 import com.ssafy.flowstudio.api.service.user.ApiKeyService;
 import com.ssafy.flowstudio.api.service.user.request.ApiKeyServiceRequest;
 import com.ssafy.flowstudio.api.service.user.response.ApiKeyResponse;
-import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
 import com.ssafy.flowstudio.domain.user.entity.ApiKey;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -23,13 +20,13 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ApiKeyControllerDocsTest extends RestDocsSupport {
@@ -95,6 +92,52 @@ public class ApiKeyControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("clovaKey").type(JsonFieldType.STRING)
                                                 .description("CLOVA API 키")
                                 )
+                                .responseFields(
+                                        fieldWithPath("code").description("Response code"),
+                                        fieldWithPath("status").description("Response status"),
+                                        fieldWithPath("message").description("Response message"),
+                                        fieldWithPath("data").description("Data object"),
+                                        fieldWithPath("data.openAiKey").description("OpenAI API key, can be null"),
+                                        fieldWithPath("data.claudeKey").description("Claude API key, can be null"),
+                                        fieldWithPath("data.geminiKey").description("Gemini API key, can be null"),
+                                        fieldWithPath("data.clovaKey").description("Clova API key, can be null")
+                                )
+                                .build())));
+    }
+
+    @DisplayName("사용자의 Api Key를 조회한다.")
+    @Test
+    void getApiKey() throws Exception {
+        // given
+        ApiKey apiKey = ApiKey.builder()
+                .openAiKey("my_openai_key")
+                .claudeKey("my_claude_key")
+                .geminiKey("my_gemini_key")
+                .clovaKey("my_clova_key")
+                .build();
+
+        User user = User.builder()
+                .id(1L)
+                .username("test")
+                .apiKey(apiKey)
+                .build();
+
+        given(apiKeyService.getApiKey(any(User.class)))
+                .willReturn(ApiKeyResponse.from(apiKey));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/users/keys"));
+
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("get-api-key",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("ApiKey")
+                                .summary("API Key 조회")
                                 .responseFields(
                                         fieldWithPath("code").description("Response code"),
                                         fieldWithPath("status").description("Response status"),

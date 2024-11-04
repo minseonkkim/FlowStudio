@@ -10,16 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApiKeyRequest {
 
-    @NotBlank(message = "Open AI 키 값은 필수입니다.")
     private String openAiKey;
-
-    @NotBlank(message = "Claude 키 값은 필수입니다.")
     private String claudeKey;
-
-    @NotBlank(message = "Gemini 키 값은 필수입니다.")
     private String geminiKey;
-
-    @NotBlank(message = "CLOVA 키 값은 필수입니다.")
     private String clovaKey;
 
     @Builder
