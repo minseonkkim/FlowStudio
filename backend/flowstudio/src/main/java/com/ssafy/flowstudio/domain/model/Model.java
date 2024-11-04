@@ -17,7 +17,7 @@ public class Model {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "edge_id")
+    @Column(name = "model_id")
     private Long id;
 
     @Column(nullable = false)

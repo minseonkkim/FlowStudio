@@ -2,8 +2,9 @@ package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
+import com.ssafy.flowstudio.domain.model.Model;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,11 +21,16 @@ public class QuestionClassifier extends Node {
     @Lob
     private String modelParamList;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "model_id", nullable = true)
+    private Model model;
+
     @Builder
-    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList) {
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList, Model model) {
         super(id, chatFlow, name, type, coordinate);
         this.classList = classList;
         this.modelParamList = modelParamList;
+        this.model = model;
     }
 
     public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {
