@@ -19,9 +19,7 @@ import io.milvus.v2.service.partition.request.LoadPartitionsReq;
 import io.milvus.v2.service.vector.request.*;
 import io.milvus.v2.service.vector.request.data.BaseVector;
 import io.milvus.v2.service.vector.request.data.FloatVec;
-import io.milvus.v2.service.vector.response.GetResp;
-import io.milvus.v2.service.vector.response.QueryResp;
-import io.milvus.v2.service.vector.response.SearchResp;
+import io.milvus.v2.service.vector.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.MetadataMode;
@@ -91,16 +89,20 @@ public class VectorStoreService {
                 .filter(chunkId == -1 ? "id <= " + 400 : "id == " + chunkId)
                 .build());
 
+        if (queryResp.getQueryResults().isEmpty()) {
+            return new ArrayList<ChunkResponse>();
+        }
+
         return queryResp.getQueryResults().stream()
                 .map(QueryResp.QueryResult::getEntity)
                 .map(result -> ChunkResponse.builder()
-                        .chunkId(result.get("id").toString())
+                        .chunkId(Integer.parseInt(result.get("id").toString()))
                         .content(result.get("content").toString())
                         .build())
                 .toList();
     }
 
-    public void upsertChunk(User user, KnowledgeResponse knowledge, Long chunkId, String content) {
+    public Boolean upsertChunk(User user, KnowledgeResponse knowledge, Long chunkId, String content) {
         String collectionName = milvusUtils.generateName(user.getId());
         String partitionName = milvusUtils.generateName(knowledge.getKnowledgeId());
 
@@ -112,10 +114,12 @@ public class VectorStoreService {
                 .partitionName(partitionName)
                 .data(data)
                 .build();
-        milvusClient.upsert(upsertReq);
+        UpsertResp upsertResp = milvusClient.upsert(upsertReq);
+
+        return upsertResp.getUpsertCnt() > 0;
     }
 
-    public void upsertDocument(String collectionName, String partitionName, KnowledgeCreateServiceRequest request) {
+    public Boolean upsertDocument(String collectionName, String partitionName, KnowledgeCreateServiceRequest request) {
         String textContent = milvusUtils.getTextContent(request.getFile());
         List<Document> splitterDocuments = milvusUtils.textsToDocuments(langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), textContent));
 
@@ -131,14 +135,20 @@ public class VectorStoreService {
                 .data(data)
                 .build();
         milvusClient.upsert(upsertReq);
+
+        UpsertResp upsertResp = milvusClient.upsert(upsertReq);
+
+        return upsertResp.getUpsertCnt() > 0;
     }
 
-    public void deleteChunk(User user, KnowledgeResponse knowledge, Long chunkId) {
-        milvusClient.delete(DeleteReq.builder()
+    public Boolean deleteChunk(User user, KnowledgeResponse knowledge, Long chunkId) {
+        DeleteResp deleteResp = milvusClient.delete(DeleteReq.builder()
                 .collectionName(milvusUtils.generateName(user.getId()))
                 .partitionName(milvusUtils.generateName(knowledge.getKnowledgeId()))
                 .ids(List.of(chunkId))
                 .build());
+
+        return deleteResp.getDeleteCnt() > 0;
     }
 
     public List<String> previewChunks(KnowledgeCreateServiceRequest request) {
