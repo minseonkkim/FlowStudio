@@ -4,7 +4,7 @@ import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';
 import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/atoms'; 
+import { currentStepState } from '@/store/knoweldgeAtoms'; 
 import { useRouter } from 'next/navigation'; 
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import PurpleButton from '@/components/common/PurpleButton';

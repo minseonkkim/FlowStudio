@@ -1,28 +1,30 @@
 'use client'
+import { Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import { useRouter } from 'next/router';
-import { NextPage } from 'next';
-import { useRecoilState } from 'recoil';
-import { accessTokenState } from '@/store/authAtoms'; 
-import { useEffect } from 'react';
-
-const CallbackPage: NextPage = () => {
+function CallbackContent() {
   const router = useRouter();
-  const { accessToken } = router.query as { accessToken?: string };
-  const [, setAccessToken] = useRecoilState(accessTokenState); 
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (accessToken) {
-      setAccessToken(accessToken); 
-      router.replace('/'); 
+    const token = searchParams.get('accessToken');
+
+    if (token) {
+      localStorage.setItem('Token', token);
+      router.push('/');
+    } else {
+      console.error('accessToken not found in query parameters');
+      router.push('/login');
     }
-  }, [accessToken, setAccessToken, router]);
+  }, [router, searchParams]);
 
+  return <p>로그인 중입니다...</p>;
+}
+
+export default function CallbackPage() {
   return (
-    <div>
-      <p>loading 중</p>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <CallbackContent />
+    </Suspense>
   );
-};
-
-export default CallbackPage;
+}
