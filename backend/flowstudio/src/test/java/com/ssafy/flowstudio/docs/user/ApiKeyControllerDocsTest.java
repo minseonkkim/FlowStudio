@@ -96,14 +96,14 @@ public class ApiKeyControllerDocsTest extends RestDocsSupport {
                                                 .description("CLOVA API 키")
                                 )
                                 .responseFields(
-                                        fieldWithPath("openAiKey").type(JsonFieldType.STRING)
-                                                .description("OpenAI API 키"),
-                                        fieldWithPath("claudeKey").type(JsonFieldType.STRING)
-                                                .description("Claude API 키"),
-                                        fieldWithPath("geminiKey").type(JsonFieldType.STRING)
-                                                .description("Gemini API 키"),
-                                        fieldWithPath("clovaKey").type(JsonFieldType.STRING)
-                                                .description("CLOVA API 키")
+                                        fieldWithPath("code").description("Response code"),
+                                        fieldWithPath("status").description("Response status"),
+                                        fieldWithPath("message").description("Response message"),
+                                        fieldWithPath("data").description("Data object"),
+                                        fieldWithPath("data.openAiKey").description("OpenAI API key, can be null"),
+                                        fieldWithPath("data.claudeKey").description("Claude API key, can be null"),
+                                        fieldWithPath("data.geminiKey").description("Gemini API key, can be null"),
+                                        fieldWithPath("data.clovaKey").description("Clova API key, can be null")
                                 )
                                 .build())));
     }

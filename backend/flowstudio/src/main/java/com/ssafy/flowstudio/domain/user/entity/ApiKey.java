@@ -40,6 +40,13 @@ public class ApiKey {
         this.clovaKey = clovaKey;
     }
 
+    public void update(String openAiKey, String claudeKey, String geminiKey, String clovaKey) {
+        this.openAiKey = openAiKey;
+        this.claudeKey = claudeKey;
+        this.geminiKey = geminiKey;
+        this.clovaKey = clovaKey;
+    }
+
     public static ApiKey empty() {
         return ApiKey.builder()
                 .build();
