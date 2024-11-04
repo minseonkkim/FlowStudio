@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.rag;
 
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
+import com.ssafy.flowstudio.api.service.rag.request.KnowledgeServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,9 +33,9 @@ public class KnowledgeService {
     }
 
     public KnowledgeResponse getKnowledge(User user, Long knowledgeId) {
-        return KnowledgeResponse.from(knowledgeRepository.findById(knowledgeId)
-                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND))
-        );
+        Knowledge knowledge = knowledgeRepository.findByUserIdAndId(user.getId(), knowledgeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
+        return KnowledgeResponse.from(knowledge);
     }
 
     @Transactional
@@ -48,8 +48,31 @@ public class KnowledgeService {
 
         vectorStoreService.createCollection(collectionName);
         vectorStoreService.createPartition(collectionName, partitionName);
-        vectorStoreService.upsertDocument(collectionName, partitionName, request);
+        if (!vectorStoreService.upsertDocument(collectionName, partitionName, request)) {
+            throw new BaseException(ErrorCode.KNOWLEDGE_INSERT_UNAVAILABLE);
+        }
 
         return KnowledgeResponse.from(knowledge);
+    }
+
+    @Transactional
+    public KnowledgeResponse updateKnowledge(User user, Long knowledgeId, KnowledgeServiceRequest request) {
+        Knowledge knowledge = knowledgeRepository.findByUserIdAndId(user.getId(), knowledgeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
+
+        knowledge.update(request.getTitle(), request.getIsPublic());
+        knowledgeRepository.save(knowledge);
+
+        return KnowledgeResponse.from(knowledge);
+    }
+
+    @Transactional
+    public boolean deleteKnowledge(User user, Long knowledgeId) {
+        Knowledge knowledge = knowledgeRepository.findByUserIdAndId(user.getId(), knowledgeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
+
+        knowledgeRepository.delete(knowledge);
+
+        return true;
     }
 }
