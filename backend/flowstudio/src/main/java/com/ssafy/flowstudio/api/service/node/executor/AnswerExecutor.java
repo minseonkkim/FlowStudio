@@ -1,15 +1,16 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
 
 @Component
 public class AnswerExecutor extends NodeExecutor {
 
-    public AnswerExecutor(RedisTemplate<String, Object> redisTemplate) {
-        super(redisTemplate);
+    public AnswerExecutor(RedisService redisService) {
+        super(redisService);
     }
 
     @Override
