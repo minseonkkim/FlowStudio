@@ -36,7 +36,7 @@ public class AuthController {
         JwtToken token = jwtService.refreshToken(refresh.get().getValue());
 
         CookieUtils.addCookie(response, AuthConst.REFRESH_TOKEN, token.getRefreshToken(),properties.getRefreshExpire(), true);
-        response.setHeader("accessToken", token.getAccessToken());
+        response.setHeader("Authorization", token.getAccessToken());
 
         return ApiResponse.ok("refresh token success");
     }
