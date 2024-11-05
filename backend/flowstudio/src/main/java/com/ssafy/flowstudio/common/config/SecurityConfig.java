@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:13000", "https://k11c201.p.ssafy.io"));
-                    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    configuration.setAllowedMethods(List.of("*"));
                     configuration.setAllowCredentials(true);
                     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     configuration.setExposedHeaders(List.of("Set-Cookie", "Authorization"));
