@@ -3,21 +3,25 @@ package com.ssafy.flowstudio.api.service.node.response;
 import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
 import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 public class QuestionClassifierResponse extends NodeResponse {
 
-    private final String classList;
+    private final String modelParamList;
+//    private final List<QuestionClass> questionClasses;
 
     @Builder
-    public QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String classList) {
+    public QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String modelParamList, List<QuestionClass> questionClasses) {
         super(nodeId, name, type, coordinate, outputEdges, inputEdges);
-        this.classList = classList;
+        this.modelParamList = modelParamList;
+//        this.questionClasses = questionClasses;
     }
 
     public static QuestionClassifierResponse from(QuestionClassifier questionClassifier) {
@@ -28,7 +32,8 @@ public class QuestionClassifierResponse extends NodeResponse {
                 .coordinate(CoordinateResponse.from(questionClassifier.getCoordinate()))
                 .outputEdges(questionClassifier.getOutputEdges().stream().map(EdgeResponse::from).toList())
                 .inputEdges(questionClassifier.getInputEdges().stream().map(EdgeResponse::from).toList())
-                .classList(questionClassifier.getClassList())
+                .modelParamList(questionClassifier.getModelParamList())
+                // TODO : QuestionClass 리스트 추가
                 .build();
     }
 

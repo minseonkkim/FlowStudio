@@ -10,21 +10,23 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class QuestionClassifier extends Node {
 
     @Lob
-    private String classList;
-
-    @Lob
     private String modelParamList;
 
+    @OneToMany(mappedBy = "questionClassifier", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionClass> questionClasses = new ArrayList<>();
+
     @Builder
-    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList) {
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String modelParamList) {
         super(id, chatFlow, name, type, coordinate);
-        this.classList = classList;
         this.modelParamList = modelParamList;
     }
 
@@ -40,5 +42,9 @@ public class QuestionClassifier extends Node {
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
+    }
+
+    public void addQuestionClass(QuestionClass questionClass) {
+        getQuestionClasses().add(questionClass);
     }
 }

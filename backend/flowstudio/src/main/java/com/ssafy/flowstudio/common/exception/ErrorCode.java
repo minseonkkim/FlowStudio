@@ -21,18 +21,27 @@ public enum ErrorCode {
     ACCESS_DENIED(2010, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
     NICKNAME_ALREADY_EXISTS(2011, HttpStatus.BAD_REQUEST, "이미 존재하는 사용자 이름입니다."),
 
-
+    // ChatFlow
     CHAT_FLOW_NOT_FOUND(3000, HttpStatus.NOT_FOUND, "챗플로우를 찾을 수 없습니다."),
 
+    // Node
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
     NODE_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "노드를 찾을 수 없습니다."),
 
+    // Share
     CATEGORY_NOT_FOUND(5000, HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+
+    // Chat
     CHAT_NOT_FOUND(6000, HttpStatus.NOT_FOUND, "챗을 찾을 수 없습니다."),
     START_NODE_NOT_FOUND(6001, HttpStatus.NOT_FOUND, "시작 노드를 찾을 수 없습니다."),
 
+    // Knowledge
     KNOWLEDGE_NOT_FOUND(7000, HttpStatus.NOT_FOUND, "지식베이스를 찾을 수 없습니다."),
     KNOWLEDGE_INSERT_UNAVAILABLE(7001, HttpStatus.SERVICE_UNAVAILABLE, "지식베이스를 등록할 수 없습니다."),
+
+    // AI response
+    AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
+    AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
     ;
 
     private final int code;
