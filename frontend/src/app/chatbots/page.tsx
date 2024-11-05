@@ -3,59 +3,60 @@
 import CreateChatbotModal from "@/components/chatbot/CreateChatbotModal";
 import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
+import Search from "@/components/common/Search";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useRecoilState } from "recoil";
+import { selectedChatbotState } from "@/store/chatbotAtoms";
+import PurpleButton from "@/components/common/PurpleButton";
+import { ChatFlow } from "@/types/chatbot"
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  iconId: number;
-}
-
-const chatbots: Chatbot[] = [
+const chatFlows: ChatFlow[] = [
   {
-    id: 1,
-    title: "Workflow Planning Assistant",
-    description: "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: "교육",
-    iconId: 1,
+    chatFlowId: 1,
+    title: "챗봇 1",
+    description:
+      "챗봇 1 묘사",
+    author: {
+      id: 1,
+      username: "김싸피",
+      nickname: "김싸피",
+      profileImage: "kim.png",
+    },
+    thumbnail: "1",
+    categories: [
+      { categoryId: 1, name: "교육" },
+      { categoryId: 2, name: "금융" },
+    ],
+    public: true,
   },
   {
-    id: 2,
-    title: "Financial Advisor Bot",
-    description: "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: "금융",
-    iconId: 1,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: "헬스케어",
-    iconId: 1,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: "전자 상거래",
-    iconId: 1,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description: "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: "여행",
-    iconId: 1,
+    chatFlowId: 2,
+    title: "챗봇 2",
+    description:
+      "챗봇 2 묘사",
+    author: {
+      id: 2,
+      username: "정싸피",
+      nickname: "정싸피",
+      profileImage: "jeong.png",
+    },
+    thumbnail: "2",
+    categories: [
+      { categoryId: 1, name: "금융" },
+      { categoryId: 3, name: "교육" },
+    ],
+    public: true,
   },
 ];
 
-
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
+  const router = useRouter();
 
   const categories = [
     "모든 챗봇",
@@ -72,52 +73,84 @@ export default function Page() {
     setSelectedCategory(label);
   };
 
-  const filteredChatbots = selectedCategory === "모든 챗봇"
-    ? chatbots
-    : chatbots.filter((bot) => bot.category === selectedCategory);
+  const handleCreateClick = () => {
+    setSelectedChatbot(null); 
+    setIsCreateModalOpen(true); 
+  };
+
+  const handleUpdateClick = (chatFlow: ChatFlow) => {
+    setSelectedChatbot(chatFlow); 
+    setIsCreateModalOpen(true); 
+  };
+
+  const filteredChatFlows = chatFlows.filter((bot) => {
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" ||
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
-    <div className="px-12 py-10">
+    <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
-        <div className="mb-4 flex items-center">
-          <p className="text-[22px] font-semibold mr-6">나의 챗봇</p>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="py-2 px-4 text-[14px] bg-[#9A75BF] text-white rounded-lg"
-          >
-            챗봇 만들기
-          </button>
+        <div className="mb-2 flex items-center">
+          <p className="font-semibold text-[24px] text-gray-700 mr-6">나의 챗봇</p>
+          <PurpleButton text='챗봇 만들기' onHandelButton={handleCreateClick} />
         </div>
-
-        <div className="mb-8">
-          {categories.map((label) => (
-            <button
-              key={label}
-              onClick={() => handleCategoryClick(label)}
-              className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+        
+        {/* 카테고리 선택 */}
+        <div className="flex justify-between items-center mb-6">
+          <div className="hidden md:flex">
+            {categories.map((label) => (
+              <button
+                key={label}
+                onClick={() => handleCategoryClick(label)}
+                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="md:hidden w-full mr-2">
+            <select
+              onChange={(e) => handleCategoryClick(e.target.value)}
+              className="w-full p-2 border rounded-md"
+              value={selectedCategory}
             >
-              {label}
-            </button>
-          ))}
+              {categories.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Search onSearchChange={setSearchTerm} />
         </div>
+      </div>
 
-        <div className="grid grid-cols-4 w-full gap-6">
-          {filteredChatbots.map((bot) => (
-            <PopularChatbotCard
-              key={bot.id}
-              title={bot.title}
-              description={bot.description}
-              buttonText="공유"
-              onButtonClick={() => setIsShareModalOpen(true)}
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
+        {filteredChatFlows.map((bot) => (
+          <PopularChatbotCard
+            key={bot.chatFlowId}
+            iconId={bot.thumbnail}
+            title={bot.title}
+            description={bot.description}
+            type="my"
+            category={bot.categories.map((cat) => cat.name)}
+            onCardClick={() => router.push(`/chatbot/${bot.chatFlowId}/workflow`)}
+            onButtonUpdateClick={() => handleUpdateClick(bot)}
+            onButtonShareClick={() => setIsShareModalOpen(true)}
+          />
+        ))}
       </div>
 
       {/* 챗봇 생성 모달 */}
       {isCreateModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
           onClick={() => setIsCreateModalOpen(false)}
         >
           <div onClick={(e) => e.stopPropagation()}>
@@ -129,7 +162,7 @@ export default function Page() {
       {/* 챗봇 공유 모달 */}
       {isShareModalOpen && (
         <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+          className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
           onClick={() => setIsShareModalOpen(false)}
         >
           <div onClick={(e) => e.stopPropagation()}>

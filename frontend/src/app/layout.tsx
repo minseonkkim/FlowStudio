@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import RecoilRootWrapper from "./RecoilWrapper";
 import "@/styles/globals.css";
-import Header from "@/components/common/Header";
+import ClientWrapper from "./ClientWrapper";
 
 export const metadata: Metadata = {
   title: "Flow Studio",
@@ -16,10 +16,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <Header/>   
-        <main className="mt-[60px]">
-        <RecoilRootWrapper>{children}</RecoilRootWrapper>
-        </main>   
+        <ClientWrapper>
+          <RecoilRootWrapper>{children}</RecoilRootWrapper>
+        </ClientWrapper>
       </body>
     </html>
   );
