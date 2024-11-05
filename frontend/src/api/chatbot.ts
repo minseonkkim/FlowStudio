@@ -5,6 +5,7 @@ import { ChatFlowData } from '@/types/chatbot'
 export async function getAllChatFlows(){
   try {
     const response = await axiosInstance.get('chat-flows')
+    console.log("챗봇", response);
     if (response.status === 200) {
       return response.data.data;
     } else {
