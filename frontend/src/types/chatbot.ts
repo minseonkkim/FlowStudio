@@ -26,3 +26,8 @@ export interface ChatFlow {
   categories: Category[];
   public: boolean;
 }
+
+export interface SharedChatFlow extends ChatFlow {
+  shareNum: number;
+}
+ 

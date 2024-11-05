@@ -5,7 +5,7 @@ interface ChatbotCardProps {
   title: string;
   description: string;
   category: string[];
-  iconId: number;
+  iconId: string;
   onCardClick?: () => void;
   type: "all" | "eval"
 }
