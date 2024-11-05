@@ -6,50 +6,44 @@ import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from '@/components/common/Search';
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import PurpleButton from '@/components/common/PurpleButton';
+import { ChatFlow } from '@/types/chatbot';
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-}
-
-const chatbots: Chatbot[] = [
+const chatFlows: ChatFlow[] = [
   {
-    id: 1,
-    title: "Workflow Planning Assistant",
-    description: "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: ["교육"],
-    iconId: 1,
+    chatFlowId: 1,
+    title: "챗봇 1",
+    description:
+      "챗봇 1 묘사",
+    author: {
+      id: 1,
+      username: "김싸피",
+      nickname: "김싸피",
+      profileImage: "kim.png",
+    },
+    thumbnail: "1",
+    categories: [
+      { categoryId: 1, name: "교육" },
+      { categoryId: 2, name: "금융" },
+    ],
+    public: true,
   },
   {
-    id: 2,
-    title: "Financial Advisor Bot",
-    description: "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: ["금융"],
-    iconId: 5,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: ["헬스케어"],
-    iconId: 2,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: ["전자 상거래"],
-    iconId: 3,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description: "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: ["여행"],
-    iconId: 4,
+    chatFlowId: 2,
+    title: "챗봇 2",
+    description:
+      "챗봇 2 묘사",
+    author: {
+      id: 2,
+      username: "정싸피",
+      nickname: "정싸피",
+      profileImage: "jeong.png",
+    },
+    thumbnail: "2",
+    categories: [
+      { categoryId: 1, name: "금융" },
+      { categoryId: 3, name: "교육" },
+    ],
+    public: true,
   },
 ];
 
@@ -73,9 +67,14 @@ export default function Page() {
     setSelectedCategory(label);
   };
 
-  const filteredChatbots = chatbots.filter((bot) => {
-    const matchesCategory = selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
-    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+  const filteredChatFlows = chatFlows.filter((bot) => {
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" ||
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -124,29 +123,29 @@ export default function Page() {
       </div>
    
       <div className="hidden md:flex flex-col gap-1">
-        {filteredChatbots.map((bot) => (
+        {filteredChatFlows.map((bot) => (
           <ChatbotCard
-            key={bot.id}
+            key={bot.chatFlowId}
             title={bot.title}
             description={bot.description}
-            iconId={bot.iconId}
-            category={bot.category}
-            onCardClick={() => handleResultClick(bot.id)}
+            iconId={bot.thumbnail}
+            category={bot.categories.map((cat) => cat.name)}
+            onCardClick={() => handleResultClick(bot.chatFlowId)}
             type="eval"
           />
         ))}
       </div>
 
       <div className="md:hidden flex flex-col gap-4">
-        {filteredChatbots.map((bot) => (
+        {filteredChatFlows.map((bot) => (
           <PopularChatbotCard
-            key={bot.id}
+            key={bot.chatFlowId}
             title={bot.title}
             description={bot.description}
-            iconId={bot.iconId}
-            category={bot.category}
+            iconId={bot.thumbnail}
+            category={bot.categories.map((cat) => cat.name)}
             type="eval"
-            onCardClick={() => handleResultClick(bot.id)}
+            onCardClick={() => handleResultClick(bot.chatFlowId)}
           />
         ))}
       </div>

@@ -36,8 +36,8 @@ export default function CreateChatbotModal({
     if (selectedChatbot) {
       setName(selectedChatbot.title);
       setDescription(selectedChatbot.description);
-      setSelectedCategories(selectedChatbot.category);
-      setSelectedIcon(String(selectedChatbot.iconId));
+      setSelectedCategories(selectedChatbot.categories.map(category => category.name));
+      setSelectedIcon(String(selectedChatbot.thumbnail));
     }
   }, [selectedChatbot]);
 
