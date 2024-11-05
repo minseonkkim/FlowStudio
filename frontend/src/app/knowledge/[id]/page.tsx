@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import Search from '@/components/common/Search';
 import ChunkDetail from '@/components/knowledge/ChunkDetaill';
 import ChunkDetailModal from '@/components/knowledge/ChunkDetailModal';
+import { IoIosArrowBack  } from '@react-icons/all-files/io/IoIosArrowBack';
+import { useRouter } from 'next/navigation';
+
 
 const data = [
   { id: '#001', content: '지구 온난화 문제 해결을 위한 다양한 방안을 모색합니다.' },
@@ -21,6 +24,7 @@ const Page = () => {
   const [selectedContent, setSelectedContent] = useState('');
   const [isEditing, setEditing] = useState(false);
   const [editedContent, setEditedContent] = useState('');
+  const router = useRouter()
 
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
@@ -55,9 +59,14 @@ const Page = () => {
 
   return (
     <div className="px-12 py-10 relative">
-      <div className="flex justify-end mb-4"> 
+      <div className='flex gap-4 items-center'>
+        <IoIosArrowBack className='w-6 h-6 ' onClick={()=>router.push('/knowledges')}/>
+        <p className="font-semibold text-[24px] text-gray-700">파일이름 1</p>
+      </div>
+      <div className="flex mb-4 xl:justify-end justify-center mt-4">
         <Search onSearchChange={handleSearchChange} />
       </div>
+
       <ChunkDetail data={filteredData} onItemSelect={handleOpenModal} />
       {isModalOpen && (
         <ChunkDetailModal
