@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
@@ -33,6 +35,13 @@ public enum ErrorCode {
 
     KNOWLEDGE_NOT_FOUND(7000, HttpStatus.NOT_FOUND, "지식베이스를 찾을 수 없습니다."),
     KNOWLEDGE_INSERT_UNAVAILABLE(7001, HttpStatus.SERVICE_UNAVAILABLE, "지식베이스를 등록할 수 없습니다."),
+
+    EMPTY_FILE_EXCEPTION(8001, HttpStatus.BAD_REQUEST, "파일이 유효하지 않습니다."),
+    NO_FILE_EXTENSION(8002, HttpStatus.BAD_REQUEST, "파일 확장자 명이 없습니다."),
+    IO_EXCEPTION_ON_IMAGE_UPLOAD(8003, INTERNAL_SERVER_ERROR, "이미지 업로드 중 입출력 오류가 발생했습니다."),
+    INVALID_FILE_EXTENSION(8004, HttpStatus.BAD_REQUEST, "유효하지 않은 확장자 명입니다."),
+    PUT_OBJECT_EXCEPTION(8005, INTERNAL_SERVER_ERROR, "S3에 파일 업로드 중 오류가 발생했습니다."),
+    FILE_SIZE_EXCEEDS_LIMIT(8006, HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다. (최대 1MB)"),
     ;
 
     private final int code;

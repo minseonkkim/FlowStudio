@@ -116,6 +116,8 @@ dependencies {
     // Json
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
 
+    // AWS s3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 dependencyManagement {
