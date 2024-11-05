@@ -5,50 +5,14 @@ import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "@/components/common/Search";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import PurpleButton from "@/components/common/PurpleButton";
 import { ChatFlow } from "@/types/chatbot"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
 
-const chatFlows: ChatFlow[] = [
-  {
-    chatFlowId: 1,
-    title: "챗봇 1",
-    description:
-      "챗봇 1 묘사",
-    author: {
-      id: 1,
-      username: "김싸피",
-      nickname: "김싸피",
-      profileImage: "kim.png",
-    },
-    thumbnail: "1",
-    categories: [
-      { categoryId: 1, name: "교육" },
-      { categoryId: 2, name: "금융" },
-    ],
-    public: true,
-  },
-  {
-    chatFlowId: 2,
-    title: "챗봇 2",
-    description:
-      "챗봇 2 묘사",
-    author: {
-      id: 2,
-      username: "정싸피",
-      nickname: "정싸피",
-      profileImage: "jeong.png",
-    },
-    thumbnail: "2",
-    categories: [
-      { categoryId: 1, name: "금융" },
-      { categoryId: 3, name: "교육" },
-    ],
-    public: true,
-  },
-];
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -57,6 +21,30 @@ export default function Page() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
+    queryKey: ['chatFlows'],
+    queryFn: getAllChatFlows,
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("챗봇을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteChatFlow,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
+    },
+    onError: () => {
+      alert("챗봇 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+  if (isLoading) return <div>is Loading...</div>;
 
   const categories = [
     "모든 챗봇",
@@ -83,7 +71,11 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const filteredChatFlows = chatFlows.filter((bot) => {
+  const handleDeleteClick = (chatFlowId: number) => {
+    deleteMutation.mutate(chatFlowId);
+  };
+
+  const filteredChatFlows = chatFlows?.filter((bot) => {
     const matchesCategory =
       selectedCategory === "모든 챗봇" ||
       bot.categories.some((category) => category.name === selectedCategory);
@@ -132,7 +124,7 @@ export default function Page() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {filteredChatFlows.map((bot) => (
+        {filteredChatFlows?.map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
             iconId={bot.thumbnail}
@@ -142,12 +134,13 @@ export default function Page() {
             category={bot.categories.map((cat) => cat.name)}
             onCardClick={() => router.push(`/chatbot/${bot.chatFlowId}/workflow`)}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
+            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => setIsShareModalOpen(true)}
           />
         ))}
       </div>
 
-      {/* 챗봇 생성 모달 */}
+      {/* 챗봇 생성 및 모달 */}
       {isCreateModalOpen && (
         <div
           className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
