@@ -33,7 +33,6 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
                 .build();
 
         User user = User.builder()
-                .id(1L)
                 .username("test")
                 .apiKey(ApiKey.empty())
                 .build();
@@ -59,7 +58,6 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
                 .build();
 
         User user = User.builder()
-                .id(1L)
                 .username("test")
                 .apiKey(ApiKey.empty())
                 .build();
