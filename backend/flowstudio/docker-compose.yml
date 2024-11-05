@@ -27,7 +27,7 @@ services:
     image: redis:7.4-rc2-alpine
     container_name: flowstudio-cache-db
     ports:
-      - "${REDIS_PORT}:6379"
+      - "${REDIS_TEST_PORT}:6379"
     entrypoint:
       - redis-server
       - "--requirepass"

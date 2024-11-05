@@ -1,5 +1,7 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
@@ -14,33 +16,37 @@ import lombok.NoArgsConstructor;
 public class LLM extends Node {
 
     @Lob
-    private String prompt_system;
+    private String promptSystem;
 
     @Lob
-    private String prompt_user;
+    private String promptUser;
 
     @Column
     private String context;
 
     @Lob
-    private String model_param_list;
+    private String modelParamList;
 
     @Builder
-    private LLM(Long id, String name, NodeType type, Coordinate coordinate, String output_key, String prompt_system, String prompt_user, String context, String model_param_list) {
-        super(id, name, type, coordinate, output_key);
-        this.prompt_system = prompt_system;
-        this.prompt_user = prompt_user;
+    private LLM(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String promptSystem, String promptUser, String context, String modelParamList) {
+        super(id, chatFlow, name, type, coordinate);
+        this.promptSystem = promptSystem;
+        this.promptUser = promptUser;
         this.context = context;
-        this.model_param_list = model_param_list;
+        this.modelParamList = modelParamList;
     }
 
-    public static LLM create(Coordinate coordinate, String output_key) {
+    public static LLM create(ChatFlow chatFlow, Coordinate coordinate) {
         return LLM.builder()
+            .chatFlow(chatFlow)
             .name("LLM")
             .type(NodeType.LLM)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
     }
 
+    @Override
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
+    }
 }

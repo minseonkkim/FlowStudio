@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import lombok.AccessLevel;
@@ -14,20 +16,25 @@ import lombok.NoArgsConstructor;
 public class Conditional extends Node {
 
     @Lob
-    private String sub_conditional_list;
+    private String subConditionalList;
 
     @Builder
-    private Conditional(Long id, String name, NodeType type, Coordinate coordinate, String output_key, String sub_conditional_list) {
-        super(id, name, type, coordinate, output_key);
-        this.sub_conditional_list = sub_conditional_list;
+    private Conditional(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String subConditionalList) {
+        super(id, chatFlow, name, type, coordinate);
+        this.subConditionalList = subConditionalList;
     }
 
-    public static Conditional create(Coordinate coordinate, String output_key) {
+    public static Conditional create(ChatFlow chatFlow, Coordinate coordinate) {
         return Conditional.builder()
+            .chatFlow(chatFlow)
             .name("Conditional")
             .type(NodeType.CONDITIONAL)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
     }
 }

@@ -1,5 +1,7 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import lombok.AccessLevel;
@@ -13,24 +15,29 @@ import lombok.NoArgsConstructor;
 public class QuestionClassifier extends Node {
 
     @Lob
-    private String class_list;
+    private String classList;
 
     @Lob
-    private String model_param_list;
+    private String modelParamList;
 
     @Builder
-    private QuestionClassifier(Long id, String name, NodeType type, Coordinate coordinate, String output_key, String class_list, String model_param_list) {
-        super(id, name, type, coordinate, output_key);
-        this.class_list = class_list;
-        this.model_param_list = model_param_list;
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String classList, String modelParamList) {
+        super(id, chatFlow, name, type, coordinate);
+        this.classList = classList;
+        this.modelParamList = modelParamList;
     }
 
-    public static QuestionClassifier create(Coordinate coordinate, String output_key) {
+    public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {
         return QuestionClassifier.builder()
+            .chatFlow(chatFlow)
             .name("Question Classifier")
             .type(NodeType.QUESTION_CLASSIFIER)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
+    }
+
+    @Override
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
     }
 }

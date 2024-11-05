@@ -1,4 +1,4 @@
-package com.ssafy.flowstudio.domain.document.entity;
+package com.ssafy.flowstudio.domain.knowledge.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -18,11 +18,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Document extends BaseEntity {
+public class Knowledge extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "document_id")
+    @Column(name = "knowledge_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,18 +36,23 @@ public class Document extends BaseEntity {
     private boolean isPublic;
 
     @Builder
-    private Document(Long id, User user, String title, boolean isPublic) {
+    private Knowledge(Long id, User user, String title, boolean isPublic) {
         this.id = id;
         this.user = user;
         this.title = title;
         this.isPublic = isPublic;
     }
 
-    public static Document create(User user, String title, boolean isPublic) {
-        return Document.builder()
+    public static Knowledge create(User user, String title, boolean isPublic) {
+        return Knowledge.builder()
                 .user(user)
                 .title(title)
                 .isPublic(isPublic)
                 .build();
+    }
+
+    public void update(String title, boolean isPublic) {
+        this.title = title;
+        this.isPublic = isPublic;
     }
 }

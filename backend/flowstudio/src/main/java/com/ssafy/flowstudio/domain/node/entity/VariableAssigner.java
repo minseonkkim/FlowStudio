@@ -1,7 +1,9 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.domain.chatflow.entity.GlobalVariable;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,26 +14,27 @@ import lombok.NoArgsConstructor;
 @Getter
 public class VariableAssigner extends Node {
 
-    @Column
-    private String targetVariableName;
-
-    @Column
-    private String targetVariableType;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "global_variable_id")
+    private GlobalVariable globalVariable;
 
     @Builder
-    private VariableAssigner(String name, NodeType type, Coordinate coordinate, String output_key, String targetVariableName, String targetVariableType) {
-        super(null, name, type, coordinate, output_key);
-        this.targetVariableName = targetVariableName;
-        this.targetVariableType = targetVariableType;
+    private VariableAssigner(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, GlobalVariable globalVariable) {
+        super(id, chatFlow, name, type, coordinate);
+        this.globalVariable = globalVariable;
     }
 
-    public static VariableAssigner create(String name, NodeType type, Coordinate coordinate, String output_key) {
+    public static VariableAssigner create(ChatFlow chatFlow, Coordinate coordinate) {
         return VariableAssigner.builder()
-            .name(name)
-            .type(type)
+            .chatFlow(chatFlow)
+            .name("Variable Assigner")
+            .type(NodeType.VARIABLE_ASSIGNER)
             .coordinate(coordinate)
-            .output_key(output_key)
             .build();
     }
 
+    @Override
+    public void accept(NodeVisitor visitor, Chat chat) {
+        visitor.visit(this, chat);
+    }
 }
