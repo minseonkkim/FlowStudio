@@ -3,30 +3,26 @@ package com.ssafy.flowstudio.docs.rag;
 import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.ssafy.flowstudio.api.controller.rag.KnowledgeController;
-import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeCreateRequest;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeRequest;
-import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.KnowledgeService;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
-import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
-import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import io.milvus.v2.client.MilvusClientV2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -41,13 +37,14 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 
 
 public class KnowledgeControllerDocsTest extends RestDocsSupport {
 
     private final KnowledgeService knowledgeService = mock(KnowledgeService.class);
     private final VectorStoreService vectorStoreService = mock(VectorStoreService.class);
+    @MockBean
+    private MilvusClientV2 milvusClient;
 
     @Override
     protected Object initController() {
