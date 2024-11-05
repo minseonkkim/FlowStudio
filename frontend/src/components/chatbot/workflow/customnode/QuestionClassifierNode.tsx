@@ -14,8 +14,10 @@ export default function QuestionClassifierNode({ data, selected }: any) {
   const [handlePositions, setHandlePositions] = useState<number[]>([]);
 
   useEffect(() => {
-    classRefs.current = classRefs.current.slice(0, data.classes.length);
-    
+    const classes = data.classes || [];
+
+    classRefs.current = classRefs.current.slice(0, classes.length);
+
     const newPositions = classRefs.current.map((el) => {
       if (el) {
         const { offsetTop, offsetHeight } = el;

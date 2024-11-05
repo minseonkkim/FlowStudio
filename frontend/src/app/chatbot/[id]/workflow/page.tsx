@@ -332,7 +332,7 @@ export default function Page() {
   };
 
   const addNode = useCallback(
-    (type: string) => {
+    (type: string, condition?: "ifsource" | "elifsource" | "elsesource") => {
       if (!selectedNode) return;
 
       const isPositionOccupied = (x: number, y: number) => {
@@ -353,43 +353,25 @@ export default function Page() {
       const newNode = {
         id: uuidv4(),
         type,
-        data: (() => {
-          switch (type) {
-            case "startNode":
-              return { maxChars: undefined };
-            case "llmNode":
-              return { prompts: [{ type: "system", text: "" }], model: models[0].id };
-            case "knowledgeNode":
-              return { fileName: "" };
-            case "ifelseNode":
-              return {};
-            case "answerNode":
-              return {};
-            case "questionclassifierNode":
-              return { classes: [{ text: "" }, { text: "" }] };
-            case "variableallocatorNode":
-              return {};
-            default:
-              return {};
-          }
-        })(),
+        data: {},
         position: { x: newX, y: newY },
       };
 
       const newEdge = {
         id: `e${selectedNode.id}-${newNode.id}`,
         source: selectedNode.id,
+        sourceHandle: selectedNode.type === "ifelseNode" ? condition : undefined,
         target: newNode.id,
       };
 
       setNodes((nds) => [...nds, newNode]);
       setEdges((eds) => [...eds, newEdge]);
-
-      setSelectedNode(newNode);
+      setSelectedNode(newNode); 
       setSelectedNodeId(newNode.id);
     },
-    [selectedNode, nodes]
+    [selectedNode, nodes, edges]
   );
+
 
   useEffect(() => {
     if (selectedNodeId) {
@@ -415,10 +397,37 @@ export default function Page() {
     );
   };
 
+  const getConditionallyConnectedNodes = (nodeId: string) => {
+    const ifNodes = edges
+      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "ifsource")
+      .map((edge) => {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+      });
+
+    const elifNodes = edges
+      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elifsource")
+      .map((edge) => {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+      });
+
+    const elseNodes = edges
+      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elsesource")
+      .map((edge) => {
+        const targetNode = nodes.find((node) => node.id === edge.target);
+        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+      });
+
+    return { ifNodes, elifNodes, elseNodes };
+  };
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
     const connectedNodeDetails = getConnectedNodes(selectedNode.id);
+
+    const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.id);
 
     switch (selectedNode.type) {
       case "startNode":
@@ -466,9 +475,9 @@ export default function Page() {
         return (
         <IfelseNodeDetail 
           variables={variables} 
-          addNode={addNode} 
+          addNode={(type, condition) => addNode(type, condition)} 
           onClose={handleCloseDetail} 
-          connectedNodes={connectedNodeDetails}
+          connectedNodes={ifelseNodeDetails}
           setConnectedNodes={(targetNodeId) =>
                 handleRemoveNode(selectedNode.id, targetNodeId)
               }/>);

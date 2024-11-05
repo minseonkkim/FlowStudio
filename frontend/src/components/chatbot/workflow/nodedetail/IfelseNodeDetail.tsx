@@ -1,143 +1,154 @@
-import { FaRobot } from "@react-icons/all-files/fa/FaRobot"
-import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen"
-import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
-import { GrTree } from "@react-icons/all-files/gr/GrTree"
-import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline"
-import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
-import { IoClose } from "@react-icons/all-files/io5/ioClose"
-import { useCallback, useState } from "react"
-import { ConnectedNode } from "@/types/workflow"
+import { useCallback, useState } from "react";
+import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
+import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
+import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
+import { GrTree } from "@react-icons/all-files/gr/GrTree";
+import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
+import { IoClose } from "@react-icons/all-files/io5/ioClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
-import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig"
+import { ConnectedNode } from "@/types/workflow";
+import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 
 export default function IfelseNodeDetail({
   variables,
   addNode,
   onClose,
-  connectedNodes,
+  connectedNodes = { ifNodes: [], elifNodes: [], elseNodes: [] },
   setConnectedNodes,
 }: {
   variables: { name: string; value: string; type: string; isEditing: boolean }[];
-  addNode: (type: string) => void;
+  addNode: (type: string, condition: "ifsource" | "elifsource" | "elsesource") => void;
   onClose: () => void;
-  connectedNodes: ConnectedNode[];
+  connectedNodes?: { ifNodes: ConnectedNode[]; elifNodes: ConnectedNode[]; elseNodes: ConnectedNode[] };
   setConnectedNodes: (targetNodeId: string) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [dropdownCondition, setDropdownCondition] = useState<"ifsource" | "elifsource" | "elsesource" | null>(null);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
+  const toggleDropdown = (condition: "ifsource" | "elifsource" | "elsesource") => {
+    setDropdownCondition((prevCondition) => (prevCondition === condition ? null : condition));
   };
 
   const handleNodeTypeClick = useCallback(
-    (type: string) => {
-      addNode(type);
-      onClose();
+    (type: string, condition: "ifsource" | "elifsource" | "elsesource") => {
+      addNode(type, condition);
+      setDropdownCondition(null);
     },
-    [addNode, onClose]
+    [addNode]
   );
 
-  return <>
-  <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
-    <div className="flex flex-row justify-between items-center mb-2">
-      <div className="flex flex-row items-center gap-1">
-          <IoGitBranchOutline className="text-[#EF4444] size-8"/>
+  return (
+    <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto relative">
+      <div className="flex flex-row justify-between items-center mb-2">
+        <div className="flex flex-row items-center gap-1">
+          <IoGitBranchOutline className="text-[#EF4444] size-8" />
           <div className="text-[25px] font-semibold">IF/ELSE</div>
+        </div>
+        <IoClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
-      <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
-    </div>
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-row justify-between items-start">
-        <div className="text-[16px]">IF</div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
-            <div className="w-auto h-[36px] flex items-center">
-              <select>
-                {variables.map((variable, index) => (
-                  <option key={index} value={variable.name}>
-                    {variable.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-auto h-[36px] flex items-center">
-              <select>
+
+      <div className="flex flex-col gap-2">
+        {/* IF 조건 설정 */}
+        <div className="flex flex-row items-start">
+          <div className="text-[16px] w-[40px] flex-shrink-0">IF</div>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row items-center justify-between w-[220px] bg-white rounded-[5px] p-1">
+              <div className="w-auto h-[36px] flex items-center">
+                <select className="w-full">
+                  {variables.map((variable, index) => (
+                    <option key={index} value={variable.name}>
+                      {variable.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-auto h-[36px] flex items-center">
+                <select className="w-full">
                   <option value="">&gt;=</option>
                   <option value="">&gt;</option>
                   <option value="">==</option>
                   <option value="">&lt;=</option>
                   <option value="">&lt;</option>
-              </select>
+                </select>
+              </div>
+              <input
+                className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]"
+                placeholder="값 입력"
+              />
             </div>
-            <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" />
-          </div>
-          <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
-            + 조건 추가
-          </div>
-        </div>        
-      </div>   
-      <div className="flex flex-row justify-between items-start">
-        <div className="text-[16px]">ELIF</div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row justify-between w-[220px] bg-white rounded-[5px] p-1">
-            <div className="w-auto h-[36px] flex items-center">
-              <select>
-                {variables.map((variable, index) => (
-                  <option key={index} value={variable.name}>
-                    {variable.name}
-                  </option>
-                ))}
-              </select>
+            <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+              + 조건 추가
             </div>
-            <div className="w-auto h-[36px] flex items-center">
-              <select>
+          </div>
+        </div>
+
+        {/* ELIF 조건 설정 */}
+        <div className="flex flex-row items-start">
+          <div className="text-[16px] w-[40px] flex-shrink-0">ELIF</div>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row items-center justify-between w-[220px] bg-white rounded-[5px] p-1">
+              <div className="w-auto h-[36px] flex items-center">
+                <select className="w-full">
+                  {variables.map((variable, index) => (
+                    <option key={index} value={variable.name}>
+                      {variable.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-auto h-[36px] flex items-center">
+                <select className="w-full">
                   <option value="">&gt;=</option>
                   <option value="">&gt;</option>
                   <option value="">==</option>
                   <option value="">&lt;=</option>
                   <option value="">&lt;</option>
-              </select>
+                </select>
+              </div>
+              <input
+                className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]"
+                placeholder="값 입력"
+              />
             </div>
-            <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" />
+            <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+              + 조건 추가
+            </div>
           </div>
-          <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
-            + 조건 추가
-          </div>
-        </div>        
-      </div>     
-    </div>
-    <div className="flex flex-col gap-2">
+        </div>
+      </div>
+
+
+      <div className="flex flex-col gap-2 mt-4">
         <div className="text-[16px]">다음 블록을 추가하세요.</div>
-        <div className="flex flex-row justify-between w-full">
-          <div className="aspect-square bg-[#FACECE] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+        <div className="flex flex-row justify-between w-full items-start">
+          <div className="aspect-square bg-[#FACECE] rounded-full w-[50px] h-[50px] flex justify-center items-center z-[10]">
             <IoGitBranchOutline className="text-[#F97316] size-8" />
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="z-[10] w-[160px]">
-            {connectedNodes.map((node, index) => (
-              <div
-                key={index}
-                className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-              >
-                {nodeConfig[node.name]?.icon}
-                <span>{nodeConfig[node.name]?.label || node.name}</span>
-                <AiOutlineClose
-                  className="cursor-pointer ml-auto"
-                  style={{
-                    color: deleteIconColors[node.name] || "gray",
-                  }}
-                  onClick={() => setConnectedNodes(node.id)}
-                />
-              </div>
-            ))}
-
-            <div className="relative inline-block text-left">
-              <div>
+          <div className="flex flex-col gap-2 z-[10] w-[185px]">
+            {/* IF 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
+            <div className="flex flex-row items-start relative">
+              <div className="text-[12px] w-[30px] flex items-center">IF</div>
+              <div className="flex flex-col gap-2">
+                {connectedNodes.ifNodes?.map((node, index) => (
+                  <div
+                    key={index}
+                    className={`inline-flex items-center gap-2 w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium`}
+                  >
+                    {nodeConfig[node.name]?.icon}
+                    <span>{nodeConfig[node.name]?.label || node.name}</span>
+                    <AiOutlineClose
+                      className="cursor-pointer ml-auto"
+                      style={{
+                        color: deleteIconColors[node.name] || "gray",
+                      }}
+                      onClick={() => setConnectedNodes(node.id)}
+                    />
+                  </div>
+                ))}
                 <button
-                  type="button"
-                  className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
-                  onClick={toggleDropdown}
+                  onClick={() => toggleDropdown("ifsource")}
+                  className="inline-flex justify-center w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#EF4444]"
                 >
                   다음 블록 선택
                   <svg
@@ -154,65 +165,167 @@ export default function IfelseNodeDetail({
                     />
                   </svg>
                 </button>
-              </div>
 
-              {isOpen && (
-                <div
-                  className="origin-top-right absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="menu-button"
-                >
-                  <div className="p-1 text-[15px]" role="none">
-                    <div
-                      onClick={() => handleNodeTypeClick("llmNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <FaRobot className="text-[18px]" />
-                      <div>LLM</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("knowledgeNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <FiBookOpen className="text-[18px]" />
-                      <div>지식 검색</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("answerNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <RiQuestionAnswerFill className="text-[18px]" />
-                      <div>답변</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("questionclassifierNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <GrTree className="text-[18px]" />
-                      <div>질문 분류기</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("ifelseNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <IoGitBranchOutline className="text-[18px]" />
-                      <div>IF/ELSE</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("variableallocatorNode")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <VscSymbolVariable className="text-[18px]" />
-                      <div>변수 할당자</div>
+                {dropdownCondition === "ifsource" && (
+                  <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                    <div className="p-1 text-[15px]">
+                      {[
+                        "llmNode",
+                        "knowledgeNode",
+                        "answerNode",
+                        "questionclassifierNode",
+                        "ifelseNode",
+                        "variableallocatorNode",
+                      ].map((nodeType) => (
+                        <div
+                          key={nodeType}
+                          onClick={() => handleNodeTypeClick(nodeType, "ifsource")}
+                          className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
+                        >
+                          {nodeConfig[nodeType].icon}
+                          <div>{nodeConfig[nodeType].label}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+            </div>
+
+            {/* ELIF 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
+            <div className="flex flex-row items-start mt-4 relative">
+              <div className="text-[12px] w-[30px] flex items-center">ELIF</div>
+              <div className="flex flex-col gap-2">
+                {connectedNodes.elifNodes?.map((node, index) => (
+                  <div
+                    key={index}
+                    className={`inline-flex items-center gap-2 w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium`}
+                  >
+                    {nodeConfig[node.name]?.icon}
+                    <span>{nodeConfig[node.name]?.label || node.name}</span>
+                    <AiOutlineClose
+                      className="cursor-pointer ml-auto"
+                      style={{
+                        color: deleteIconColors[node.name] || "gray",
+                      }}
+                      onClick={() => setConnectedNodes(node.id)}
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={() => toggleDropdown("elifsource")}
+                  className="inline-flex justify-center w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#EF4444]"
+                >
+                  다음 블록 선택
+                  <svg
+                    className="-mr-1 ml-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {dropdownCondition === "elifsource" && (
+                  <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                    <div className="p-1 text-[15px]">
+                      {[
+                        "llmNode",
+                        "knowledgeNode",
+                        "answerNode",
+                        "questionclassifierNode",
+                        "ifelseNode",
+                        "variableallocatorNode",
+                      ].map((nodeType) => (
+                        <div
+                          key={nodeType}
+                          onClick={() => handleNodeTypeClick(nodeType, "elifsource")}
+                          className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
+                        >
+                          {nodeConfig[nodeType].icon}
+                          <div>{nodeConfig[nodeType].label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ELSE 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
+            <div className="flex flex-row items-start mt-4 relative">
+              <div className="text-[12px] w-[30px] flex items-center">ELSE</div>
+              <div className="flex flex-col gap-2">
+                {connectedNodes.elseNodes?.map((node, index) => (
+                  <div
+                    key={index}
+                    className={`inline-flex items-center gap-2 w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium`}
+                  >
+                    {nodeConfig[node.name]?.icon}
+                    <span>{nodeConfig[node.name]?.label || node.name}</span>
+                    <AiOutlineClose
+                      className="cursor-pointer ml-auto"
+                      style={{
+                        color: deleteIconColors[node.name] || "gray",
+                      }}
+                      onClick={() => setConnectedNodes(node.id)}
+                    />
+                  </div>
+                ))}
+                <button
+                  onClick={() => toggleDropdown("elsesource")}
+                  className="inline-flex justify-center w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#EF4444]"
+                >
+                  다음 블록 선택
+                  <svg
+                    className="-mr-1 ml-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {dropdownCondition === "elsesource" && (
+                  <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
+                    <div className="p-1 text-[15px]">
+                      {[
+                        "llmNode",
+                        "knowledgeNode",
+                        "answerNode",
+                        "questionclassifierNode",
+                        "ifelseNode",
+                        "variableallocatorNode",
+                      ].map((nodeType) => (
+                        <div
+                          key={nodeType}
+                          onClick={() => handleNodeTypeClick(nodeType, "elsesource")}
+                          className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
+                        >
+                          {nodeConfig[nodeType].icon}
+                          <div>{nodeConfig[nodeType].label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>     
-  </div>
-  </>
+      </div>
+    </div>
+  );
 }
