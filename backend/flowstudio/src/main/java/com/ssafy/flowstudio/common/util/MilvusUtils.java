@@ -25,6 +25,12 @@ public class MilvusUtils {
         return String.join("_", "", id.toString());
     }
 
+    public List<String> generateName(List<Long> ids) {
+        return ids.stream()
+                .map(this::generateName)
+                .toList();
+    }
+
     public EmbeddingModel generateEmbeddingModel() {
         return new OpenAiEmbeddingModel(
                 new OpenAiApi(openAiApiKey),

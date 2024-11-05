@@ -5,8 +5,14 @@ import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceReques
 import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import dev.langchain4j.data.document.DocumentSplitter;
+import dev.langchain4j.data.document.splitter.DocumentSplitters;
+import dev.langchain4j.data.segment.TextSegment;
+import dev.langchain4j.model.openai.OpenAiTokenizer;
 import io.milvus.param.collection.FlushParam;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.ConsistencyLevel;
@@ -21,6 +27,8 @@ import io.milvus.v2.service.vector.request.data.BaseVector;
 import io.milvus.v2.service.vector.request.data.FloatVec;
 import io.milvus.v2.service.vector.response.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -33,6 +41,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class VectorStoreService {
+    private static final Logger log = LoggerFactory.getLogger(VectorStoreService.class);
     private final MilvusClientV2 milvusClient;
     private final LangchainService langchainService;
     private final MilvusUtils milvusUtils;
@@ -79,12 +88,12 @@ public class VectorStoreService {
 
     public List<ChunkResponse> getDocumentChunk(User user, KnowledgeResponse knowledge, Long chunkId) {
         String collectionName = milvusUtils.generateName(user.getId());
-        String partitionName = milvusUtils.generateName(knowledge.getKnowledgeId());
-        loadPartition(collectionName, partitionName);
+        List<String> partitionNames = milvusUtils.generateName(List.of(knowledge.getKnowledgeId()));
+        loadPartition(collectionName, partitionNames);
 
         QueryResp queryResp = milvusClient.query(QueryReq.builder()
                 .collectionName(collectionName)
-                .partitionNames(List.of(partitionName))
+                .partitionNames(partitionNames)
                 .outputFields(List.of("id", "content")) // 조회하려는 필드명
                 .filter(chunkId == -1 ? "id <= " + 400 : "id == " + chunkId)
                 .build());
@@ -190,12 +199,16 @@ public class VectorStoreService {
         System.out.println(getResp.toString());
     }
 
-    private void loadPartition(String collectionName, String partitionName) {
+    public Boolean loadPartition(String collectionName, List<String> partitionNames) {
+        if (partitionNames.isEmpty()) throw new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND);
+
         LoadPartitionsReq loadPartitionsReq = LoadPartitionsReq.builder()
                 .collectionName(collectionName)
-                .partitionNames(List.of(partitionName))
+                .partitionNames(partitionNames)
                 .build();
 
         milvusClient.loadPartitions(loadPartitionsReq);
+
+        return true;
     }
 }
