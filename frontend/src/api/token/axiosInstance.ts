@@ -24,9 +24,8 @@ const setAuthorizationToken = async () => {
     const authorizationHeader = response.headers['authorization'];
 
     if (authorizationHeader) {
-      const newToken = authorizationHeader.split(' ')[1];
-      localStorage.setItem('accessToken', newToken);
-      return newToken;
+      localStorage.setItem('accessToken', authorizationHeader);
+      return authorizationHeader;
     } else {
       throw new Error('No authorization header found');
     }
