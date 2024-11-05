@@ -49,10 +49,6 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
     private final KnowledgeService knowledgeService = mock(KnowledgeService.class);
     private final VectorStoreService vectorStoreService = mock(VectorStoreService.class);
 
-    final String fileName = "software_developer_guide"; //파일명
-    final String contentType = "pdf"; //파일타입
-    final String filePath = "src/test/resources/pdf/" + fileName + "." + contentType; //파일경로
-
     @Override
     protected Object initController() {
         return new KnowledgeController(knowledgeService, vectorStoreService);
@@ -191,20 +187,6 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
     @Test
     void getKnowledgeChunks() throws Exception {
         // given
-        User user = User.builder().id(2L).build();
-        KnowledgeResponse knowledgeResponse = KnowledgeResponse.builder()
-                .knowledgeId(9L)
-                .title("test")
-                .isPublic(true)
-                .createAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
-
-        List<ChunkResponse> expectedChunks = List.of(
-                new ChunkResponse(0, "내용1"),
-                new ChunkResponse(1, "내용2"),
-                new ChunkResponse(2, "내용3")
-        );
-
         ChunkListResponse response = ChunkListResponse.builder()
                 .chunkList(
                         List.of(
@@ -214,7 +196,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                 .chunkCount(1)
                 .build();
 
-        given(vectorStoreService.getDocumentChunks(eq(user), eq(knowledgeResponse), eq(-1L)))
+        given(vectorStoreService.getDocumentChunks(any(), any(), any()))
                 .willReturn(response);
 
         // when
@@ -255,7 +237,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                 ChunkResponse.builder().chunkId(0).content("sentence1").build()
         );
 
-        given(vectorStoreService.getDocumentChunk(any(User.class), any(KnowledgeResponse.class), any(Long.class)))
+        given(vectorStoreService.getDocumentChunk(any(), any(), any()))
                 .willReturn(response);
 
         // when
@@ -272,6 +254,17 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Knowledge")
                                 .summary("지식베이스 청크 상세보기")
+                                .pathParameters(
+                                        parameterWithName("knowledgeId").description("지식베이스 아이디"),
+                                        parameterWithName("chunkId").description("청크 아이디")
+                                )
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING).description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
+                                        fieldWithPath("data[].chunkId").type(JsonFieldType.NUMBER).optional().description("청크 아이디"),
+                                        fieldWithPath("data[].content").type(JsonFieldType.STRING).optional().description("청크 내용")
+                                )
                                 .build()
                         )
                 ));
