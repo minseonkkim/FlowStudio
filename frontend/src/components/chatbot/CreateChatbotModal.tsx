@@ -4,6 +4,9 @@ import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import PurpleButton from "../common/PurpleButton";
 import WhiteButton from "../common/whiteButton";
+import { postChatFlow, patchChatFlow } from "@/api/chatbot"; 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChatFlowData } from "@/types/chatbot";
 
 interface CreateChatbotModalProps {
   onClose: () => void;
@@ -19,17 +22,59 @@ export default function CreateChatbotModal({
   const [selectedIcon, setSelectedIcon] = useState<string>("1");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-
-  const categories = [
-    "금융",
-    "헬스케어",
-    "전자상거래",
-    "여행",
-    "교육",
-    "엔터테인먼트",
-    "기타",
-  ];
+  const categoryMap: { [key: string]: number } = {
+    "금융": 1,
+    "헬스케어": 2,
+    "전자상거래": 3,
+    "여행": 4,
+    "교육": 5,
+    "엔터테인먼트": 6,
+    "기타": 7,
+  };
+  const categories = Object.keys(categoryMap);
   const icons = ["1", "2", "3", "4", "5", "6"];
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: postChatFlow,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
+    },
+    onError: () => {
+      alert("챗봇 생성에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ chatFlowId, data }: { chatFlowId: number; data: ChatFlowData }) =>
+      patchChatFlow(chatFlowId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
+    },
+    onError: () => {
+      alert("챗봇 수정에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+
+  const handleCreateOrUpdate = () => {
+    const categoryIds = selectedCategories.map(cat => categoryMap[cat]);
+
+    const chatbotData = {
+      title: name,
+      description,
+      categoryIds: categoryIds,
+      thumbnail: selectedIcon,
+    };
+
+    if (selectedChatbot) {
+      updateMutation.mutate({ chatFlowId: selectedChatbot.chatFlowId, data: chatbotData });
+      setSelectedChatbot(null);
+    } else {
+      createMutation.mutate(chatbotData);
+    }
+    onClose();
+  };
 
   // 수정 모드일 경우 선택된 챗봇 데이터로 초기화
   useEffect(() => {
@@ -48,12 +93,6 @@ export default function CreateChatbotModal({
         ? prevCategories.filter((cat) => cat !== category)
         : [...prevCategories, category]
     );
-  };
-
-  const handleCreateOrUpdate = () => {
-    // 생성 또는 수정 처리 로직 추가 가능
-    onClose();
-    setSelectedChatbot(null); // 수정 모드일 경우 선택된 챗봇 데이터 초기화
   };
 
   return (
