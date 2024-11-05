@@ -60,7 +60,7 @@ const initialNodes: Node[] = [
   {
     id: "3",
     type: "knowledgeNode",
-    data: {},
+    data: { fileName: "" },
     position: { x: 700, y: 100 },
   },
   {
@@ -242,6 +242,26 @@ export default function Page() {
     [selectedNode]
   );
 
+  // 지식 검색 - 지식 선택
+  const updateKnowledgeFile = useCallback(
+    (nodeId: string, filename: string) => {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, fileName: filename } } 
+            : node
+        )
+      );
+
+      if (selectedNode && selectedNode.id === nodeId) {
+        setSelectedNode((prevNode) =>
+          prevNode ? { ...prevNode, data: { ...prevNode.data, fileName: filename } } : null
+        );
+      }
+    },
+    [selectedNode]
+  );
+
 
   // 답변 - 답변 업데이트
   const updateAnswer = useCallback((nodeId: string, answer: string) => {
@@ -340,7 +360,7 @@ export default function Page() {
             case "llmNode":
               return { prompts: [{ type: "system", text: "" }], model: models[0].id };
             case "knowledgeNode":
-              return {};
+              return { fileName: "" };
             case "ifelseNode":
               return {};
             case "answerNode":
@@ -436,6 +456,7 @@ export default function Page() {
         return (
           <KnowledgeNodeDetail 
             addNode={addNode} 
+            updateKnowledgeFile={(fileName) => updateKnowledgeFile(selectedNode.id, fileName)}
             onClose={handleCloseDetail} 
             connectedNodes={connectedNodeDetails}
             setConnectedNodes={(targetNodeId) =>

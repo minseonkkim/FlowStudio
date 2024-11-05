@@ -8,7 +8,7 @@ interface ConfirmationModalProps {
 
 export default function ConfirmationModal({ message, onConfirm, onCancel }: ConfirmationModalProps) {
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-auto max-w-full">
         <div className="text-[17px] font-semibold mb-4">{message}</div>
         <div className="flex justify-end gap-3">

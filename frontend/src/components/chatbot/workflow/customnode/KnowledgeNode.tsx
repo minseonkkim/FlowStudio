@@ -3,8 +3,8 @@ import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
 export default function KnowledgeNode({ data, selected }: any){
-  const { onDelete } = data;
-
+  const { onDelete, fileName } = data;
+  
   return <>
   <div className={`p-2 bg-[#FFF3EB] rounded-[16px] ${
         selected ? "border-[2px]" : "border-[1px]"
@@ -23,7 +23,7 @@ export default function KnowledgeNode({ data, selected }: any){
               />
             )}
         </div>
-        <div className="rounded-[5px] p-0.5 bg-white text-[8px]">knowledge.pdf</div>
+        {fileName && fileName !== "" && <div className="rounded-[5px] p-0.5 bg-white text-[8px]">{fileName}</div>}
       </div>
       <Handle type="source" position={Position.Right} />
     </div>
