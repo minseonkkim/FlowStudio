@@ -1,4 +1,4 @@
-package com.ssafy.flowstudio.api.controller.request;
+package com.ssafy.flowstudio.api.controller.chat.request;
 
 import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import jakarta.validation.constraints.NotNull;

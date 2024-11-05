@@ -50,4 +50,9 @@ public class Knowledge extends BaseEntity {
                 .isPublic(isPublic)
                 .build();
     }
+
+    public void update(String title, boolean isPublic) {
+        this.title = title;
+        this.isPublic = isPublic;
+    }
 }

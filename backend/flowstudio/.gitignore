@@ -38,5 +38,7 @@ out/
 
 .env
 
+/volumes
+
 ### QueryDSL ###
 /src/main/generated/

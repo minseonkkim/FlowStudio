@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.service.node.response;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.node.entity.Retriever;
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.common.secret.SecretKeyProperties;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
@@ -20,15 +21,16 @@ import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
 
 @Component
 public class QuestionClassifierExecutor extends NodeExecutor {
-
     private final SecretKeyProperties secretKeyProperties;
 
-    public QuestionClassifierExecutor(RedisTemplate<String, Object> redisTemplate, SecretKeyProperties secretKeyProperties) {
-        super(redisTemplate);
+    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties) {
+        super(redisService);
         this.secretKeyProperties = secretKeyProperties;
+
     }
 
     // TODO : model 데이터 넣기 + param_list 작성
+    // TODO : user 정보 필요 (API KEY)
     @Override
     public void execute(Node node, Chat chat) {
         QuestionClassifier questionClassifierNode = (QuestionClassifier) node;

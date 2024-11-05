@@ -1,6 +1,6 @@
-package com.ssafy.flowstudio.api.controller;
+package com.ssafy.flowstudio.api.controller.chat;
 
-import com.ssafy.flowstudio.api.controller.request.ChatMessageRequest;
+import com.ssafy.flowstudio.api.controller.chat.request.ChatMessageRequest;
 import com.ssafy.flowstudio.api.service.chat.ChatService;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
