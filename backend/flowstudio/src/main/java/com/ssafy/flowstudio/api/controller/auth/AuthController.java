@@ -27,7 +27,7 @@ public class AuthController {
     public ApiResponse<String> reissue(
             HttpServletRequest request, HttpServletResponse response
     ) {
-        Optional<Cookie> refresh = CookieUtils.getCookie(request, "refresh");
+        Optional<Cookie> refresh = CookieUtils.getCookie(request, AuthConst.REFRESH_TOKEN);
 
         if (refresh.isEmpty()) {
             return ApiResponse.of(HttpStatus.BAD_REQUEST, "Refresh token not found", null);
