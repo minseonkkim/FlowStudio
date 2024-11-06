@@ -167,7 +167,7 @@ public class KnowledgeController {
 
     @GetMapping("{knowledgeId}/search")
     public String search(@CurrentUser User user, @PathVariable Long knowledgeId, @RequestParam String query) {
-        vectorStoreService.search(user, knowledgeService.getKnowledge(user, knowledgeId), query);
+        vectorStoreService.searchVector(user, knowledgeService.getKnowledge(user, knowledgeId), query);
 
         return "search";
     }
