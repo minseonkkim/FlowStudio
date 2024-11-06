@@ -60,6 +60,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                         .knowledgeId(1L)
                         .title("test.txt")
                         .isPublic(true)
+                        .createAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                         .build()
         );
 
@@ -86,7 +87,8 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
                                         fieldWithPath("data[].knowledgeId").type(JsonFieldType.NUMBER).description("지식베이스 아이디"),
                                         fieldWithPath("data[].title").type(JsonFieldType.STRING).description("문서(파일명)"),
-                                        fieldWithPath("data[].isPublic").type(JsonFieldType.BOOLEAN).description("공유여부")
+                                        fieldWithPath("data[].isPublic").type(JsonFieldType.BOOLEAN).description("공유여부"),
+                                        fieldWithPath("data[].createAt").type(JsonFieldType.STRING).description("등록일")
                                 )
                                 .build()
                         )
