@@ -1,10 +1,14 @@
 package com.ssafy.flowstudio.api.service.user;
 
-import com.ssafy.flowstudio.api.controller.user.request.ApiKeyRequest;
 import com.ssafy.flowstudio.api.service.user.request.ApiKeyServiceRequest;
 import com.ssafy.flowstudio.api.service.user.response.ApiKeyResponse;
+import com.ssafy.flowstudio.api.service.user.response.UserResponse;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.user.entity.ApiKey;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.stereotype.Service;
@@ -19,8 +23,15 @@ import java.nio.charset.StandardCharsets;
 public class ApiKeyService {
 
     private final AesBytesEncryptor encryptor;
+    private final EntityManager em;
+    private final UserRepository userRepository;
 
-    public void updateApiKey(User user, ApiKeyServiceRequest request) {
+    @Transactional
+    public void updateApiKey(Long userId, ApiKeyServiceRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new BaseException(ErrorCode.NOT_FOUND_USER)
+        );
+
         ApiKey apiKey = user.getApiKey();
 
         apiKey.update(
@@ -31,7 +42,11 @@ public class ApiKeyService {
         );
     }
 
-    public ApiKeyResponse getApiKey(User user) {
+    public ApiKeyResponse getApiKey(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new BaseException(ErrorCode.NOT_FOUND_USER)
+        );
+
         ApiKey apiKey = user.getApiKey();
 
         return ApiKeyResponse.from(

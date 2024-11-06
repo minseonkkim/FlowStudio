@@ -3,8 +3,6 @@ package com.ssafy.flowstudio.api.controller.user;
 import com.ssafy.flowstudio.api.controller.user.request.ApiKeyRequest;
 import com.ssafy.flowstudio.api.service.user.request.ApiKeyServiceRequest;
 import com.ssafy.flowstudio.api.service.user.response.ApiKeyResponse;
-import com.ssafy.flowstudio.domain.user.entity.ApiKey;
-import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +43,7 @@ class ApiKeyControllerTest extends ControllerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        verify(apiKeyService, times(1)).updateApiKey(any(User.class), any(ApiKeyServiceRequest.class));
+        verify(apiKeyService, times(1)).updateApiKey(any(), any(ApiKeyServiceRequest.class));
 
         perform.andDo(print())
                 .andExpect(status().isOk())
@@ -60,7 +58,7 @@ class ApiKeyControllerTest extends ControllerTestSupport {
     @Test
     void getApiKey() throws Exception {
         // given
-        given(apiKeyService.getApiKey(any(User.class)))
+        given(apiKeyService.getApiKey(any()))
                 .willReturn(ApiKeyResponse.from(
                         "decryptedOpenAiKey",
                         "decryptedClaudeKey",
@@ -89,7 +87,7 @@ class ApiKeyControllerTest extends ControllerTestSupport {
     @Test
     void getEmptyApiKey() throws Exception {
         // given
-        given(apiKeyService.getApiKey(any(User.class)))
+        given(apiKeyService.getApiKey(any()))
                 .willReturn(ApiKeyResponse.from(null, null, null, null));
 
         // when

@@ -9,14 +9,13 @@ import com.ssafy.flowstudio.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("test")
 @Transactional
+@ActiveProfiles("test")
 class ApiKeyServiceTest extends IntegrationTestSupport {
 
     @Autowired
@@ -25,8 +24,6 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
     @Autowired
     private ApiKeyService apiKeyService;
 
-    @Autowired
-    private AesBytesEncryptor encryptor;
 
     @DisplayName("사용자의 OpenAI Api Key를 등록한다.")
     @Test
@@ -46,10 +43,11 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         // when
-        apiKeyService.updateApiKey(user, apiKeyRequest.toServiceRequest());
+        apiKeyService.updateApiKey(user.getId(), apiKeyRequest.toServiceRequest());
 
         // then
         ApiKey apiKey = user.getApiKey();
+
         assertThat(apiKey.getOpenAiKey()).isNotNull()
                 .isEqualTo(encryptedOpenAiKey);
     }
@@ -74,7 +72,7 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         // when
-        apiKeyService.updateApiKey(user, apiKeyRequest.toServiceRequest());
+        apiKeyService.updateApiKey(user.getId(), apiKeyRequest.toServiceRequest());
 
         // then
         ApiKey apiKey = user.getApiKey();
@@ -99,10 +97,10 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
                 .build();
 
         userRepository.save(user);
-        apiKeyService.updateApiKey(user, apiKeyRequest.toServiceRequest());
+        apiKeyService.updateApiKey(user.getId(), apiKeyRequest.toServiceRequest());
 
         // when
-        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user);
+        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user.getId());
 
         // then
         assertThat(apiKeyResponse).isNotNull()
@@ -117,7 +115,6 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
         ApiKey apiKey = ApiKey.empty();
 
         User user = User.builder()
-                .id(1L)
                 .username("test")
                 .apiKey(apiKey)
                 .build();
@@ -125,7 +122,7 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
 
         // when
-        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user);
+        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user.getId());
 
         // then
         assertThat(apiKeyResponse).isNotNull()
@@ -148,7 +145,7 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
                 .build();
 
         userRepository.save(user);
-        apiKeyService.updateApiKey(user, apiKeyRequest.toServiceRequest());
+        apiKeyService.updateApiKey(user.getId(), apiKeyRequest.toServiceRequest());
 
         ApiKeyRequest newApiKeyRequest = ApiKeyRequest.builder()
                 .openAiKey(null)
@@ -156,10 +153,10 @@ class ApiKeyServiceTest extends IntegrationTestSupport {
                 .build();
 
         // when
-        apiKeyService.updateApiKey(user, newApiKeyRequest.toServiceRequest());
+        apiKeyService.updateApiKey(user.getId(), newApiKeyRequest.toServiceRequest());
 
         // then
-        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user);
+        ApiKeyResponse apiKeyResponse = apiKeyService.getApiKey(user.getId());
 
         assertThat(apiKeyResponse).isNotNull()
                 .extracting("openAiKey", "geminiKey")
