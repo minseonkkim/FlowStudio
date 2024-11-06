@@ -2,7 +2,6 @@ package com.ssafy.flowstudio.api.service.user;
 
 import com.ssafy.flowstudio.api.service.user.request.ApiKeyServiceRequest;
 import com.ssafy.flowstudio.api.service.user.response.ApiKeyResponse;
-import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.user.entity.ApiKey;
