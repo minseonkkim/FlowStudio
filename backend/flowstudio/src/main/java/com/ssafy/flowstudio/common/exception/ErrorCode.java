@@ -1,6 +1,5 @@
 package com.ssafy.flowstudio.common.exception;
 
-import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -33,6 +32,9 @@ public enum ErrorCode {
 
     KNOWLEDGE_NOT_FOUND(7000, HttpStatus.NOT_FOUND, "지식베이스를 찾을 수 없습니다."),
     KNOWLEDGE_INSERT_UNAVAILABLE(7001, HttpStatus.SERVICE_UNAVAILABLE, "지식베이스를 등록할 수 없습니다."),
+    COLLECTION_NOT_FOUND(7100, HttpStatus.NOT_FOUND, "벡터저장소(컬렉션)를 찾을 수 없습니다."),
+    PARTITION_NOT_FOUND(7200, HttpStatus.NOT_FOUND, "벡터저장소(파티션)를 찾을 수 없습니다."),
+
     ;
 
     private final int code;
