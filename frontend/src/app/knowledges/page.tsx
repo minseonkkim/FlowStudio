@@ -1,65 +1,75 @@
 "use client";
 
-import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Search from '@/components/common/Search';
 import PurpleButton from '@/components/common/PurpleButton';
-
-interface FileData {
-  id: number;
-  fileName: string;
-  wordCount: string;
-  uploadTime: string;
-  isPublic: boolean;
-}
-
-const dummyData: FileData[] = [
-  {
-    id: 1,
-    fileName: 'sdfghjkhgfdsafaklsdjflkhFLKDJSF;KLjdslkfjLKFJ;lSDFGHGFflkFJL;KDJF.txt',
-    wordCount: '1.1k',
-    uploadTime: '2024/10/17 20:17',
-    isPublic: true,
-  },
-  {
-    id: 2,
-    fileName: '파일이름2.txt',
-    wordCount: '950',
-    uploadTime: '2024/10/18 14:45',
-    isPublic: false,
-  },
-  {
-    id: 3,
-    fileName: '파일이름3.txt',
-    wordCount: '1.5k',
-    uploadTime: '2024/10/19 08:30',
-    isPublic: true,
-  },
-];
+import { getAllKnowledges, putDocKnowledge, deleteKnowledge } from "@/api/knowledge";
+import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
 
 export default function Page() {
-  const [fileData, setFileData] = useState<FileData[]>(dummyData);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
+  const queryClient = useQueryClient();
+  
+  const { isLoading, isError, error, data: knowledgeList } = useQuery<KnowledgeData[]>({
+    queryKey: ['knowledgeList'],
+    queryFn: getAllKnowledges,
+  });
+  
+  useEffect(() => {
+    if (isError && error) {
+      alert("지식목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
 
+  const putMutation = useMutation({
+    mutationFn: ({ knowledgeId, data }: { knowledgeId: string; data: KnowledgeIsPublic }) =>
+      putDocKnowledge(knowledgeId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
+    },
+    onError: () => {
+      alert("문서 수정에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+  
+  const deleteMutation = useMutation({
+    mutationFn: deleteKnowledge,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
+    },
+    onError: () => {
+      alert("문서 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+  
+  if (isLoading) return <div>is Loading...</div>;
+  
   const goToCreatePage = (): void => {
     router.push('/knowledge/create');
   };
-
-  const goToKnoweldgeDetail = (id: number): void => {
-    router.push(`/knowledge/${id}`);
+  
+  const goToKnoweldgeDetail = (knowledgeId: string): void => {
+    router.push(`/knowledge/${knowledgeId}`);
+  };
+  
+  const togglePublicStatus = (file: KnowledgeData) => {
+    const knowledgeData = {
+      "title": file.title,
+      "isPublic": !file.isPublic
+    };
+    
+    putMutation.mutate({ knowledgeId: String(file.knowledgeId), data: knowledgeData });
+  };
+  
+  const handleDeleteClick = (knowledgeId: string) => {
+    deleteMutation.mutate(knowledgeId);
   };
 
-  const togglePublicStatus = (id: number) => {
-    setFileData((prevData) =>
-      prevData.map((file) =>
-        file.id === id ? { ...file, isPublic: !file.isPublic } : file
-      )
-    );
-  };
-
-  const filteredData = fileData.filter((file) =>
-    file.fileName.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredData = knowledgeList?.filter((file) =>
+    file.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -77,65 +87,60 @@ export default function Page() {
       </div>
 
       <div className="overflow-x-hidden">
-  <table className="w-full table-auto border-collapse">
-    <thead>
-      <tr className="border-b">
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-1/12">#</th>
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-3/12">파일명</th>
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-2/12 whitespace-nowrap">단어 수</th>
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-3/12 whitespace-nowrap">업로드 시간</th>
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-2/12 whitespace-nowrap">문서 공개</th>
-        <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-1/12"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredData.map((file) => (
-        <tr key={file.id} className="border-b cursor-pointer hover:bg-gray-100">
-          <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.id}</td>
-          <td 
-            className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
-            onClick={() => goToKnoweldgeDetail(file.id)}>
-            <div className="flex items-center w-full">
-              <p className="text-[10px] sm:text-xs lg:text-base truncate overflow-hidden whitespace-nowrap">
-                {file.fileName}
-              </p>
-            </div>
-          </td>
-          <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.wordCount}</td>
-          <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.uploadTime}</td>
-          <td className="p-1 sm:p-2 lg:p-4">
-            <div
-              onClick={() => togglePublicStatus(file.id)}
-              className={`relative w-8 sm:w-10 lg:w-12 h-4 sm:h-5 lg:h-6 flex items-center cursor-pointer ${
-                file.isPublic ? 'bg-[#9A75BF]' : 'bg-gray-400'
-              } rounded-full p-1 transition-colors duration-300 ease-in-out`}
-            >
-              <div
-                className={`h-3 sm:h-4 w-3 sm:w-4 bg-white rounded-full shadow-md transform ${
-                  file.isPublic ? 'translate-x-4 sm:translate-x-5 lg:translate-x-6' : 'translate-x-0'
-                } transition-transform duration-300 ease-in-out`}
-              />
-            </div>
-          </td>
-          <td className="p-1 sm:p-2 lg:p-4">
-          <button
-            className="text-[10px] sm:text-xs lg:text-[13px] w-[36px] sm:w-[40px] lg:w-[50px] h-[24px] sm:h-[28px] lg:h-[32px] bg-[#9A75BF] text-white rounded-lg shadow-sm hover:bg-[#874aa5] active:bg-[#733d8a] transition-all duration-200 ease-in-out"
-            onClick={(event) => {
-              event.stopPropagation(); 
-              setFileData((prevData) =>
-                prevData.filter((f) => f.id !== file.id)
-              );
-            }}
-          >
-            삭제
-          </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-1/12">#</th>
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-3/12">파일명</th>
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-2/12 whitespace-nowrap">단어 수</th>
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-3/12 whitespace-nowrap">업로드 시간</th>
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-2/12 whitespace-nowrap">문서 공개</th>
+              <th className="text-left p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base md:w-1/12"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData?.map((file) => (
+              <tr key={file.knowledgeId} className="border-b cursor-pointer hover:bg-gray-100">
+                <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.knowledgeId}</td>
+                <td
+                  className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
+                  onClick={() => goToKnoweldgeDetail(String(file.knowledgeId))}
+                >
+                  <div className="flex items-center w-full">
+                    <p className="text-[10px] sm:text-xs lg:text-base truncate overflow-hidden whitespace-nowrap">
+                      {file.title}
+                    </p>
+                  </div>
+                </td>
+                <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.totalToken}</td>
+                <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.createdAt}</td>
+                <td className="p-1 sm:p-2 lg:p-4">
+                  <div
+                    onClick={() => togglePublicStatus(file)}
+                    className={`relative w-8 sm:w-10 lg:w-12 h-4 sm:h-5 lg:h-6 flex items-center cursor-pointer ${
+                      file.isPublic ? 'bg-[#9A75BF]' : 'bg-gray-400'
+                    } rounded-full p-1 transition-colors duration-300 ease-in-out`}
+                  >
+                    <div
+                      className={`h-3 sm:h-4 w-3 sm:w-4 bg-white rounded-full shadow-md transform ${
+                        file.isPublic ? 'translate-x-4 sm:translate-x-5 lg:translate-x-6' : 'translate-x-0'
+                      } transition-transform duration-300 ease-in-out`}
+                    />
+                  </div>
+                </td>
+                <td className="p-1 sm:p-2 lg:p-4">
+                  <button
+                    className="text-[10px] sm:text-xs lg:text-[13px] w-[36px] sm:w-[40px] lg:w-[50px] h-[24px] sm:h-[28px] lg:h-[32px] bg-[#9A75BF] text-white rounded-lg shadow-sm hover:bg-[#874aa5] active:bg-[#733d8a] transition-all duration-200 ease-in-out"
+                    onClick={() => { handleDeleteClick(String(file.knowledgeId)); }}
+                  >
+                    삭제
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

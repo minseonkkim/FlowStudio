@@ -53,7 +53,7 @@ export default function Page() {
     "전자 상거래",
     "여행",
     "교육",
-    "엔터테이먼트",
+    "엔터테인먼트",
     "기타",
   ];
 
@@ -71,7 +71,7 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const handleDeleteClick = (chatFlowId: number) => {
+  const handleDeleteClick = (chatFlowId: string) => {
     deleteMutation.mutate(chatFlowId);
   };
 

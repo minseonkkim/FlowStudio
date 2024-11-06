@@ -23,9 +23,12 @@
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",
     "react-tooltip": "^5.28.0",
+    "reactflow": "^11.11.4",
     "recoil": "^0.7.7",
     "recoil-persist": "^5.1.0",
-    "swiper": "^11.1.14"
+    "sharp": "^0.33.5",
+    "swiper": "^11.1.14",
+    "zustand": "5.0.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.9.0",

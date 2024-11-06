@@ -1,10 +1,14 @@
-export interface KnowledgeData {
-  knowledgeId: number;
+export interface KnowledgeIsPublic {
   title: string;
   isPublic: boolean;
-  createdAt: string; // 확인해야함
-  wordCount: number; // 확인해야함
 }
+
+export interface KnowledgeData extends KnowledgeIsPublic {
+  knowledgeId: number;
+  createdAt: string; // 확인해야함
+  totalToken: number; // 확인해야함
+}
+
 
 export interface ChunkData {
   chunkCount: number; 
