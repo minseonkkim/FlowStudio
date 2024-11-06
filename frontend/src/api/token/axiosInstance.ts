@@ -19,7 +19,6 @@ import { AxiosError } from 'axios';
 const setAuthorizationToken = async () => {
   try {
     const response = await noAuthAxios.post(`${BASE_URL}/auth/reissue`);
-    console.log("result: ", response)
 
     const authorizationHeader = response.headers['authorization'];
 

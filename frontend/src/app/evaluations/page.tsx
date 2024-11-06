@@ -1,19 +1,18 @@
 "use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
-import Search from '@/components/common/Search';
+import Search from "@/components/common/Search";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
-import PurpleButton from '@/components/common/PurpleButton';
-import { ChatFlow } from '@/types/chatbot';
+import PurpleButton from "@/components/common/PurpleButton";
+import { ChatFlow } from "@/types/chatbot";
 
 const chatFlows: ChatFlow[] = [
   {
-    chatFlowId: 1,
+    chatFlowId: "1",
     title: "챗봇 1",
-    description:
-      "챗봇 1 묘사",
+    description: "챗봇 1 묘사",
     author: {
       id: 1,
       username: "김싸피",
@@ -28,10 +27,9 @@ const chatFlows: ChatFlow[] = [
     public: true,
   },
   {
-    chatFlowId: 2,
+    chatFlowId: "2",
     title: "챗봇 2",
-    description:
-      "챗봇 2 묘사",
+    description: "챗봇 2 묘사",
     author: {
       id: 2,
       username: "정싸피",
@@ -56,7 +54,7 @@ export default function Page() {
     "전자상거래",
     "여행",
     "교육",
-    "엔터테이먼트",
+    "엔터테인먼트",
     "기타",
   ];
 
@@ -66,7 +64,6 @@ export default function Page() {
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
-
 
   const filteredChatFlows = chatFlows.filter((bot) => {
     const matchesCategory =
@@ -79,18 +76,23 @@ export default function Page() {
   });
 
   const handleEvaluationClick = () => {
-    router.push('/evaluation');
+    router.push("/evaluation");
   };
 
-  const handleResultClick = (id: number) => {
+  const handleResultClick = (id: string) => {
     router.push(`/evaluation/${id}/result`);
   };
 
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex items-center mb-2">
-        <p className="font-semibold text-[24px] text-gray-700 mr-6">챗봇 평가 결과</p>
-        <PurpleButton text='챗봇 평가하기' onHandelButton={() => handleEvaluationClick()} />
+        <p className="font-semibold text-[24px] text-gray-700 mr-6">
+          챗봇 평가 결과
+        </p>
+        <PurpleButton
+          text="챗봇 평가하기"
+          onHandelButton={() => handleEvaluationClick()}
+        />
       </div>
 
       {/* 카테고리 선택 */}
@@ -119,9 +121,9 @@ export default function Page() {
             ))}
           </select>
         </div>
-          <Search onSearchChange={setSearchTerm} />
+        <Search onSearchChange={setSearchTerm} />
       </div>
-   
+
       <div className="hidden md:flex flex-col gap-1">
         {filteredChatFlows.map((bot) => (
           <ChatbotCard
@@ -150,6 +152,5 @@ export default function Page() {
         ))}
       </div>
     </div>
-);
+  );
 }
-

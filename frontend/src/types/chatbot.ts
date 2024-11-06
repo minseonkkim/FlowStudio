@@ -18,7 +18,7 @@ interface Category {
 }
 
 export interface ChatFlow {
-  chatFlowId: number;
+  chatFlowId: string;
   title: string;
   description: string;
   author: Author;
