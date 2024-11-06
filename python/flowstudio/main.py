@@ -13,7 +13,7 @@ class SplitRequest(BaseModel):
     chunkOverlap: int
     separators: Optional[List[str]] = None
 
-@app.post("/api/v1/langchain/split_text")
+@app.post("/langchain/split_text")
 async def split_text(request: SplitRequest):
     if request.chunkSize <= 0:
         raise HTTPException(status_code=400, detail="chunk_size는 0보다 커야 합니다.")
@@ -32,4 +32,4 @@ async def split_text(request: SplitRequest):
     return {"chunks": chunks}
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
+    uvicorn.run("main:app", host='0.0.0.0', port=9700, reload=True)
