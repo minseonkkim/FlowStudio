@@ -31,7 +31,8 @@ public class ApiKeyController {
             @CurrentUser User user,
             @Valid @RequestBody ApiKeyRequest request
     ) {
-        return ApiResponse.ok(apiKeyService.updateApiKey(user, request.toServiceRequest()));
+        apiKeyService.updateApiKey(user.getId(), request.toServiceRequest());
+        return ApiResponse.ok();
     }
 
     /**
@@ -43,6 +44,6 @@ public class ApiKeyController {
     public ApiResponse<ApiKeyResponse> getApiKey(
             @CurrentUser User user
     ) {
-        return ApiResponse.ok(apiKeyService.getApiKey(user));
+        return ApiResponse.ok(apiKeyService.getApiKey(user.getId()));
     }
 }
