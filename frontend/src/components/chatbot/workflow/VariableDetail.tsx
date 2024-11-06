@@ -19,7 +19,7 @@ export default function VariableDetail({
     onClose: () => void }) {
 
   return (
-    <div className="ml-[20px] flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
+    <div className="ml-[20px] flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-[23px] font-bold">변수 관리</h2>
         <IoClose className="size-6 cursor-pointer" onClick={onClose} />

@@ -38,7 +38,7 @@ export default function VariableAllocatorNodeDetail({
   );
 
   return <>
-  <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
+  <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
     <div className="flex flex-row justify-between items-center mb-2">
       <div className="flex flex-row items-center gap-1">
         <VscSymbolVariable className="text-[#6B7280] size-8"/>

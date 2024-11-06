@@ -44,6 +44,13 @@ const models: Model[] = [
   { id: "gpt-4-32k", name: "GPT-4 (32k)" },
 ];
 
+interface ConnectedNode {
+  id: string;
+  name: string;
+}
+
+
+
 const initialNodes: Node[] = [
   {
     id: "1",
@@ -331,46 +338,54 @@ export default function Page() {
     );
   };
 
+  const createQuestionClassifierNode = (position: { x: number; y: number }) => ({
+    id: uuidv4(),
+    type: "questionclassifierNode",
+    data: { classes: [{ text: "" }, { text: "" }] },
+    position,
+  });
+
+  
   const addNode = useCallback(
-    (type: string, condition?: "ifsource" | "elifsource" | "elsesource") => {
-      if (!selectedNode) return;
+  (type: string, condition?: string) => {
+    if (!selectedNode) return;
 
-      const isPositionOccupied = (x: number, y: number) => {
-        return nodes.some(
-          (node) =>
-            Math.abs(node.position.x - x) < 200 &&
-            Math.abs(node.position.y - y) < 160
-        );
-      };
+    const isPositionOccupied = (x: number, y: number) => {
+      return nodes.some(
+        (node) =>
+          Math.abs(node.position.x - x) < 200 &&
+          Math.abs(node.position.y - y) < 160
+      );
+    };
 
-      let newX = selectedNode.position.x + 200;
-      let newY = selectedNode.position.y;
+    let newX = selectedNode.position.x + 200;
+    let newY = selectedNode.position.y;
 
-      while (isPositionOccupied(newX, newY)) {
-        newY += 160;
-      }
+    while (isPositionOccupied(newX, newY)) {
+      newY += 160;
+    }
 
-      const newNode = {
-        id: uuidv4(),
-        type,
-        data: {},
-        position: { x: newX, y: newY },
-      };
+    const newNode = {
+      id: uuidv4(),
+      type,
+      data: {},
+      position: { x: newX, y: newY },
+    };
 
-      const newEdge = {
-        id: `e${selectedNode.id}-${newNode.id}`,
-        source: selectedNode.id,
-        sourceHandle: selectedNode.type === "ifelseNode" ? condition : undefined,
-        target: newNode.id,
-      };
+    const newEdge = {
+      id: `e${selectedNode.id}-${newNode.id}`,
+      source: selectedNode.id,
+      sourceHandle: condition || undefined, 
+      target: newNode.id,
+    };
 
-      setNodes((nds) => [...nds, newNode]);
-      setEdges((eds) => [...eds, newEdge]);
-      setSelectedNode(newNode); 
-      setSelectedNodeId(newNode.id);
-    },
-    [selectedNode, nodes, edges]
-  );
+    setNodes((nds) => [...nds, newNode]);
+    setEdges((eds) => [...eds, newEdge]);
+    setSelectedNode(newNode);
+    setSelectedNodeId(newNode.id);
+  },
+  [selectedNode, nodes]
+);
 
 
   useEffect(() => {
@@ -422,12 +437,31 @@ export default function Page() {
     return { ifNodes, elifNodes, elseNodes };
   };
 
+  const getConnectedNodesByCondition = (nodeId: string, conditions: string[]) => {
+    return conditions.reduce((acc, condition) => {
+      acc[condition] = edges
+        .filter((edge) => edge.source === nodeId && edge.sourceHandle === condition)
+        .map((edge) => {
+          const targetNode = nodes.find((node) => node.id === edge.target);
+          return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+        });
+      return acc;
+    }, {} as Record<string, ConnectedNode[]>);
+  };
+
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
     const connectedNodeDetails = getConnectedNodes(selectedNode.id);
 
     const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.id);
+
+    const questionClassifierConditions =
+    selectedNode.type === "questionclassifierNode"
+      ? selectedNode.data.classes?.map((_: unknown, index: number) => `handle${index + 1}`) || []
+      : [];
+
+    const connectedNodesByCondition = getConnectedNodesByCondition(selectedNode.id, questionClassifierConditions);
 
     switch (selectedNode.type) {
       case "startNode":
@@ -499,12 +533,12 @@ export default function Page() {
           <QuestionClassifierNodeDetail
             classes={selectedNode.data.classes || []}
             setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
-            addNode={addNode}
+            addNode={(type, condition) => addNode(type, condition)}
             onClose={handleCloseDetail}
-            connectedNodes={connectedNodeDetails}
+            connectedNodes={connectedNodesByCondition}
             setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.id, targetNodeId)
-              }
+              handleRemoveNode(selectedNode.id, targetNodeId)
+            }
           />
         );
       case "variableallocatorNode":

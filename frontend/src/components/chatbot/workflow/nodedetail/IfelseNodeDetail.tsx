@@ -1,8 +1,4 @@
 import { useCallback, useState } from "react";
-import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
-import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
-import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
-import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { IoClose } from "@react-icons/all-files/io5/ioClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
@@ -37,7 +33,7 @@ export default function IfelseNodeDetail({
   );
 
   return (
-    <div className="flex flex-col gap-4 w-[300px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto relative">
+    <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto relative">
       <div className="flex flex-row justify-between items-center mb-2">
         <div className="flex flex-row items-center gap-1">
           <IoGitBranchOutline className="text-[#EF4444] size-8" />
@@ -51,7 +47,7 @@ export default function IfelseNodeDetail({
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">IF</div>
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-center justify-between w-[220px] bg-white rounded-[5px] p-1">
+            <div className="flex flex-row items-center justify-between w-[210px] bg-white rounded-[5px] p-1">
               <div className="w-auto h-[36px] flex items-center">
                 <select className="w-full">
                   {variables.map((variable, index) => (
@@ -81,11 +77,10 @@ export default function IfelseNodeDetail({
           </div>
         </div>
 
-        {/* ELIF 조건 설정 */}
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">ELIF</div>
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-center justify-between w-[220px] bg-white rounded-[5px] p-1">
+            <div className="flex flex-row items-center justify-between w-[210px] bg-white rounded-[5px] p-1">
               <div className="w-auto h-[36px] flex items-center">
                 <select className="w-full">
                   {variables.map((variable, index) => (
@@ -125,7 +120,7 @@ export default function IfelseNodeDetail({
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="flex flex-col gap-2 z-[10] w-[185px]">
+          <div className="flex flex-col gap-2 z-[10]">
             {/* IF 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
             <div className="flex flex-row items-start relative">
               <div className="text-[12px] w-[30px] flex items-center">IF</div>
