@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.service.rag;
 
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeServiceRequest;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeCreateServiceResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -48,9 +49,13 @@ public class KnowledgeService {
 
         vectorStoreService.createCollection(collectionName);
         vectorStoreService.createPartition(collectionName, partitionName);
-        if (!vectorStoreService.upsertDocument(collectionName, partitionName, request)) {
+        KnowledgeCreateServiceResponse knowledgeCreateServiceResponse = vectorStoreService.upsertDocument(collectionName, partitionName, request);
+        if (!knowledgeCreateServiceResponse.getIsComplete()) {
             throw new BaseException(ErrorCode.KNOWLEDGE_INSERT_UNAVAILABLE);
         }
+
+        knowledge.updateToken(knowledgeCreateServiceResponse.getTotalToken());
+        knowledgeRepository.save(knowledge);
 
         return KnowledgeResponse.from(knowledge);
     }
