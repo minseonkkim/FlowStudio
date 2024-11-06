@@ -16,7 +16,7 @@ interface LlmNodeProps {
     selected: boolean;
 }
 
-const LlmNode: React.FC<LlmNodeProps> = ({ data, selected }: { data: any; selected: boolean }) => {
+const LlmNode: React.FC<LlmNodeProps> = ({ data, selected }: LlmNodeProps) => {
   const { onDelete, prompts, model } = data;
 
   return <>

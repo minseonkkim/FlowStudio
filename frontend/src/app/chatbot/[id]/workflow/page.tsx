@@ -372,7 +372,7 @@ export default function Page() {
         );
       };
 
-      let newX = selectedNode.position.x + 200;
+      const newX = selectedNode.position.x + 200;
       let newY = selectedNode.position.y;
 
       while (isPositionOccupied(newX, newY)) {

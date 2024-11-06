@@ -3,7 +3,16 @@ import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutlin
 import { useRef, useLayoutEffect, useState } from "react";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
-export default function IfelseNode({ data, selected }: any) {
+interface IfelseNodeData {
+  onDelete: () => void;
+}
+
+interface IfelseNodeProps {
+  data: IfelseNodeData;
+  selected: boolean;
+}
+
+export default function IfelseNode({ data, selected }: IfelseNodeProps) {
   const { onDelete } = data;
   const elifDivRef = useRef<HTMLDivElement>(null);
   const elseDivRef = useRef<HTMLDivElement>(null);

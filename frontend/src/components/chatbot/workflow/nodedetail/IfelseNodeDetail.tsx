@@ -47,18 +47,6 @@ function ConditionRow({ variables, onDelete }: ConditionRowProps) {
   );
 }
 
-interface IfelseNodeDetailProps {
-  variables: Variable[];
-  addNode: (type: string, condition: "ifsource" | "elifsource" | "elsesource") => void;
-  onClose: () => void;
-  connectedNodes?: {
-    ifNodes: ConnectedNode[];
-    elifNodes: ConnectedNode[];
-    elseNodes: ConnectedNode[];
-  };
-  setConnectedNodes: (targetNodeId: string) => void;
-}
-
 export default function IfelseNodeDetail({
   variables,
   addNode,
@@ -72,8 +60,8 @@ export default function IfelseNodeDetail({
   connectedNodes?: { ifNodes: ConnectedNode[]; elifNodes: ConnectedNode[]; elseNodes: ConnectedNode[] };
   setConnectedNodes: (targetNodeId: string) => void;
 }) {
-  const [ifConditions, setIfConditions] = useState<Array<{}>>([{}]);
-  const [elifConditions, setElifConditions] = useState<Array<{}>>([{}]);
+  const [ifConditions, setIfConditions] = useState<Array<object>>([{}]);
+  const [elifConditions, setElifConditions] = useState<Array<object>>([{}]);
   const [dropdownCondition, setDropdownCondition] = useState<"ifsource" | "elifsource" | "elsesource" | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 

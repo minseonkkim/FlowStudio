@@ -6,63 +6,51 @@ import Search from "@/components/common/Search";
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { SharedChatFlow } from "@/types/chatbot";
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-  shareNum: number;
-}
-
-const chatbots: Chatbot[] = [
+const chatFlows: SharedChatFlow[] = [
   {
-    id: 1,
-    title: "Workflow Planning Assistant",
-    description: "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: ["교육"],
-    iconId: 1,
+    chatFlowId: "1",
+    title: "챗봇 1",
+    description: "챗봇 1 묘사",
+    author: {
+      id: 1,
+      username: "김싸피",
+      nickname: "김싸피",
+      profileImage: "kim.png",
+    },
+    thumbnail: "1",
+    categories: [
+      { categoryId: 1, name: "교육" },
+      { categoryId: 2, name: "금융" },
+    ],
+    public: true,
+    shareNum: 100,
+  },
+  {
+    chatFlowId: "2",
+    title: "챗봇 2",
+    description: "챗봇 2 묘사",
+    author: {
+      id: 2,
+      username: "정싸피",
+      nickname: "정싸피",
+      profileImage: "jeong.png",
+    },
+    thumbnail: "2",
+    categories: [
+      { categoryId: 1, name: "금융" },
+      { categoryId: 3, name: "교육" },
+    ],
+    public: true,
     shareNum: 120,
-  },
-  {
-    id: 2,
-    title: "Financial Advisor Bot",
-    description: "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: ["금융"],
-    iconId: 1,
-    shareNum: 200,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: ["헬스케어"],
-    iconId: 2,
-    shareNum: 180,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: ["전자 상거래"],
-    iconId: 3,
-    shareNum: 150,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description: "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: ["여행"],
-    iconId: 6,
-    shareNum: 90,
   },
 ];
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [activeSlide, setActiveSlide] = useState<number>(0); 
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
   const categories = [
     "모든 챗봇",
@@ -71,18 +59,21 @@ export default function Page() {
     "전자 상거래",
     "여행",
     "교육",
-    "엔터테이먼트",
+    "엔터테인먼트",
     "기타",
   ];
 
-  const popularChatbots = [...chatbots]
+  const popularChatbots = [...chatFlows]
     .sort((a, b) => b.shareNum - a.shareNum)
     .slice(0, 4);
 
-  const filteredChatbots = chatbots.filter((bot) => {
+  const filteredChatFlows = chatFlows.filter((bot) => {
     const matchesCategory =
-      selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
-    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+      selectedCategory === "모든 챗봇" ||
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -93,7 +84,9 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div>
-        <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
+        <p className="mb-4 font-semibold text-[24px] text-gray-700">
+          가장 인기있는 챗봇
+        </p>
         <div className="md:hidden">
           <Swiper
             spaceBetween={16}
@@ -101,13 +94,13 @@ export default function Page() {
             onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
           >
             {popularChatbots.map((chatbot) => (
-              <SwiperSlide key={chatbot.id}>
+              <SwiperSlide key={chatbot.chatFlowId}>
                 <PopularChatbotCard
                   title={chatbot.title}
                   description={chatbot.description}
-                  iconId={chatbot.iconId}
+                  iconId={chatbot.thumbnail}
                   type="all"
-                  category={chatbot.category}
+                  category={chatbot.categories.map((cat) => cat.name)}
                 />
               </SwiperSlide>
             ))}
@@ -127,19 +120,21 @@ export default function Page() {
         <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 w-full gap-4">
           {popularChatbots.map((chatbot) => (
             <PopularChatbotCard
-              key={chatbot.id}
+              key={chatbot.chatFlowId}
               title={chatbot.title}
               description={chatbot.description}
-              iconId={chatbot.iconId}
+              iconId={chatbot.thumbnail}
               type="all"
-              category={chatbot.category}
+              category={chatbot.categories.map((cat) => cat.name)}
             />
           ))}
         </div>
       </div>
 
       <div className="mt-16">
-        <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
+        <p className="mb-2 font-semibold text-[24px] text-gray-700">
+          챗봇 라운지
+        </p>
 
         {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">
@@ -167,30 +162,30 @@ export default function Page() {
               ))}
             </select>
           </div>
-            <Search onSearchChange={setSearchTerm} />
+          <Search onSearchChange={setSearchTerm} />
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
-          {filteredChatbots.map((bot) => (
+          {filteredChatFlows.map((bot) => (
             <ChatbotCard
-              key={bot.id}
+              key={bot.chatFlowId}
               title={bot.title}
               description={bot.description}
-              iconId={bot.iconId}
-              category={bot.category}
+              iconId={bot.thumbnail}
+              category={bot.categories.map((cat) => cat.name)}
               type="all"
             />
           ))}
         </div>
 
         <div className="md:hidden flex flex-col gap-4">
-          {filteredChatbots.map((bot) => (
+          {filteredChatFlows.map((bot) => (
             <PopularChatbotCard
-              key={bot.id}
+              key={bot.chatFlowId}
               title={bot.title}
               description={bot.description}
-              iconId={bot.iconId}
-              category={bot.category}
+              iconId={bot.thumbnail}
+              category={bot.categories.map((cat) => cat.name)}
               type="all"
             />
           ))}

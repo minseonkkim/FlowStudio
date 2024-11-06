@@ -5,61 +5,14 @@ import ShareChatbotModal from "@/components/chatbot/ShareChatbotModal";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "@/components/common/Search";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import PurpleButton from "@/components/common/PurpleButton";
+import { ChatFlow } from "@/types/chatbot"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-}
-
-const chatbots: Chatbot[] = [
-  {
-    id: 1,
-    title: "Workflow Planning Assistant",
-    description:
-      "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: ["교육", "금융"],
-    iconId: 1,
-  },
-  {
-    id: 2,
-    title: "Financial Advisor Bot",
-    description:
-      "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: ["교육", "금융"],
-    iconId: 2,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description:
-      "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: ["헬스케어"],
-    iconId: 3,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description:
-      "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: ["전자 상거래", "헬스케어"],
-    iconId: 4,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description:
-      "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: ["여행"],
-    iconId: 5,
-  },
-];
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -68,6 +21,30 @@ export default function Page() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
+    queryKey: ['chatFlows'],
+    queryFn: getAllChatFlows,
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("챗봇을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteChatFlow,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
+    },
+    onError: () => {
+      alert("챗봇 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+  if (isLoading) return <div>is Loading...</div>;
 
   const categories = [
     "모든 챗봇",
@@ -76,7 +53,7 @@ export default function Page() {
     "전자 상거래",
     "여행",
     "교육",
-    "엔터테이먼트",
+    "엔터테인먼트",
     "기타",
   ];
 
@@ -89,15 +66,19 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const handleUpdateClick = (chatbot: Chatbot) => {
-    setSelectedChatbot(chatbot); 
+  const handleUpdateClick = (chatFlow: ChatFlow) => {
+    setSelectedChatbot(chatFlow); 
     setIsCreateModalOpen(true); 
   };
 
-  const filteredChatbots = chatbots.filter((bot) => {
+  const handleDeleteClick = (chatFlowId: string) => {
+    deleteMutation.mutate(chatFlowId);
+  };
+
+  const filteredChatFlows = chatFlows?.filter((bot) => {
     const matchesCategory =
       selectedCategory === "모든 챗봇" ||
-      bot.category.includes(selectedCategory);
+      bot.categories.some((category) => category.name === selectedCategory);
     const matchesSearch = bot.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -138,28 +119,28 @@ export default function Page() {
               ))}
             </select>
           </div>
-            <Search onSearchChange={setSearchTerm} />
+          <Search onSearchChange={setSearchTerm} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {filteredChatbots.map((bot) => (
+        {filteredChatFlows?.map((bot) => (
           <PopularChatbotCard
-            key={bot.id}
-            iconId={bot.iconId}
+            key={bot.chatFlowId}
+            iconId={bot.thumbnail}
             title={bot.title}
             description={bot.description}
             type="my"
-            category={bot.category}
-            onCardClick={() => router.push(`/chatbot/${bot.id}/workflow`)}
+            category={bot.categories.map((cat) => cat.name)}
+            onCardClick={() => router.push(`/chatbot/${bot.chatFlowId}/workflow`)}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
+            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => setIsShareModalOpen(true)}
           />
         ))}
       </div>
-    
 
-      {/* 챗봇 생성 모달 */}
+      {/* 챗봇 생성 및 모달 */}
       {isCreateModalOpen && (
         <div
           className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"

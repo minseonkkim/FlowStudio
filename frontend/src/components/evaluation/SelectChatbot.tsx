@@ -1,60 +1,46 @@
 import { useState } from "react";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "../common/Search";
+import { ChatFlow } from "@/types/chatbot";
 
 interface SelectChatbotProps {
   onNext: () => void;
 }
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-  shareNum: number;
-}
-
-const chatbots: Chatbot[] = [
+const chatFlows: ChatFlow[] = [
   {
-    id: 1,
-    title: "Workflow Planning Assistant",
-    description: "An assistant that helps you plan and select the right node for a workflow (v0.6.0).",
-    category: ["교육"],
-    iconId: 1,
-    shareNum: 120,
+    chatFlowId: "1",
+    title: "챗봇 1",
+    description: "챗봇 1 묘사",
+    author: {
+      id: 1,
+      username: "김싸피",
+      nickname: "김싸피",
+      profileImage: "kim.png",
+    },
+    thumbnail: "1",
+    categories: [
+      { categoryId: 1, name: "교육" },
+      { categoryId: 2, name: "금융" },
+    ],
+    public: true,
   },
   {
-    id: 2,
-    title: "Financial Advisor Bot",
-    description: "Provides insights and suggestions for better financial planning (v1.2.3).",
-    category: ["금융"],
-    iconId: 2,
-    shareNum: 200,
-  },
-  {
-    id: 3,
-    title: "Health Tracker Assistant",
-    description: "Tracks your daily health metrics and offers tips to improve your well-being (v2.0.1).",
-    category: ["헬스케어"],
-    iconId: 6,
-    shareNum: 180,
-  },
-  {
-    id: 4,
-    title: "E-Commerce Helper",
-    description: "Assists in finding the best deals and manages your online shopping lists (v1.0.5).",
-    category: ["전자 상거래"],
-    iconId: 5,
-    shareNum: 150,
-  },
-  {
-    id: 5,
-    title: "Travel Itinerary Planner",
-    description: "Helps you create and organize your travel plans with ease (v0.8.7).",
-    category: ["여행"],
-    iconId: 1,
-    shareNum: 90,
+    chatFlowId: "2",
+    title: "챗봇 2",
+    description: "챗봇 2 묘사",
+    author: {
+      id: 2,
+      username: "정싸피",
+      nickname: "정싸피",
+      profileImage: "jeong.png",
+    },
+    thumbnail: "2",
+    categories: [
+      { categoryId: 1, name: "금융" },
+      { categoryId: 3, name: "교육" },
+    ],
+    public: true,
   },
 ];
 
@@ -65,7 +51,7 @@ const categories = [
   "전자 상거래",
   "여행",
   "교육",
-  "엔터테이먼트",
+  "엔터테인먼트",
   "기타",
 ];
 
@@ -73,9 +59,13 @@ export default function SelectChatbot({ onNext }: SelectChatbotProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const filteredChatbots = chatbots.filter((bot) => {
-    const matchesCategory = selectedCategory === "모든 챗봇" || bot.category.includes(selectedCategory);
-    const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredChatFlows = chatFlows.filter((bot) => {
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" ||
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -85,30 +75,32 @@ export default function SelectChatbot({ onNext }: SelectChatbotProps) {
 
   return (
     <div>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            {categories.map((label) => (
-              <button
-                key={label}
-                onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <Search onSearchChange={setSearchTerm} />
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          {categories.map((label) => (
+            <button
+              key={label}
+              onClick={() => handleCategoryClick(label)}
+              className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
+        <Search onSearchChange={setSearchTerm} />
+      </div>
 
       <div className="grid grid-cols-3 gap-6 mb-8">
-        {filteredChatbots.map((chatbot) => (
+        {filteredChatFlows.map((chatbot) => (
           <PopularChatbotCard
-            key={chatbot.id}
+            key={chatbot.chatFlowId}
             title={chatbot.title}
             description={chatbot.description}
-            category={chatbot.category}
-            iconId={chatbot.iconId}
-            onCardClick={() => {onNext()}}
+            category={chatbot.categories.map((cat) => cat.name)}
+            iconId={chatbot.thumbnail}
+            onCardClick={() => {
+              onNext();
+            }}
           />
         ))}
       </div>

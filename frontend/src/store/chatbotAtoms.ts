@@ -1,14 +1,7 @@
+import { ChatFlow } from "@/types/chatbot";
 import { atom } from "recoil";
 
-interface Chatbot {
-  id: number;
-  title: string;
-  description: string;
-  category: string[];
-  iconId: number;
-}
-
-export const selectedChatbotState = atom<Chatbot | null>({
+export const selectedChatbotState = atom<ChatFlow | null>({
   key: "selectedChatbotState",
   default: null, 
 });

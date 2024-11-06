@@ -7,7 +7,18 @@ interface Class {
   text: string;
 }
 
-export default function QuestionClassifierNode({ data, selected }: any) {
+interface QuestionClassifierNodeData {
+  onDelete: () => void;
+  classes: Class[];
+}
+
+interface QuestionClassifierNodeProps {
+  data: QuestionClassifierNodeData;
+  selected: boolean;
+}
+
+
+export default function QuestionClassifierNode({ data, selected }: QuestionClassifierNodeProps) {
   const { onDelete } = data;
   const classRefs = useRef<(HTMLDivElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);

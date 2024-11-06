@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/atoms'; 
+import { currentStepState } from '@/store/knoweldgeAtoms'; 
 
 export default function CreateStep() {
   const [currentStep, ] = useRecoilState(currentStepState); 

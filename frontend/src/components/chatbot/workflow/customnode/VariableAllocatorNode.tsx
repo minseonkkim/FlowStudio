@@ -2,7 +2,23 @@ import { Handle, Position } from "reactflow"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
-export default function VariableAllocatorNode({ data, selected }: any){
+
+interface Variable {
+  name: string;
+  type: string;
+}
+
+interface VariableAllocatorNodeData {
+  variable: Variable;
+  onDelete: () => void;
+}
+
+interface VariableAllocatorNodeProps {
+  data: VariableAllocatorNodeData;
+  selected: boolean;
+}
+
+export default function VariableAllocatorNode({ data, selected }: VariableAllocatorNodeProps){
   const { variable, onDelete } = data;
   
   return <>

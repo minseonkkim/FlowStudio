@@ -2,7 +2,17 @@ import { Handle, Position } from "reactflow"
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
-export default function KnowledgeNode({ data, selected }: any){
+interface KnowledgeNodeData {
+  onDelete: () => void;
+  fileName: string;
+}
+
+interface KnowledgeNodeProps {
+  data: KnowledgeNodeData;
+  selected: boolean;
+}
+
+export default function KnowledgeNode({ data, selected }: KnowledgeNodeProps){
   const { onDelete, fileName } = data;
   
   return <>

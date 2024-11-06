@@ -2,7 +2,17 @@ import { Handle, Position } from "reactflow";
 import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
-export default function StartNode({ data, selected }: { data: any; selected: boolean }) {
+interface StartNodeData {
+  onDelete: () => void;
+  maxChars?: number;
+}
+
+interface StartNodeProps {
+  data: StartNodeData;
+  selected: boolean;
+}
+
+export default function StartNode({ data, selected }: StartNodeProps) {
   const { onDelete } = data;
 
   return (

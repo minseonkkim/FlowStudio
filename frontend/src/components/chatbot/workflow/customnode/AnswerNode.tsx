@@ -2,7 +2,17 @@ import { Handle, Position } from "reactflow"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
-export default function AnswerNode({ data, selected }: any){
+interface AnswerNodeData {
+  answer: string;
+  onDelete: () => void;
+}
+
+interface AnswerNodeProps {
+  data: AnswerNodeData;
+  selected: boolean;
+}
+
+export default function AnswerNode({ data, selected }: AnswerNodeProps){
   const { onDelete } = data;
   
   return <>
