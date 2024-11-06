@@ -1,0 +1,72 @@
+package com.ssafy.flowstudio.api.service.node;
+
+import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
+import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.node.entity.Coordinate;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import com.ssafy.flowstudio.support.IntegrationTestSupport;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+
+@Transactional
+@ActiveProfiles("test")
+class QuestionClassServiceTest extends IntegrationTestSupport {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ChatFlowRepository chatFlowRepository;
+
+    @Autowired
+    private QuestionClassService questionClassService;
+
+    @DisplayName("질문 분류를 생성한다.")
+    @Test
+    void createQuestionClass() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+        chatFlow.addNode(questionClassifier);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        QuestionClassCreateRequest questionClassCreateRequest = QuestionClassCreateRequest.builder()
+                .content("question-content")
+                .build();
+
+        // when
+        QuestionClassResponse questionClassResponse = questionClassService.createQuestionClass(questionClassifier.getId(), questionClassCreateRequest.toServiceRequest());
+
+        // then
+        assertThat(questionClassResponse).isNotNull()
+                .extracting("id", "content", "edge", "questionClassifierId")
+                .containsExactly(1L, "question-content", null, questionClassifier.getId());
+
+    }
+}

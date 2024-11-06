@@ -18,7 +18,7 @@ public class QuestionClassifierResponse extends NodeResponse {
 //    private final List<QuestionClass> questionClasses;
 
     @Builder
-    public QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String modelParamList, List<QuestionClass> questionClasses) {
+    private QuestionClassifierResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, String modelParamList, List<QuestionClass> questionClasses) {
         super(nodeId, name, type, coordinate, outputEdges, inputEdges);
         this.modelParamList = modelParamList;
 //        this.questionClasses = questionClasses;

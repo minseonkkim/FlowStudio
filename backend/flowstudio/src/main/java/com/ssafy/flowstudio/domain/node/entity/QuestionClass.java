@@ -36,15 +36,19 @@ public class QuestionClass {
         this.questionClassifier = questionClassifier;
     }
 
-    public static QuestionClass create(QuestionClassifier questionClassifier, String content) {
+    public static QuestionClass create(String content) {
         return QuestionClass.builder()
                 .content(content)
-                .questionClassifier(questionClassifier)
                 .build();
     }
 
     public void updateEdge(Edge edge) {
         this.edge = edge;
+    }
+
+    public void updateQuestionClassifier(QuestionClassifier questionClassifier) {
+        this.questionClassifier = questionClassifier;
+        questionClassifier.addQuestionClass(this);
     }
 
     @Override
