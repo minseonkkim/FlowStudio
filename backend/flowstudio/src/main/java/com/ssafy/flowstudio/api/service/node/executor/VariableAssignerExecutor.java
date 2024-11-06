@@ -5,13 +5,14 @@ import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 public class VariableAssignerExecutor extends NodeExecutor {
 
-    public VariableAssignerExecutor(RedisService redisService) {
-        super(redisService);
+    public VariableAssignerExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher) {
+        super(redisService, eventPublisher);
     }
 
     @Override

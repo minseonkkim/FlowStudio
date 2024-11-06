@@ -35,12 +35,10 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionClassifierExecutor.class);
     private final SecretKeyProperties secretKeyProperties;
-    private final ApplicationEventPublisher eventPublisher;
 
     public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher) {
-        super(redisService);
+        super(redisService, eventPublisher);
         this.secretKeyProperties = secretKeyProperties;
-        this.eventPublisher = eventPublisher;
     }
 
     @Override
