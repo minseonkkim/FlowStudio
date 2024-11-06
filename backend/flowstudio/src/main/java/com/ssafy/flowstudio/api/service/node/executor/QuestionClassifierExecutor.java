@@ -98,7 +98,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             NodeEvent event = new NodeEvent(this, targetNode, chat);
 
             // event를 발행한다.
-            eventPublisher.publishEvent(event);
+            publishEvent(event);
 
             // Redis에 Output을 업데이트한다.
             redisService.save(chat.getId(), questionClassifierNode.getId(), chosenQuestionClass.getContent());

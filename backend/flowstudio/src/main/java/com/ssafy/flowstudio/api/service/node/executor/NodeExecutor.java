@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.domain.node.entity.Node;
@@ -13,8 +14,13 @@ import org.springframework.stereotype.Component;
 public abstract class NodeExecutor {
 
     protected final RedisService redisService;
-    protected final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     public abstract void execute(Node node, Chat chat);
     public abstract NodeType getNodeType();
+
+    protected void publishEvent(NodeEvent event) {
+        eventPublisher.publishEvent(event);
+    }
+
 }
