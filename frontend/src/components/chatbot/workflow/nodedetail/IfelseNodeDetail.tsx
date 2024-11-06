@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { IoClose } from "@react-icons/all-files/io5/ioClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
@@ -19,6 +19,7 @@ export default function IfelseNodeDetail({
   setConnectedNodes: (targetNodeId: string) => void;
 }) {
   const [dropdownCondition, setDropdownCondition] = useState<"ifsource" | "elifsource" | "elsesource" | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const toggleDropdown = (condition: "ifsource" | "elifsource" | "elsesource") => {
     setDropdownCondition((prevCondition) => (prevCondition === condition ? null : condition));
@@ -32,6 +33,22 @@ export default function IfelseNodeDetail({
     [addNode]
   );
 
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownCondition(null);
+      }
+    },
+    [dropdownRef]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClickOutside]);
+
   return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto relative">
       <div className="flex flex-row justify-between items-center mb-2">
@@ -43,7 +60,6 @@ export default function IfelseNodeDetail({
       </div>
 
       <div className="flex flex-col gap-2">
-        {/* IF 조건 설정 */}
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">IF</div>
           <div className="flex flex-col gap-2">
@@ -66,16 +82,14 @@ export default function IfelseNodeDetail({
                   <option value="">&lt;</option>
                 </select>
               </div>
-              <input
-                className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]"
-                placeholder="값 입력"
-              />
+              <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" placeholder="값 입력" />
             </div>
             <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
               + 조건 추가
             </div>
           </div>
         </div>
+
 
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">ELIF</div>
@@ -99,10 +113,7 @@ export default function IfelseNodeDetail({
                   <option value="">&lt;</option>
                 </select>
               </div>
-              <input
-                className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]"
-                placeholder="값 입력"
-              />
+              <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" placeholder="값 입력" />
             </div>
             <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
               + 조건 추가
@@ -110,7 +121,6 @@ export default function IfelseNodeDetail({
           </div>
         </div>
       </div>
-
 
       <div className="flex flex-col gap-2 mt-4">
         <div className="text-[16px]">다음 블록을 추가하세요.</div>
@@ -120,11 +130,10 @@ export default function IfelseNodeDetail({
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="flex flex-col gap-2 z-[10]">
-            {/* IF 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
+          <div className="flex flex-col gap-2 z-[10] mt-[6px]" ref={dropdownRef}>
             <div className="flex flex-row items-start relative">
               <div className="text-[12px] w-[30px] flex items-center">IF</div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
                 {connectedNodes.ifNodes?.map((node, index) => (
                   <div
                     key={index}
@@ -160,7 +169,6 @@ export default function IfelseNodeDetail({
                     />
                   </svg>
                 </button>
-
                 {dropdownCondition === "ifsource" && (
                   <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="p-1 text-[15px]">
@@ -186,11 +194,10 @@ export default function IfelseNodeDetail({
                 )}
               </div>
             </div>
-
-            {/* ELIF 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
+            
             <div className="flex flex-row items-start mt-4 relative">
               <div className="text-[12px] w-[30px] flex items-center">ELIF</div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
                 {connectedNodes.elifNodes?.map((node, index) => (
                   <div
                     key={index}
@@ -226,7 +233,6 @@ export default function IfelseNodeDetail({
                     />
                   </svg>
                 </button>
-
                 {dropdownCondition === "elifsource" && (
                   <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="p-1 text-[15px]">
@@ -253,10 +259,9 @@ export default function IfelseNodeDetail({
               </div>
             </div>
 
-            {/* ELSE 조건에 대한 연결된 노드 리스트와 다음 블록 선택 */}
             <div className="flex flex-row items-start mt-4 relative">
               <div className="text-[12px] w-[30px] flex items-center">ELSE</div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
                 {connectedNodes.elseNodes?.map((node, index) => (
                   <div
                     key={index}
@@ -292,7 +297,6 @@ export default function IfelseNodeDetail({
                     />
                   </svg>
                 </button>
-
                 {dropdownCondition === "elsesource" && (
                   <div className="absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-20">
                     <div className="p-1 text-[15px]">

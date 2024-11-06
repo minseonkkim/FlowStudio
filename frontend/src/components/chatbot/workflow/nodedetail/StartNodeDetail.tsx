@@ -73,7 +73,7 @@ export default function StartNodeDetail({
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="z-[10] w-[160px]">
+          <div className="z-[10] w-[160px] mt-[6px]">
             {connectedNodes.map((node, index) => (
               <div
                 key={index}

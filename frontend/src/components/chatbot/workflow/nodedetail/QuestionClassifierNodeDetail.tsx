@@ -1,11 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
-import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { IoClose } from "@react-icons/all-files/io5/ioClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
+
+type ClassType = { text: string };
+type ConnectedNodesType = { [key: string]: ConnectedNode[] };
+
+interface QuestionClassifierNodeDetailProps {
+  classes: ClassType[];
+  setClasses: (updatedClasses: ClassType[]) => void;
+  addNode: (type: string, condition: string) => void;
+  onClose: () => void;
+  connectedNodes: ConnectedNodesType;
+  setConnectedNodes: (targetNodeId: string) => void;
+}
 
 export default function QuestionClassifierNodeDetail({
   classes,
@@ -14,24 +25,29 @@ export default function QuestionClassifierNodeDetail({
   onClose,
   connectedNodes,
   setConnectedNodes,
-}: {
-  classes: { text: string }[];
-  setClasses: (updatedClasses: { text: string }[]) => void;
-  addNode: (type: string, condition: string) => void;
-  onClose: () => void;
-  connectedNodes: { [key: string]: ConnectedNode[] };
-  setConnectedNodes: (targetNodeId: string) => void;
-}) {
+}: QuestionClassifierNodeDetailProps) {
   const [isOpen, setIsOpen] = useState<{ [key: string]: boolean }>({});
+  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+
   const toggleDropdown = (classId: string) => {
     setIsOpen((prev) => ({ ...prev, [classId]: !prev[classId] }));
   };
 
-  const [localClasses, setLocalClasses] = useState<{ text: string }[]>(classes);
+  const [localClasses, setLocalClasses] = useState<ClassType[]>(classes);
 
   useEffect(() => {
     setLocalClasses([...classes]);
   }, [classes]);
+
+  useEffect(() => {
+    textareaRefs.current.forEach((textarea) => {
+      if (textarea) {
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`; 
+      }
+    });
+  }, [localClasses]);
 
   const handleAddClass = () => {
     if (localClasses.length < 5) {
@@ -57,12 +73,34 @@ export default function QuestionClassifierNodeDetail({
 
   const handleNodeTypeClick = useCallback(
     (type: string, index: number) => {
-      const condition = `handle${index + 1}`; 
+      const condition = `handle${index + 1}`;
       addNode(type, condition);
       setIsOpen((prev) => ({ ...prev, [`class${index}`]: false }));
     },
     [addNode]
   );
+
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      Object.keys(isOpen).forEach((key) => {
+        if (
+          isOpen[key] &&
+          dropdownRefs.current[key] &&
+          !dropdownRefs.current[key]?.contains(event.target as Node)
+        ) {
+          setIsOpen((prev) => ({ ...prev, [key]: false }));
+        }
+      });
+    },
+    [isOpen]
+  );
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClickOutside]);
 
   return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
@@ -90,8 +128,15 @@ export default function QuestionClassifierNodeDetail({
               )}
             </div>
             <textarea
+              ref={(el) => {
+                textareaRefs.current[index] = el; 
+              }}
               value={cls?.text || ""}
-              onChange={(e) => handleClassChange(index, e.target.value)}
+              onChange={(e) => {
+                handleClassChange(index, e.target.value);
+                e.target.style.height = "auto";
+                e.target.style.height = `${e.target.scrollHeight}px`; 
+              }}
               placeholder="주제 이름을 작성하세요."
               className="bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
               style={{ minHeight: "50px" }}
@@ -116,14 +161,13 @@ export default function QuestionClassifierNodeDetail({
             <GrTree className="text-[#1E3A8A] size-8" />
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
-        
+
           <div className="flex flex-col gap-2 z-[10] w-[210px]">
             {localClasses.map((cls, index) => (
               <div key={index} className="flex flex-col gap-2 mb-4">
                 <div className="flex flex-row items-start">
                   <div className="text-[14px] w-[65px]">클래스 {index + 1}</div>
-                  <div className="flex flex-col gap-2 w-[185px]">
-
+                  <div className="flex flex-col w-[185px] mt-[6px]">
                     {connectedNodes[`handle${index + 1}`]?.map((node, idx) => (
                       <div
                         key={idx}
@@ -138,7 +182,7 @@ export default function QuestionClassifierNodeDetail({
                         />
                       </div>
                     ))}
-                    
+
                     <button
                       onClick={() => toggleDropdown(`class${index}`)}
                       className="inline-flex justify-center w-[155px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#1E3A8A]"
@@ -161,6 +205,9 @@ export default function QuestionClassifierNodeDetail({
 
                     {isOpen[`class${index}`] && (
                       <div
+                        ref={(el) => {
+                          dropdownRefs.current[`class${index}`] = el;
+                        }}
                         className="absolute mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
                         role="menu"
                       >

@@ -177,7 +177,7 @@ export default function LlmNodeDetail({
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="z-[10] w-[160px]">
+          <div className="z-[10] w-[160px] mt-[6px]">
             {connectedNodes.map((node, index) => (
               <div
                 key={index}
@@ -199,7 +199,7 @@ export default function LlmNodeDetail({
               <div>
                 <button
                   type="button"
-                  className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+                  className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#3B82F6]"
                   onClick={toggleDropdown}
                 >
                   다음 블록 선택
