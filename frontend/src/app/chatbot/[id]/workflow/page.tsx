@@ -624,14 +624,14 @@ export default function Page() {
 
     return (
       <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
-        <button className="px-3 py-2.5 bg-[#9A75BF] rounded-[8px] text-white font-bold cursor-pointer">
+        <button className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer">
           업데이트
         </button>
         <div className="flex flex-col gap-3">
-          <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
             앱 실행<BsArrowUpRight />
           </button>
-          <button className="p-2 bg-[#F2F2F2] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
             사이트에 삽입<BsArrowUpRight />
           </button>
         </div>

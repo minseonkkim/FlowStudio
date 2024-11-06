@@ -146,7 +146,7 @@ export default function QuestionClassifierNodeDetail({
 
         {localClasses.length < 5 && (
           <div
-            className="bg-[#E0E0E0] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]"
+            className="bg-[#E0E0E0] hover:bg-[#DADADA] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]"
             onClick={handleAddClass}
           >
             + 클래스 추가

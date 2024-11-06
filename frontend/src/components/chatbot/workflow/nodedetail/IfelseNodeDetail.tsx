@@ -5,6 +5,60 @@ import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 
+interface Variable {
+  name: string;
+  value: string;
+  type: string;
+  isEditing: boolean;
+}
+
+interface ConditionRowProps {
+  variables: Variable[];
+  onDelete: () => void;
+}
+
+function ConditionRow({ variables, onDelete }: ConditionRowProps) {
+  return (
+    <div className="flex flex-row items-center justify-between w-[210px] bg-white rounded-[5px] p-1">
+      <div className="w-auto h-[36px] flex items-center">
+        <select className="w-full">
+          {variables.map((variable, index) => (
+            <option key={index} value={variable.name}>
+              {variable.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="w-auto h-[36px] flex items-center">
+        <select className="w-full">
+          <option value="">&gt;=</option>
+          <option value="">&gt;</option>
+          <option value="">==</option>
+          <option value="">&lt;=</option>
+          <option value="">&lt;</option>
+        </select>
+      </div>
+      <input
+        className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]"
+        placeholder="값 입력"
+      />
+      <AiOutlineClose className="cursor-pointer ml-auto" onClick={onDelete} />
+    </div>
+  );
+}
+
+interface IfelseNodeDetailProps {
+  variables: Variable[];
+  addNode: (type: string, condition: "ifsource" | "elifsource" | "elsesource") => void;
+  onClose: () => void;
+  connectedNodes?: {
+    ifNodes: ConnectedNode[];
+    elifNodes: ConnectedNode[];
+    elseNodes: ConnectedNode[];
+  };
+  setConnectedNodes: (targetNodeId: string) => void;
+}
+
 export default function IfelseNodeDetail({
   variables,
   addNode,
@@ -18,20 +72,14 @@ export default function IfelseNodeDetail({
   connectedNodes?: { ifNodes: ConnectedNode[]; elifNodes: ConnectedNode[]; elseNodes: ConnectedNode[] };
   setConnectedNodes: (targetNodeId: string) => void;
 }) {
+  const [ifConditions, setIfConditions] = useState<Array<{}>>([{}]);
+  const [elifConditions, setElifConditions] = useState<Array<{}>>([{}]);
   const [dropdownCondition, setDropdownCondition] = useState<"ifsource" | "elifsource" | "elsesource" | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const toggleDropdown = (condition: "ifsource" | "elifsource" | "elsesource") => {
     setDropdownCondition((prevCondition) => (prevCondition === condition ? null : condition));
   };
-
-  const handleNodeTypeClick = useCallback(
-    (type: string, condition: "ifsource" | "elifsource" | "elsesource") => {
-      addNode(type, condition);
-      setDropdownCondition(null);
-    },
-    [addNode]
-  );
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
@@ -49,6 +97,30 @@ export default function IfelseNodeDetail({
     };
   }, [handleClickOutside]);
 
+  const addCondition = (type: "if" | "elif") => {
+    if (type === "if") {
+      setIfConditions((prev) => [...prev, {}]);
+    } else if (type === "elif") {
+      setElifConditions((prev) => [...prev, {}]);
+    }
+  };
+
+  const removeCondition = (type: "if" | "elif", index: number) => {
+    if (type === "if") {
+      setIfConditions((prev) => prev.filter((_, i) => i !== index));
+    } else if (type === "elif") {
+      setElifConditions((prev) => prev.filter((_, i) => i !== index));
+    }
+  };
+
+  const handleNodeTypeClick = useCallback(
+    (type: string, condition: "ifsource" | "elifsource" | "elsesource") => {
+      addNode(type, condition);
+      setDropdownCondition(null);
+    },
+    [addNode]
+  );
+
   return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto relative">
       <div className="flex flex-row justify-between items-center mb-2">
@@ -63,59 +135,36 @@ export default function IfelseNodeDetail({
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">IF</div>
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-center justify-between w-[210px] bg-white rounded-[5px] p-1">
-              <div className="w-auto h-[36px] flex items-center">
-                <select className="w-full">
-                  {variables.map((variable, index) => (
-                    <option key={index} value={variable.name}>
-                      {variable.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-auto h-[36px] flex items-center">
-                <select className="w-full">
-                  <option value="">&gt;=</option>
-                  <option value="">&gt;</option>
-                  <option value="">==</option>
-                  <option value="">&lt;=</option>
-                  <option value="">&lt;</option>
-                </select>
-              </div>
-              <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" placeholder="값 입력" />
-            </div>
-            <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+            {ifConditions.map((_, index) => (
+              <ConditionRow
+                key={index}
+                variables={variables}
+                onDelete={() => removeCondition("if", index)}
+              />
+            ))}
+            <div
+              className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer"
+              onClick={() => addCondition("if")}
+            >
               + 조건 추가
             </div>
           </div>
         </div>
 
-
         <div className="flex flex-row items-start">
           <div className="text-[16px] w-[40px] flex-shrink-0">ELIF</div>
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row items-center justify-between w-[210px] bg-white rounded-[5px] p-1">
-              <div className="w-auto h-[36px] flex items-center">
-                <select className="w-full">
-                  {variables.map((variable, index) => (
-                    <option key={index} value={variable.name}>
-                      {variable.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-auto h-[36px] flex items-center">
-                <select className="w-full">
-                  <option value="">&gt;=</option>
-                  <option value="">&gt;</option>
-                  <option value="">==</option>
-                  <option value="">&lt;=</option>
-                  <option value="">&lt;</option>
-                </select>
-              </div>
-              <input className="w-[80px] bg-[#E9E9E9] px-1 rounded-[5px]" placeholder="값 입력" />
-            </div>
-            <div className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer">
+            {elifConditions.map((_, index) => (
+              <ConditionRow
+                key={index}
+                variables={variables}
+                onDelete={() => removeCondition("elif", index)}
+              />
+            ))}
+            <div
+              className="text-[14px] bg-white hover:bg-gray-50 border border-gray-300 rounded-[5px] flex justify-center items-center w-[150px] py-1.5 cursor-pointer"
+              onClick={() => addCondition("elif")}
+            >
               + 조건 추가
             </div>
           </div>

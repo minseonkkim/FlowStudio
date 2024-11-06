@@ -26,7 +26,7 @@ export default function VariableDetail({
       </div>
       <button
         onClick={handleAddVariable}
-        className="mt-2 w-[130px] py-2.5 bg-[#AB8CCA] text-[16px] font-semibold text-white rounded-[8px] mb-4"
+          className="mt-2 w-[130px] py-2.5 bg-[#AB8CCA] hover:bg-[#A283C1] text-[16px] font-semibold text-white rounded-[8px] mb-4"
       >
         + 변수 추가
       </button>

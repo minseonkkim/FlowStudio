@@ -84,7 +84,7 @@ export default function KnowledgeNodeDetail({
         <div className="flex flex-col gap-2">
           <div className="flex flex-row justify-between items-center">
             <div className="text-[16px]">지식을 선택하세요.</div>
-            <div className="text-[21px] cursor-pointer" onClick={openModal}>
+            <div className="w-8 h-8 text-[21px] cursor-pointer flex justify-center items-center p-3 rounded-full hover:bg-[#e4e4e4]" onClick={openModal}>
               +
             </div>
           </div>
