@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
-import { IoClose } from "@react-icons/all-files/io5/ioClose";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
@@ -116,7 +116,7 @@ export default function IfelseNodeDetail({
           <IoGitBranchOutline className="text-[#EF4444] size-8" />
           <div className="text-[25px] font-semibold">IF/ELSE</div>
         </div>
-        <IoClose className="size-6 cursor-pointer" onClick={onClose} />
+        <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
 
       <div className="flex flex-col gap-2">

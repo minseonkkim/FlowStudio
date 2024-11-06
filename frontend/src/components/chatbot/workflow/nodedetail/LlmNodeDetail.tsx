@@ -4,7 +4,7 @@ import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswer
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
-import { IoClose } from "@react-icons/all-files/io5/ioClose"
+import { CgClose } from "@react-icons/all-files/cg/CgClose"
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash"
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 import { ConnectedNode } from "@/types/workflow"; 
@@ -107,7 +107,7 @@ export default function LlmNodeDetail({
               <FaRobot className="text-[#3B82F6] size-8" />
               <div className="text-[25px] font-semibold">LLM</div>
           </div>
-          <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
+          <CgClose className="size-6 cursor-pointer" onClick={onClose}/>
         </div>
         
         <div className="flex flex-col gap-2">

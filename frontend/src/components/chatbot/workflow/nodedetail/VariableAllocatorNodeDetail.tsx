@@ -4,7 +4,7 @@ import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswer
 import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline"
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
-import { IoClose } from "@react-icons/all-files/io5/ioClose"
+import { CgClose } from "@react-icons/all-files/cg/CgClose"
 import { useCallback, useState } from "react"
 import { ConnectedNode } from "@/types/workflow"
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
@@ -65,7 +65,7 @@ export default function VariableAllocatorNodeDetail({
         <VscSymbolVariable className="text-[#6B7280] size-8"/>
         <div className="text-[25px] font-semibold">변수 할당자</div>
       </div>
-      <IoClose className="size-6 cursor-pointer" onClick={onClose}/>
+      <CgClose className="size-6 cursor-pointer" onClick={onClose}/>
     </div>
     <div className="flex flex-col gap-2">
           <div className="text-[16px]">변수를 선택하세요.</div>

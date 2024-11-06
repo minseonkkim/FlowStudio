@@ -5,7 +5,7 @@ import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswer
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
-import { IoClose } from "@react-icons/all-files/io5/ioClose";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { useCallback, useState } from "react";
 import { ConnectedNode } from "@/types/workflow"; 
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
@@ -52,7 +52,7 @@ export default function StartNodeDetail({
           <IoPlay className="text-[#95C447] size-8" />
           <div className="text-[25px] font-semibold">시작</div>
         </div>
-        <IoClose className="size-6 cursor-pointer" onClick={onClose} />
+        <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
 
       <div className="flex flex-col gap-2">

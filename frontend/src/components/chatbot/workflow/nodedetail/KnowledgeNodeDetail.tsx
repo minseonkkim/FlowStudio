@@ -4,7 +4,7 @@ import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
-import { IoClose } from "@react-icons/all-files/io5/ioClose";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow";
@@ -79,7 +79,7 @@ export default function KnowledgeNodeDetail({
             <FiBookOpen className="text-[#F97316] size-8" />
             <div className="text-[25px] font-semibold">지식 검색</div>
           </div>
-          <IoClose className="size-6 cursor-pointer" onClick={onClose} />
+          <CgClose className="size-6 cursor-pointer" onClick={onClose} />
         </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-row justify-between items-center">

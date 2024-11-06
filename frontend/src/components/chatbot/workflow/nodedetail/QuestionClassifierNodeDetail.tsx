@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
-import { IoClose } from "@react-icons/all-files/io5/ioClose";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash";
 import { ConnectedNode } from "@/types/workflow";
@@ -109,7 +109,7 @@ export default function QuestionClassifierNodeDetail({
           <GrTree className="text-[#1E3A8A] size-7" />
           <div className="text-[25px] font-semibold">질문 분류기</div>
         </div>
-        <IoClose className="size-6 cursor-pointer" onClick={onClose} />
+        <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
       <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">gpt-4o-mini</div>
 
