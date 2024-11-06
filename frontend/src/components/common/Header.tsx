@@ -133,7 +133,7 @@ export default function Header() {
   );
 
   const DesktopHeader = () => (
-    <header className="z-20 fixed inset-0 w-full h-[57px] px-12 flex justify-between items-center border-b-[1px] bg-white">
+    <header className="z-10 fixed inset-0 w-full h-[57px] px-12 flex justify-between items-center border-b-[1px] bg-white">
       <Link href="/" className="flex items-center gap-3">
         <Image src={Logo} alt="logo" className="w-[22px] h-[22px]" />
         <div className="text-[22px] font-bold text-[#5D2973]">Flow Studio</div>
