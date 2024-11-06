@@ -77,9 +77,9 @@ class QuestionClassifierExecutorTest extends IntegrationTestSupport {
         Edge edge2 = Edge.create(questionClassifier, answer2);
         Edge edge3 = Edge.create(questionClassifier, answer3);
 
-        questionClass1.updateEdge(edge1);
-        questionClass2.updateEdge(edge2);
-        questionClass3.updateEdge(edge3);
+        questionClass1.update(edge1, "한국");
+        questionClass2.update(edge2, "중국");
+        questionClass3.update(edge3, "일본");
 
         chatFlow.addNode(questionClassifier);
         chatFlow.addNode(answer1);
