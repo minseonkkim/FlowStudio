@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,6 +56,16 @@ public class UserController {
             @Valid @RequestBody UserNicknameUpdateRequest request
     ) {
         userService.updateNickname(user, request.toServiceRequest());
+        return ApiResponse.ok(userService.getUser(user));
+    }
+
+
+    @PatchMapping(value = "/api/v1/users/profile-image")
+    public ApiResponse<UserResponse> updateProfileImage(
+            @CurrentUser User user,
+            @RequestPart(value = "image") MultipartFile image
+    ) {
+        userService.updateProfileImage(user, image);
         return ApiResponse.ok(userService.getUser(user));
     }
 
