@@ -31,7 +31,8 @@ public class ApiKeyController {
             @CurrentUser User user,
             @Valid @RequestBody ApiKeyRequest request
     ) {
-        return ApiResponse.ok(apiKeyService.updateApiKey(user, request.toServiceRequest()));
+        apiKeyService.updateApiKey(user, request.toServiceRequest());
+        return ApiResponse.ok();
     }
 
     /**
