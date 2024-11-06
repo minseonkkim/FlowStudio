@@ -3,7 +3,7 @@ import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable"
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
 export default function VariableAllocatorNode({ data, selected }: any){
-  const { onDelete } = data;
+  const { variable, onDelete } = data;
   
   return <>
   <div className={`p-2 bg-[#D8D8D8] rounded-[16px] border-[#6B7280] ${
@@ -26,11 +26,10 @@ export default function VariableAllocatorNode({ data, selected }: any){
         <div className="flex flex-col gap-1 text-[8px]">
           <div className="rounded-[5px] p-0.5 bg-white flex flex-row justify-between">
             <div className="flex flex-row items-center gap-2">
-              <div>rain</div>
-              <div className="text-[#9D9D9D]">number</div>
+              <div>{variable.name}</div>
+              <div className="text-[#9D9D9D]">{variable.type}</div>
             </div>
             
-            <div>3</div>
           </div>
         </div>
       </div>

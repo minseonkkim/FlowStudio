@@ -10,23 +10,44 @@ import { ConnectedNode } from "@/types/workflow"
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { deleteIconColors, nodeConfig } from "@/utils/nodeConfig"
 
+interface Variable {
+  name: string;
+  value: string;
+  type: string;
+  isEditing: boolean;
+}
+
 export default function VariableAllocatorNodeDetail({
   variables,
   addNode,
   onClose,
   connectedNodes,
   setConnectedNodes,
+  updateVariableOnNode, 
 }: {
   variables: { name: string; value: string; type: string; isEditing: boolean }[];
   addNode: (type: string) => void;
   onClose: () => void;
   connectedNodes: ConnectedNode[];
   setConnectedNodes: (targetNodeId: string) => void;
+  updateVariableOnNode: (selectedVar: Variable) => void;
+
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedVariable, setSelectedVariable] = useState(variables[0] || {});
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleVariableSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const variableName = event.target.value;
+    const selectedVar = variables.find((v) => v.name === variableName);
+
+    if (selectedVar) {
+      setSelectedVariable(selectedVar);
+      updateVariableOnNode(selectedVar);
+    }
   };
 
   const handleNodeTypeClick = useCallback(
@@ -49,12 +70,14 @@ export default function VariableAllocatorNodeDetail({
     <div className="flex flex-col gap-2">
           <div className="text-[16px]">변수를 선택하세요.</div>
           <select
-            id="model"
+            id="variable"
             className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#6B7280] focus:border-[#6B7280] sm:text-sm"
+            value={selectedVariable.name}
+            onChange={handleVariableSelect}
           >
               {variables.map((variable, index) => (
                 <option key={index} value={variable.name}>
-                  {variable.name}
+                  {variable.name}&nbsp;&nbsp;[{variable.type}]
                 </option>
               ))}
           </select>

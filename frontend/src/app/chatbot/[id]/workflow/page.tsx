@@ -49,61 +49,12 @@ interface ConnectedNode {
   name: string;
 }
 
-
-
-const initialNodes: Node[] = [
-  {
-    id: "1",
-    type: "startNode",
-    data: { maxChars: undefined },
-    position: { x: 250, y: 100 },
-  },
-  {
-    id: "2",
-    type: "llmNode",
-    data: { prompts: [{ type: "system", text: "" }], model: models[0].id },
-    position: { x: 460, y: 100 },
-  },
-  {
-    id: "3",
-    type: "knowledgeNode",
-    data: { fileName: "" },
-    position: { x: 700, y: 100 },
-  },
-  {
-    id: "4",
-    type: "ifelseNode",
-    data: {},
-    position: { x: 880, y: 80 },
-  },
-  {
-    id: "5",
-    type: "answerNode",
-    data: { answer: "" },
-    position: { x: 1100, y: 100 },
-  },
-  {
-    id: "6",
-    type: "questionclassifierNode",
-    data: { classes: [{ text: "" }, { text: "" }] },
-    position: { x: 1300, y: 100 },
-  },
-  {
-    id: "7",
-    type: "variableallocatorNode",
-    data: {},
-    position: { x: 1500, y: 100 },
-  },
-];
-
-const initialEdges = [
-  { id: "e1-2", source: "1", target: "2" },
-  { id: "e2-3", source: "2", target: "3" },
-  { id: "e3-4", source: "3", target: "4" },
-  { id: "e4-5", source: "4", target: "5", sourceHandle: "elifsource" },
-  { id: "e5-6", source: "5", target: "6" },
-  { id: "e6-7", source: "6", target: "7", sourceHandle: "handle2" },
-];
+interface Variable {
+  name: string;
+  value: string;
+  type: string;
+  isEditing: boolean;
+}
 
 const nodeTypes = {
   startNode: StartNode,
@@ -126,6 +77,67 @@ const nodeTypeLabels: { [key: string]: string } = {
   };
 
 export default function Page() {
+  const [variables, setVariables] = useState<
+    { name: string; value: string; type: string; isEditing: boolean }[]
+  >([
+    { name: "변수1", value: "", type: "string", isEditing: false },
+    { name: "변수2", value: "", type: "string", isEditing: false },
+  ]);
+
+  const initialNodes: Node[] = [
+    {
+      id: "1",
+      type: "startNode",
+      data: { maxChars: undefined },
+      position: { x: 250, y: 100 },
+    },
+    {
+      id: "2",
+      type: "llmNode",
+      data: { prompts: [{ type: "system", text: "" }], model: models[0].id },
+      position: { x: 460, y: 100 },
+    },
+    {
+      id: "3",
+      type: "knowledgeNode",
+      data: { fileName: "" },
+      position: { x: 700, y: 100 },
+    },
+    {
+      id: "4",
+      type: "ifelseNode",
+      data: {},
+      position: { x: 880, y: 80 },
+    },
+    {
+      id: "5",
+      type: "answerNode",
+      data: { answer: "" },
+      position: { x: 1100, y: 100 },
+    },
+    {
+      id: "6",
+      type: "questionclassifierNode",
+      data: { classes: [{ text: "" }, { text: "" }] },
+      position: { x: 1300, y: 100 },
+    },
+    {
+      id: "7",
+      type: "variableallocatorNode",
+      data: { variable: variables[0] },
+      position: { x: 1500, y: 100 },
+    },
+  ];
+
+  const initialEdges = [
+    { id: "e1-2", source: "1", target: "2" },
+    { id: "e2-3", source: "2", target: "3" },
+    { id: "e3-4", source: "3", target: "4" },
+    { id: "e4-5", source: "4", target: "5", sourceHandle: "elifsource" },
+    { id: "e5-6", source: "5", target: "6" },
+    { id: "e6-7", source: "6", target: "7", sourceHandle: "handle2" },
+  ];
+
   const [nodes, setNodes] = useState<Node[]>(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
@@ -300,12 +312,21 @@ export default function Page() {
     [selectedNode]
   );
 
-  const [variables, setVariables] = useState<
-    { name: string; value: string; type: string; isEditing: boolean }[]
-  >([
-    { name: "변수1", value: "", type: "string", isEditing: false },
-    { name: "변수2", value: "", type: "string", isEditing: false },
-  ]);
+  // 변수 할당자 - 변수 업데이트
+  const updateVariableOnNode = useCallback(
+    (selectedVar: Variable) => {
+      if (selectedNode) {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === selectedNode.id
+              ? { ...node, data: {variable: selectedVar} }
+              : node
+          )
+        );
+      }
+    },
+    [selectedNode]
+  );
 
   const handleVariableChange = (
     index: number,
@@ -338,54 +359,74 @@ export default function Page() {
     );
   };
 
-  const createQuestionClassifierNode = (position: { x: number; y: number }) => ({
-    id: uuidv4(),
-    type: "questionclassifierNode",
-    data: { classes: [{ text: "" }, { text: "" }] },
-    position,
-  });
-
-  
+  // 노드 추가
   const addNode = useCallback(
-  (type: string, condition?: string) => {
-    if (!selectedNode) return;
+    (type: string, condition?: string) => {
+      if (!selectedNode) return;
 
-    const isPositionOccupied = (x: number, y: number) => {
-      return nodes.some(
-        (node) =>
-          Math.abs(node.position.x - x) < 200 &&
-          Math.abs(node.position.y - y) < 160
-      );
-    };
+      const isPositionOccupied = (x: number, y: number) => {
+        return nodes.some(
+          (node) =>
+            Math.abs(node.position.x - x) < 200 &&
+            Math.abs(node.position.y - y) < 160
+        );
+      };
 
-    let newX = selectedNode.position.x + 200;
-    let newY = selectedNode.position.y;
+      let newX = selectedNode.position.x + 200;
+      let newY = selectedNode.position.y;
 
-    while (isPositionOccupied(newX, newY)) {
-      newY += 160;
-    }
+      while (isPositionOccupied(newX, newY)) {
+        newY += 160;
+      }
 
-    const newNode = {
-      id: uuidv4(),
-      type,
-      data: {},
-      position: { x: newX, y: newY },
-    };
+      let newNode;
+      if (type === "llmNode") {
+        newNode = {
+          id: uuidv4(),
+          type,
+          data: {
+            prompts: [{ type: "system", text: "" }],
+            model: models[0].id,
+          },
+          position: { x: newX, y: newY },
+        };
+      } else if(type === "questionclassifierNode"){
+        newNode = {
+          id: uuidv4(),
+          type,
+          data: { classes: [{ text: "" }, { text: "" }] },
+          position: { x: newX, y: newY },
+        };
+      } else if(type === "variableallocatorNode"){
+        newNode = {
+          id: uuidv4(),
+          type,
+          data: { variable: variables[0] },
+          position: { x: newX, y: newY },
+        };
+      } else {
+        newNode = {
+          id: uuidv4(),
+          type,
+          data: {},
+          position: { x: newX, y: newY },
+        };
+      }
 
-    const newEdge = {
-      id: `e${selectedNode.id}-${newNode.id}`,
-      source: selectedNode.id,
-      sourceHandle: condition || undefined, 
-      target: newNode.id,
-    };
+      const newEdge = {
+        id: `e${selectedNode.id}-${newNode.id}`,
+        source: selectedNode.id,
+        sourceHandle: condition || undefined, 
+        target: newNode.id,
+      };
 
-    setNodes((nds) => [...nds, newNode]);
-    setEdges((eds) => [...eds, newEdge]);
-    setSelectedNode(newNode);
-    setSelectedNodeId(newNode.id);
-  },
-  [selectedNode, nodes]
-);
+      setNodes((nds) => [...nds, newNode]);
+      setEdges((eds) => [...eds, newEdge]);
+      setSelectedNode(newNode);
+      setSelectedNodeId(newNode.id);
+    },
+    [selectedNode, nodes]
+  );
 
 
   useEffect(() => {
@@ -545,6 +586,7 @@ export default function Page() {
         return (
           <VariableAllocatorNodeDetail 
             variables={variables} 
+            updateVariableOnNode={updateVariableOnNode}
             addNode={addNode} 
             onClose={handleCloseDetail} 
             connectedNodes={connectedNodeDetails}
