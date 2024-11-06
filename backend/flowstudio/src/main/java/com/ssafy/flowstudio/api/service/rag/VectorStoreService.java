@@ -5,26 +5,30 @@ import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceReques
 import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
 import com.ssafy.flowstudio.domain.user.entity.User;
-import io.milvus.param.collection.FlushParam;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.ConsistencyLevel;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.request.DescribeCollectionReq;
+import io.milvus.v2.service.collection.request.GetLoadStateReq;
 import io.milvus.v2.service.collection.request.HasCollectionReq;
 import io.milvus.v2.service.collection.response.DescribeCollectionResp;
 import io.milvus.v2.service.partition.request.CreatePartitionReq;
+import io.milvus.v2.service.partition.request.HasPartitionReq;
 import io.milvus.v2.service.partition.request.LoadPartitionsReq;
+import io.milvus.v2.service.partition.request.ReleasePartitionsReq;
 import io.milvus.v2.service.vector.request.*;
 import io.milvus.v2.service.vector.request.data.BaseVector;
 import io.milvus.v2.service.vector.request.data.FloatVec;
 import io.milvus.v2.service.vector.response.*;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.ai.writer.FileDocumentWriter;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,16 +37,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class VectorStoreService {
+    private static final Logger log = LoggerFactory.getLogger(VectorStoreService.class);
     private final MilvusClientV2 milvusClient;
     private final LangchainService langchainService;
     private final MilvusUtils milvusUtils;
 
     public void createCollection(String collectionName) {
-        HasCollectionReq hasCollectionReq = HasCollectionReq.builder()
-                .collectionName(collectionName)
-                .build();
-
-        if (!milvusClient.hasCollection(hasCollectionReq)) {
+        if (!hasCollection(collectionName)) {
             CreateCollectionReq createCollectionReq = CreateCollectionReq.builder()
                     .collectionName(collectionName)
                     .consistencyLevel(ConsistencyLevel.STRONG)
@@ -51,20 +52,16 @@ public class VectorStoreService {
 
             milvusClient.createCollection(createCollectionReq);
         }
-
-        DescribeCollectionReq describeCollectionReq = DescribeCollectionReq.builder()
-                .collectionName(collectionName)
-                .build();
-
-        DescribeCollectionResp describeCollectionResp = milvusClient.describeCollection(describeCollectionReq);
     }
 
     public void createPartition(String collectionName, String partitionName) {
-        CreatePartitionReq createPartitionReq = CreatePartitionReq.builder()
-                .collectionName(collectionName)
-                .partitionName(partitionName)
-                .build();
-        milvusClient.createPartition(createPartitionReq);
+        if (!hasPartition(collectionName, partitionName)) {
+            CreatePartitionReq createPartitionReq = CreatePartitionReq.builder()
+                    .collectionName(collectionName)
+                    .partitionName(partitionName)
+                    .build();
+            milvusClient.createPartition(createPartitionReq);
+        }
     }
 
     public ChunkListResponse getDocumentChunks(User user, KnowledgeResponse knowledge, Long chunkId) {
@@ -79,12 +76,12 @@ public class VectorStoreService {
 
     public List<ChunkResponse> getDocumentChunk(User user, KnowledgeResponse knowledge, Long chunkId) {
         String collectionName = milvusUtils.generateName(user.getId());
-        String partitionName = milvusUtils.generateName(knowledge.getKnowledgeId());
-        loadPartition(collectionName, partitionName);
+        List<String> partitionNames = milvusUtils.generateName(List.of(knowledge.getKnowledgeId()));
+        loadPartition(collectionName, partitionNames);
 
         QueryResp queryResp = milvusClient.query(QueryReq.builder()
                 .collectionName(collectionName)
-                .partitionNames(List.of(partitionName))
+                .partitionNames(partitionNames)
                 .outputFields(List.of("id", "content")) // 조회하려는 필드명
                 .filter(chunkId == -1 ? "id <= " + 400 : "id == " + chunkId)
                 .build());
@@ -121,7 +118,8 @@ public class VectorStoreService {
 
     public Boolean upsertDocument(String collectionName, String partitionName, KnowledgeCreateServiceRequest request) {
         String textContent = milvusUtils.getTextContent(request.getFile());
-        List<Document> splitterDocuments = milvusUtils.textsToDocuments(langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), textContent));
+        List<String> splitterContent = langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), textContent);
+        List<Document> splitterDocuments = milvusUtils.textsToDocuments(splitterContent);
 
         long id = 0;
         List<JsonObject> data = new ArrayList<>();
@@ -149,6 +147,23 @@ public class VectorStoreService {
                 .build());
 
         return deleteResp.getDeleteCnt() > 0;
+    }
+
+    public Boolean hasCollection(String collectionName) {
+        HasCollectionReq hasCollectionReq = HasCollectionReq.builder()
+                .collectionName(collectionName)
+                .build();
+
+        return milvusClient.hasCollection(hasCollectionReq);
+    }
+
+    public Boolean hasPartition(String collectionName, String partitionName) {
+        HasPartitionReq hasPartitionReq = HasPartitionReq.builder()
+                .collectionName(collectionName)
+                .partitionName(partitionName)
+                .build();
+
+        return milvusClient.hasPartition(hasPartitionReq);
     }
 
     public List<String> previewChunks(KnowledgeCreateServiceRequest request) {
@@ -190,12 +205,74 @@ public class VectorStoreService {
         System.out.println(getResp.toString());
     }
 
-    private void loadPartition(String collectionName, String partitionName) {
+    public Boolean loadPartition(String collectionName, List<String> partitionNames) {
+        if (partitionNames.isEmpty()) throw new BaseException(ErrorCode.PARTITION_NOT_FOUND);
+
+        if (!hasCollection(collectionName)) {
+            throw new BaseException(ErrorCode.COLLECTION_NOT_FOUND);
+        }
+
+        for (String partitionName : partitionNames) {
+            if (!hasPartition(collectionName, partitionName)) {
+                throw new BaseException(ErrorCode.PARTITION_NOT_FOUND);
+            }
+        }
+
         LoadPartitionsReq loadPartitionsReq = LoadPartitionsReq.builder()
                 .collectionName(collectionName)
-                .partitionNames(List.of(partitionName))
+                .partitionNames(partitionNames)
                 .build();
 
         milvusClient.loadPartitions(loadPartitionsReq);
+
+        return true;
+    }
+
+    public Boolean releasePartition(String collectionName, List<String> partitionNames) {
+        if (partitionNames.isEmpty()) throw new BaseException(ErrorCode.PARTITION_NOT_FOUND);
+
+        if (!hasCollection(collectionName)) {
+            throw new BaseException(ErrorCode.COLLECTION_NOT_FOUND);
+        }
+
+        for (String partitionName : partitionNames) {
+            if (!hasPartition(collectionName, partitionName)) {
+                throw new BaseException(ErrorCode.PARTITION_NOT_FOUND);
+            }
+        }
+
+        ReleasePartitionsReq releasePartitionsReq = ReleasePartitionsReq.builder()
+                .collectionName(collectionName)
+                .partitionNames(partitionNames)
+                .build();
+
+        milvusClient.releasePartitions(releasePartitionsReq);
+
+        return true;
+    }
+
+    /**
+     * load = true, unload = false
+     * @param collectionName
+     * @param partitionName
+     * @return
+     */
+    public Boolean getLoadState(String collectionName, String partitionName) {
+        GetLoadStateReq loadStateReq = GetLoadStateReq.builder()
+                    .collectionName(collectionName)
+                    .partitionName(partitionName)
+                    .build();
+
+        return milvusClient.getLoadState(loadStateReq);
+    }
+
+    public Boolean addDescription(String collectionName, String partitionName, String description) {
+        DescribeCollectionReq describeCollectionReq = DescribeCollectionReq.builder()
+                .collectionName(collectionName)
+                .build();
+
+        DescribeCollectionResp describeCollectionResp = milvusClient.describeCollection(describeCollectionReq);
+
+        return true;
     }
 }
