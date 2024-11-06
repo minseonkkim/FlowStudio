@@ -35,12 +35,16 @@ public class Knowledge extends BaseEntity {
     @Column
     private boolean isPublic;
 
+    @Column
+    private Integer totalToken;
+
     @Builder
-    private Knowledge(Long id, User user, String title, boolean isPublic) {
+    private Knowledge(Long id, User user, String title, boolean isPublic, Integer totalToken) {
         this.id = id;
         this.user = user;
         this.title = title;
         this.isPublic = isPublic;
+        this.totalToken = totalToken;
     }
 
     public static Knowledge create(User user, String title, boolean isPublic) {
@@ -54,5 +58,9 @@ public class Knowledge extends BaseEntity {
     public void update(String title, boolean isPublic) {
         this.title = title;
         this.isPublic = isPublic;
+    }
+
+    public void updateToken(Integer totalToken) {
+        this.totalToken = totalToken;
     }
 }

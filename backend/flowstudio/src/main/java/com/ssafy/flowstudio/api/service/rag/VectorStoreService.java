@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeCreateServiceResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
@@ -116,7 +117,7 @@ public class VectorStoreService {
         return upsertResp.getUpsertCnt() > 0;
     }
 
-    public Boolean upsertDocument(String collectionName, String partitionName, KnowledgeCreateServiceRequest request) {
+    public KnowledgeCreateServiceResponse upsertDocument(String collectionName, String partitionName, KnowledgeCreateServiceRequest request) {
         String textContent = milvusUtils.getTextContent(request.getFile());
         List<String> splitterContent = langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), textContent);
         List<Document> splitterDocuments = milvusUtils.textsToDocuments(splitterContent);
@@ -136,7 +137,10 @@ public class VectorStoreService {
 
         UpsertResp upsertResp = milvusClient.upsert(upsertReq);
 
-        return upsertResp.getUpsertCnt() > 0;
+        return KnowledgeCreateServiceResponse.builder()
+                .isComplete(upsertResp.getUpsertCnt() > 0)
+                .totalToken(milvusUtils.getTokenCount(splitterContent))
+                .build();
     }
 
     public Boolean deleteChunk(User user, KnowledgeResponse knowledge, Long chunkId) {
@@ -172,8 +176,7 @@ public class VectorStoreService {
                 .toList();
     }
 
-
-    public void search(User user, KnowledgeResponse knowledge, String search) {
+    public List<String> searchVector(User user, KnowledgeResponse knowledge, String search) {
         String collectionName = milvusUtils.generateName(user.getId());
         String partitionName = milvusUtils.generateName(knowledge.getKnowledgeId());
         List<BaseVector> vectors = new ArrayList<>();
@@ -185,6 +188,7 @@ public class VectorStoreService {
                 .collectionName(collectionName)
                 .partitionNames(List.of(partitionName))
                 .data(vectors)
+                .topK(1)
                 .build();
         SearchResp searchResp = milvusClient.search(searchReq);
 
@@ -202,7 +206,12 @@ public class VectorStoreService {
                 .build();
 
         GetResp getResp = milvusClient.get(getReq);
-        System.out.println(getResp.toString());
+        for (QueryResp.QueryResult result : getResp.getGetResults()) {
+            log.info(result.toString());
+        }
+        return getResp.getGetResults().stream()
+                .map(result -> result.getEntity().getOrDefault("content", "").toString())
+                .toList();
     }
 
     public Boolean loadPartition(String collectionName, List<String> partitionNames) {
