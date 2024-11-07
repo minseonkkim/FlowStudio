@@ -1,7 +1,6 @@
 package com.ssafy.flowstudio.api.controller.sse;
 
 import com.ssafy.flowstudio.api.controller.sse.response.SseResponse;
-import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Component
 @Slf4j
@@ -54,4 +50,18 @@ public class SseEmitters {
         }
     }
 
+    public void send(User user, Node node, String message) {
+        SseResponse data = SseResponse.of(node, message);
+
+        SseEmitter emitter = emitters.get(user.getId());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("node")
+                        .data(data));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }

@@ -28,6 +28,9 @@ public enum ErrorCode {
     // Node
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
     NODE_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "노드를 찾을 수 없습니다."),
+    QUESTION_CLASS_NOT_FOUND(4002, HttpStatus.NOT_FOUND, "질문 클래스를 찾을 수 없습니다."),
+    EDGE_NOT_FOUND(4003, HttpStatus.NOT_FOUND, "간선을 찾을 수 없습니다."),
+    NODE_VALUE_NOT_EXIST(4004, HttpStatus.NOT_FOUND, "실행에 필요한 노드의 값이 존재하지 않습니다."),
 
     // Share
     CATEGORY_NOT_FOUND(5000, HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
@@ -54,10 +57,16 @@ public enum ErrorCode {
     AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
     AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
     API_KEY_INVALID(8002, HttpStatus.BAD_REQUEST, "API 키가 유효하지 않습니다."),
+    
+    AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(9000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
+    AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(9001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+
+    // Redis
+    REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
+
     ;
 
     private final int code;
     private final HttpStatus status;
     private final String message;
-
 }
