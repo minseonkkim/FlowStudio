@@ -10,4 +10,9 @@ public class ConditionalResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return ConditionalResponse.from((Conditional) node);
     }
+
+    @Override
+    public NodeResponse createNodeDetailResponse(Node node) {
+        return ConditionalResponse.from((Conditional) node);
+    }
 }

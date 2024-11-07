@@ -30,6 +30,9 @@ public class QuestionClassController {
         return ApiResponse.ok(questionClassResponse);
     }
 
+    /**
+     * 질문 분류 수정
+     */
     @PutMapping("/api/v1/chat-flows/nodes/question-classes/{questionClassId}")
     public ApiResponse<QuestionClassResponse> updateQuestionClass(
             @CurrentUser User user,

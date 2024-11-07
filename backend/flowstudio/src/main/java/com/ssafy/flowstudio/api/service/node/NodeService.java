@@ -2,6 +2,9 @@ package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.factory.NodeResponseFactory;
+import com.ssafy.flowstudio.api.service.node.response.factory.NodeResponseFactoryProvider;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
@@ -22,7 +25,8 @@ public class NodeService {
 
     private final NodeRepository nodeRepository;
     private final ChatFlowRepository chatFlowRepository;
-    private final NodeFactoryProvider factoryProvider;
+    private final NodeFactoryProvider nodeFactoryProvider;
+    private final NodeResponseFactoryProvider nodeResponseFactoryProvider;
 
     @Transactional
     public NodeCreateResponse createNode(User user, NodeCreateServiceRequest request) {
@@ -33,7 +37,7 @@ public class NodeService {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
-        NodeFactory factory = factoryProvider.getFactory(request.getType());
+        NodeFactory factory = nodeFactoryProvider.getFactory(request.getType());
         Coordinate coordinate = Coordinate.create(request.getCoordinate().getY(), request.getCoordinate().getY());
 
         Node savedNode = nodeRepository.save(factory.createNode(chatFlow, coordinate));
@@ -54,4 +58,16 @@ public class NodeService {
         return true;
     }
 
+    public NodeResponse getNode(Long nodeId) {
+        Node node = nodeRepository.findById(nodeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        NodeResponseFactory responseFactory = nodeResponseFactoryProvider.getFactory(node.getType());
+        NodeResponse nodeDetailResponse = responseFactory.createNodeDetailResponse(node);
+
+        // TODO : 선행노드 가져오기
+
+        nodeDetailResponse.updatePrecedingNodes(null);
+        return nodeDetailResponse;
+    }
 }

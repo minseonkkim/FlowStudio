@@ -18,16 +18,12 @@ import java.util.List;
 @Getter
 public class QuestionClassifier extends Node {
 
-    @Lob
-    private String modelParamList;
-
     @OneToMany(mappedBy = "questionClassifier", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionClass> questionClasses = new ArrayList<>();
 
     @Builder
-    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String modelParamList) {
+    private QuestionClassifier(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate) {
         super(id, chatFlow, name, type, coordinate);
-        this.modelParamList = modelParamList;
     }
 
     public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {

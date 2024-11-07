@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.controller.node;
 import com.ssafy.flowstudio.api.controller.node.request.NodeCreateRequest;
 import com.ssafy.flowstudio.api.service.node.NodeService;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -46,4 +47,17 @@ public class NodeController {
         return ApiResponse.ok();
     }
 
+    /**
+     * 노드 상세조회
+     * @param user
+     * @param nodeId
+     * @return
+     */
+    @GetMapping("/api/v1/chat-flows/nodes/{nodeId}")
+    public ApiResponse<NodeResponse> getNode(
+            @CurrentUser User user,
+            @PathVariable Long nodeId
+    ) {
+        return ApiResponse.ok(nodeService.getNode(nodeId));
+    }
 }

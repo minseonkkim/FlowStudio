@@ -10,4 +10,9 @@ public class QuestionClassifierResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return QuestionClassifierResponse.from((QuestionClassifier) node);
     }
+
+    @Override
+    public NodeResponse createNodeDetailResponse(Node node) {
+        return QuestionClassifierResponse.from((QuestionClassifier) node);
+    }
 }
