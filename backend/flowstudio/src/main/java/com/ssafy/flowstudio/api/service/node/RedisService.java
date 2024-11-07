@@ -13,6 +13,10 @@ public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    public String get(String key) {
+        return (String) redisTemplate.opsForValue().get(key);
+    }
+
     public String get(Long chatId, Long nodeId) {
         String key = chatId + ":" + nodeId;
         return (String) redisTemplate.opsForValue().get(key);
