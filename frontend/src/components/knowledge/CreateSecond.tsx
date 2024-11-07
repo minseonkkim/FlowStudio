@@ -1,25 +1,30 @@
 'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { VscSettings } from '@react-icons/all-files/vsc/VscSettings';
 import { FaFile } from '@react-icons/all-files/fa/FaFile';
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosInformationCircleOutline';
 import { useRecoilState } from 'recoil';
-import { fileNameState } from '@/store/knoweldgeAtoms'; 
+import { fileNameState, fileState } from '@/store/knoweldgeAtoms'; 
 import { currentStepState } from '@/store/knoweldgeAtoms';
 import WhiteButton from '../common/whiteButton';
 import { Tooltip } from 'react-tooltip';
 import PurpleButton from '../common/PurpleButton';
+import { postKnowledge } from "@/api/knowledge";
 
 export default function CreateSecond() {
   const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  // 세그먼트 식별자
   const [maxChunkLength, setMaxChunkLength] = useState<number>(500); // 최대 청크 길이
+  const [file, ] = useRecoilState(fileState); // 업로드한 파일
   const [chunkOverlap, setChunkOverlap] = useState<number>(50); // 청크 중첩
   const [predictedChunkCount, ] = useState<number>(0); // 예상 청크 수 
   const [fileName, ] = useRecoilState(fileNameState); // 파일 이름
   const [, setCurrentStep] = useRecoilState(currentStepState); 
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 열기
+	const queryClient = useQueryClient();
+
 
   // 더미데이터
   const chunks = [
@@ -32,8 +37,19 @@ export default function CreateSecond() {
   ];
 
   const onChange3Step = () => {
-    setCurrentStep(3)
-  }
+    if (!file) {
+      alert("파일을 업로드해주세요.");
+      return;
+    }
+
+    createMutation.mutate({
+      file,
+      chunkSize: maxChunkLength.toString(),
+      chunkOverlap: chunkOverlap.toString(),
+      separator: segmentIdentifier,
+    });
+  };
+
 
   const onChangeBack = () => {
     setCurrentStep(1)
@@ -42,6 +58,18 @@ export default function CreateSecond() {
   const onChangePreview = () => {
     setIsPreviewOpen(!isPreviewOpen)
   }
+
+
+  const createMutation = useMutation({
+    mutationFn: postKnowledge,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["knowledge"] });
+    },
+    onError: () => {
+      alert("지식 생성에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
 
   return (
     <>

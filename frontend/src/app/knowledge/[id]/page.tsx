@@ -9,6 +9,11 @@ import ChunkDetail from '@/components/knowledge/ChunkDetaill';
 import ChunkDetailModal from '@/components/knowledge/ChunkDetailModal';
 import { IoIosArrowBack } from '@react-icons/all-files/io/IoIosArrowBack';
 import { useRouter } from 'next/navigation';
+import { useRecoilState } from 'recoil';
+import { chunkFileNameState } from '@/store/knoweldgeAtoms'
+
+
+
 
 const Page = () => {
   const knowledgeId = typeof window !== "undefined" ? window.location.pathname.split("/").pop() ?? null : null;
@@ -16,6 +21,8 @@ const Page = () => {
   const [isModalOpen, setModalOpen] = useState(false); 
   const [selectedContentId, setSelectedContentId] = useState(''); 
   const router = useRouter();
+  const [knoweldgeTitle, ] = useRecoilState(chunkFileNameState);
+
 
   const queryClient = useQueryClient();
   
@@ -82,9 +89,9 @@ const Page = () => {
 
   return (
     <div className="px-12 py-10 relative">
-      <div className="flex gap-4 items-center">
-        <IoIosArrowBack className="w-6 h-6" onClick={() => router.push('/knowledges')} />
-        <p className="font-semibold text-[24px] text-gray-700">파일이름 1</p>
+      <div className="flex gap-4 items-center" onClick={() => router.push('/knowledges')}>
+        <IoIosArrowBack className="w-6 h-6"  />
+        <p className="font-semibold text-[24px] text-gray-700">{knoweldgeTitle}</p>
       </div>
       <div className="flex mb-4 xl:justify-end justify-center mt-4">
         <Search onSearchChange={handleSearchChange} />

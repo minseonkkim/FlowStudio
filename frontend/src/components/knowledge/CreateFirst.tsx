@@ -1,37 +1,34 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useRecoilState } from 'recoil';
+import { currentStepState, fileNameState, fileState } from '@/store/knoweldgeAtoms';
+import PurpleButton from '../common/PurpleButton';
 import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
-import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/knoweldgeAtoms';
-import { fileNameState } from '@/store/knoweldgeAtoms';  
-import PurpleButton from '../common/PurpleButton';
 
 export default function CreateFirst() {
-  const [file, setFile] = useState<File | null>(null);
   const [, setCurrentStep] = useRecoilState(currentStepState); 
+  const [file, setFile] = useRecoilState(fileState);  
   const [fileName, setFileName] = useRecoilState(fileNameState);  
 
   // 파일 선택 시 호출되는 함수
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    setFile(file);
-    setFileName(file ? file.name : '');
+    const selectedFile = event.target.files ? event.target.files[0] : null;
+    setFile(selectedFile);
+    setFileName(selectedFile ? selectedFile.name : '');
   };
 
   // 드래그앤드롭 이벤트 핸들러
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.stopPropagation();
-    const file = event.dataTransfer.files[0];
-    setFile(file);
-    setFileName(file.name);
+    const droppedFile = event.dataTransfer.files[0];
+    setFile(droppedFile);
+    setFileName(droppedFile.name);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.stopPropagation();
   };
 
   // 파일 초기화 (삭제)
@@ -40,10 +37,15 @@ export default function CreateFirst() {
     setFileName('');
   };
 
-  // 단계 변경 함수 (Step 2로 이동)
+  // 다음 단계로 이동
   const onChange2Step = () => {
     setCurrentStep(2);
   };
+
+  useEffect(()=>{
+    console.log(file)
+
+  },[file])
 
   return (
     <div className="pl-10">
@@ -59,12 +61,11 @@ export default function CreateFirst() {
               <div className='flex gap-2 justify-center items-center'>
                 <IoCloudDownloadOutline className='h-8 w-8' />
                 <p className="opacity-80 text-center">파일을 끌어다 놓거나 찾아보기</p>
-                  찾아보기
                 <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
               </div>
               <div className='text-center'>
-                <p className="opacity-50 text-base">TXT, MARKDOWN, PDF, HTML, XLSX, XLS, DOCX, CSV, EML, MSG, PPTX, PPT, XML, EPUB을(를) 지원합니다.</p>
-                <p className="opacity-50 text-sm">파일당 최대 크기는 15MB입니다.</p>
+                <p className="opacity-50 text-base">지원 파일 형식: TXT, PDF, 등...</p>
+                <p className="opacity-50 text-sm">파일당 최대 크기 15MB</p>
               </div>
             </div>
           </label>

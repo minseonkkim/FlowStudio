@@ -7,9 +7,12 @@ import Search from '@/components/common/Search';
 import PurpleButton from '@/components/common/PurpleButton';
 import { getAllKnowledges, putDocKnowledge, deleteKnowledge } from "@/api/knowledge";
 import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
+import { useRecoilState } from 'recoil';
+import { chunkFileNameState } from '@/store/knoweldgeAtoms'
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [, setKnowledgeTitle] = useRecoilState(chunkFileNameState);
   const router = useRouter();
   const queryClient = useQueryClient();
   
@@ -51,7 +54,8 @@ export default function Page() {
     router.push('/knowledge/create');
   };
   
-  const goToKnoweldgeDetail = (knowledgeId: string): void => {
+  const goToKnoweldgeDetail = (knowledgeId: string, title: string): void => {
+    setKnowledgeTitle(title); 
     router.push(`/knowledge/${knowledgeId}`);
   };
   
@@ -104,7 +108,7 @@ export default function Page() {
                 <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.knowledgeId}</td>
                 <td
                   className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
-                  onClick={() => goToKnoweldgeDetail(String(file.knowledgeId))}
+                  onClick={() => goToKnoweldgeDetail(String(file.knowledgeId), file.title)}
                 >
                   <div className="flex items-center w-full">
                     <p className="text-[10px] sm:text-xs lg:text-base truncate overflow-hidden whitespace-nowrap">
