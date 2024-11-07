@@ -32,6 +32,10 @@ public class Answer extends Node {
             .build();
     }
 
+    public void updateOutputMessage(String outputMessage) {
+        this.outputMessage = outputMessage;
+    }
+
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);

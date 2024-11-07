@@ -73,6 +73,10 @@ class QuestionClassifierExecutorTest extends IntegrationTestSupport {
         Answer answer2 = Answer.create(chatFlow, coordinate);
         Answer answer3 = Answer.create(chatFlow, coordinate);
 
+        answer1.updateOutputMessage("한국에 대한 답변");
+        answer2.updateOutputMessage("중국에 대한 답변");
+        answer3.updateOutputMessage("일본에 대한 답변");
+
         Edge edge1 = Edge.create(questionClassifier, answer1);
         Edge edge2 = Edge.create(questionClassifier, answer2);
         Edge edge3 = Edge.create(questionClassifier, answer3);
