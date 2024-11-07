@@ -2,10 +2,8 @@ package com.ssafy.flowstudio.api.service.rag;
 
 import com.google.gson.JsonObject;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
-import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
-import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
-import com.ssafy.flowstudio.api.service.rag.response.KnowledgeCreateServiceResponse;
-import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
+import com.ssafy.flowstudio.api.service.rag.request.KnowledgeSearchServiceRequest;
+import com.ssafy.flowstudio.api.service.rag.response.*;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
@@ -34,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -176,27 +175,50 @@ public class VectorStoreService {
                 .toList();
     }
 
-    public List<String> searchVector(User user, KnowledgeResponse knowledge, String search) {
-        String collectionName = milvusUtils.generateName(user.getId());
-        String partitionName = milvusUtils.generateName(knowledge.getKnowledgeId());
+    public List<String> searchVector(KnowledgeSearchServiceRequest request) {
+        if (!request.getKnowledge().getIsPublic()) throw new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND);
+        if (request.getScoreThreshold() < 0 || request.getScoreThreshold() > 1)
+            throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
+
+        String collectionName = milvusUtils.generateName(request.getKnowledge().getUserId());
+        String partitionName = milvusUtils.generateName(request.getKnowledge().getKnowledgeId());
+
+        if (loadPartition(collectionName, List.of(partitionName))) {
+            try {
+                int count = 0;
+                while (!getLoadState(collectionName, partitionName) && count < request.getInterval() * 2) {
+                    Thread.sleep(500);
+                    count++;
+                }
+                if (!getLoadState(collectionName, partitionName)) {
+                    throw new BaseException(ErrorCode.PARTITION_NOT_AVAILABLE);
+                }
+            } catch (InterruptedException e) {
+                log.error("Vector Search Interrupted", e);
+            }
+        }
+
         List<BaseVector> vectors = new ArrayList<>();
         EmbeddingModel embeddingModel = milvusUtils.generateEmbeddingModel();
 
-        BaseVector baseVector = new FloatVec(embeddingModel.embed(search));
+        BaseVector baseVector = new FloatVec(embeddingModel.embed(request.getQuery()));
         vectors.add(baseVector);
         SearchReq searchReq = SearchReq.builder()
                 .collectionName(collectionName)
                 .partitionNames(List.of(partitionName))
                 .data(vectors)
-                .topK(1)
+                .topK(request.getTopK())
+                .searchParams(Map.of("radius", request.getScoreThreshold()))
                 .build();
         SearchResp searchResp = milvusClient.search(searchReq);
+
 
         List<Object> ids = new ArrayList<>();
         for (List<SearchResp.SearchResult> results : searchResp.getSearchResults()) {
             for (SearchResp.SearchResult result : results) {
                 ids.add(result.getId());
             }
+            System.out.println();
         }
 
         GetReq getReq = GetReq.builder()
@@ -206,9 +228,11 @@ public class VectorStoreService {
                 .build();
 
         GetResp getResp = milvusClient.get(getReq);
-        for (QueryResp.QueryResult result : getResp.getGetResults()) {
-            log.info(result.toString());
+
+        if (!releasePartition(collectionName, List.of(partitionName))) {
+            releasePartition(collectionName, List.of(partitionName));
         }
+
         return getResp.getGetResults().stream()
                 .map(result -> result.getEntity().getOrDefault("content", "").toString())
                 .toList();
@@ -262,19 +286,18 @@ public class VectorStoreService {
 
     /**
      * load = true, unload = false
-     * @param collectionName
-     * @param partitionName
-     * @return
+     * @return Boolean
      */
     public Boolean getLoadState(String collectionName, String partitionName) {
         GetLoadStateReq loadStateReq = GetLoadStateReq.builder()
-                    .collectionName(collectionName)
-                    .partitionName(partitionName)
-                    .build();
+                .collectionName(collectionName)
+                .partitionName(partitionName)
+                .build();
 
         return milvusClient.getLoadState(loadStateReq);
     }
 
+    @Deprecated
     public Boolean addDescription(String collectionName, String partitionName, String description) {
         DescribeCollectionReq describeCollectionReq = DescribeCollectionReq.builder()
                 .collectionName(collectionName)

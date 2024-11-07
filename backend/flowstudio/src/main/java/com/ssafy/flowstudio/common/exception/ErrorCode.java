@@ -44,6 +44,8 @@ public enum ErrorCode {
     KNOWLEDGE_INSERT_UNAVAILABLE(7001, HttpStatus.SERVICE_UNAVAILABLE, "지식베이스를 등록할 수 없습니다."),
     COLLECTION_NOT_FOUND(7100, HttpStatus.NOT_FOUND, "벡터저장소(컬렉션)를 찾을 수 없습니다."),
     PARTITION_NOT_FOUND(7200, HttpStatus.NOT_FOUND, "벡터저장소(파티션)를 찾을 수 없습니다."),
+    PARTITION_NOT_AVAILABLE(7201, HttpStatus.SERVICE_UNAVAILABLE, "벡터저장소(파티션)를 불러올 수 없습니다."),
+    SEARCH_INVALID_INPUT(7300, HttpStatus.BAD_REQUEST, "유효하지 않은 입력값 입니다."),
 
     // S3
     EMPTY_FILE_EXCEPTION(8001, HttpStatus.BAD_REQUEST, "파일이 유효하지 않습니다."),
