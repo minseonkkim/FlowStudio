@@ -5,7 +5,7 @@ import { BsFillPersonFill } from '@react-icons/all-files/bs/BsFillPersonFill';
 import Image from 'next/image'
 import PurpleButton from '@/components/common/PurpleButton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUserInfo, getCheckNickName, patchNickName, getApiKeys, putApiKeys } from '@/api/profile'
+import { getUserInfo, getCheckNickName, patchNickName, patchProfileImage, getApiKeys, putApiKeys } from '@/api/profile'
 import { UserInfo, ApiKeys } from '@/types/profile'
 import { AxiosError } from 'axios';
 import WhiteButton from '../common/whiteButton';
@@ -14,7 +14,8 @@ export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
   const [nicknameStatus, setNicknameStatus] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
-  const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [profileImage, setProfileImage] = useState<File | string | null>(null)
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [openAi, setOpenAi] = useState<string | null>(null)
   const [gemini, setGemini] = useState<string | null>(null)
   const [claude, setClaude] = useState<string | null>(null)
@@ -59,6 +60,25 @@ export default function UserProfile() {
     },
   });
 
+  const updateProfileImage = useMutation({
+    mutationFn: patchProfileImage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profileImage"] });
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+        setPreviewImage(null);
+        setIsEditing(false)
+      }
+    },
+    onError: () => {
+      alert("프로필 이미지 수정에 실패했습니다. 다시 시도해 주세요.");
+      if (userInfo) {
+        setPreviewImage(userInfo.profileImage);
+        setIsEditing(true)
+      }
+    },
+  });
+
   const updateApiKeys = useMutation({
     mutationFn: putApiKeys,
     onSuccess: () => {
@@ -73,9 +93,15 @@ export default function UserProfile() {
   useEffect(() => {
     if (userInfo) {
       setNickName(userInfo.nickname);
-      setProfileImage(userInfo.profileImage);
+      setPreviewImage(userInfo.profileImage);
     }
-  }, [userInfo]);
+    if (apiKeys) {
+      setOpenAi(apiKeys.openAiKey);
+      setGemini(apiKeys.geminiKey);
+      setClaude(apiKeys.claudeKey);
+      setClova(apiKeys.clovaKey);
+    }
+  }, [userInfo, apiKeys]);
 
   useEffect(() => {
     if (isUserInfoError && userInfoError) {
@@ -84,6 +110,7 @@ export default function UserProfile() {
       alert("Api key를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isUserInfoError, userInfoError, isApiKeysError, apiKeysError]);
+
 
   if (isUserInfoLoading || isApiKeysLoading) return <div>is Loading...</div>;
 
@@ -94,16 +121,25 @@ export default function UserProfile() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setProfileImage(URL.createObjectURL(e.target.files[0]))
+      const file = e.target.files[0];
+      setProfileImage(file); 
+      setPreviewImage(URL.createObjectURL(file)); 
     }
-  }
+  };
 
   const handleSave = () => {
     // 닉네임 수정
     if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다." ) {
       saveNickname.mutate(nickname);
+      setIsEditing(false);
     } else if ( nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요." ) {
       alert("닉네임 중복 확인을 시도해 주세요.")
+    }
+
+    // 프로필 이미지 수정
+    if (profileImage instanceof File) {
+      updateProfileImage.mutate(profileImage)
+      setProfileImage(null)
     }
 
     // api key 수정
@@ -115,8 +151,8 @@ export default function UserProfile() {
         clovaKey: clova || ""
       }
       updateApiKeys.mutate(apiKeys);
+      setIsEditing(false);
     }
-    setIsEditing(false);
   }
 
   const handleCheckNickname = () => {
@@ -133,18 +169,25 @@ export default function UserProfile() {
         <h2 className="font-semibold text-[24px] text-gray-700 mb-5">내 정보</h2>
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
-            <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
-              {userInfo?.profileImage ? (
-                <Image 
-                  src={userInfo.profileImage} 
-                  alt="프로필 이미지" 
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
-              )}
-            </div>
+          <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
+            {previewImage ? (
+              <Image 
+                src={previewImage} 
+                alt="프로필 이미지 미리보기" 
+                fill
+                className="object-cover"
+              />
+            ) : userInfo?.profileImage ? (
+              <Image 
+                src={userInfo.profileImage} 
+                alt="프로필 이미지" 
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
+            )}
+          </div>
 
             {isEditing && (
               <div className="ml-4 mb-4 md:ml-0 md:mt-2">
