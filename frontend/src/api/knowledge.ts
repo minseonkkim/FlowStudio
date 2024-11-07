@@ -94,7 +94,7 @@ export async function postChunkDetail(knowledgeId: string, chunkId: string, data
 }
 
 // 지식베이스 청크 삭제
-export async function deleteChunkDetail(knowledgeId: number, chunkId: number): Promise<boolean> {
+export async function deleteChunkDetail(knowledgeId: string, chunkId: string): Promise<boolean> {
   try {
     const response = await axiosInstance.delete(`knowledges/${knowledgeId}/chunks/${chunkId}`);
     if (response.status === 200) {

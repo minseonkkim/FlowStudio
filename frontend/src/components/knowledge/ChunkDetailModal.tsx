@@ -1,3 +1,4 @@
+// 모달 컴포넌트
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChunkList } from "@/types/knowledge";
@@ -5,30 +6,26 @@ import { getChunkDetail, postChunkDetail } from '@/api/knowledge';
 import React, { useRef, useEffect, useState } from 'react';
 import { HiOutlinePencilAlt } from '@react-icons/all-files/hi/HiOutlinePencilAlt';
 import { BsTextareaT } from '@react-icons/all-files/bs/BsTextareaT';
-import { FiTarget } from '@react-icons/all-files/fi/FiTarget';
+import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 
 interface ChunkDetailModalProps {
-  knowledgeId : string ;
+  knowledgeId: string;
   chunkId: string;
   onClose: () => void;
-  // onEdit: () => void;
-  // isEditing: boolean;
-  editedContent: string;
-  onSave: () => void;
 }
 
 export default function ChunkDetailModal({
   knowledgeId,
   chunkId,
   onClose,
-  // onEdit,
-  // isEditing,
-  editedContent,
-  onSave
 }: ChunkDetailModalProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [content, setContent] = useState<string>(editedContent);
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [chunkContent, setChunkContent] = useState<string>(''); 
+  const [originalContent, setOriginalContent] = useState<string>(''); 
+  const [textLength, setTextLength] = useState<number>(0);
+
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {
@@ -37,16 +34,8 @@ export default function ChunkDetailModal({
   }, [isEditing]);
 
   const handleEditClick = () => {
+    setOriginalContent(chunkContent); 
     setIsEditing(true);
-    // onEdit();
-  };
-
-  const handleSaveClick = () => {
-    onSave();
-  };
-
-  const handleCancelClick = () => {
-    onSave();
   };
 
   const { isLoading, isError, error, data: chunkdetail } = useQuery<ChunkList>({
@@ -55,44 +44,69 @@ export default function ChunkDetailModal({
   });
 
   useEffect(() => {
+    if (chunkdetail) {
+      setChunkContent(chunkdetail.content); 
+      setTextLength(chunkdetail.content.length);
+    }
+  }, [chunkdetail]);
+
+  useEffect(() => {
+    setTextLength(chunkContent.length);
+  }, [chunkContent]);
+
+  useEffect(() => {
     if (isError && error) {
       alert("청크 세부내용을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
 
-  
-  // // chunkdetail가 로드된 후 조건부로 textLength를 설정
-  // const textLength = chunkdetail?.content.length || 0;
-  // const [searchCount] = useState(0); 
-  const formattedContentId = chunkId.padStart(3, '0');
-  
-  const queryClient = useQueryClient();
-  
+  const formattedContentId = chunkId.padStart(3, '0'); 
+
   const updateMutation = useMutation({
-    mutationFn: ({ knowledgeId, chunkId, data }: { knowledgeId: string, chunkId: string; data: {content: string} }) =>
+    mutationFn: ({ knowledgeId, chunkId, data }: { knowledgeId: string, chunkId: string; data: { content: string } }) =>
       postChunkDetail(knowledgeId, chunkId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chunkdetail', knowledgeId, chunkId] });
-      queryClient.invalidateQueries({ queryKey: ['chunklist', knowledgeId] });
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData(['chunkdetail', knowledgeId, chunkId], (oldData: ChunkList | undefined) => {
+        if (oldData) {
+          return { ...oldData, content: variables.data.content };
+        }
+        return { chunkId: parseInt(chunkId), content: variables.data.content }; 
+      });
+      setChunkContent(variables.data.content);
+
+      queryClient.setQueryData(['chunklist', knowledgeId], (oldList: any) => {
+        if (oldList) {
+          return {
+            ...oldList,
+            chunkList: oldList.chunkList.map((item: any) =>
+              item.chunkId === parseInt(chunkId)
+                ? { ...item, content: variables.data.content }
+                : item
+            ),
+          };
+        }
+        return oldList;
+      });
     },
     onError: () => {
       alert("청크 내용 수정에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
-  const handleUpdateClick = () => {
-    // onEdit();
+
+  const handleCancelClick = () => {
     setIsEditing(false);
-    const contentData = {
-      content: content
-    }
+    setChunkContent(originalContent); 
+  };
+
+  const handleUpdateClick = () => {
+    setIsEditing(false);
+    const contentData = {                                                                                                             
+      content: chunkContent
+    };
     updateMutation.mutate({ knowledgeId: knowledgeId, chunkId: chunkId, data: contentData });
-    onSave()
- };
-  
-  // 로딩 중일 때 다른 훅이 실행되지 않도록 초기 반환
-  if (isLoading) return <div>Loading...</div>;
-  
+  };
+
+  if (isLoading) return <></>;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -103,16 +117,16 @@ export default function ChunkDetailModal({
           <div className='flex gap-3'>
             {isEditing ? (
               <>
-              <button 
-                className='py-1 px-2 border border-[#9A75BF] text-[#9A75BF] hover:bg-[#f3e8ff] active:bg-[#e3d1f7] rounded-md text-sm'
-                onClick={handleCancelClick}>
-                취소
-              </button>
-              <button
-                className='py-1 px-2 border rounded-md text-sm bg-[#9A75BF] text-white hover:bg-[#874aa5] active:bg-[#733d8a]'
-                onClick={handleUpdateClick}>
-                수정
-              </button>
+                <button 
+                  className='py-1 px-2 border border-[#9A75BF] text-[#9A75BF] hover:bg-[#f3e8ff] active:bg-[#e3d1f7] rounded-md text-sm'
+                  onClick={handleCancelClick}>
+                  취소
+                </button>
+                <button
+                  className='py-1 px-2 border rounded-md text-sm bg-[#9A75BF] text-white hover:bg-[#874aa5] active:bg-[#733d8a]'
+                  onClick={handleUpdateClick}>
+                  수정
+                </button>
               </>
             ) : (
               <button onClick={handleEditClick} className="text-gray-500 hover:text-gray-700">
@@ -120,33 +134,27 @@ export default function ChunkDetailModal({
               </button>
             )}
             <div className="text-gray-500">|</div>
-            <button className="text-gray-500" onClick={onClose}>X</button>
+            <TiDeleteOutline className="text-gray-500 w-6 h-6" onClick={onClose}/>
           </div>
         </div>
         {!isEditing ? (
-          <p className="text-base pt-4 w-full h-[400px]">{chunkdetail?.content}</p>
+          <p className="text-base pt-4 w-full h-[400px]">{chunkContent}</p>
         ) : (
           <textarea
             ref={textareaRef}
-            value={content}
+            value={chunkContent}
             spellCheck="false"
             onChange={(e) => {
-              setContent(e.target.value);
-              // setTextLength(e.target.value.length);
+              setChunkContent(e.target.value);
             }}
             className="text-base pt-4 w-full h-[400px] resize-none focus:outline-none overflow-y-auto"
           />
-          
         )}        
         <hr />
         <div className='flex gap-3 items-center mt-2'>
           <div className='flex gap-2 items-center'>
             <BsTextareaT className='text-gray-500 w-4 h-4'/>
-            {/* <p className='text-gray-500 text-[15px]'>{textLength} 문자</p>  */}
-          </div>
-          <div className='flex gap-2 items-center'>
-            <FiTarget className='text-gray-500 w-4 h-4'/>
-            {/* <p className='text-gray-500 text-[15px]'>{searchCount} 검색 횟수</p> */}
+            <p className='text-gray-500 text-[15px]'>{textLength} 문자</p> 
           </div>
         </div>
       </div>
