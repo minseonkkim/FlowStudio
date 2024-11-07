@@ -5,24 +5,30 @@ import { BsFillPersonFill } from '@react-icons/all-files/bs/BsFillPersonFill';
 import Image from 'next/image'
 import PurpleButton from '@/components/common/PurpleButton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUserInfo, getCheckNickName, patchNickName } from '@/api/profile'
-import { UserInfo } from '@/types/profile'
+import { getUserInfo, getCheckNickName, patchNickName, getApiKeys, putApiKeys } from '@/api/profile'
+import { UserInfo, ApiKeys } from '@/types/profile'
 import { AxiosError } from 'axios';
+import WhiteButton from '../common/whiteButton';
 
 export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
-  // const [initialNickname, setInitialNickname] = useState<string | null>(null)
   const [nicknameStatus, setNicknameStatus] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
-  const [openAi, setOpenAi] = useState("12345-ABCDE-67890-FGHIJ")
-  const [gemini, setGemini] = useState("ZYXWV-54321-UTSRQ-98765")
-  const [claude, setClaude] = useState("09876-LMNOP-43210-KJIHG")
+  const [openAi, setOpenAi] = useState<string | null>(null)
+  const [gemini, setGemini] = useState<string | null>(null)
+  const [claude, setClaude] = useState<string | null>(null)
+  const [clova, setClova] = useState<string | null>(null)
   const queryClient = useQueryClient();
 
-  const { isLoading, isError, error, data: userInfo } = useQuery<UserInfo>({
+  const { isLoading: isUserInfoLoading, isError: isUserInfoError, error: userInfoError, data: userInfo } = useQuery<UserInfo>({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
+  });
+  
+  const { isLoading: isApiKeysLoading, isError: isApiKeysError, error: apiKeysError, data: apiKeys } = useQuery<ApiKeys>({
+    queryKey: ['apiKeys'],
+    queryFn: getApiKeys,
   });
 
 
@@ -52,23 +58,34 @@ export default function UserProfile() {
       alert("닉네임 수정에 실패했습니다. 다시 시도해 주세요.");
     },
   });
+
+  const updateApiKeys = useMutation({
+    mutationFn: putApiKeys,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["apiKeys"] });
+    },
+    onError: () => {
+      alert("Api keys 수정에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
   
 
   useEffect(() => {
     if (userInfo) {
       setNickName(userInfo.nickname);
-      // setInitialNickname(userInfo.nickname); 
       setProfileImage(userInfo.profileImage);
     }
   }, [userInfo]);
 
   useEffect(() => {
-    if (isError && error) {
+    if (isUserInfoError && userInfoError) {
       alert("내 정보를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    } else if (isApiKeysError && apiKeysError) {
+      alert("Api key를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
-  }, [isError, error]);
+  }, [isUserInfoError, userInfoError, isApiKeysError, apiKeysError]);
 
-  if (isLoading) return <div>is Loading...</div>;
+  if (isUserInfoLoading || isApiKeysLoading) return <div>is Loading...</div>;
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickName(e.target.value);
@@ -82,10 +99,22 @@ export default function UserProfile() {
   }
 
   const handleSave = () => {
+    // 닉네임 수정
     if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다." ) {
       saveNickname.mutate(nickname);
     } else if ( nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요." ) {
       alert("닉네임 중복 확인을 시도해 주세요.")
+    }
+
+    // api key 수정
+    if (apiKeys?.claudeKey !== claude || apiKeys.clovaKey !== clova || apiKeys.geminiKey !== gemini || apiKeys.openAiKey !== openAi) {
+      const apiKeys = {
+        openAiKey: openAi || "",
+        claudeKey: claude || "",
+        geminiKey: gemini || "",
+        clovaKey: clova || ""
+      }
+      updateApiKeys.mutate(apiKeys);
     }
     setIsEditing(false);
   }
@@ -168,26 +197,37 @@ export default function UserProfile() {
               <p className="text-base text-gray-700">{userInfo?.username}</p>
             </div>
 
-            {[{ label: 'OpenAI', value: openAi, setValue: setOpenAi }, { label: 'Claude', value: claude, setValue: setClaude }, { label: 'Gemini', value: gemini, setValue: setGemini }].map(({ label, value, setValue }) => (
-              <div key={label} className="flex items-center gap-x-4">
-                <p className="mt-2 mb-2 w-[80px] font-semibold text-base text-gray-600">{label}</p>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
-                  />
-                ) : (
-                  <p className="mt-2 mb-2 text-base text-gray-700">{value}</p>
-                )}
-              </div>
-            ))}
+            {[{ label: 'OpenAI', key: 'openAiKey' as const, value: openAi, setValue: setOpenAi },
+              { label: 'Claude', key: 'claudeKey' as const, value: claude, setValue: setClaude },
+              { label: 'Gemini', key: 'geminiKey' as const, value: gemini, setValue: setGemini },
+              { label: 'Clova', key: 'clovaKey' as const, value: clova, setValue: setClova }]
+              .map(({ label, key, value, setValue }) => (
+                <div key={label} className="flex items-center gap-x-4">
+                  <p className="mt-2 mb-2 w-[80px] font-semibold text-base text-gray-600">{label}</p>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={value || ''}  // 상태 값을 사용 (null인 경우 빈 문자열로 대체)
+                      onChange={(e) => setValue(e.target.value)}
+                      className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                    />
+                  ) : (
+                    <p className="mt-2 mb-2 text-base text-gray-700">{apiKeys?.[key] || ''}</p>  // apiKeys 값 또는 빈 문자열
+                  )}
+                </div>
+              ))}
           </div>
         </div>
 
-        <div className="flex justify-end mt-4">
-          <PurpleButton text={isEditing ? "저장" : "수정"} onHandelButton={isEditing ? handleSave : () => setIsEditing(true)} />
+        <div className="flex justify-end mt-4 gap-2">
+          {isEditing ? (
+            <>
+              <WhiteButton text="취소" onHandelButton={() => setIsEditing(false)} />
+              <PurpleButton text="저장" onHandelButton={handleSave} />
+            </>
+          ) : (
+            <PurpleButton text="수정" onHandelButton={() => setIsEditing(true)} />
+          )}
         </div>
       </div>
     </>

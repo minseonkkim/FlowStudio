@@ -55,7 +55,7 @@ export async function getApiKeys() {
   try {
     const response = await axiosInstance.get('users/keys');
     if (response.status === 200) {
-      return response.data.data as ApiKeys;
+      return response.data.data;
     } else {
       throw new Error('Failed to get API keys');
     }
@@ -70,7 +70,7 @@ export async function putApiKeys(data: ApiKeys) {
   try {
     const response = await axiosInstance.put('users/keys', data);
     if (response.status === 200) {
-      return response.data as ApiKeys;
+      return response.data;
     } else {
       throw new Error('Failed to update API keys');
     }
