@@ -5,15 +5,14 @@ import { BsFillPersonFill } from '@react-icons/all-files/bs/BsFillPersonFill';
 import Image from 'next/image'
 import PurpleButton from '@/components/common/PurpleButton';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getUserInfo, getCheckNickName } from '@/api/profile'
+import { getUserInfo, getCheckNickName, patchNickName } from '@/api/profile'
 import { UserInfo } from '@/types/profile'
 import { AxiosError } from 'axios';
 
 export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
-  const [initialNickname, setInitialNickname] = useState<string | null>(null)
+  // const [initialNickname, setInitialNickname] = useState<string | null>(null)
   const [nicknameStatus, setNicknameStatus] = useState<string | null>(null)
-  const [email, setEmail] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [profileImage, setProfileImage] = useState<string | null>(null)
   const [openAi, setOpenAi] = useState("12345-ABCDE-67890-FGHIJ")
@@ -27,7 +26,7 @@ export default function UserProfile() {
   });
 
 
-  const updateNicname = useMutation({
+  const updateNickname = useMutation({
     mutationFn: getCheckNickName,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userInfo"] });
@@ -43,13 +42,22 @@ export default function UserProfile() {
       }
     },
   });
+
+  const saveNickname = useMutation({
+    mutationFn: patchNickName,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userInfo"] });
+    },
+    onError: () => {
+      alert("닉네임 수정에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
   
 
   useEffect(() => {
     if (userInfo) {
       setNickName(userInfo.nickname);
-      setInitialNickname(userInfo.nickname); 
-      setEmail(userInfo.username);
+      // setInitialNickname(userInfo.nickname); 
       setProfileImage(userInfo.profileImage);
     }
   }, [userInfo]);
@@ -73,12 +81,19 @@ export default function UserProfile() {
     }
   }
 
-  const handleSave = () => setIsEditing(false);
+  const handleSave = () => {
+    if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다." ) {
+      saveNickname.mutate(nickname);
+    } else if ( nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요." ) {
+      alert("닉네임 중복 확인을 시도해 주세요.")
+    }
+    setIsEditing(false);
+  }
 
   const handleCheckNickname = () => {
-    if (nickname && nickname !== initialNickname) {
-      updateNicname.mutate(nickname);
-    } else if (nickname === initialNickname) {
+    if (nickname && nickname !== userInfo?.nickname) {
+      updateNickname.mutate(nickname);
+    } else if (nickname === userInfo?.nickname) {
       setNicknameStatus("닉네임이 변경되지 않았습니다.");
     }
   }
@@ -90,9 +105,9 @@ export default function UserProfile() {
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
             <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
-              {profileImage ? (
+              {userInfo?.profileImage ? (
                 <Image 
-                  src={profileImage} 
+                  src={userInfo.profileImage} 
                   alt="프로필 이미지" 
                   fill
                   className="object-cover"
@@ -140,7 +155,7 @@ export default function UserProfile() {
                   </button>
                 </div>
               ) : (
-                <p className="mt-2 mb-2 text-base text-gray-700">{nickname}</p>
+                <p className="mt-2 mb-2 text-base text-gray-700">{userInfo?.nickname}</p>
               )}
             </div>
 
@@ -150,7 +165,7 @@ export default function UserProfile() {
 
             <div className="mt-2 mb-2 flex items-center gap-x-4">
               <p className="w-[80px] font-semibold text-base text-gray-600">이메일</p>
-              <p className="text-base text-gray-700">{email}</p>
+              <p className="text-base text-gray-700">{userInfo?.username}</p>
             </div>
 
             {[{ label: 'OpenAI', value: openAi, setValue: setOpenAi }, { label: 'Claude', value: claude, setValue: setClaude }, { label: 'Gemini', value: gemini, setValue: setGemini }].map(({ label, value, setValue }) => (
