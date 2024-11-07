@@ -53,6 +53,7 @@ public enum ErrorCode {
     // AI response
     AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
     AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+    API_KEY_INVALID(8002, HttpStatus.BAD_REQUEST, "API 키가 유효하지 않습니다."),
     ;
 
     private final int code;
