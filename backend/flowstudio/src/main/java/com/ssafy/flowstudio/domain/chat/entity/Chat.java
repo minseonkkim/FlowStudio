@@ -38,15 +38,19 @@ public class Chat extends BaseEntity {
     @Column
     private String title;
 
+    @Column
+    private boolean isPreview;
+
     @Lob
     private String messageList;
 
     @Builder
-    private Chat(Long id, User user, ChatFlow chatFlow, String title, String messageList) {
+    private Chat(Long id, User user, ChatFlow chatFlow, String title, boolean isPreview, String messageList) {
         this.id = id;
         this.user = user;
         this.chatFlow = chatFlow;
         this.title = title;
+        this.isPreview = isPreview;
         this.messageList = messageList;
     }
 
@@ -54,7 +58,12 @@ public class Chat extends BaseEntity {
         return Chat.builder()
                 .user(user)
                 .chatFlow(chatFlow)
+                .isPreview(true)
+                .messageList("[]")
                 .build();
     }
 
+    public void updateHistory(String updatedChatHistory) {
+        this.messageList = updatedChatHistory;
+    }
 }

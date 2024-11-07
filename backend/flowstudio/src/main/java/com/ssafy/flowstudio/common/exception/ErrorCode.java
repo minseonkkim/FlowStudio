@@ -54,6 +54,10 @@ public enum ErrorCode {
     FILE_SIZE_EXCEEDS_LIMIT(8006, HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다. (최대 1MB)"),
 
     // AI response
+    AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
+    AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+    API_KEY_INVALID(8002, HttpStatus.BAD_REQUEST, "API 키가 유효하지 않습니다."),
+    
     AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(9000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
     AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(9001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
 

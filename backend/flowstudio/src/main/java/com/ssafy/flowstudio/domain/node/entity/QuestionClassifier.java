@@ -2,8 +2,6 @@ package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
-import com.ssafy.flowstudio.domain.model.Model;
-import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

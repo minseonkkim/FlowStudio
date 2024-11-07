@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
 import com.ssafy.flowstudio.api.service.node.RedisService;
+import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
@@ -16,11 +17,16 @@ public class StartExecutor extends NodeExecutor {
 
     @Override
     public void execute(Node node, Chat chat) {
-        System.out.println("StartExecutor");
+        // 다음 노드가 있으면 실행
+        if (!node.getOutputEdges().isEmpty()) {
+            Node targetNode = node.getOutputEdges().get(0).getTargetNode();
+            publishEvent(NodeEvent.of(this, targetNode, chat));
+        }
     }
 
     @Override
     public NodeType getNodeType() {
         return NodeType.START;
     }
+
 }
