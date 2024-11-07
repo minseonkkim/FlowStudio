@@ -1,9 +1,8 @@
 package com.ssafy.flowstudio.api.controller.node;
 
-import com.azure.core.annotation.Put;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.api.service.node.QuestionClassService;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;

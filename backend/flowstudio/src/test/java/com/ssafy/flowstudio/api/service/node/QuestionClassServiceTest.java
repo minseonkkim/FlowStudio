@@ -2,8 +2,7 @@ package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
@@ -17,7 +16,6 @@ import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

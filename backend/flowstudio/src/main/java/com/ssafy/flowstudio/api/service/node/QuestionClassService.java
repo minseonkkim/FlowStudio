@@ -1,6 +1,6 @@
 package com.ssafy.flowstudio.api.service.node;
 
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.api.service.node.request.QuestionClassCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.request.QuestionClassUpdateServiceRequest;
 import com.ssafy.flowstudio.common.exception.BaseException;
