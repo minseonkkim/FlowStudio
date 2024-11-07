@@ -169,10 +169,20 @@ public class VectorStoreService {
         return milvusClient.hasPartition(hasPartitionReq);
     }
 
-    public List<String> previewChunks(KnowledgeCreateServiceRequest request) {
-        return langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), milvusUtils.getTextContent(request.getFile())).stream()
-                .limit(5)
-                .toList();
+    public ChunkListResponse previewChunks(KnowledgeCreateServiceRequest request) {
+        List<String> splitText = langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), milvusUtils.getTextContent(request.getFile()));
+
+        final int[] i = {0};
+        return ChunkListResponse.builder()
+                .chunkList(splitText.stream()
+                        .limit(5)
+                        .map(text -> ChunkResponse.builder()
+                                .chunkId(i[0]++)
+                                .content(text)
+                                .build())
+                        .toList())
+                .chunkCount(splitText.size())
+                .build();
     }
 
     public List<String> searchVector(KnowledgeSearchServiceRequest request) {
@@ -286,6 +296,7 @@ public class VectorStoreService {
 
     /**
      * load = true, unload = false
+     *
      * @return Boolean
      */
     public Boolean getLoadState(String collectionName, String partitionName) {

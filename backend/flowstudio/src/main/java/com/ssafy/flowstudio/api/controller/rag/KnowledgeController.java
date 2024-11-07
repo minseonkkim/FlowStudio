@@ -92,8 +92,8 @@ public class KnowledgeController {
      * @param request
      * @return List<String>
      */
-    @GetMapping("chunks")
-    public ApiResponse<List<String>> knowledgeChunks(
+    @PostMapping("chunks")
+    public ApiResponse<ChunkListResponse> knowledgeChunks(
             @CurrentUser User user,
             @Valid @ModelAttribute KnowledgeCreateRequest request
     ) {
