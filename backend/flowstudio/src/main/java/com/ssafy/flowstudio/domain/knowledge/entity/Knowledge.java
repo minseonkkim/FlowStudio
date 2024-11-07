@@ -47,11 +47,12 @@ public class Knowledge extends BaseEntity {
         this.totalToken = totalToken;
     }
 
-    public static Knowledge create(User user, String title, boolean isPublic) {
+    public static Knowledge create(User user, String title, boolean isPublic, int totalToken) {
         return Knowledge.builder()
                 .user(user)
                 .title(title)
                 .isPublic(isPublic)
+                .totalToken(totalToken)
                 .build();
     }
 
