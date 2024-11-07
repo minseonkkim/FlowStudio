@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.api.service.node.executor.prompt.QuestionClassifierPrompt;
@@ -35,10 +36,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionClassifierExecutor.class);
     private final SecretKeyProperties secretKeyProperties;
+    private final SseEmitters sseEmitters;
 
-    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher) {
+    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters) {
         super(redisService, eventPublisher);
         this.secretKeyProperties = secretKeyProperties;
+        this.sseEmitters = sseEmitters;
     }
 
     @Override
@@ -103,6 +106,8 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             // Redis에 Output을 업데이트한다.
             redisService.save(chat.getId(), questionClassifierNode.getId(), chosenQuestionClass.getContent());
 
+            // SSE를 통해 클라이언트에게 실행되었음을 알린다.
+            sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
         } catch (NumberFormatException e) {
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);
         }

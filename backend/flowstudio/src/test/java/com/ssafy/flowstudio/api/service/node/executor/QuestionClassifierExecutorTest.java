@@ -61,25 +61,29 @@ class QuestionClassifierExecutorTest extends IntegrationTestSupport {
 
         QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
 
-        QuestionClass questionClass1 = QuestionClass.create(questionClassifier, "한국");
-        QuestionClass questionClass2 = QuestionClass.create(questionClassifier, "중국");
-        QuestionClass questionClass3 = QuestionClass.create(questionClassifier, "일본");
+        QuestionClass questionClass1 = QuestionClass.create("한국");
+        QuestionClass questionClass2 = QuestionClass.create("중국");
+        QuestionClass questionClass3 = QuestionClass.create("일본");
 
-        questionClassifier.addQuestionClass(questionClass1);
-        questionClassifier.addQuestionClass(questionClass2);
-        questionClassifier.addQuestionClass(questionClass3);
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClass2.updateQuestionClassifier(questionClassifier);
+        questionClass3.updateQuestionClassifier(questionClassifier);
 
         Answer answer1 = Answer.create(chatFlow, coordinate);
         Answer answer2 = Answer.create(chatFlow, coordinate);
         Answer answer3 = Answer.create(chatFlow, coordinate);
 
+        answer1.updateOutputMessage("한국에 대한 답변");
+        answer2.updateOutputMessage("중국에 대한 답변");
+        answer3.updateOutputMessage("일본에 대한 답변");
+
         Edge edge1 = Edge.create(questionClassifier, answer1);
         Edge edge2 = Edge.create(questionClassifier, answer2);
         Edge edge3 = Edge.create(questionClassifier, answer3);
 
-        questionClass1.updateEdge(edge1);
-        questionClass2.updateEdge(edge2);
-        questionClass3.updateEdge(edge3);
+        questionClass1.update(edge1, "한국");
+        questionClass2.update(edge2, "중국");
+        questionClass3.update(edge3, "일본");
 
         chatFlow.addNode(questionClassifier);
         chatFlow.addNode(answer1);

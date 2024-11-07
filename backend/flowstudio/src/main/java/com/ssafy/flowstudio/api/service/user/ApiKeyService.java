@@ -7,7 +7,6 @@ import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.user.entity.ApiKey;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ import java.nio.charset.StandardCharsets;
 public class ApiKeyService {
 
     private final AesBytesEncryptor encryptor;
-    private final EntityManager em;
     private final UserRepository userRepository;
 
     @Transactional
