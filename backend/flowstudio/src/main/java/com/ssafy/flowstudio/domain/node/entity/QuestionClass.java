@@ -42,8 +42,9 @@ public class QuestionClass {
                 .build();
     }
 
-    public void updateEdge(Edge edge) {
+    public void update(Edge edge, String content) {
         this.edge = edge;
+        this.content = content;
     }
 
     public void updateQuestionClassifier(QuestionClassifier questionClassifier) {
