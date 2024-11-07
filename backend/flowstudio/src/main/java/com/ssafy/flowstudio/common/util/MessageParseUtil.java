@@ -24,7 +24,6 @@ public class MessageParseUtil {
         while (matcher.find()) {
             String key =  chatId + ":" + matcher.group(1);
             result.append(message, lastEnd, matcher.start()); // 이전 문자 추가
-            // TODO: 키가 없을 때 예외처리
             result.append(redisService.get(key)); // {{}} 대신 키값 추가
             lastEnd = matcher.end(); // 현재 매칭 끝 지점 업데이트
         }
