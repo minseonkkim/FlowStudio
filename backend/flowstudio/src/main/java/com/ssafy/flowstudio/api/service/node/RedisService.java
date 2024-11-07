@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.common.constant.ChatEnvVariable;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -14,17 +16,29 @@ public class RedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
     public String get(String key) {
-        return (String) redisTemplate.opsForValue().get(key);
+        String value = (String) redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            throw new BaseException(ErrorCode.REDIS_KEY_NOT_EXIST, String.format("Key: %s", key));
+        }
+        return value;
     }
 
     public String get(Long chatId, Long nodeId) {
         String key = chatId + ":" + nodeId;
-        return (String) redisTemplate.opsForValue().get(key);
+        String value = (String) redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            throw new BaseException(ErrorCode.REDIS_KEY_NOT_EXIST, String.format("Key: %s", key));
+        }
+        return value;
     }
 
     public String get(Long chatId, ChatEnvVariable varName) {
         String key = chatId + ":" + varName;
-        return (String) redisTemplate.opsForValue().get(key);
+        String value = (String) redisTemplate.opsForValue().get(key);
+        if (value == null) {
+            throw new BaseException(ErrorCode.REDIS_KEY_NOT_EXIST, String.format("Key: %s", key));
+        }
+        return value;
     }
 
     public void save(Long chatId, Long nodeId, String value) {
@@ -43,7 +57,6 @@ public class RedisService {
             redisTemplate.delete(keys);
         }
     }
-
 
     public boolean exists(Long chatId, Long nodeId) {
         String key = chatId + ":" + nodeId;

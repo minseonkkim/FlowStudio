@@ -55,10 +55,13 @@ public enum ErrorCode {
     // AI response
     AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(9000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
     AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(9001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+
+    // Redis
+    REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
+
     ;
 
     private final int code;
     private final HttpStatus status;
     private final String message;
-
 }
