@@ -17,7 +17,8 @@ public class KnowledgeResponse {
     private final Integer totalToken;
 
     @Builder
-    public KnowledgeResponse(Long knowledgeId, String title, Boolean isPublic, LocalDateTime createdAt, Integer totalToken) {        this.knowledgeId = knowledgeId;
+    public KnowledgeResponse(Long knowledgeId, String title, Boolean isPublic, LocalDateTime createdAt, Integer totalToken) {
+        this.knowledgeId = knowledgeId;
         this.title = title;
         this.isPublic = isPublic;
         this.createdAt = createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
