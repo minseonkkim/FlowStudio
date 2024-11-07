@@ -1,12 +1,7 @@
 package com.ssafy.flowstudio.api.controller.node;
 
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
-import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
-import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,11 +1,9 @@
 package com.ssafy.flowstudio.docs.node;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.ssafy.flowstudio.api.controller.node.NodeController;
 import com.ssafy.flowstudio.api.controller.node.QuestionClassController;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
-import com.ssafy.flowstudio.api.service.node.NodeService;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.api.service.node.QuestionClassService;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
 import org.junit.jupiter.api.DisplayName;

@@ -1,4 +1,4 @@
-package com.ssafy.flowstudio.api.controller.node.response;
+package com.ssafy.flowstudio.api.service.node.response;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.domain.node.entity.QuestionClass;

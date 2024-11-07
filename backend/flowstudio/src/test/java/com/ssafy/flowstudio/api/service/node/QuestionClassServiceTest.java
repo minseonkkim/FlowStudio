@@ -1,7 +1,7 @@
 package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
-import com.ssafy.flowstudio.api.controller.node.response.QuestionClassResponse;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
