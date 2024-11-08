@@ -17,12 +17,10 @@ import org.springframework.stereotype.Component;
 public class AnswerExecutor extends NodeExecutor {
 
     private final MessageParseUtil messageParseUtil;
-    private final SseEmitters sseEmitters;
 
     public AnswerExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, MessageParseUtil messageParseUtil, SseEmitters sseEmitters) {
-        super(redisService, eventPublisher);
+        super(redisService, eventPublisher, sseEmitters);
         this.messageParseUtil = messageParseUtil;
-        this.sseEmitters = sseEmitters;
     }
 
     @Override

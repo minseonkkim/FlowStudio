@@ -37,14 +37,10 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionClassifierExecutor.class);
     private final SecretKeyProperties secretKeyProperties;
-    private final SseEmitters sseEmitters;
-    private final EdgeService edgeService;
 
-    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters, EdgeService edgeService) {
-        super(redisService, eventPublisher);
+    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters) {
+        super(redisService, eventPublisher, sseEmitters);
         this.secretKeyProperties = secretKeyProperties;
-        this.sseEmitters = sseEmitters;
-        this.edgeService = edgeService;
     }
 
     @Override
@@ -96,6 +92,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
                     .findFirst()
                     .orElseThrow(() -> new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION));
 
+            // Redis에 Output을 업데이트한다.
+            redisService.save(chat.getId(), questionClassifierNode.getId(), chosenQuestionClass.getContent());
+
+            // SSE를 통해 클라이언트에게 실행되었음을 알린다.
+            sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
+
             // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
             Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
             Node targetNode = edge.getTargetNode();
@@ -105,12 +107,6 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
             // event를 발행한다.
             publishEvent(event);
-
-            // Redis에 Output을 업데이트한다.
-            redisService.save(chat.getId(), questionClassifierNode.getId(), chosenQuestionClass.getContent());
-
-            // SSE를 통해 클라이언트에게 실행되었음을 알린다.
-            sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
         } catch (NumberFormatException e) {
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);
         }
