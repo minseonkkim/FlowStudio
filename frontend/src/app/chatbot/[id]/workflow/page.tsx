@@ -30,22 +30,31 @@ import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetai
 import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uunodeIdv4 } from "uuid";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import { useQuery } from "@tanstack/react-query";
+import { getChatFlow } from "@/api/chatbot";
+import { ChatFlowDetail, NodeData } from "@/types/chatbot";
+
+interface WorkflowPageProps {
+  params: {
+    id: number;
+  };
+}
 
 interface Model {
-  id: string;
+  nodeId: string;
   name: string;
 }
 
 const models: Model[] = [
-  { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-  { id: "gpt-4", name: "GPT-4" },
-  { id: "gpt-4-32k", name: "GPT-4 (32k)" },
+  { nodeId: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+  { nodeId: "gpt-4", name: "GPT-4" },
+  { nodeId: "gpt-4-32k", name: "GPT-4 (32k)" },
 ];
 
 interface ConnectedNode {
-  id: string;
+  nodeId: number;
   name: string;
 }
 
@@ -56,27 +65,34 @@ interface Variable {
   isEditing: boolean;
 }
 
-const nodeTypes = {
-  startNode: StartNode,
-  llmNode: LlmNode,
-  knowledgeNode: KnowledgeNode,
-  ifelseNode: IfelseNode,
-  answerNode: AnswerNode,
-  questionclassifierNode: QuestionClassifierNode,
-  variableallocatorNode: VariableAllocatorNode,
+const nodeTypes: { [key: string]: any } = {
+  START: StartNode,
+  LLM: LlmNode,
+  RETRIEVER: KnowledgeNode,
+  // CONDITIONAL: IfelseNode,
+  ANSWER: AnswerNode,
+  QUESTION_CLASSIFIER: QuestionClassifierNode,
+  // VARIABLE_ASSIGNER: VariableAllocatorNode,
 };
 
 const nodeTypeLabels: { [key: string]: string } = {
-    startNode: "시작",
-    llmNode: "LLM",
-    knowledgeNode: "지식 검색",
-    ifelseNode: "IF/ELSE",
+    START: "시작",
+    LLM: "LLM",
+    RETRIEVER: "지식 검색",
+    // CONDITIONAL: "IF/ELSE",
     answerNode: "답변",
-    questionclassifierNode: "질문 분류기",
-    variableallocatorNode: "변수 할당자",
-  };
+    QUESTION_CLASSIFIER: "질문 분류기",
+    // VARIABLE_ASSIGNER: "변수 할당자",
+};
 
-export default function Page() {
+export default function Page({ params }: WorkflowPageProps) {
+  const pageId = params.id;
+
+  const { isLoading, isError, error, data: chatFlow } = useQuery<ChatFlowDetail>({
+    queryKey: ['chatFlow', pageId],  
+    queryFn: ({ queryKey }) => getChatFlow(queryKey[1] as number) 
+  });
+
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
   >([
@@ -84,84 +100,60 @@ export default function Page() {
     { name: "변수2", value: "", type: "string", isEditing: false },
   ]);
 
-  const initialNodes: Node[] = [
-    {
-      id: "1",
-      type: "startNode",
-      data: { maxChars: undefined },
-      position: { x: 250, y: 100 },
-    },
-    {
-      id: "2",
-      type: "llmNode",
-      data: { prompts: [{ type: "system", text: "" }], model: models[0].id },
-      position: { x: 460, y: 100 },
-    },
-    {
-      id: "3",
-      type: "knowledgeNode",
-      data: { fileName: "" },
-      position: { x: 700, y: 100 },
-    },
-    {
-      id: "4",
-      type: "ifelseNode",
-      data: {},
-      position: { x: 880, y: 80 },
-    },
-    {
-      id: "5",
-      type: "answerNode",
-      data: { answer: "" },
-      position: { x: 1100, y: 100 },
-    },
-    {
-      id: "6",
-      type: "questionclassifierNode",
-      data: { classes: [{ text: "" }, { text: "" }] },
-      position: { x: 1300, y: 100 },
-    },
-    {
-      id: "7",
-      type: "variableallocatorNode",
-      data: { variable: variables[0] },
-      position: { x: 1500, y: 100 },
-    },
-  ];
-
   const initialEdges = [
-    { id: "e1-2", source: "1", target: "2" },
-    { id: "e2-3", source: "2", target: "3" },
-    { id: "e3-4", source: "3", target: "4" },
-    { id: "e4-5", source: "4", target: "5", sourceHandle: "elifsource" },
-    { id: "e5-6", source: "5", target: "6" },
-    { id: "e6-7", source: "6", target: "7", sourceHandle: "handle2" },
+    { nodeId: "e1-2", source: 1, target: 2 },
+    { nodeId: "e2-3", source: 2, target: 3 },
+    { nodeId: "e3-4", source: 3, target: 4 },
+    { nodeId: "e4-5", source: 4, target: 5, sourceHandle: "elifsource" },
+    { nodeId: "e5-6", source: 5, target: 6 },
+    { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
   ];
 
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+
+  const [nodes, setNodes] = useState<NodeData[]>([]);
   const [edges, setEdges] = useState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
-  }, []);
+  useEffect(() => {
+      console.log("노드 확인", chatFlow)
+      if (chatFlow?.nodes) {
+        setNodes(chatFlow.nodes);
+      }
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    setEdges((eds) =>
-      applyEdgeChanges(changes, eds).map((edge) => ({
-        ...edge,
-        sourceHandle: edge.sourceHandle ?? "",
-      }))
-    );
-  }, []);
+      // const fetchedEdges = chatFlow.nodes.flatMap(node =>
+      //   node.outputEdges.map(edge => ({
+      //     nodeId: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
+      //     source: String(edge.sourceNodeId),
+      //     target: String(edge.targetNodeId),
+      //   }))
+      // );
+      // setEdges(fetchedEdges);
+      // }
+  }, [chatFlow]);
 
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id);
-    setSelectedNode(node);
-    setShowVariableDetail(false);
-  }, []);
+  // const onNodesChange = useCallback((changes: NodeChange[]) => {
+  //   setNodes((nds) => applyNodeChanges(changes, nds));
+  // }, []);
+
+  // const onEdgesChange = useCallback((changes: EdgeChange[]) => {
+  //   setEdges((eds) =>
+  //     applyEdgeChanges(changes, eds).map((edge) => ({
+  //       ...edge,
+  //       sourceHandle: edge.sourceHandle ?? "",
+  //     }))
+  //   );
+  // }, []);
+
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      setSelectedNodeId(parseInt(node.id)); 
+      setSelectedNode(node as unknown as NodeData); 
+      setShowVariableDetail(false);
+    },
+    []
+  );
 
   const handleCloseDetail = useCallback(() => {
     setSelectedNode(null);
@@ -172,11 +164,11 @@ export default function Page() {
   }, []);
 
   // 시작 노드 - 최대 글자 수 업데이트
-  const updateMaxChars = useCallback((nodeId: string, newMaxChars: number) => {
+  const updateMaxChars = useCallback((nodeId: number, newMaxChars: number) => {
     setNodes((nds) =>
       nds.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, maxChars: newMaxChars } }
+        node.nodeId === nodeId
+          ? { ...node, maxLength: newMaxChars }
           : node
       )
     );
@@ -184,17 +176,17 @@ export default function Page() {
 
   // LLM - 모델 업데이트
   const updateSelectedModel = useCallback(
-    (nodeId: string, newModel: string) => {
+    (nodeId: number, newModel: string) => {
       setNodes((nds) =>
         nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, model: newModel } }
+          node.nodeId === nodeId
+            ? { ...node, model: newModel }
             : node
         )
       );
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode && selectedNode.nodeId === nodeId) {
         setSelectedNode((prevNode) =>
-          prevNode ? { ...prevNode, data: { ...prevNode.data, model: newModel } } : null
+          prevNode ? { ...prevNode, model: newModel  } : null
         );
       }
     },
@@ -203,20 +195,20 @@ export default function Page() {
 
   // LLM - 프롬프트 업데이트
   const updateNodePrompts = useCallback(
-    (nodeId: string, newPrompts: { type: string; text: string }[]) => {
+    (nodeId: number, newPrompts: { type: string; text: string }[]) => {
       setNodes((nds) =>
         nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, prompts: newPrompts } }
+          node.nodeId === nodeId
+            ? { ...node, prompts: newPrompts }
             : node
         )
       );
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode && selectedNode.nodeId === nodeId) {
         setSelectedNode((prevNode) =>
           prevNode
             ? {
                 ...prevNode,
-                data: { ...prevNode.data, prompts: newPrompts },
+                prompts: newPrompts,
               }
             : null
         );
@@ -226,55 +218,49 @@ export default function Page() {
   );
 
   // LLM - 프롬프트 삭제
-  const removePrompt = useCallback(
-    (nodeId: string, index: number) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.id === nodeId
-            ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  prompts: node.data.prompts.filter((_: unknown, i: number) => i !== index),
-                },
-              }
-            : node
-        )
-      );
+  // const removePrompt = useCallback(
+  //   (nodeId: number, index: number) => {
+  //     setNodes((nds) =>
+  //       nds.map((node) =>
+  //         node.nodeId === nodeId
+  //           ? {
+  //               ...node,
+  //               prompts: node.prompts.filter((_: unknown, i: number) => i !== index),
+  //             }
+  //           : node
+  //       )
+  //     );
 
-      if (selectedNode && selectedNode.id === nodeId) {
-        setSelectedNode((prevNode) =>
-          prevNode
-            ? {
-                ...prevNode,
-                data: {
-                  ...prevNode.data,
-                  prompts: prevNode.data.prompts.filter(
-                    (_: unknown, i: number) => i !== index
-                  ),
-                },
-              }
-            : null
-        );
-      }
-    },
-    [selectedNode]
-  );
+  //     if (selectedNode && selectedNode.nodeId === nodeId) {
+  //       setSelectedNode((prevNode) =>
+  //         prevNode
+  //           ? {
+  //               ...prevNode,
+  //               prompts: prevNode.prompts.filter(
+  //                   (_: unknown, i: number) => i !== index
+  //               ),
+  //             }
+  //           : null
+  //       );
+  //     }
+  //   },
+  //   [selectedNode]
+  // );
 
   // 지식 검색 - 지식 선택
   const updateKnowledgeFile = useCallback(
-    (nodeId: string, filename: string) => {
+    (nodeId: number, filename: string) => {
       setNodes((nds) =>
         nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, fileName: filename } } 
+          node.nodeId === nodeId
+            ? { ...node, fileName: filename } 
             : node
         )
       );
 
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode && selectedNode.nodeId === nodeId) {
         setSelectedNode((prevNode) =>
-          prevNode ? { ...prevNode, data: { ...prevNode.data, fileName: filename } } : null
+          prevNode ? { ...prevNode, fileName: filename } : null
         );
       }
     },
@@ -283,11 +269,11 @@ export default function Page() {
 
 
   // 답변 - 답변 업데이트
-  const updateAnswer = useCallback((nodeId: string, answer: string) => {
+  const updateAnswer = useCallback((nodeId: number, answer: string) => {
     setNodes((nds) =>
       nds.map((node) =>
-        node.id === nodeId
-          ? { ...node, data: { ...node.data, answer: answer } }
+        node.nodeId === nodeId
+          ? { ...node, outputMessage: answer }
           : node
       )
     );
@@ -295,17 +281,17 @@ export default function Page() {
 
   // 질문 분류기 - 클래스 업데이트
   const updateClasses = useCallback(
-    (nodeId: string, newClasses: { text: string }[]) => {
+    (nodeId: number, newClasses: { text: string }[]) => {
       setNodes((nds) =>
         nds.map((node) =>
-          node.id === nodeId
-            ? { ...node, data: { ...node.data, classes: newClasses } }
+          node.nodeId === nodeId
+            ? { ...node, classes: newClasses  }
             : node
         )
       );
-      if (selectedNode && selectedNode.id === nodeId) {
+      if (selectedNode && selectedNode.nodeId === nodeId) {
         setSelectedNode((prevNode) =>
-          prevNode ? { ...prevNode, data: { ...prevNode.data, classes: newClasses } } : null
+          prevNode ? { ...prevNode, classes: newClasses } : null
         );
       }
     },
@@ -313,20 +299,20 @@ export default function Page() {
   );
 
   // 변수 할당자 - 변수 업데이트
-  const updateVariableOnNode = useCallback(
-    (selectedVar: Variable) => {
-      if (selectedNode) {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === selectedNode.id
-              ? { ...node, data: {variable: selectedVar} }
-              : node
-          )
-        );
-      }
-    },
-    [selectedNode]
-  );
+  // const updateVariableOnNode = useCallback(
+  //   (selectedVar: Variable) => {
+  //     if (selectedNode) {
+  //       setNodes((nds) =>
+  //         nds.map((node) =>
+  //           node.nodeId === selectedNode.nodeId
+  //             ? { ...node, data: {variable: selectedVar} }
+  //             : node
+  //         )
+  //       );
+  //     }
+  //   },
+  //   [selectedNode]
+  // );
 
   const handleVariableChange = (
     index: number,
@@ -367,63 +353,62 @@ export default function Page() {
       const isPositionOccupied = (x: number, y: number) => {
         return nodes.some(
           (node) =>
-            Math.abs(node.position.x - x) < 200 &&
-            Math.abs(node.position.y - y) < 160
+            Math.abs(node.coordinate.x - x) < 200 &&
+            Math.abs(node.coordinate.y - y) < 160
         );
       };
 
-      const newX = selectedNode.position.x + 200;
-      let newY = selectedNode.position.y;
+      const newX = selectedNode.coordinate.x + 200;
+      let newY = selectedNode.coordinate.y;
 
       while (isPositionOccupied(newX, newY)) {
         newY += 160;
       }
 
       let newNode;
-      if (type === "llmNode") {
+      if (type === "LLM") {
         newNode = {
-          id: uuidv4(),
+          nodeId: uunodeIdv4(),
           type,
-          data: {
-            prompts: [{ type: "system", text: "" }],
-            model: models[0].id,
-          },
-          position: { x: newX, y: newY },
+          prompts: [{ type: "system", text: "" }],
+          model: models[0].nodeId,
+          coordinate: { x: newX, y: newY },
         };
-      } else if(type === "questionclassifierNode"){
+      } else if(type === "QUESTION_CLASSIFIER"){
         newNode = {
-          id: uuidv4(),
+          nodeId: uunodeIdv4(),
           type,
           data: { classes: [{ text: "" }, { text: "" }] },
-          position: { x: newX, y: newY },
+          coordinate: { x: newX, y: newY },
         };
-      } else if(type === "variableallocatorNode"){
+      } 
+      // else if(type === "VARIABLE_ASSIGNER"){
+      //   newNode = {
+      //     nodeId: uunodeIdv4(),
+      //     type,
+      //     data: { variable: variables[0] },
+      //     position: { x: newX, y: newY },
+      //   };
+      // } 
+      else {
         newNode = {
-          id: uuidv4(),
+          nodeId: uunodeIdv4(),
           type,
-          data: { variable: variables[0] },
-          position: { x: newX, y: newY },
-        };
-      } else {
-        newNode = {
-          id: uuidv4(),
-          type,
-          data: {},
           position: { x: newX, y: newY },
         };
       }
 
       const newEdge = {
-        id: `e${selectedNode.id}-${newNode.id}`,
-        source: selectedNode.id,
+        nodeId: `e${selectedNode.nodeId}-${newNode.nodeId}`,
+        source: selectedNode.nodeId,
         sourceHandle: condition || undefined, 
-        target: newNode.id,
+        target: newNode.nodeId,
       };
 
-      setNodes((nds) => [...nds, newNode]);
-      setEdges((eds) => [...eds, newEdge]);
-      setSelectedNode(newNode);
-      setSelectedNodeId(newNode.id);
+      // setNodes((nds) => [...nds, newNode]);
+      // setEdges((eds) => [...eds, newEdge]);
+      // setSelectedNode(newNode);
+      // setSelectedNodeId(newNode.nodeId);
     },
     [selectedNode, nodes]
   );
@@ -431,21 +416,21 @@ export default function Page() {
 
   useEffect(() => {
     if (selectedNodeId) {
-      const selected = nodes.find((node) => node.id === selectedNodeId);
+      const selected = nodes.find((node) => node.nodeId === selectedNodeId);
       setSelectedNode(selected || null);
     }
   }, [selectedNodeId, nodes]);
 
-  const getConnectedNodes = (nodeId: string) => {
+  const getConnectedNodes = (nodeId: number) => {
     return edges
       .filter((edge) => edge.source === nodeId)
       .map((edge) => {
-        const targetNode = nodes.find((node) => node.id === edge.target);
-        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+        const targetNode = nodes.find((node) => node.nodeId === edge.target);
+        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
       });
   };
 
-  const handleRemoveNode = (sourceNodeId: string, targetNodeId: string) => {
+  const handleRemoveNode = (sourceNodeId: number, targetNodeId: number) => {
     setEdges((currentEdges) =>
       currentEdges.filter(
         (edge) => !(edge.source === sourceNodeId && edge.target === targetNodeId)
@@ -453,38 +438,38 @@ export default function Page() {
     );
   };
 
-  const getConditionallyConnectedNodes = (nodeId: string) => {
+  const getConditionallyConnectedNodes = (nodeId: number) => {
     const ifNodes = edges
       .filter((edge) => edge.source === nodeId && edge.sourceHandle === "ifsource")
       .map((edge) => {
-        const targetNode = nodes.find((node) => node.id === edge.target);
-        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+        const targetNode = nodes.find((node) => node.nodeId === edge.target);
+        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
       });
 
     const elifNodes = edges
       .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elifsource")
       .map((edge) => {
-        const targetNode = nodes.find((node) => node.id === edge.target);
-        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+        const targetNode = nodes.find((node) => node.nodeId === edge.target);
+        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
       });
 
     const elseNodes = edges
       .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elsesource")
       .map((edge) => {
-        const targetNode = nodes.find((node) => node.id === edge.target);
-        return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+        const targetNode = nodes.find((node) => node.nodeId === edge.target);
+        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
       });
 
     return { ifNodes, elifNodes, elseNodes };
   };
 
-  const getConnectedNodesByCondition = (nodeId: string, conditions: string[]) => {
+  const getConnectedNodesByCondition = (nodeId: number, conditions: string[]) => {
     return conditions.reduce((acc, condition) => {
       acc[condition] = edges
         .filter((edge) => edge.source === nodeId && edge.sourceHandle === condition)
         .map((edge) => {
-          const targetNode = nodes.find((node) => node.id === edge.target);
-          return { id: targetNode?.id || "", name: targetNode?.type || "Unknown" };
+          const targetNode = nodes.find((node) => node.nodeId === edge.target);
+          return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
         });
       return acc;
     }, {} as Record<string, ConnectedNode[]>);
@@ -493,106 +478,106 @@ export default function Page() {
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
-    const connectedNodeDetails = getConnectedNodes(selectedNode.id);
+    const connectedNodeDetails = getConnectedNodes(selectedNode.nodeId);
 
-    const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.id);
+    const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.nodeId);
 
-    const questionClassifierConditions =
-    selectedNode.type === "questionclassifierNode"
-      ? selectedNode.data.classes?.map((_: unknown, index: number) => `handle${index + 1}`) || []
-      : [];
+    // const questionClassifierConditions =
+    // selectedNode.type === "questionclassifierNode"
+    //   ? selectedNode.classes?.map((_: unknown, index: number) => `handle${index + 1}`) || []
+    //   : [];
 
-    const connectedNodesByCondition = getConnectedNodesByCondition(selectedNode.id, questionClassifierConditions);
+    // const connectedNodesByCondition = getConnectedNodesByCondition(selectedNode.nodeId, questionClassifierConditions);
 
     switch (selectedNode.type) {
-      case "startNode":
+      case "START":
         return (
           <StartNodeDetail
-            maxChars={selectedNode.data.maxChars}
+            maxChars={selectedNode.maxLength} 
             setMaxChars={(newMaxChars: number) =>
-              updateMaxChars(selectedNode.id, newMaxChars)
+              updateMaxChars(selectedNode.nodeId, newMaxChars)
             }
             addNode={addNode}
             onClose={handleCloseDetail}
             connectedNodes={connectedNodeDetails}
             setConnectedNodes={(targetNodeId) =>
-              handleRemoveNode(selectedNode.id, targetNodeId)
+              handleRemoveNode(selectedNode.nodeId, targetNodeId)
             }
           />
         );
-      case "llmNode":
-        return (
-          <LlmNodeDetail
-            prompts={selectedNode.data.prompts || []}
-            setPrompts={(newPrompts) => updateNodePrompts(selectedNode.id, newPrompts)}
-            selectedModel={selectedNode.data.model || models[0].id}
-            setModel={(newModel: string) => updateSelectedModel(selectedNode.id, newModel)}
-            removePrompt={(index: number) => removePrompt(selectedNode.id, index)}
-            addNode={addNode}
-            onClose={handleCloseDetail}
-            connectedNodes={connectedNodeDetails}
-            setConnectedNodes={(targetNodeId) =>
-              handleRemoveNode(selectedNode.id, targetNodeId)
-            }
-          />
-        );
-      case "knowledgeNode":
-        return (
-          <KnowledgeNodeDetail 
-            addNode={addNode} 
-            updateKnowledgeFile={(fileName) => updateKnowledgeFile(selectedNode.id, fileName)}
-            onClose={handleCloseDetail} 
-            connectedNodes={connectedNodeDetails}
-            setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.id, targetNodeId)
-              }/>);
-      case "ifelseNode":
-        return (
-        <IfelseNodeDetail 
-          variables={variables} 
-          addNode={(type, condition) => addNode(type, condition)} 
-          onClose={handleCloseDetail} 
-          connectedNodes={ifelseNodeDetails}
-          setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.id, targetNodeId)
-              }/>);
-      case "answerNode":
+      // case "LLM":
+      //   return (
+      //     <LlmNodeDetail
+      //       prompts={selectedNode.prompts || []}
+      //       setPrompts={(newPrompts) => updateNodePrompts(selectedNode.nodeId, newPrompts)}
+      //       selectedModel={selectedNode.model || models[0].nodeId}
+      //       setModel={(newModel: string) => updateSelectedModel(selectedNode.nodeId, newModel)}
+      //       removePrompt={(index: number) => removePrompt(selectedNode.nodeId, index)}
+      //       addNode={addNode}
+      //       onClose={handleCloseDetail}
+      //       connectedNodes={connectedNodeDetails}
+      //       setConnectedNodes={(targetNodeId) =>
+      //         handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //       }
+      //     />
+      //   );
+      // case "RETRIEVER":
+      //   return (
+      //     <KnowledgeNodeDetail 
+      //       addNode={addNode} 
+      //       updateKnowledgeFile={(fileName) => updateKnowledgeFile(selectedNode.nodeId, fileName)}
+      //       onClose={handleCloseDetail} 
+      //       connectedNodes={connectedNodeDetails}
+      //       setConnectedNodes={(targetNodeId) =>
+      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //         }/>);
+      // case "CONDITIONAL":
+      //   return (
+      //   <IfelseNodeDetail 
+      //     variables={variables} 
+      //     addNode={(type, condition) => addNode(type, condition)} 
+      //     onClose={handleCloseDetail} 
+      //     connectedNodes={ifelseNodeDetails}
+      //     setConnectedNodes={(targetNodeId) =>
+      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //         }/>);
+      case "ANSWER":
         return (
           <AnswerNodeDetail
-            answer={selectedNode.data.answer}
-            setAnswer={(newAnswer: string) => updateAnswer(selectedNode.id, newAnswer)}
+            answer={selectedNode.outputMessage}
+            setAnswer={(newAnswer: string) => updateAnswer(selectedNode.nodeId, newAnswer)}
             addNode={addNode}
             onClose={handleCloseDetail}
             connectedNodes={connectedNodeDetails}
             setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.id, targetNodeId)
+                handleRemoveNode(selectedNode.nodeId, targetNodeId)
               }
           />
         );
-      case "questionclassifierNode":
-        return (
-          <QuestionClassifierNodeDetail
-            classes={selectedNode.data.classes || []}
-            setClasses={(newClasses) => updateClasses(selectedNode.id, newClasses)}
-            addNode={(type, condition) => addNode(type, condition)}
-            onClose={handleCloseDetail}
-            connectedNodes={connectedNodesByCondition}
-            setConnectedNodes={(targetNodeId) =>
-              handleRemoveNode(selectedNode.id, targetNodeId)
-            }
-          />
-        );
-      case "variableallocatorNode":
-        return (
-          <VariableAllocatorNodeDetail 
-            variables={variables} 
-            updateVariableOnNode={updateVariableOnNode}
-            addNode={addNode} 
-            onClose={handleCloseDetail} 
-            connectedNodes={connectedNodeDetails}
-            setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.id, targetNodeId)
-              }/>);
+      // case "QUESTION_CLASSIFIER":
+      //   return (
+      //     <QuestionClassifierNodeDetail
+      //       classes={selectedNode.classes || []}
+      //       setClasses={(newClasses) => updateClasses(selectedNode.nodeId, newClasses)}
+      //       addNode={(type, condition) => addNode(type, condition)}
+      //       onClose={handleCloseDetail}
+      //       connectedNodes={connectedNodesByCondition}
+      //       setConnectedNodes={(targetNodeId) =>
+      //         handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //       }
+      //     />
+      //   );
+      // case "VARIABLE_ASSIGNER":
+      //   return (
+      //     <VariableAllocatorNodeDetail 
+      //       variables={variables} 
+      //       updateVariableOnNode={updateVariableOnNode}
+      //       addNode={addNode} 
+      //       onClose={handleCloseDetail} 
+      //       connectedNodes={connectedNodeDetails}
+      //       setConnectedNodes={(targetNodeId) =>
+      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //         }/>);
       default:
         return null;
     }
@@ -640,17 +625,27 @@ export default function Page() {
   };
 
   const nodesWithSelection = nodes.map((node) => ({
-    ...node,
-    selected: node.id === selectedNodeId,
+    id: String(node.nodeId), 
+    position: { x: node.coordinate.x, y: node.coordinate.y }, 
+    data: {
+      name: node.name,
+      maxLength: node.maxLength,
+      outputMessage: node.outputMessage,
+      promptSystem: node.promptSystem,
+      promptUser: node.promptUser,
+    }, 
+    type: node.type,
+    selected: node.nodeId === selectedNodeId,
+    onDelete: () => openDeleteModal(node.nodeId, node.type ?? ""),
   }));
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [nodeToDelete, setNodeToDelete] = useState<string | null>(null);
+  const [nodeToDelete, setNodeToDelete] = useState<number | null>(null);
   const [nodeTypeToDelete, setNodeTypeToDelete] = useState<string | null>(null);
 
   const deleteNode = useCallback(
-    (nodeId: string) => {
-        setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    (nodeId: number) => {
+        setNodes((nds) => nds.filter((node) => node.nodeId !== nodeId));
         setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
         setSelectedNode(null);
         setShowConfirmationModal(false);
@@ -660,7 +655,7 @@ export default function Page() {
       [setNodes, setEdges]
     );
   
-  const openDeleteModal = (nodeId: string, nodeType: string) => {
+  const openDeleteModal = (nodeId: number, nodeType: string) => {
     setShowConfirmationModal(true);
     setNodeToDelete(nodeId);
     setNodeTypeToDelete(nodeTypeLabels[nodeType] || "");
@@ -703,16 +698,10 @@ export default function Page() {
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
-            nodes={nodesWithSelection.map((node) => ({
-            ...node,
-            data: {
-              ...node.data,
-              onDelete: () => openDeleteModal(node.id, node.type ?? ""),
-            },
-          }))}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            nodes={nodesWithSelection}
+            // edges={edges}
+            // onNodesChange={onNodesChange}
+            // onEdgesChange={onEdgesChange}
             onNodeClick={onNodeClick}
             zoomOnScroll={true}
             zoomOnPinch={true}

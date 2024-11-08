@@ -18,12 +18,12 @@ export default function AnswerNodeDetail({
   connectedNodes,
   setConnectedNodes,
 }: {
-  answer: string;
+  answer: string | undefined;
   setAnswer: (value: string) => void;
   addNode: (type: string) => void;
   onClose: () => void;
   connectedNodes: ConnectedNode[];
-  setConnectedNodes: (targetNodeId: string) => void;
+  setConnectedNodes: (targetNodeId: number) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -105,7 +105,7 @@ export default function AnswerNodeDetail({
                   style={{
                     color: deleteIconColors[node.name] || "gray",
                   }}
-                  onClick={() => setConnectedNodes(node.id)}
+                  onClick={() => setConnectedNodes(node.nodeId)}
                 />
               </div>
             ))}

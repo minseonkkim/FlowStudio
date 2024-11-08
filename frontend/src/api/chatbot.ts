@@ -61,3 +61,20 @@ export async function patchChatFlow(chatFlowId: string, data: ChatFlowData){
     throw error
   }
 }
+
+// 챗플로우 상세 조회
+export async function getChatFlow(chatFlowId: number){
+  try {
+    console.log(chatFlowId);
+    const response = await axiosInstance.get(`chat-flows/${chatFlowId}`)
+    console.log('챗플로우 상세 조회', response);
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to delete chat-flow');
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}

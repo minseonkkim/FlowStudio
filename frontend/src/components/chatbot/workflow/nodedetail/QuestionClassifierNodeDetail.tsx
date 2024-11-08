@@ -15,7 +15,7 @@ interface QuestionClassifierNodeDetailProps {
   addNode: (type: string, condition: string) => void;
   onClose: () => void;
   connectedNodes: ConnectedNodesType;
-  setConnectedNodes: (targetNodeId: string) => void;
+  setConnectedNodes: (targetNodeId: number) => void;
 }
 
 export default function QuestionClassifierNodeDetail({
@@ -178,7 +178,7 @@ export default function QuestionClassifierNodeDetail({
                         <AiOutlineClose
                           className="cursor-pointer ml-auto"
                           style={{ color: deleteIconColors[node.name] || "gray" }}
-                          onClick={() => setConnectedNodes(node.id)}
+                          onClick={() => setConnectedNodes(node.nodeId)}
                         />
                       </div>
                     ))}
