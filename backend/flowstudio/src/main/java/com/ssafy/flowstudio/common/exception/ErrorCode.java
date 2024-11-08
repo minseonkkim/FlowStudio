@@ -44,6 +44,8 @@ public enum ErrorCode {
     KNOWLEDGE_INSERT_UNAVAILABLE(7001, HttpStatus.SERVICE_UNAVAILABLE, "지식베이스를 등록할 수 없습니다."),
     COLLECTION_NOT_FOUND(7100, HttpStatus.NOT_FOUND, "벡터저장소(컬렉션)를 찾을 수 없습니다."),
     PARTITION_NOT_FOUND(7200, HttpStatus.NOT_FOUND, "벡터저장소(파티션)를 찾을 수 없습니다."),
+    PARTITION_NOT_AVAILABLE(7201, HttpStatus.SERVICE_UNAVAILABLE, "벡터저장소(파티션)를 불러올 수 없습니다."),
+    SEARCH_INVALID_INPUT(7300, HttpStatus.BAD_REQUEST, "유효하지 않은 입력값 입니다."),
 
     // S3
     EMPTY_FILE_EXCEPTION(8001, HttpStatus.BAD_REQUEST, "파일이 유효하지 않습니다."),
@@ -54,12 +56,12 @@ public enum ErrorCode {
     FILE_SIZE_EXCEEDS_LIMIT(8006, HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다. (최대 1MB)"),
 
     // AI response
-    AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(9000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
-    AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(9001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+    AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
+    AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
+    API_KEY_INVALID(8002, HttpStatus.BAD_REQUEST, "API 키가 유효하지 않습니다."),
 
     // Redis
     REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
-
     ;
 
     private final int code;

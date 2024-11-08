@@ -98,7 +98,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             Node targetNode = edge.getTargetNode();
 
             // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
-            NodeEvent event = new NodeEvent(this, targetNode, chat);
+            NodeEvent event = NodeEvent.of(this, targetNode, chat);
 
             // event를 발행한다.
             publishEvent(event);
