@@ -1,7 +1,7 @@
 // 모달 컴포넌트
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChunkList } from "@/types/knowledge";
+import { ChunkData, ChunkList } from "@/types/knowledge";
 import { getChunkDetail, postChunkDetail } from '@/api/knowledge';
 import React, { useRef, useEffect, useState } from 'react';
 import { HiOutlinePencilAlt } from '@react-icons/all-files/hi/HiOutlinePencilAlt';
@@ -66,19 +66,20 @@ export default function ChunkDetailModal({
     mutationFn: ({ knowledgeId, chunkId, data }: { knowledgeId: string, chunkId: string; data: { content: string } }) =>
       postChunkDetail(knowledgeId, chunkId, data),
     onSuccess: (_, variables) => {
+      // Update specific chunk detail data
       queryClient.setQueryData(['chunkdetail', knowledgeId, chunkId], (oldData: ChunkList | undefined) => {
         if (oldData) {
           return { ...oldData, content: variables.data.content };
         }
         return { chunkId: parseInt(chunkId), content: variables.data.content }; 
       });
-      setChunkContent(variables.data.content);
 
-      queryClient.setQueryData(['chunklist', knowledgeId], (oldList: any) => {
+      // Update chunk list data
+      queryClient.setQueryData(['chunklist', knowledgeId], (oldList: ChunkData | undefined) => {
         if (oldList) {
           return {
             ...oldList,
-            chunkList: oldList.chunkList.map((item: any) =>
+            chunkList: oldList.chunkList.map((item: ChunkList) =>
               item.chunkId === parseInt(chunkId)
                 ? { ...item, content: variables.data.content }
                 : item
@@ -87,6 +88,7 @@ export default function ChunkDetailModal({
         }
         return oldList;
       });
+      setChunkContent(variables.data.content);
     },
     onError: () => {
       alert("청크 내용 수정에 실패했습니다. 다시 시도해 주세요.");
