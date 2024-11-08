@@ -10,12 +10,14 @@ public class EdgeResponse {
     private final Long edgeId;
     private final Long sourceNodeId;
     private final Long targetNodeId;
+    private final Long sourceConditionId;
 
     @Builder
-    private EdgeResponse(Long edgeId, Long sourceNodeId, Long targetNodeId) {
+    private EdgeResponse(Long edgeId, Long sourceNodeId, Long targetNodeId, Long sourceConditionId) {
         this.edgeId = edgeId;
         this.sourceNodeId = sourceNodeId;
         this.targetNodeId = targetNodeId;
+        this.sourceConditionId = sourceConditionId;
     }
 
     public static EdgeResponse from(Edge edge) {
