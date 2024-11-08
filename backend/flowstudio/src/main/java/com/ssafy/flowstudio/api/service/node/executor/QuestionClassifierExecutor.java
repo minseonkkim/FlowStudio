@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
 import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
+import com.ssafy.flowstudio.api.service.edge.EdgeService;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.api.service.node.executor.prompt.QuestionClassifierPrompt;
@@ -36,10 +37,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionClassifierExecutor.class);
     private final SecretKeyProperties secretKeyProperties;
+    private final EdgeService edgeService;
 
-    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters) {
+    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters, EdgeService edgeService) {
         super(redisService, eventPublisher, sseEmitters);
         this.secretKeyProperties = secretKeyProperties;
+        this.edgeService = edgeService;
     }
 
     @Override
@@ -98,7 +101,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
 
             // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
-            Edge edge = chosenQuestionClass.getEdge();
+            Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
             Node targetNode = edge.getTargetNode();
 
             // 타겟 노드와 chat 정보를 담은 Event를 생성한다.

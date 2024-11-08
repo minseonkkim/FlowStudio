@@ -44,6 +44,13 @@ public class Edge extends BaseEntity {
         this.sourceConditionId = sourceConditionId;
     }
 
+    public static Edge create(Node sourceNode, Node targetNode) {
+        return Edge.builder()
+                .sourceNode(sourceNode)
+                .targetNode(targetNode)
+                .build();
+    }
+
     public static Edge create(Node sourceNode, Node targetNode, Long sourceConditionId) {
         return Edge.builder()
                 .sourceNode(sourceNode)

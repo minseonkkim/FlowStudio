@@ -21,18 +21,13 @@ public class QuestionClass {
     @Column(nullable = false)
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "edge_id")
-    private Edge edge;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_classifier_id", nullable = false)
     private QuestionClassifier questionClassifier;
 
     @Builder
-    private QuestionClass(String content, Edge edge, QuestionClassifier questionClassifier) {
+    private QuestionClass(String content, QuestionClassifier questionClassifier) {
         this.content = content;
-        this.edge = edge;
         this.questionClassifier = questionClassifier;
     }
 
@@ -42,8 +37,7 @@ public class QuestionClass {
                 .build();
     }
 
-    public void update(Edge edge, String content) {
-        this.edge = edge;
+    public void update(String content) {
         this.content = content;
     }
 
@@ -57,7 +51,6 @@ public class QuestionClass {
             return "QuestionClass{" +
                     "id=" + id +
                     ", content='" + content + '\'' +
-                    ", edgeId=" + (edge != null ? edge.getId() : null) +
                     '}';
     }
 }

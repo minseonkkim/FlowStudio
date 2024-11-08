@@ -16,18 +16,14 @@ public class QuestionClassUpdateRequest {
     @NotBlank(message = "질문 분류의 내용은 필수입니다.")
     private String content;
 
-    private Long edgeId;
-
     @Builder
     public QuestionClassUpdateRequest(String content, Long edgeId) {
         this.content = content;
-        this.edgeId = edgeId;
     }
 
     public QuestionClassUpdateServiceRequest toServiceRequest() {
         return QuestionClassUpdateServiceRequest.builder()
                 .content(content)
-                .edgeId(edgeId)
                 .build();
     }
 }

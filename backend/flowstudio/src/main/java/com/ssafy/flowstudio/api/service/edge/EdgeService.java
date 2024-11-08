@@ -83,4 +83,10 @@ public class EdgeService {
         return true;
     }
 
+    public Edge getEdgeBySourceConditionId(Long sourceConditionId) {
+        return edgeRepository.findBySourceConditionId(sourceConditionId)
+                .orElseThrow(() -> new BaseException(ErrorCode.EDGE_NOT_FOUND));
+    }
+
+
 }

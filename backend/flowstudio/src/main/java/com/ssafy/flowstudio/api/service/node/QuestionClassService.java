@@ -40,15 +40,7 @@ public class QuestionClassService {
                 () -> new BaseException(ErrorCode.QUESTION_CLASS_NOT_FOUND)
         );
 
-        Edge edge = null;
-
-        if (request.getEdgeId() != null) {
-            edge = edgeRepository.findById(request.getEdgeId()).orElseThrow(
-                    () -> new BaseException(ErrorCode.EDGE_NOT_FOUND)
-            );
-        }
-
-        questionClass.update(edge, request.getContent());
+        questionClass.update(request.getContent());
 
         return QuestionClassResponse.from(questionClass);
     }
