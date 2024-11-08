@@ -56,7 +56,7 @@ export async function patchProfileImage(imageFile: File) {
     const formData = new FormData();
     formData.append("image", imageFile);
 
-    const response = await axiosInstance.patch('/api/v1/users/profile-image', formData, {
+    const response = await axiosInstance.patch('users/profile-image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

@@ -63,7 +63,7 @@ export default function UserProfile() {
   const updateProfileImage = useMutation({
     mutationFn: patchProfileImage,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["profileImage"] });
+      queryClient.invalidateQueries({ queryKey: ["userInfo"] });
       if (previewImage) {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
