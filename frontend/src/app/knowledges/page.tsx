@@ -18,9 +18,6 @@ export default function Page() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-  queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-}, []);
 
   const { isLoading, isError, error, data: knowledgeList } = useQuery<KnowledgeData[]>({
     queryKey: ['knowledgeList'],
