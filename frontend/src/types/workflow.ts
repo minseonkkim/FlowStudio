@@ -1,5 +1,5 @@
 export interface ConnectedNode {
-  id: string;
+  nodeId: number;
   name: string;
 }
 
@@ -8,3 +8,6 @@ export interface NodeConfig {
   icon: JSX.Element;
   color: string;
 }
+
+
+

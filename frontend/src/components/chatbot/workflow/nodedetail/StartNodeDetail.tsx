@@ -24,7 +24,7 @@ export default function StartNodeDetail({
   addNode: (type: string) => void;
   onClose: () => void;
   connectedNodes: ConnectedNode[];
-  setConnectedNodes: (targetNodeId: string) => void;
+  setConnectedNodes: (targetNodeId: number) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -86,7 +86,7 @@ export default function StartNodeDetail({
                   style={{
                     color: deleteIconColors[node.name] || "gray",
                   }}
-                  onClick={() => setConnectedNodes(node.id)}
+                  onClick={() => setConnectedNodes(node.nodeId)}
                 />
               </div>
             ))}
