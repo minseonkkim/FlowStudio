@@ -10,20 +10,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatMessageRequest {
 
-    @NotNull(message = "채팅 ID는 필수입니다.")
-    private Long chatId;
     @NotNull(message = "메시지는 필수입니다.")
     private String message;
 
     @Builder
-    private ChatMessageRequest(Long chatId, String message) {
-        this.chatId = chatId;
+    private ChatMessageRequest(String message) {
         this.message = message;
     }
 
     public ChatMessageServiceRequest toServiceRequest() {
         return ChatMessageServiceRequest.builder()
-                .chatId(chatId)
                 .message(message)
                 .build();
     }
