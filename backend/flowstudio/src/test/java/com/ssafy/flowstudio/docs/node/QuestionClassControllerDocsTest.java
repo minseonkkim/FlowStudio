@@ -63,7 +63,7 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                 .questionClassifierId(1L)
                 .build();
 
-        given(questionClassService.createQuestionClass(any(), any()))
+        given(questionClassService.createQuestionClass(any()))
                 .willReturn(questionClassResponse);
 
         // when

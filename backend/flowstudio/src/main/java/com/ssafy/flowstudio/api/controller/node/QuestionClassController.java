@@ -23,10 +23,9 @@ public class QuestionClassController {
     @PostMapping("/api/v1/chat-flows/nodes/{nodeId}/question-classes")
     public ApiResponse<QuestionClassResponse> createQuestionClass(
             @CurrentUser User user,
-            @PathVariable Long nodeId,
-            @Valid @RequestBody QuestionClassCreateRequest request
+            @PathVariable Long nodeId
     ) {
-        QuestionClassResponse questionClassResponse = questionClassService.createQuestionClass(nodeId, request.toServiceRequest());
+        QuestionClassResponse questionClassResponse = questionClassService.createQuestionClass(nodeId);
         return ApiResponse.ok(questionClassResponse);
     }
 

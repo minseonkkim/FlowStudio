@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -79,6 +80,48 @@ class NodeServiceTest extends IntegrationTestSupport {
         assertThat(response).isNotNull()
                 .extracting("nodeType")
                 .isEqualTo(NodeType.START);
+    }
+
+    @DisplayName("질문 분류기를 생성하면 두개의 빈 질문 분류가 함께 생성된다.")
+    @Test
+    void createQuestionClassifier() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        NodeCreateServiceRequest request = NodeCreateServiceRequest.builder()
+                .chatFlowId(chatFlow.getId())
+                .coordinate(CoordinateServiceRequest.builder()
+                        .x(1)
+                        .y(1)
+                        .build())
+                .type(NodeType.QUESTION_CLASSIFIER)
+                .build();
+
+        // when
+        NodeCreateResponse response = nodeService.createNode(user, request);
+        Node foundNode = nodeRepository.findById(response.getNodeId()).orElse(null);
+
+        // then
+        assertThat(response).isNotNull()
+                .extracting("nodeType")
+                .isEqualTo(NodeType.QUESTION_CLASSIFIER);
+
+        assertThat(foundNode).isNotNull();
+
+        QuestionClassifier castedNode = (QuestionClassifier) foundNode;
+        assertThat(castedNode.getQuestionClasses())
+                .hasSize(2);
     }
 
     @DisplayName("유효하지 않은 ChatFlow 아이디로 Node를 생성하면 예외가 발생한다.")
