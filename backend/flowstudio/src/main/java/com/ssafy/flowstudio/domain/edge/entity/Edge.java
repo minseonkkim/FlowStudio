@@ -1,7 +1,6 @@
 package com.ssafy.flowstudio.domain.edge.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
-import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,18 +33,29 @@ public class Edge extends BaseEntity {
     @JoinColumn(name = "target_node_id", nullable = false)
     private Node targetNode;
 
+    @Column
+    private Long sourceConditionId;
+
     @Builder
-    private Edge(Long id, Node sourceNode, Node targetNode) {
+    private Edge(Long id, Node sourceNode, Node targetNode, Long sourceConditionId) {
         this.id = id;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
+        this.sourceConditionId = sourceConditionId;
     }
 
-    public static Edge create(Node sourceNode, Node targetNode) {
+    public static Edge create(Node sourceNode, Node targetNode, Long sourceConditionId) {
         return Edge.builder()
                 .sourceNode(sourceNode)
                 .targetNode(targetNode)
+                .sourceConditionId(sourceConditionId)
                 .build();
+    }
+
+    public void update(Node sourceNode, Node targetNode, Long sourceConditionId) {
+        this.sourceNode = sourceNode;
+        this.targetNode = targetNode;
+        this.sourceConditionId = sourceConditionId;
     }
 
 }

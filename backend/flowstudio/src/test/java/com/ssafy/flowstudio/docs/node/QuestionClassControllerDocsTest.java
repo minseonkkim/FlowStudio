@@ -176,6 +176,8 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                                                 .description("이어진 엣지의 출발 노드"),
                                         fieldWithPath("data.edge.targetNodeId").type(JsonFieldType.NUMBER)
                                                 .description("이어진 엣지의 도착 노드"),
+                                        fieldWithPath("data.edge.sourceConditionId").optional().type(JsonFieldType.NUMBER)
+                                                .description("이어진 엣지의 시작 조건 아이디"),
                                         fieldWithPath("data.questionClassifierId").type(JsonFieldType.NUMBER)
                                                 .description("질문 분류기 아이디")
                                 )
