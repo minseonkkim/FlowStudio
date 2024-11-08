@@ -9,5 +9,11 @@ export interface NodeConfig {
   color: string;
 }
 
-
-
+export interface NodeData {
+  "chatFlowId": number;
+  "coordinate": {
+    "x": number;
+    "y": number;
+  },
+  "nodeType": string;
+}

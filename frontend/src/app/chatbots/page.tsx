@@ -71,7 +71,7 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const handleDeleteClick = (chatFlowId: string) => {
+  const handleDeleteClick = (chatFlowId: number) => {
     deleteMutation.mutate(chatFlowId);
   };
 
