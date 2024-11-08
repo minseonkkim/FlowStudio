@@ -58,7 +58,6 @@ class QuestionClassControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.content").value("question-content"))
-                .andExpect(jsonPath("$.data.edge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.questionClassifierId").value(1L));
     }
 
@@ -98,7 +97,6 @@ class QuestionClassControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.content").value("question-content"))
-                .andExpect(jsonPath("$.data.edge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.questionClassifierId").value(1L));
     }
 }

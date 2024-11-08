@@ -97,14 +97,6 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                                                 .description("질문 클래스 아이디"),
                                         fieldWithPath("data.content").type(JsonFieldType.STRING)
                                                 .description("질문 클래스 내용"),
-                                        fieldWithPath("data.edge").type(JsonFieldType.NULL)
-                                                .description("이어진 엣지의 정보 (초깃값 NULL)"),
-//                                        fieldWithPath("data.edge.edgeId").type(JsonFieldType.NUMBER)
-//                                                .description("이어진 엣지의 아이디"),
-//                                        fieldWithPath("data.edge.sourceNodeId").type(JsonFieldType.STRING)
-//                                                .description("이어진 엣지의 출발 노드"),
-//                                        fieldWithPath("data.edge.targetNodeId").type(JsonFieldType.STRING)
-//                                                .description("이어진 엣지의 도착 노드"),
                                         fieldWithPath("data.questionClassifierId").type(JsonFieldType.NUMBER)
                                                 .description("질문 분류기 아이디")
                                 )
@@ -155,9 +147,7 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                                 .summary("질문 분류 (질문 클래스) 수정")
                                 .requestFields(
                                         fieldWithPath("content").type(JsonFieldType.STRING)
-                                                .description("질문 클래스 내용"),
-                                        fieldWithPath("edgeId").type(JsonFieldType.NUMBER)
-                                                .description("연결된 간선의 아이디")
+                                                .description("질문 클래스 내용")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
@@ -170,14 +160,6 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                                                 .description("질문 클래스 아이디"),
                                         fieldWithPath("data.content").type(JsonFieldType.STRING)
                                                 .description("질문 클래스 내용"),
-                                        fieldWithPath("data.edge.edgeId").type(JsonFieldType.NUMBER)
-                                                .description("이어진 엣지의 아이디"),
-                                        fieldWithPath("data.edge.sourceNodeId").type(JsonFieldType.NUMBER)
-                                                .description("이어진 엣지의 출발 노드"),
-                                        fieldWithPath("data.edge.targetNodeId").type(JsonFieldType.NUMBER)
-                                                .description("이어진 엣지의 도착 노드"),
-                                        fieldWithPath("data.edge.sourceConditionId").optional().type(JsonFieldType.NUMBER)
-                                                .description("이어진 엣지의 시작 조건 아이디"),
                                         fieldWithPath("data.questionClassifierId").type(JsonFieldType.NUMBER)
                                                 .description("질문 분류기 아이디")
                                 )
