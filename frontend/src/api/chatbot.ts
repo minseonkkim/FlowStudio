@@ -32,7 +32,7 @@ export async function postChatFlow(data: ChatFlowData){
 }
 
 // 챗플로우 삭제
-export async function deleteChatFlow(chatFlowId: string){
+export async function deleteChatFlow(chatFlowId: number){
   try {
     const response = await axiosInstance.delete(`chat-flows/${chatFlowId}`)
     console.log(response)
@@ -48,7 +48,7 @@ export async function deleteChatFlow(chatFlowId: string){
 }
 
 // 챗플로우 수정
-export async function patchChatFlow(chatFlowId: string, data: ChatFlowData){
+export async function patchChatFlow(chatFlowId: number, data: ChatFlowData){
   try {
     const response = await axiosInstance.patch(`chat-flows/${chatFlowId}`, data)
     if (response.status === 200) {
