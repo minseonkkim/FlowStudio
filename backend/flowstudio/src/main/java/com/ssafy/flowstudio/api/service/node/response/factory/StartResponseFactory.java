@@ -10,9 +10,4 @@ public class StartResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return StartResponse.from((Start) node);
     }
-
-    @Override
-    public NodeResponse createNodeDetailResponse(Node node) {
-        return StartResponse.from((Start) node);
-    }
 }

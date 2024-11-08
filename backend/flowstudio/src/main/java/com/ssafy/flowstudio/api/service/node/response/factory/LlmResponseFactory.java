@@ -10,9 +10,4 @@ public class LlmResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return LlmResponse.from((LLM) node);
     }
-
-    @Override
-    public NodeResponse createNodeDetailResponse(Node node) {
-        return LlmResponse.from((LLM) node);
-    }
 }

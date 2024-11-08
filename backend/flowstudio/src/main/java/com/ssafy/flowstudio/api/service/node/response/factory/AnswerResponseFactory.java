@@ -10,9 +10,4 @@ public class AnswerResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return AnswerResponse.from((Answer) node);
     }
-
-    @Override
-    public NodeResponse createNodeDetailResponse(Node node) {
-        return AnswerResponse.from((Answer) node);
-    }
 }

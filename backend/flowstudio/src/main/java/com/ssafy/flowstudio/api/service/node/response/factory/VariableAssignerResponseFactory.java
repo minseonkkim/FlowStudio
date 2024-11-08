@@ -10,9 +10,4 @@ public class VariableAssignerResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return VariableAssignerResponse.from((VariableAssigner) node);
     }
-
-    @Override
-    public NodeResponse createNodeDetailResponse(Node node) {
-        return VariableAssignerResponse.from((VariableAssigner) node);
-    }
 }

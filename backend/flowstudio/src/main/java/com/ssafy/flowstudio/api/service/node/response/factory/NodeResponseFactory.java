@@ -7,5 +7,4 @@ import com.ssafy.flowstudio.domain.node.entity.Start;
 
 public abstract class NodeResponseFactory {
     public abstract NodeResponse createNodeResponse(Node node);
-    public abstract NodeResponse createNodeDetailResponse(Node node);
 }

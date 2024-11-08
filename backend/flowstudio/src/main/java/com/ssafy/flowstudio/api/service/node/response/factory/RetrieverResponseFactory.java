@@ -10,9 +10,4 @@ public class RetrieverResponseFactory extends NodeResponseFactory {
     public NodeResponse createNodeResponse(Node node) {
         return RetrieverResponse.from((Retriever) node);
     }
-
-    @Override
-    public NodeResponse createNodeDetailResponse(Node node) {
-        return RetrieverResponse.from((Retriever) node);
-    }
 }
