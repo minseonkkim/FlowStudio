@@ -64,7 +64,7 @@ export default function CreateFirst() {
                 <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
               </div>
               <div className='text-center'>
-                <p className="opacity-50 text-base">지원 파일 형식: TXT, PDF, 등...</p>
+                <p className="opacity-50 text-base">지원 파일 형식: txt, pdf, 등...</p>
                 <p className="opacity-50 text-sm">파일당 최대 크기 15MB</p>
               </div>
             </div>

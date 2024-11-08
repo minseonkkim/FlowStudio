@@ -8,19 +8,26 @@ import PurpleButton from '@/components/common/PurpleButton';
 import { getAllKnowledges, putDocKnowledge, deleteKnowledge } from "@/api/knowledge";
 import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
 import { useRecoilState } from 'recoil';
-import { chunkFileNameState } from '@/store/knoweldgeAtoms'
+import { chunkFileNameState } from '@/store/knoweldgeAtoms';
+import { currentStepState } from '@/store/knoweldgeAtoms'; 
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [, setKnowledgeTitle] = useRecoilState(chunkFileNameState);
+  const [, setCurrentStepState] = useRecoilState(currentStepState);
   const router = useRouter();
   const queryClient = useQueryClient();
-  
+
+  useEffect(() => {
+  queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
+}, []);
+
   const { isLoading, isError, error, data: knowledgeList } = useQuery<KnowledgeData[]>({
     queryKey: ['knowledgeList'],
     queryFn: getAllKnowledges,
+    
   });
-  
+
   useEffect(() => {
     if (isError && error) {
       alert("지식목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -37,7 +44,7 @@ export default function Page() {
       alert("문서 수정에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
+
   const deleteMutation = useMutation({
     mutationFn: deleteKnowledge,
     onSuccess: () => {
@@ -47,27 +54,27 @@ export default function Page() {
       alert("문서 삭제에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
-  if (isLoading) return <div>is Loading...</div>;
-  
+
+  if (isLoading) return <div>Loading...</div>;
+
   const goToCreatePage = (): void => {
+    setCurrentStepState(1)
     router.push('/knowledge/create');
   };
-  
-  const goToKnoweldgeDetail = (knowledgeId: string, title: string): void => {
-    setKnowledgeTitle(title); 
+
+  const goToKnowledgeDetail = (knowledgeId: string, title: string): void => {
+    setKnowledgeTitle(title);
     router.push(`/knowledge/${knowledgeId}`);
   };
-  
+
   const togglePublicStatus = (file: KnowledgeData) => {
     const knowledgeData = {
-      "title": file.title,
-      "isPublic": !file.isPublic
+      title: file.title,
+      isPublic: !file.isPublic,
     };
-    
     putMutation.mutate({ knowledgeId: String(file.knowledgeId), data: knowledgeData });
   };
-  
+
   const handleDeleteClick = (knowledgeId: string) => {
     deleteMutation.mutate(knowledgeId);
   };
@@ -82,7 +89,7 @@ export default function Page() {
         <p className="font-semibold text-[24px] text-gray-700 mr-6">문서</p>
         <PurpleButton text="파일 추가" onHandelButton={goToCreatePage} />
       </div>
-      
+
       <div className="flex flex-col lg:flex-row justify-between mb-6 lg:mb-8">
         <p className="text-sm lg:text-base text-[#757575] mb-4 lg:mb-0 lg:pt-2">
           지식의 모든 파일이 여기에 표시되며, 전체 지식이 FlowStudio의 인용문이나 챗 플러그인을 통해 링크되거나 색인화될 수 있습니다.
@@ -108,7 +115,7 @@ export default function Page() {
                 <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.knowledgeId}</td>
                 <td
                   className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
-                  onClick={() => goToKnoweldgeDetail(String(file.knowledgeId), file.title)}
+                  onClick={() => goToKnowledgeDetail(String(file.knowledgeId), file.title)}
                 >
                   <div className="flex items-center w-full">
                     <p className="text-[10px] sm:text-xs lg:text-base truncate overflow-hidden whitespace-nowrap">

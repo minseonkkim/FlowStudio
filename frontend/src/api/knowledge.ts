@@ -156,7 +156,7 @@ export async function postKnowledgeChunk(data: { file: File; chunkSize: string; 
     });
 
     if (response.status === 200) { 
-      return response.data.data;
+      return response.data.data as ChunkData
     } else {
       throw new Error('Failed to create knowledge');
     }
