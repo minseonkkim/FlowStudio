@@ -54,11 +54,11 @@ public class Chat extends BaseEntity {
         this.messageList = messageList;
     }
 
-    public static Chat create(User user, ChatFlow chatFlow) {
+    public static Chat create(User user, ChatFlow chatFlow, boolean isPreview) {
         return Chat.builder()
                 .user(user)
                 .chatFlow(chatFlow)
-                .isPreview(true)
+                .isPreview(isPreview)
                 .messageList("[]")
                 .build();
     }

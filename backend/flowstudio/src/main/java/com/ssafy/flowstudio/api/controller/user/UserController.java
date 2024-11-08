@@ -38,8 +38,11 @@ public class UserController {
      */
     @GetMapping(value = "/api/v1/users/check-nickname")
     public ApiResponse<Void> checkNickname(
+            @CurrentUser User user,
             @RequestParam @NotBlank String nickname
     ) {
+        System.out.println("user = " + user);
+
         userService.checkNickname(nickname);
         return ApiResponse.ok();
     }
