@@ -187,8 +187,10 @@ public class VectorStoreService {
 
     public List<String> searchVector(KnowledgeSearchServiceRequest request) {
         if (!request.getKnowledge().getIsPublic()) throw new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND);
-        if (request.getScoreThreshold() < 0 || request.getScoreThreshold() > 1)
+        if (request.getScoreThreshold() < 0.0f || request.getScoreThreshold() > 1.0f)
             throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
+        if (request.getTopK() < 0 || request.getTopK() > 10) throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
+        if (request.getInterval() < 0 || request.getInterval() > 5) throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
 
         String collectionName = milvusUtils.generateName(request.getKnowledge().getUserId());
         String partitionName = milvusUtils.generateName(request.getKnowledge().getKnowledgeId());
@@ -228,7 +230,10 @@ public class VectorStoreService {
             for (SearchResp.SearchResult result : results) {
                 ids.add(result.getId());
             }
-            System.out.println();
+        }
+
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
         }
 
         GetReq getReq = GetReq.builder()
