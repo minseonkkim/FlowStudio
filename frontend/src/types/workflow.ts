@@ -1,5 +1,5 @@
 export interface ConnectedNode {
-  id: number;
+  nodeId: number;
   name: string;
 }
 

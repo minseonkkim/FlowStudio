@@ -54,7 +54,7 @@ export async function putQuestionClassNode(questionClassId: number, data: {"cont
     if (response.status === 200) {
       return response.data.data;
     } else {
-      throw new Error('Failed to put quesiont-class node');
+      throw new Error('Failed to put question-class node');
     }
   } catch (error) {
     console.error(error)
@@ -69,7 +69,7 @@ export async function postQuestionClassNode(nodeId: number, data: {"content" : s
     if (response.status === 200) {
       return response.data.data;
     } else {
-      throw new Error('Failed to post quesiont-class node');
+      throw new Error('Failed to post question-class node');
     }
   } catch (error) {
     console.error(error)

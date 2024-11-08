@@ -132,7 +132,9 @@ export default function Page() {
             description={bot.description}
             type="my"
             category={bot.categories.map((cat) => cat.name)}
-            onCardClick={() => router.push(`/chatbot/${bot.chatFlowId}/workflow`)}
+            onCardClick={() => {
+              console.log("클릭");
+              router.push(`/chatbot/${bot.chatFlowId}/workflow`)}}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => setIsShareModalOpen(true)}

@@ -1,0 +1,58 @@
+name: flowstudio-docker-compose
+
+services:
+  database:
+    image: mysql
+    container_name: flowstudio-db
+    restart: always
+    ports:
+      - "${MYSQL_PORT}:3306"
+    environment:
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - flowstudio-db:/var/lib/mysql
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: swagger
+    ports:
+      - "${SWAGGER_PORT}:8080"
+    environment:
+      SWAGGER_JSON: /usr/share/nginx/html/docs/openapi3.yml
+      BASE_URL: /docs
+    volumes:
+      - /home/ubuntu/jenkins-data/workspace/flow-studio-backend/docs-data/openapi3.yml:/usr/share/nginx/html/docs/openapi3.yml
+
+  cache-database:
+    image: redis:7.4-rc2-alpine
+    container_name: flowstudio-cache-db
+    ports:
+      - "${REDIS_PORT}:6379"
+    entrypoint:
+      - redis-server
+      - "--requirepass"
+      - "${REDIS_PASSWORD}"
+      - "--maxmemory"
+      - "128mb"
+
+  redis-insite:
+    image: redis/redisinsight:latest
+    container_name: redis-insite
+    ports:
+      - "${REDIS_INSITE_PORT}:5540"
+
+  spring-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flow-studio-backend
+    restart: always
+    ports:
+      - 9090:9090
+    depends_on:
+      - database
+      - cache-database
+
+volumes:
+  flowstudio-db:
