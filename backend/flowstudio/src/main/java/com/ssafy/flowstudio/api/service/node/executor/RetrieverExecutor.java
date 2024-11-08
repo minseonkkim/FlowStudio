@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
@@ -20,8 +21,8 @@ public class RetrieverExecutor extends NodeExecutor {
 
     private final VectorStoreService vectorStoreService;
 
-    public RetrieverExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, VectorStoreService vectorStoreService) {
-        super(redisService, eventPublisher);
+    public RetrieverExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, VectorStoreService vectorStoreService, SseEmitters sseEmitters) {
+        super(redisService, eventPublisher, sseEmitters);
         this.vectorStoreService = vectorStoreService;
     }
 
@@ -40,6 +41,11 @@ public class RetrieverExecutor extends NodeExecutor {
                 .query(inputMessageValue)
                 .build());
 
+        // Redis에 Output을 업데이트한다.
+        redisService.save(chat.getId(), retrieverNode.getId(), chunks.toString());
+
+        sseEmitters.send(chat.getUser(), retrieverNode, chunks.toString());
+
         // 연결된 간선과 타겟 노드를 가져온다.
         if (!retrieverNode.getOutputEdges().isEmpty()) {
             Node targetNode = node.getOutputEdges().get(0).getTargetNode();
@@ -50,9 +56,6 @@ public class RetrieverExecutor extends NodeExecutor {
             // event를 발행한다.
             publishEvent(event);
         }
-
-        // Redis에 Output을 업데이트한다.
-        redisService.save(chat.getId(), retrieverNode.getId(), chunks.toString());
     }
 
     @Override
