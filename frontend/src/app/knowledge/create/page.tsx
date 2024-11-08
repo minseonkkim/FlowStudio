@@ -1,22 +1,37 @@
 'use client';
-
+import { useQueryClient } from '@tanstack/react-query';
 import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';
 import { useRecoilState } from 'recoil';
-import { currentStepState } from '@/store/knoweldgeAtoms'; 
+import { currentStepState, fileState } from '@/store/knoweldgeAtoms'; 
 import { useRouter } from 'next/navigation'; 
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import PurpleButton from '@/components/common/PurpleButton';
+import { useEffect } from 'react';
 
 export default function Page() {
   const [currentStep, setCurrentStep] = useRecoilState(currentStepState); // Recoil 상태 사용
-  const router = useRouter(); // useRouter 사용
-  const goToListPage = (): void => {
-    router.push('/knowledges'); 
-    setCurrentStep(1)
+  const router = useRouter(); 
+  const [,setfile] = useRecoilState(fileState); 
+
+  const queryClient = useQueryClient();
+
+  const goToListPage = () => {
+    router.push('/knowledges');  
+
+    setTimeout(() => {
+      setfile(null);
+      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
+    }, 0);
   };
 
+
+  useEffect(()=>{
+    console.log('커런트 스텝' +currentStep)
+  },[currentStep])
+  
+  
   return (
     <>
       <div className="flex relative">

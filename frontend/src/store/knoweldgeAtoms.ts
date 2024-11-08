@@ -6,8 +6,22 @@ export const currentStepState = atom<number>({
   default: 1,  // 초기 상태
 });
 
+// 파일
+export const fileState = atom<File | null>({
+  key: 'fileState',  
+  default: null,  
+});
+
 // 파일 이름
 export const fileNameState = atom<string>({
   key: 'fileNameState',  
   default: '',  
 });
+
+
+// 청크 조회 시 사용할 파일 이름
+export const chunkFileNameState = atom<string>({
+  key: 'chunkFileNameState',  
+  default: '',  
+});
+

@@ -1,6 +1,6 @@
 module.exports = {
     output: 'standalone',
     images: {
-        domains: ['lh3.googleusercontent.com', 'naver.com', 'avatars.githubusercontent.com'],
+        domains: ['lh3.googleusercontent.com', 'k.kakaocdn.net', 'avatars.githubusercontent.com'],
     },
 }
