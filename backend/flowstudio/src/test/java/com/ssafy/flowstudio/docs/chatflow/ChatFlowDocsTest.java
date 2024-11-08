@@ -241,12 +241,16 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("output 간선 출발노드 아이디"),
                                         fieldWithPath("data.nodes[].outputEdges[].targetNodeId").optional().type(JsonFieldType.NUMBER)
                                                 .description("output 간선 도착노드 아이디"),
+                                        fieldWithPath("data.nodes[].outputEdges[].sourceConditionId").optional().type(JsonFieldType.NUMBER)
+                                                .description("input 간선 시작 조건 아이디"),
                                         fieldWithPath("data.nodes[].inputEdges[].edgeId").optional().type(JsonFieldType.NUMBER)
                                                 .description("input 간선 아이디"),
                                         fieldWithPath("data.nodes[].inputEdges[].sourceNodeId").optional().type(JsonFieldType.NUMBER)
                                                 .description("input 간선 출발노드 아이디"),
                                         fieldWithPath("data.nodes[].inputEdges[].targetNodeId").optional().type(JsonFieldType.NUMBER)
-                                                .description("input 간선 도착노드 아이디")
+                                                .description("input 간선 도착노드 아이디"),
+                                        fieldWithPath("data.nodes[].inputEdges[].sourceConditionId").optional().type(JsonFieldType.NUMBER)
+                                                .description("input 간선 시작 조건 아이디")
                                 )
                                 .build()
                         )
