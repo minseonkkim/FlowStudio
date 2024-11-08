@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.service.node.executor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -38,8 +39,8 @@ public class LlmExecutor extends NodeExecutor {
     private final MessageParseUtil messageParseUtil;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil) {
-        super(redisService, eventPublisher);
+    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters) {
+        super(redisService, eventPublisher, sseEmitters);
         this.tokenUsageLogRepository = tokenUsageLogRepository;
         this.chatRepository = chatRepository;
         this.redisService = redisService;
@@ -70,6 +71,9 @@ public class LlmExecutor extends NodeExecutor {
 
             // 레디스에 결과 저장
             redisService.save(chat.getId(), node.getId(), LlmOutputMessage);
+
+            // 결과 SSE로 전송
+            sseEmitters.send(chat.getUser(), llmNode, LlmOutputMessage);
 
             // 배포환경 추가 작업
             if (!chat.isPreview()) {
