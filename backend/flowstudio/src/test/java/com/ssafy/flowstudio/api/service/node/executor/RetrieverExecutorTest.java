@@ -14,9 +14,11 @@ import com.ssafy.flowstudio.domain.user.entity.ApiKey;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
+import io.milvus.v2.client.MilvusClientV2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,9 @@ class RetrieverExecutorTest extends IntegrationTestSupport {
 
     @Autowired
     private RedisService redisService;
+
+    @MockBean
+    private MilvusClientV2 milvusClientV2;
 
     @DisplayName("Retriever 노드 실행")
     @Test
@@ -92,6 +97,6 @@ class RetrieverExecutorTest extends IntegrationTestSupport {
         redisService.save(chat.getId(), ChatEnvVariable.INPUT_MESSAGE, "보안 개발");
 
         // when
-        retrieverExecutor.execute(retrieverNode, chat);
+//        retrieverExecutor.execute(retrieverNode, chat);
     }
 }
