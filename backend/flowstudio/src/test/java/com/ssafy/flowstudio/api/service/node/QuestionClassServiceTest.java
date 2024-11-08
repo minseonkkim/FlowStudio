@@ -81,8 +81,8 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(questionClassResponse).isNotNull()
-                .extracting("content", "edge", "questionClassifierId")
-                .containsExactly("question-content", null, questionClassifier.getId());
+                .extracting("content", "questionClassifierId")
+                .containsExactly("question-content", questionClassifier.getId());
 
     }
 
@@ -124,8 +124,8 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
 
         // then
         assertThat(questionClassResponse).isNotNull()
-                .extracting("id", "content", "edge", "questionClassifierId")
-                .containsExactly(questionClass.getId(), "updated-question-content", null, questionClassifier.getId());
+                .extracting("id", "content", "questionClassifierId")
+                .containsExactly(questionClass.getId(), "updated-question-content", questionClassifier.getId());
     }
 
     @DisplayName("질문 분류의 내용과 간선을 함께 변경한다.")

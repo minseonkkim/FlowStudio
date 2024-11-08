@@ -5,6 +5,7 @@ import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
@@ -233,7 +234,7 @@ class NodeServiceTest extends IntegrationTestSupport {
         chatFlowRepository.save(chatFlow);
 
         // when
-        NodeResponse startDetailResponse = nodeService.getNode(user, start.getId());
+        NodeDetailResponse startDetailResponse = nodeService.getNode(user, start.getId());
 
         // then
         assertThat(startDetailResponse).isNotNull();
@@ -262,53 +263,32 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .title("title")
                 .build();
 
+        // Start와 QuestionClassifier 노드 생성
         Node start = Start.create(chatFlow, coordinate);
-
         QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
 
-        Edge edge = Edge.create(start, questionClassifier);
+        // Start와 QuestionClassifier를 잇는 간선 생성
+        Edge edge1 = Edge.create(start, questionClassifier);
+        questionClassifier.getInputEdges().add(edge1);
+        start.getOutputEdges().add(edge1);
 
-        questionClassifier.getInputEdges().add(edge);
+        // Answer 노드 생성
+        Answer answer = Answer.create(chatFlow, coordinate);
 
-        QuestionClass questionClass1 = QuestionClass.create("한국");
-        QuestionClass questionClass2 = QuestionClass.create("중국");
-        QuestionClass questionClass3 = QuestionClass.create("일본");
-
-        questionClass1.updateQuestionClassifier(questionClassifier);
-        questionClass2.updateQuestionClassifier(questionClassifier);
-        questionClass3.updateQuestionClassifier(questionClassifier);
-
-        Answer answer1 = Answer.create(chatFlow, coordinate);
-        Answer answer2 = Answer.create(chatFlow, coordinate);
-        Answer answer3 = Answer.create(chatFlow, coordinate);
-
-        Edge edge1 = Edge.create(questionClassifier, answer1, questionClass1.getId());
-        Edge edge2 = Edge.create(questionClassifier, answer2, questionClass2.getId());
-        Edge edge3 = Edge.create(questionClassifier, answer3, questionClass3.getId());
-
-        questionClass1.update(edge1, "한국");
-        questionClass2.update(edge2, "중국");
-        questionClass3.update(edge3, "일본");
-
-        questionClassifier.getOutputEdges().add(edge1);
+        // QuestionClassifier와 Answer를 잇는 간선 생성
+        Edge edge2 = Edge.create(questionClassifier, answer);
+        answer.getInputEdges().add(edge2);
         questionClassifier.getOutputEdges().add(edge2);
-        questionClassifier.getOutputEdges().add(edge2);
-
-        answer1.getInputEdges().add(edge1);
-        answer2.getInputEdges().add(edge2);
-        answer3.getInputEdges().add(edge3);
 
         chatFlow.addNode(start);
         chatFlow.addNode(questionClassifier);
-        chatFlow.addNode(answer1);
-        chatFlow.addNode(answer2);
-        chatFlow.addNode(answer3);
+        chatFlow.addNode(answer);
 
         userRepository.save(user);
         chatFlowRepository.save(chatFlow);
 
         // when
-        NodeResponse answerDetailResponse = nodeService.getNode(user, answer1.getId());
+        NodeDetailResponse answerDetailResponse = nodeService.getNode(user, answer.getId());
 
         // then
         assertThat(answerDetailResponse).isNotNull();
@@ -316,7 +296,7 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .usingRecursiveFieldByFieldElementComparator()
                 .contains(SimpleNodeResponse.from(start), SimpleNodeResponse.from(questionClassifier));
         assertThat(answerDetailResponse.getNodeId())
-                .isEqualTo(answer1.getId());
+                .isEqualTo(answer.getId());
     }
 
 
@@ -339,53 +319,32 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .title("title")
                 .build();
 
+        // Start와 QuestionClassifier 노드 생성
         Node start = Start.create(chatFlow, coordinate);
-
         QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
 
-        Edge edge = Edge.create(start, questionClassifier);
+        // Start와 QuestionClassifier를 잇는 간선 생성
+        Edge edge1 = Edge.create(start, questionClassifier);
+        questionClassifier.getInputEdges().add(edge1);
+        start.getOutputEdges().add(edge1);
 
-        questionClassifier.getInputEdges().add(edge);
+        // Answer 노드 생성
+        Answer answer = Answer.create(chatFlow, coordinate);
 
-        QuestionClass questionClass1 = QuestionClass.create("한국");
-        QuestionClass questionClass2 = QuestionClass.create("중국");
-        QuestionClass questionClass3 = QuestionClass.create("일본");
-
-        questionClass1.updateQuestionClassifier(questionClassifier);
-        questionClass2.updateQuestionClassifier(questionClassifier);
-        questionClass3.updateQuestionClassifier(questionClassifier);
-
-        Answer answer1 = Answer.create(chatFlow, coordinate);
-        Answer answer2 = Answer.create(chatFlow, coordinate);
-        Answer answer3 = Answer.create(chatFlow, coordinate);
-
-        Edge edge1 = Edge.create(questionClassifier, answer1, questionClass1.getId());
-        Edge edge2 = Edge.create(questionClassifier, answer2, questionClass2.getId());
-        Edge edge3 = Edge.create(questionClassifier, answer3, questionClass3.getId());
-
-        questionClass1.update(edge1, "한국");
-        questionClass2.update(edge2, "중국");
-        questionClass3.update(edge3, "일본");
-
-        questionClassifier.getOutputEdges().add(edge1);
+        // QuestionClassifier와 Answer를 잇는 간선 생성
+        Edge edge2 = Edge.create(questionClassifier, answer);
+        answer.getInputEdges().add(edge2);
         questionClassifier.getOutputEdges().add(edge2);
-        questionClassifier.getOutputEdges().add(edge2);
-
-        answer1.getInputEdges().add(edge1);
-        answer2.getInputEdges().add(edge2);
-        answer3.getInputEdges().add(edge3);
 
         chatFlow.addNode(start);
         chatFlow.addNode(questionClassifier);
-        chatFlow.addNode(answer1);
-        chatFlow.addNode(answer2);
-        chatFlow.addNode(answer3);
+        chatFlow.addNode(answer);
 
         userRepository.save(user);
         chatFlowRepository.save(chatFlow);
 
         // when
-        List<Node> precedingNodes = nodeService.getPrecedingNodes(user, answer1);
+        List<Node> precedingNodes = nodeService.getPrecedingNodes(user, answer);
 
         // then
         assertThat(precedingNodes)

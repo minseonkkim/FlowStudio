@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.service.node;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponseMapper;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
@@ -63,7 +64,7 @@ public class NodeService {
         return true;
     }
 
-    public NodeResponse getNode(User user, Long nodeId) {
+    public NodeDetailResponse getNode(User user, Long nodeId) {
         Node node = nodeRepository.findById(nodeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
 

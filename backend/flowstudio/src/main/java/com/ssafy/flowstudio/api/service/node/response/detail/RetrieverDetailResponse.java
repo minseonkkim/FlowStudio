@@ -15,7 +15,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class RetrieverDetailResponse extends NodeResponse {
+public class RetrieverDetailResponse extends NodeDetailResponse {
 
     private final KnowledgeResponse knowledge;
 

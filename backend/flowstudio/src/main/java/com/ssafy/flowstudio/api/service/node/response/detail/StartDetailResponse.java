@@ -13,7 +13,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class StartDetailResponse extends NodeResponse {
+public class StartDetailResponse extends NodeDetailResponse {
 
     private final int maxLength;
 

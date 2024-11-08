@@ -15,7 +15,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class QuestionClassifierDetailResponse extends NodeResponse {
+public class QuestionClassifierDetailResponse extends NodeDetailResponse {
 
     private final List<QuestionClassResponse> questionClasses;
 

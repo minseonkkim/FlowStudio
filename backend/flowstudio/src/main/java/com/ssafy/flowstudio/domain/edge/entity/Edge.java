@@ -59,6 +59,12 @@ public class Edge extends BaseEntity {
                 .build();
     }
 
+    public void updateEdgeListOfNodes() {
+        this.sourceNode.getOutputEdges().add(this);
+        this.targetNode.getInputEdges().add(this);
+    }
+
+
     public void update(Node sourceNode, Node targetNode, Long sourceConditionId) {
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;

@@ -14,7 +14,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class AnswerDetailResponse extends NodeResponse {
+public class AnswerDetailResponse extends NodeDetailResponse {
 
     private final String outputMessage;
 

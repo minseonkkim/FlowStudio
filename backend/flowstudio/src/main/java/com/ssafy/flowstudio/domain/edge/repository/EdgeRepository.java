@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EdgeRepository extends JpaRepository<Edge, Long> {
     @Query(
@@ -16,4 +17,6 @@ public interface EdgeRepository extends JpaRepository<Edge, Long> {
     List<Edge> findByChatFlowId(
             @Param("chatFlowId") Long chatFlowId
     );
+
+    Optional<Edge> findBySourceConditionId(Long sourceConditionId);
 }

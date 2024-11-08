@@ -11,7 +11,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class LlmDetailResponse extends NodeResponse {
+public class LlmDetailResponse extends NodeDetailResponse {
     private final String promptSystem;
     private final String promptUser;
     private final String context;
