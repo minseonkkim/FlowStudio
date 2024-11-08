@@ -7,8 +7,8 @@ export interface UserInfo {
 
 
 export interface ApiKeys {
-  openAiKey: string | null;
-  claudeKey: string | null;
-  geminiKey: string | null;
-  clovaKey: string | null;
+  openAiKey: string;
+  claudeKey: string;
+  geminiKey: string;
+  clovaKey: string;
 }

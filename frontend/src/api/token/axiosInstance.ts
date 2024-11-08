@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json'
+    // 'Content-Type': 'application/json'
   },
   withCredentials: true // 쿠키 전송 허용
 });

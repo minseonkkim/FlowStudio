@@ -8,7 +8,7 @@ export default function CreateStep() {
   const [currentStep, ] = useRecoilState(currentStepState); 
 
   return (
-    <div className="border-r border-r-[#E0E0E0] bg-gray-50">
+    <div className="border-r border-r-[#E0E0E0] bg-gray-50 h-full">
       <p className="text-lg font-semibold pt-10 pl-8 text-[#333333]">지식 생성</p>
       <div className="mt-4">
         <div className={`flex items-center pl-8 py-3 ${currentStep === 1 ? "text-[#9A75BF]" : "text-[#757575]"}`}>
