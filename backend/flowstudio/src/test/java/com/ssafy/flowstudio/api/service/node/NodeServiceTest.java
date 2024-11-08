@@ -3,14 +3,15 @@ package com.ssafy.flowstudio.api.service.node;
 import com.ssafy.flowstudio.api.service.node.request.CoordinateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.Node;
-import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import com.ssafy.flowstudio.domain.node.entity.Start;
+import com.ssafy.flowstudio.domain.edge.entity.Edge;
+import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
@@ -42,6 +43,7 @@ class NodeServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NodeRepository nodeRepository;
+
 
     @DisplayName("Node를 생성하면 타입에 맞는 노드가 생성된다.")
     @Test
@@ -205,4 +207,189 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
+    @DisplayName("선행 노드가 없는 노드를 상세 조회한다.")
+    @Test
+    void getFirstNode() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node start = Start.create(chatFlow, coordinate);
+        chatFlow.addNode(start);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        NodeResponse startDetailResponse = nodeService.getNode(user, start.getId());
+
+        // then
+        assertThat(startDetailResponse).isNotNull();
+        assertThat(startDetailResponse.getPrecedingNodes())
+                .isEmpty();
+        assertThat(startDetailResponse.getNodeId())
+                .isEqualTo(start.getId());
+    }
+
+    @DisplayName("Answer 노드를 상세 조회한다.")
+    @Test
+    void getNode() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node start = Start.create(chatFlow, coordinate);
+
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+
+        Edge edge = Edge.create(start, questionClassifier);
+
+        questionClassifier.getInputEdges().add(edge);
+
+        QuestionClass questionClass1 = QuestionClass.create("한국");
+        QuestionClass questionClass2 = QuestionClass.create("중국");
+        QuestionClass questionClass3 = QuestionClass.create("일본");
+
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClass2.updateQuestionClassifier(questionClassifier);
+        questionClass3.updateQuestionClassifier(questionClassifier);
+
+        Answer answer1 = Answer.create(chatFlow, coordinate);
+        Answer answer2 = Answer.create(chatFlow, coordinate);
+        Answer answer3 = Answer.create(chatFlow, coordinate);
+
+        Edge edge1 = Edge.create(questionClassifier, answer1, questionClass1.getId());
+        Edge edge2 = Edge.create(questionClassifier, answer2, questionClass2.getId());
+        Edge edge3 = Edge.create(questionClassifier, answer3, questionClass3.getId());
+
+        questionClass1.update(edge1, "한국");
+        questionClass2.update(edge2, "중국");
+        questionClass3.update(edge3, "일본");
+
+        questionClassifier.getOutputEdges().add(edge1);
+        questionClassifier.getOutputEdges().add(edge2);
+        questionClassifier.getOutputEdges().add(edge2);
+
+        answer1.getInputEdges().add(edge1);
+        answer2.getInputEdges().add(edge2);
+        answer3.getInputEdges().add(edge3);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer1);
+        chatFlow.addNode(answer2);
+        chatFlow.addNode(answer3);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        NodeResponse answerDetailResponse = nodeService.getNode(user, answer1.getId());
+
+        // then
+        assertThat(answerDetailResponse).isNotNull();
+        assertThat(answerDetailResponse.getPrecedingNodes())
+                .usingRecursiveFieldByFieldElementComparator()
+                .contains(SimpleNodeResponse.from(start), SimpleNodeResponse.from(questionClassifier));
+        assertThat(answerDetailResponse.getNodeId())
+                .isEqualTo(answer1.getId());
+    }
+
+
+    @DisplayName("노드의 Input Edges를 순회하여 선행 노드들을 불러온다.")
+    @Test
+    void getPrecedingNodes() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node start = Start.create(chatFlow, coordinate);
+
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+
+        Edge edge = Edge.create(start, questionClassifier);
+
+        questionClassifier.getInputEdges().add(edge);
+
+        QuestionClass questionClass1 = QuestionClass.create("한국");
+        QuestionClass questionClass2 = QuestionClass.create("중국");
+        QuestionClass questionClass3 = QuestionClass.create("일본");
+
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClass2.updateQuestionClassifier(questionClassifier);
+        questionClass3.updateQuestionClassifier(questionClassifier);
+
+        Answer answer1 = Answer.create(chatFlow, coordinate);
+        Answer answer2 = Answer.create(chatFlow, coordinate);
+        Answer answer3 = Answer.create(chatFlow, coordinate);
+
+        Edge edge1 = Edge.create(questionClassifier, answer1, questionClass1.getId());
+        Edge edge2 = Edge.create(questionClassifier, answer2, questionClass2.getId());
+        Edge edge3 = Edge.create(questionClassifier, answer3, questionClass3.getId());
+
+        questionClass1.update(edge1, "한국");
+        questionClass2.update(edge2, "중국");
+        questionClass3.update(edge3, "일본");
+
+        questionClassifier.getOutputEdges().add(edge1);
+        questionClassifier.getOutputEdges().add(edge2);
+        questionClassifier.getOutputEdges().add(edge2);
+
+        answer1.getInputEdges().add(edge1);
+        answer2.getInputEdges().add(edge2);
+        answer3.getInputEdges().add(edge3);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer1);
+        chatFlow.addNode(answer2);
+        chatFlow.addNode(answer3);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        List<Node> precedingNodes = nodeService.getPrecedingNodes(user, answer1);
+
+        // then
+        assertThat(precedingNodes)
+                .hasSize(2)
+                .contains(start, questionClassifier);
+    }
 }

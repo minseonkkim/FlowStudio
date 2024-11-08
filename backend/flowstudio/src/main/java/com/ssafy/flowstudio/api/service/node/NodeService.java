@@ -3,12 +3,13 @@ package com.ssafy.flowstudio.api.service.node;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
-import com.ssafy.flowstudio.api.service.node.response.factory.NodeResponseFactory;
-import com.ssafy.flowstudio.api.service.node.response.factory.NodeResponseFactoryProvider;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponseMapper;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.edge.entity.Edge;
+import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.factory.NodeFactory;
@@ -18,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -26,7 +30,8 @@ public class NodeService {
     private final NodeRepository nodeRepository;
     private final ChatFlowRepository chatFlowRepository;
     private final NodeFactoryProvider nodeFactoryProvider;
-    private final NodeResponseFactoryProvider nodeResponseFactoryProvider;
+    private final NodeDetailResponseMapper nodeDetailResponseMapper;
+    private final EdgeRepository edgeRepository;
 
     @Transactional
     public NodeCreateResponse createNode(User user, NodeCreateServiceRequest request) {
@@ -58,16 +63,29 @@ public class NodeService {
         return true;
     }
 
-    public NodeResponse getNode(Long nodeId) {
+    public NodeResponse getNode(User user, Long nodeId) {
         Node node = nodeRepository.findById(nodeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
 
-        NodeResponseFactory responseFactory = nodeResponseFactoryProvider.getFactory(node.getType());
-        NodeResponse nodeDetailResponse = responseFactory.createNodeDetailResponse(node);
+        List<Node> precedingNodes = getPrecedingNodes(user, node);
 
-        // TODO : 선행노드 가져오기
+        return nodeDetailResponseMapper.getCorrespondNodeDetailResponse(node, precedingNodes);
+    }
 
-        nodeDetailResponse.updatePrecedingNodes(null);
-        return nodeDetailResponse;
+    public List<Node> getPrecedingNodes(User user, Node node) {
+        // 영속성 컨텍스트에 해당 ChatFlow의 모든 Edge들을 로드한다.
+        List<Edge> edges = edgeRepository.findByChatFlowId(node.getChatFlow().getId());
+        HashSet<Node> precedingNodes = new HashSet<>();
+        traverse(node, precedingNodes);
+        return precedingNodes.stream().toList();
+    }
+
+    public static void traverse(Node node, HashSet<Node> precedingNodes) {
+        List<Edge> inputEdges = node.getInputEdges();
+        for (Edge edge : inputEdges) {
+            Node sourceNode = edge.getSourceNode();
+            precedingNodes.add(sourceNode);
+            traverse(sourceNode, precedingNodes);
+        }
     }
 }

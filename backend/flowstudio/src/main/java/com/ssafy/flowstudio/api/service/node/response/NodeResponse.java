@@ -31,6 +31,17 @@ public abstract class NodeResponse {
         this.inputEdges = inputEdges;
     }
 
+    // 선행 노드 포함한 DetailRespose 위한 생성자
+    protected NodeResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, List<SimpleNodeResponse> precedingNodes) {
+        this.nodeId = nodeId;
+        this.name = name;
+        this.type = type;
+        this.coordinate = coordinate;
+        this.outputEdges = outputEdges;
+        this.inputEdges = inputEdges;
+        this.precedingNodes = precedingNodes;
+    }
+
     public void updatePrecedingNodes(List<Node> precedingNodes) {
         this.precedingNodes = precedingNodes.stream().map(SimpleNodeResponse::from).toList();
     }

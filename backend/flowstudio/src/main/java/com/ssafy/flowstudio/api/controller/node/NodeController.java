@@ -58,6 +58,6 @@ public class NodeController {
             @CurrentUser User user,
             @PathVariable Long nodeId
     ) {
-        return ApiResponse.ok(nodeService.getNode(nodeId));
+        return ApiResponse.ok(nodeService.getNode(user, nodeId));
     }
 }
