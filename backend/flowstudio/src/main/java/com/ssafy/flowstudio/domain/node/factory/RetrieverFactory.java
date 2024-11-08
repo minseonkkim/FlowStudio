@@ -7,7 +7,7 @@ public class RetrieverFactory extends NodeFactory {
 
     @Override
     public Node createNode(ChatFlow chatFlow, Coordinate coordinate) {
-        return Retriever.create(chatFlow, coordinate);
+        return Retriever.create(chatFlow, coordinate, 1, 3, 0);
     }
 
 }
