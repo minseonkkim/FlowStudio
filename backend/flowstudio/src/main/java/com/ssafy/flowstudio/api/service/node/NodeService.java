@@ -44,7 +44,7 @@ public class NodeService {
         }
 
         NodeFactory factory = nodeFactoryProvider.getFactory(request.getType());
-        Coordinate coordinate = Coordinate.create(request.getCoordinate().getY(), request.getCoordinate().getY());
+        Coordinate coordinate = Coordinate.create(request.getCoordinate().getX(), request.getCoordinate().getY());
 
         Node savedNode = nodeRepository.save(factory.createNode(chatFlow, coordinate));
 
