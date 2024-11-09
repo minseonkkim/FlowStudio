@@ -11,7 +11,9 @@ import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
 import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.QuestionClassifierResponse;
+import com.ssafy.flowstudio.api.service.node.response.RetrieverResponse;
 import com.ssafy.flowstudio.api.service.node.response.StartResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
@@ -22,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
@@ -153,6 +156,12 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .targetNodeId(4L)
                 .build();
 
+        EdgeResponse edge4 = EdgeResponse.builder()
+                .edgeId(4L)
+                .sourceNodeId(4L)
+                .targetNodeId(5L)
+                .build();
+
         CoordinateResponse coordinate = CoordinateResponse.builder()
                 .x(100)
                 .y(100)
@@ -177,31 +186,53 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .outputEdges(List.of(edge2))
                 .build();
 
-        NodeResponse node3 = LlmResponse.builder()
+        KnowledgeResponse knowledge = KnowledgeResponse.builder()
+                .knowledgeId(1L)
+                .title("title")
+                .isPublic(true)
+                .createdAt(LocalDateTime.of(2021, 1, 1, 0, 0))
+                .totalToken(10)
+                .build();
+
+        NodeResponse node3 = RetrieverResponse.builder()
                 .nodeId(3L)
+                .name("Retriever")
+                .type(NodeType.RETRIEVER)
+                .coordinate(coordinate)
+                .knowledge(knowledge)
+                .intervalTime(10)
+                .topK(10)
+                .scoreThreshold(0.5f)
+                .query("query")
+                .inputEdges(List.of(edge2))
+                .outputEdges(List.of(edge3))
+                .build();
+
+        NodeResponse node4 = LlmResponse.builder()
+                .nodeId(4L)
                 .name("LLM")
                 .type(NodeType.LLM)
                 .promptSystem("promptSystem")
                 .promptUser("promptUser")
                 .coordinate(coordinate)
-                .inputEdges(List.of(edge2))
-                .outputEdges(List.of(edge3))
+                .inputEdges(List.of(edge3))
+                .outputEdges(List.of(edge4))
                 .build();
 
-        NodeResponse node4 = AnswerResponse.builder()
-                .nodeId(4L)
+        NodeResponse node5 = AnswerResponse.builder()
+                .nodeId(5L)
                 .name("Answer")
                 .type(NodeType.ANSWER)
                 .coordinate(coordinate)
                 .outputEdges(List.of())
-                .inputEdges(List.of(edge3))
+                .inputEdges(List.of(edge4))
                 .outputMessage("outputMessage")
                 .build();
 
         ChatFlowResponse response = ChatFlowResponse.builder()
                 .chatFlowId(1L)
                 .title("title")
-                .nodes(List.of(node1, node2, node3, node4))
+                .nodes(List.of(node1, node2, node3, node4, node5))
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
@@ -240,6 +271,24 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("노드 타입"),
                                         fieldWithPath("data.nodes[].questionClasses").optional().type(JsonFieldType.STRING)
                                                 .description("노드 타입"),
+                                        fieldWithPath("data.nodes[].intervalTime").optional().type(JsonFieldType.NUMBER)
+                                                .description("Retriever노드 intervalTime"),
+                                        fieldWithPath("data.nodes[].topK").optional().type(JsonFieldType.NUMBER)
+                                                .description("Retriever노드 topK"),
+                                        fieldWithPath("data.nodes[].scoreThreshold").optional().type(JsonFieldType.NUMBER)
+                                                .description("Retriever노드 scoreThreshold"),
+                                        fieldWithPath("data.nodes[].query").optional().type(JsonFieldType.STRING)
+                                                .description("Retriever노드 query"),
+                                        fieldWithPath("data.nodes[].knowledge.knowledgeId").optional().type(JsonFieldType.NUMBER)
+                                                .description("Retriever노드 지식 아이디"),
+                                        fieldWithPath("data.nodes[].knowledge.title").optional().type(JsonFieldType.STRING)
+                                                .description("Retriever노드 지식 제목"),
+                                        fieldWithPath("data.nodes[].knowledge.isPublic").optional().type(JsonFieldType.BOOLEAN)
+                                                .description("Retriever노드 지식 공개여부"),
+                                        fieldWithPath("data.nodes[].knowledge.createdAt").optional().type(JsonFieldType.STRING)
+                                                .description("Retriever노드 지식 생성일"),
+                                        fieldWithPath("data.nodes[].knowledge.totalToken").optional().type(JsonFieldType.NUMBER)
+                                                .description("Retriever노드 지식 토큰 수"),
                                         fieldWithPath("data.nodes[].promptSystem").optional().type(JsonFieldType.STRING)
                                                 .description("LLM노드 시스템프롬프트"),
                                         fieldWithPath("data.nodes[].promptUser").optional().type(JsonFieldType.STRING)
