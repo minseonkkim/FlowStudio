@@ -10,6 +10,7 @@ import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
 import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.QuestionClassifierResponse;
 import com.ssafy.flowstudio.api.service.node.response.StartResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
@@ -140,9 +141,16 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .build();
 
         EdgeResponse edge2 = EdgeResponse.builder()
-                .edgeId(1L)
+                .edgeId(2L)
                 .sourceNodeId(2L)
                 .targetNodeId(3L)
+                .sourceConditionId(1L)
+                .build();
+
+        EdgeResponse edge3 = EdgeResponse.builder()
+                .edgeId(3L)
+                .sourceNodeId(3L)
+                .targetNodeId(4L)
                 .build();
 
         CoordinateResponse coordinate = CoordinateResponse.builder()
@@ -160,31 +168,40 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .maxLength(10)
                 .build();
 
-        NodeResponse node2 = LlmResponse.builder()
+        NodeResponse node2 = QuestionClassifierResponse.builder()
                 .nodeId(2L)
-                .name("LLM")
-                .type(NodeType.LLM)
-                .promptSystem("promptSystem")
-                .promptUser("promptUser")
+                .name("QuestionClassifier")
+                .type(NodeType.QUESTION_CLASSIFIER)
                 .coordinate(coordinate)
                 .inputEdges(List.of(edge1))
                 .outputEdges(List.of(edge2))
                 .build();
 
-        NodeResponse node3 = AnswerResponse.builder()
+        NodeResponse node3 = LlmResponse.builder()
                 .nodeId(3L)
+                .name("LLM")
+                .type(NodeType.LLM)
+                .promptSystem("promptSystem")
+                .promptUser("promptUser")
+                .coordinate(coordinate)
+                .inputEdges(List.of(edge2))
+                .outputEdges(List.of(edge3))
+                .build();
+
+        NodeResponse node4 = AnswerResponse.builder()
+                .nodeId(4L)
                 .name("Answer")
                 .type(NodeType.ANSWER)
                 .coordinate(coordinate)
                 .outputEdges(List.of())
-                .inputEdges(List.of(edge2))
+                .inputEdges(List.of(edge3))
                 .outputMessage("outputMessage")
                 .build();
 
         ChatFlowResponse response = ChatFlowResponse.builder()
                 .chatFlowId(1L)
                 .title("title")
-                .nodes(List.of(node1, node2, node3))
+                .nodes(List.of(node1, node2, node3, node4))
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
@@ -220,6 +237,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)
                                                 .description("노드 이름"),
                                         fieldWithPath("data.nodes[].type").type(JsonFieldType.STRING)
+                                                .description("노드 타입"),
+                                        fieldWithPath("data.nodes[].questionClasses").optional().type(JsonFieldType.STRING)
                                                 .description("노드 타입"),
                                         fieldWithPath("data.nodes[].promptSystem").optional().type(JsonFieldType.STRING)
                                                 .description("LLM노드 시스템프롬프트"),
