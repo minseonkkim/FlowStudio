@@ -2,13 +2,11 @@ package com.ssafy.flowstudio.domain.node.entity;
 
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
-import com.ssafy.flowstudio.domain.model.Model;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.simpleframework.xml.stream.Mode;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,30 +22,43 @@ public class LLM extends Node {
     @Column
     private String context;
 
-    @Lob
-    private String modelParamList;
+    @Column
+    private double temperature;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "model_id", nullable = true)
-    private Model model;
+    @Column
+    private int maxTokens;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ModelProvider modelProvider;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ModelName modelName;
 
     @Builder
-    private LLM(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String promptSystem, String promptUser, String context, String modelParamList, Model model) {
+    private LLM(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String promptSystem, String promptUser, String context, double temperature, int maxTokens, ModelProvider modelProvider, ModelName modelName) {
         super(id, chatFlow, name, type, coordinate);
         this.promptSystem = promptSystem;
         this.promptUser = promptUser;
         this.context = context;
-        this.modelParamList = modelParamList;
-        this.model = model;
+        this.temperature = temperature;
+        this.maxTokens = maxTokens;
+        this.modelProvider = modelProvider;
+        this.modelName = modelName;
     }
 
     public static LLM create(ChatFlow chatFlow, Coordinate coordinate) {
         return LLM.builder()
-            .chatFlow(chatFlow)
-            .name("LLM")
-            .type(NodeType.LLM)
-            .coordinate(coordinate)
-            .build();
+                .chatFlow(chatFlow)
+                .name("LLM")
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .temperature(0.7)
+                .maxTokens(512)
+                .modelProvider(ModelProvider.OPENAI)
+                .modelName(ModelName.GPT_4_O_MINI)
+                .build();
     }
 
     @Override

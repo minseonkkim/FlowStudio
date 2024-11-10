@@ -70,6 +70,9 @@ dependencies {
     implementation ('dev.langchain4j:langchain4j-spring-boot-starter:0.35.0') {
         exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'
     }
+    implementation ('dev.langchain4j:langchain4j-anthropic:0.35.0') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-xml'
+    }
 
     // Spring AI
     implementation platform("org.springframework.ai:spring-ai-bom:1.0.0-SNAPSHOT")
@@ -116,6 +119,8 @@ dependencies {
     // Json
     implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.9'
 
+    // AWS s3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 dependencyManagement {

@@ -2,8 +2,10 @@ package com.ssafy.flowstudio.api.service.rag;
 
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeServiceRequest;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeCreateServiceResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeListResponse;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeSearchResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
@@ -38,9 +40,15 @@ public class KnowledgeService {
         return KnowledgeResponse.from(knowledge);
     }
 
+    public KnowledgeSearchResponse getKnowledge(Long knowledgeId) {
+        Knowledge knowledge = knowledgeRepository.findByIdAndPublic(knowledgeId, true)
+                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
+        return KnowledgeSearchResponse.from(knowledge);
+    }
+
     @Transactional
     public KnowledgeResponse createKnowledge(User user, KnowledgeCreateServiceRequest request) {
-        Knowledge knowledge = Knowledge.create(user, request.getFile().getOriginalFilename(), false);
+        Knowledge knowledge = Knowledge.create(user, request.getFile().getOriginalFilename(), true, 0);
         knowledgeRepository.save(knowledge);
 
         String collectionName = milvusUtils.generateName(user.getId());
@@ -48,9 +56,13 @@ public class KnowledgeService {
 
         vectorStoreService.createCollection(collectionName);
         vectorStoreService.createPartition(collectionName, partitionName);
-        if (!vectorStoreService.upsertDocument(collectionName, partitionName, request)) {
+        KnowledgeCreateServiceResponse knowledgeCreateServiceResponse = vectorStoreService.upsertDocument(collectionName, partitionName, request);
+        if (!knowledgeCreateServiceResponse.getIsComplete()) {
             throw new BaseException(ErrorCode.KNOWLEDGE_INSERT_UNAVAILABLE);
         }
+
+        knowledge.updateToken(knowledgeCreateServiceResponse.getTotalToken());
+        knowledgeRepository.save(knowledge);
 
         return KnowledgeResponse.from(knowledge);
     }
