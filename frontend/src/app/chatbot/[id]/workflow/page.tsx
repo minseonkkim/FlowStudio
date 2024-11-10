@@ -67,7 +67,7 @@ interface Variable {
   isEditing: boolean;
 }
 
-const nodeTypes: { [key: string]: any } = {
+const nodeTypes: { [key: string]: unknown } = {
   START: StartNode,
   LLM: LlmNode,
   RETRIEVER: KnowledgeNode,
@@ -97,6 +97,12 @@ export default function Page({ params }: WorkflowPageProps) {
     queryFn: ({ queryKey }) => getChatFlow(queryKey[1] as number) 
   });
 
+  useEffect(() => {
+    if (isError && error) {
+      alert("챗플로우를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
   // 노드 삭제
   const deleteMutation = useMutation({
     mutationFn: deleteNode,
@@ -107,6 +113,8 @@ export default function Page({ params }: WorkflowPageProps) {
       alert("노드 삭제에 실패했습니다. 다시 시도해 주세요.");
     },
   });
+
+  // 엣지 생성
 
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
@@ -136,14 +144,14 @@ export default function Page({ params }: WorkflowPageProps) {
     if (chatFlow?.nodes) {
       setNodes(chatFlow.nodes);
 
-      const generatedEdges = chatFlow.nodes.flatMap((node) =>
+      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
         node.outputEdges.map((edge) => ({
           id: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
           source: String(edge.sourceNodeId),
           target: String(edge.targetNodeId),
         }))
       );
-      setEdges(generatedEdges);
+      setEdges(fetchedEdges);
     }
   }, [chatFlow]);
 
@@ -660,8 +668,6 @@ export default function Page({ params }: WorkflowPageProps) {
   const confirmedDeleteNode = useCallback(
     (nodeId: number) => {
         deleteMutation.mutate(nodeId);
-        // setNodes((nds) => nds.filter((node) => node.nodeId !== nodeId));
-        // setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
         setSelectedNode(null);
         setShowConfirmationModal(false);
         setNodeToDelete(null);
