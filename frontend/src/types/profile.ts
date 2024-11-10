@@ -1,4 +1,4 @@
-export interface UserInfos {
+export interface UserInfo {
   id: number;
   username: string;
   nickname: string;
@@ -7,8 +7,8 @@ export interface UserInfos {
 
 
 export interface ApiKeys {
-  openAiKey: string | null;
-  claudeKey: string | null;
-  geminiKey: string | null;
-  clovaKey: string | null;
+  openAiKey: string;
+  claudeKey: string;
+  geminiKey: string;
+  clovaKey: string;
 }
