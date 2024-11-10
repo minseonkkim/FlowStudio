@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.controller.user;
 
 import com.ssafy.flowstudio.api.controller.user.request.UserNicknameUpdateRequest;
+import com.ssafy.flowstudio.api.service.user.response.TokenUsageLogResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
@@ -9,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -134,6 +138,35 @@ class UserControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
                 .andExpect(jsonPath("$.message").value("닉네임은 필수입니다."))
                 .andExpect(jsonPath("$.data").isEmpty());
+    }
+
+    @DisplayName("토큰 사용로그를 조회한다.")
+    @WithMockUser
+    @Test
+    public void getTokenUsageLog() throws Exception {
+        // given
+        TokenUsageLogResponse response = TokenUsageLogResponse.builder()
+                .id(1L)
+                .tokenUsage(1)
+                .createdAt(LocalDateTime.of(2021, 1, 1, 0, 0))
+                .build();
+
+        given(userService.getTokenUsageLogs(any(User.class)))
+                .willReturn(List.of(response));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/users/token-usage-logs")
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
     }
 
 }

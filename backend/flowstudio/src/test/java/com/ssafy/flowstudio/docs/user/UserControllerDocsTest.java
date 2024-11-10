@@ -5,6 +5,7 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.ssafy.flowstudio.api.controller.user.UserController;
 import com.ssafy.flowstudio.api.controller.user.request.UserNicknameUpdateRequest;
 import com.ssafy.flowstudio.api.service.user.UserService;
+import com.ssafy.flowstudio.api.service.user.response.TokenUsageLogResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -13,6 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
@@ -178,6 +183,50 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                                 .description("프로필 이미지")
                                 )
                                 .build())));
+    }
+
+    @DisplayName("토큰 사용로그를 조회한다.")
+    @Test
+    void getTokenUsageLogs() throws Exception {
+        // given
+        TokenUsageLogResponse response = TokenUsageLogResponse.builder()
+                .id(1L)
+                .tokenUsage(1)
+                .createdAt(LocalDateTime.of(2021, 1, 1, 0, 0))
+                .build();
+
+        given(userService.getTokenUsageLogs(any(User.class)))
+                .willReturn(List.of(response));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/users/token-usage-logs")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("user-token-usage-logs",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User")
+                                .summary("토큰 사용내역 조회")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data[].id").type(JsonFieldType.NUMBER)
+                                                .description("토큰 사용량 로그 아이디"),
+                                        fieldWithPath("data[].tokenUsage").type(JsonFieldType.NUMBER)
+                                                .description("사용량"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.STRING)
+                                                .description("사용 날짜")
+                                )
+                                .build())));
+
     }
 
 }

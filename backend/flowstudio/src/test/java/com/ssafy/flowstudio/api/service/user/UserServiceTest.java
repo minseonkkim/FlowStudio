@@ -1,9 +1,13 @@
 package com.ssafy.flowstudio.api.service.user;
 
 import com.ssafy.flowstudio.api.service.user.request.UserNicknameUpdateServiceRequest;
+import com.ssafy.flowstudio.api.service.user.response.TokenUsageLogResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.domain.user.entity.ApiKey;
+import com.ssafy.flowstudio.domain.user.entity.TokenUsageLog;
+import com.ssafy.flowstudio.domain.user.entity.TokenUsageLogRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
@@ -28,6 +32,9 @@ class UserServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TokenUsageLogRepository tokenUsageLogRepository;
 
     @DisplayName("로그인한 유저의 정보를 조회한다")
     @Test
@@ -132,6 +139,42 @@ class UserServiceTest extends IntegrationTestSupport {
         assertThatThrownBy(() -> userService.updateNickname(user2, request))
                 .isInstanceOf(BaseException.class)
                 .hasMessage(ErrorCode.NICKNAME_ALREADY_EXISTS.getMessage());
+    }
+
+    @DisplayName("토큰 사용기록을 조회한다.")
+    @Test
+    public void getTokenUsageLogs() {
+        // given
+        ApiKey apiKey = ApiKey.empty();
+
+        User user = User.builder()
+                .username("username")
+                .apiKey(apiKey)
+                .build();
+
+        TokenUsageLog log1 = TokenUsageLog.builder()
+                .user(user)
+                .tokenUsage(10)
+                .build();
+
+        TokenUsageLog log2 = TokenUsageLog.builder()
+                .user(user)
+                .tokenUsage(20)
+                .build();
+
+        userRepository.save(user);
+        tokenUsageLogRepository.saveAll(List.of(log1, log2));
+
+
+
+        // when
+        List<TokenUsageLogResponse> response = userService.getTokenUsageLogs(user);
+
+        // then
+        assertThat(response)
+                .hasSize(2)
+                .extracting("tokenUsage")
+                .contains(10, 20);
     }
 
 }

@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.controller.user;
 
 import com.ssafy.flowstudio.api.controller.user.request.UserNicknameUpdateRequest;
 import com.ssafy.flowstudio.api.service.user.UserService;
+import com.ssafy.flowstudio.api.service.user.response.TokenUsageLogResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
@@ -12,6 +13,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -72,4 +75,15 @@ public class UserController {
         return ApiResponse.ok(userService.getUser(user));
     }
 
+    /**
+     * 토큰 사용 로그 조회
+     * @param user
+     * @return
+     */
+    @GetMapping(value = "/api/v1/users/token-usage-logs")
+    public ApiResponse<List<TokenUsageLogResponse>> getTokenUsageLogs(
+            @CurrentUser User user
+    ) {
+        return ApiResponse.ok(userService.getTokenUsageLogs(user));
+    }
 }
