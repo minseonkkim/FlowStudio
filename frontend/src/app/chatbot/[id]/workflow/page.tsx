@@ -36,7 +36,7 @@ import { v4 as uunodeIdv4 } from "uuid";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
-import { deleteNode, postEdge } from "@/api/workflow";
+import { deleteNode, postEdge, deleteEdge } from "@/api/workflow";
 import { ChatFlowDetail, NodeData } from "@/types/chatbot";
 import { EdgeData } from "@/types/workflow";
 
@@ -92,6 +92,13 @@ const nodeTypeLabels: { [key: string]: string } = {
 export default function Page({ params }: WorkflowPageProps) {
   const chatFlowId = params.id;
   const queryClient = useQueryClient();
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const [nodes, setNodes] = useState<NodeData[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+
 
   // 챗플로우 상세 조회
   const { isLoading, isError, error, data: chatFlow } = useQuery<ChatFlowDetail>({
@@ -105,8 +112,24 @@ export default function Page({ params }: WorkflowPageProps) {
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    // 챗플로우 조회로 부터 받은 노드와 엣지 정보로 정보 갱신
+    if (chatFlow?.nodes) {
+      setNodes(chatFlow.nodes);
+      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
+        node.outputEdges.map((edge) => ({
+          id: String(edge.edgeId),
+          source: String(edge.sourceNodeId),
+          target: String(edge.targetNodeId),
+          sourceHandle: edge.sourceConditionId ? String(edge.sourceConditionId) : undefined,
+        }))
+      );
+      setEdges(fetchedEdges);
+    }
+  }, [chatFlow]);
+
   // 노드 삭제
-  const deleteMutation = useMutation({
+  const deleteNodeMutation = useMutation({
     mutationFn: deleteNode,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatFlow', chatFlowId] });
@@ -142,6 +165,46 @@ export default function Page({ params }: WorkflowPageProps) {
     [chatFlowId, connectEdge]
   );
 
+  // 엣지 삭제
+  const deleteEdgeMutation = useMutation({
+    mutationFn: ({ chatFlowId, edgeId }: { chatFlowId: number; edgeId: number }) =>
+      deleteEdge(chatFlowId, edgeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlow", chatFlowId] });
+      setSelectedEdge(null); 
+    },
+    onError: () => {
+      alert("엣지 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+  useEffect(() => {
+    const handleDeleteKey = (event: KeyboardEvent) => {
+      if (event.key === "Delete" && selectedEdge) {
+        const edgeId = parseInt(selectedEdge.id, 10);
+  
+        if (!isNaN(edgeId)) {
+          deleteEdgeMutation.mutate({
+            chatFlowId,
+            edgeId,
+          });
+        } else {
+          console.error("Invalid edgeId:", selectedEdge.id);
+        }
+      }
+    };
+  
+    window.addEventListener("keydown", handleDeleteKey);
+    return () => {
+      window.removeEventListener("keydown", handleDeleteKey);
+    };
+  }, [chatFlowId, deleteEdgeMutation, selectedEdge]);
+
+  // 엣지 클릭
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    setSelectedEdge(edge); 
+  }, []);
+
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
   >([
@@ -158,28 +221,6 @@ export default function Page({ params }: WorkflowPageProps) {
   //   { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
   // ];
 
-
-  const [nodes, setNodes] = useState<NodeData[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
-  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
-  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
-
-  useEffect(() => {
-    // 챗플로우 조회로 부터 받은 노드와 엣지 정보로 정보 갱신
-    if (chatFlow?.nodes) {
-      setNodes(chatFlow.nodes);
-
-      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
-        node.outputEdges.map((edge) => ({
-          id: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
-          source: String(edge.sourceNodeId),
-          target: String(edge.targetNodeId),
-        }))
-      );
-      setEdges(fetchedEdges);
-    }
-  }, [chatFlow]);
 
   // const onNodesChange = useCallback((changes: NodeChange[]) => {
   //   setNodes((nds) => applyNodeChanges(changes, nds));
@@ -693,13 +734,13 @@ export default function Page({ params }: WorkflowPageProps) {
 
   const confirmedDeleteNode = useCallback(
     (nodeId: number) => {
-        deleteMutation.mutate(nodeId);
+      deleteNodeMutation.mutate(nodeId);
         setSelectedNode(null);
         setShowConfirmationModal(false);
         setNodeToDelete(null);
         setNodeTypeToDelete(null);
       },
-      [deleteMutation]
+      [deleteNodeMutation]
     );
   
   const openDeleteModal = (nodeId: number, nodeType: string) => {
@@ -751,6 +792,7 @@ export default function Page({ params }: WorkflowPageProps) {
             // onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             zoomOnScroll={true}
             zoomOnPinch={true}
             panOnScroll={true}
