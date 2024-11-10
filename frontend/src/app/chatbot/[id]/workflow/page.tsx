@@ -11,6 +11,7 @@ import ReactFlow, {
   EdgeChange,
   ReactFlowProvider,
   Node,
+  Edge
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/workflow/customnode/StartNode";
@@ -32,8 +33,9 @@ import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
 import { v4 as uunodeIdv4 } from "uuid";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
+import { deleteNode } from "@/api/workflow";
 import { ChatFlowDetail, NodeData } from "@/types/chatbot";
 
 interface WorkflowPageProps {
@@ -65,7 +67,7 @@ interface Variable {
   isEditing: boolean;
 }
 
-const nodeTypes: { [key: string]: any } = {
+const nodeTypes: { [key: string]: unknown } = {
   START: StartNode,
   LLM: LlmNode,
   RETRIEVER: KnowledgeNode,
@@ -86,12 +88,33 @@ const nodeTypeLabels: { [key: string]: string } = {
 };
 
 export default function Page({ params }: WorkflowPageProps) {
-  const pageId = params.id;
+  const chatFlowId = params.id;
+  const queryClient = useQueryClient();
 
+  // 챗플로우 상세 조회
   const { isLoading, isError, error, data: chatFlow } = useQuery<ChatFlowDetail>({
-    queryKey: ['chatFlow', pageId],  
+    queryKey: ['chatFlow', chatFlowId],  
     queryFn: ({ queryKey }) => getChatFlow(queryKey[1] as number) 
   });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("챗플로우를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
+  // 노드 삭제
+  const deleteMutation = useMutation({
+    mutationFn: deleteNode,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chatFlow', chatFlowId] });
+    },
+    onError: () => {
+      alert("노드 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
+  // 엣지 생성
 
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
@@ -100,37 +123,36 @@ export default function Page({ params }: WorkflowPageProps) {
     { name: "변수2", value: "", type: "string", isEditing: false },
   ]);
 
-  const initialEdges = [
-    { nodeId: "e1-2", source: 1, target: 2 },
-    { nodeId: "e2-3", source: 2, target: 3 },
-    { nodeId: "e3-4", source: 3, target: 4 },
-    { nodeId: "e4-5", source: 4, target: 5, sourceHandle: "elifsource" },
-    { nodeId: "e5-6", source: 5, target: 6 },
-    { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
-  ];
+  // const initialEdges = [
+  //   { nodeId: "e1-2", source: 1, target: 2 },
+  //   { nodeId: "e2-3", source: 2, target: 3 },
+  //   { nodeId: "e3-4", source: 3, target: 4 },
+  //   { nodeId: "e4-5", source: 4, target: 5, sourceHandle: "elifsource" },
+  //   { nodeId: "e5-6", source: 5, target: 6 },
+  //   { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
+  // ];
 
 
   const [nodes, setNodes] = useState<NodeData[]>([]);
-  const [edges, setEdges] = useState(initialEdges);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
   const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
   const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
   useEffect(() => {
-      console.log("노드 확인", chatFlow)
-      if (chatFlow?.nodes) {
-        setNodes(chatFlow.nodes);
-      }
+    // 챗플로우 조회로 부터 받은 노드와 엣지 정보로 정보 갱신
+    if (chatFlow?.nodes) {
+      setNodes(chatFlow.nodes);
 
-      // const fetchedEdges = chatFlow.nodes.flatMap(node =>
-      //   node.outputEdges.map(edge => ({
-      //     nodeId: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
-      //     source: String(edge.sourceNodeId),
-      //     target: String(edge.targetNodeId),
-      //   }))
-      // );
-      // setEdges(fetchedEdges);
-      // }
+      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
+        node.outputEdges.map((edge) => ({
+          id: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
+          source: String(edge.sourceNodeId),
+          target: String(edge.targetNodeId),
+        }))
+      );
+      setEdges(fetchedEdges);
+    }
   }, [chatFlow]);
 
   // const onNodesChange = useCallback((changes: NodeChange[]) => {
@@ -633,26 +655,25 @@ export default function Page({ params }: WorkflowPageProps) {
       outputMessage: node.outputMessage,
       promptSystem: node.promptSystem,
       promptUser: node.promptUser,
+      onDelete: () => openDeleteModal(node.nodeId, node.type ?? ""),
     }, 
     type: node.type,
-    selected: node.nodeId === selectedNodeId,
-    onDelete: () => openDeleteModal(node.nodeId, node.type ?? ""),
+    selected: node.nodeId === selectedNodeId, 
   }));
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [nodeToDelete, setNodeToDelete] = useState<number | null>(null);
   const [nodeTypeToDelete, setNodeTypeToDelete] = useState<string | null>(null);
 
-  const deleteNode = useCallback(
+  const confirmedDeleteNode = useCallback(
     (nodeId: number) => {
-        setNodes((nds) => nds.filter((node) => node.nodeId !== nodeId));
-        setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+        deleteMutation.mutate(nodeId);
         setSelectedNode(null);
         setShowConfirmationModal(false);
         setNodeToDelete(null);
         setNodeTypeToDelete(null);
       },
-      [setNodes, setEdges]
+      [deleteMutation]
     );
   
   const openDeleteModal = (nodeId: number, nodeType: string) => {
@@ -663,7 +684,7 @@ export default function Page({ params }: WorkflowPageProps) {
 
   const handleConfirmDelete = () => {
     if (nodeToDelete) {
-      deleteNode(nodeToDelete);
+      confirmedDeleteNode(nodeToDelete);
     }
   };
 
@@ -699,7 +720,7 @@ export default function Page({ params }: WorkflowPageProps) {
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
             nodes={nodesWithSelection}
-            // edges={edges}
+            edges={edges}
             // onNodesChange={onNodesChange}
             // onEdgesChange={onEdgesChange}
             onNodeClick={onNodeClick}
