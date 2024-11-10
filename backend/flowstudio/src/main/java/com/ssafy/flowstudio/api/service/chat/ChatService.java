@@ -42,10 +42,10 @@ public class ChatService {
         if (user == null) {
             user = User.createAnonymous();
         }
-
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
+        log.info("Preview: {}", request.isPreview());
         Chat chat = Chat.create(user, chatFlow, request.isPreview());
         Chat savedChat = chatRepository.save(chat);
 

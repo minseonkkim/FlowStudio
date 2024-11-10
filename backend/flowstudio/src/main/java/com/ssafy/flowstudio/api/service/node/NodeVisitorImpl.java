@@ -6,7 +6,6 @@ import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +30,7 @@ public class NodeVisitorImpl implements NodeVisitor {
 
     @Override
     public void start(String message, Chat chat) {
+        log.info("Start chat flow");
         List<Node> nodes = chat.getChatFlow().getNodes();
 
         Node startNode = nodes.stream()
@@ -45,26 +45,31 @@ public class NodeVisitorImpl implements NodeVisitor {
 
     @Override
     public void visit(Start start, Chat chat) {
+        log.info("Visit start node");
         executors.get(start.getType()).execute(start, chat);
     }
 
     @Override
     public void visit(LLM llm, Chat chat) {
+        log.info("Visit llm node");
         executors.get(llm.getType()).execute(llm, chat);
     }
 
     @Override
     public void visit(QuestionClassifier questionClassifier, Chat chat) {
+        log.info("Visit question classifier node");
         executors.get(questionClassifier.getType()).execute(questionClassifier, chat);
     }
 
     @Override
     public void visit(Retriever retriever, Chat chat) {
+        log.info("Visit retriever node");
         executors.get(retriever.getType()).execute(retriever, chat);
     }
 
     @Override
     public void visit(Answer answer, Chat chat) {
+        log.info("Visit answer node");
         executors.get(answer.getType()).execute(answer, chat);
     }
 
