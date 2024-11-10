@@ -11,7 +11,8 @@ import ReactFlow, {
   EdgeChange,
   ReactFlowProvider,
   Node,
-  Edge
+  Edge,
+  Connection
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/workflow/customnode/StartNode";
@@ -35,8 +36,9 @@ import { v4 as uunodeIdv4 } from "uuid";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
-import { deleteNode } from "@/api/workflow";
+import { deleteNode, postEdge } from "@/api/workflow";
 import { ChatFlowDetail, NodeData } from "@/types/chatbot";
+import { EdgeData } from "@/types/workflow";
 
 interface WorkflowPageProps {
   params: {
@@ -115,6 +117,30 @@ export default function Page({ params }: WorkflowPageProps) {
   });
 
   // 엣지 생성
+  const connectEdge = useMutation({
+    mutationFn: ({ chatFlowId, data }: { chatFlowId: number; data: EdgeData }) =>
+      postEdge(chatFlowId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chatFlow', chatFlowId] });
+    },
+    onError: () => {
+      alert('엣지 연결에 실패했습니다. 다시 시도해 주세요.');
+    },
+  });
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      if (params.source && params.target) { 
+        const edgeData: EdgeData = {
+          sourceNodeId: parseInt(params.source, 10),
+          targetNodeId: parseInt(params.target, 10),
+          sourceConditionId: null, 
+        };
+        connectEdge.mutate({ chatFlowId, data: edgeData });
+      }
+    },
+    [chatFlowId, connectEdge]
+  );
 
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
@@ -723,6 +749,7 @@ export default function Page({ params }: WorkflowPageProps) {
             edges={edges}
             // onNodesChange={onNodesChange}
             // onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
             onNodeClick={onNodeClick}
             zoomOnScroll={true}
             zoomOnPinch={true}
