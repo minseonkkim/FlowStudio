@@ -1,7 +1,7 @@
 import { useState } from "react";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import Search from "../common/Search";
-import { ChatFlow } from "@/types/chatbot"
+import { ChatFlow } from "@/types/chatbot";
 
 interface SelectChatbotProps {
   onNext: () => void;
@@ -9,10 +9,9 @@ interface SelectChatbotProps {
 
 const chatFlows: ChatFlow[] = [
   {
-    chatFlowId: 1,
+    chatFlowId: "1",
     title: "챗봇 1",
-    description:
-      "챗봇 1 묘사",
+    description: "챗봇 1 묘사",
     author: {
       id: 1,
       username: "김싸피",
@@ -27,10 +26,9 @@ const chatFlows: ChatFlow[] = [
     public: true,
   },
   {
-    chatFlowId: 2,
+    chatFlowId: "2",
     title: "챗봇 2",
-    description:
-      "챗봇 2 묘사",
+    description: "챗봇 2 묘사",
     author: {
       id: 2,
       username: "정싸피",
@@ -53,14 +51,13 @@ const categories = [
   "전자 상거래",
   "여행",
   "교육",
-  "엔터테이먼트",
+  "엔터테인먼트",
   "기타",
 ];
 
 export default function SelectChatbot({ onNext }: SelectChatbotProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
 
   const filteredChatFlows = chatFlows.filter((bot) => {
     const matchesCategory =
@@ -78,20 +75,20 @@ export default function SelectChatbot({ onNext }: SelectChatbotProps) {
 
   return (
     <div>
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            {categories.map((label) => (
-              <button
-                key={label}
-                onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <Search onSearchChange={setSearchTerm} />
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          {categories.map((label) => (
+            <button
+              key={label}
+              onClick={() => handleCategoryClick(label)}
+              className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
+        <Search onSearchChange={setSearchTerm} />
+      </div>
 
       <div className="grid grid-cols-3 gap-6 mb-8">
         {filteredChatFlows.map((chatbot) => (
@@ -101,7 +98,9 @@ export default function SelectChatbot({ onNext }: SelectChatbotProps) {
             description={chatbot.description}
             category={chatbot.categories.map((cat) => cat.name)}
             iconId={chatbot.thumbnail}
-            onCardClick={() => {onNext()}}
+            onCardClick={() => {
+              onNext();
+            }}
           />
         ))}
       </div>

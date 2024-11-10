@@ -11,6 +11,7 @@ interface PopularChatbotCardProps {
   type?: "my" | "all" | "eval";
   onCardClick?: () => void;
   onButtonUpdateClick?: () => void;
+  onButtonDeleteClick?: () => void;
   onButtonShareClick?: () => void;
 }
 
@@ -22,6 +23,7 @@ export default function PopularChatbotCard({
   type,
   onCardClick,
   onButtonUpdateClick,
+  onButtonDeleteClick,
   onButtonShareClick,
 }: PopularChatbotCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -96,6 +98,9 @@ export default function PopularChatbotCard({
                     <li
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={() => {
+                        if (onButtonDeleteClick) {
+                          onButtonDeleteClick();
+                        }
                         setIsDropdownOpen(false);
                       }}
                     >

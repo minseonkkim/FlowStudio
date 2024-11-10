@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json'
+    // 'Content-Type': 'application/json'
   },
   withCredentials: true // 쿠키 전송 허용
 });
@@ -19,7 +19,6 @@ import { AxiosError } from 'axios';
 const setAuthorizationToken = async () => {
   try {
     const response = await noAuthAxios.post(`${BASE_URL}/auth/reissue`);
-    console.log("result: ", response)
 
     const authorizationHeader = response.headers['authorization'];
 

@@ -1,47 +1,107 @@
 'use client';
 
-import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { VscSettings } from '@react-icons/all-files/vsc/VscSettings';
 import { FaFile } from '@react-icons/all-files/fa/FaFile';
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosInformationCircleOutline';
 import { useRecoilState } from 'recoil';
-import { fileNameState } from '@/store/knoweldgeAtoms'; 
+import { fileNameState, fileState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms';
 import WhiteButton from '../common/whiteButton';
 import { Tooltip } from 'react-tooltip';
 import PurpleButton from '../common/PurpleButton';
+import { postKnowledge, postKnowledgeChunk } from "@/api/knowledge";
+import { ChunkList, KnowledgeData } from '@/types/knowledge'
+import { useRouter } from 'next/navigation';
+
 
 export default function CreateSecond() {
-  const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  // 세그먼트 식별자
-  const [maxChunkLength, setMaxChunkLength] = useState<number>(500); // 최대 청크 길이
-  const [chunkOverlap, setChunkOverlap] = useState<number>(50); // 청크 중첩
-  const [predictedChunkCount, ] = useState<number>(0); // 예상 청크 수 
-  const [fileName, ] = useRecoilState(fileNameState); // 파일 이름
+  const [segmentIdentifier, setSegmentIdentifier] = useState<string>('\\n\\n');  
+  const [maxChunkLength, setMaxChunkLength] = useState<number>(500); 
+  const [file] = useRecoilState(fileState); 
+  const [chunkOverlap, setChunkOverlap] = useState<number>(50); 
+  const [predictedChunkCount, setPredictedChunkCount] = useState<number>(0); 
+  const [chunks, setChunks] = useState<ChunkList[]>([])
+  const [fileName] = useRecoilState(fileNameState); 
   const [, setCurrentStep] = useRecoilState(currentStepState); 
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false); // 미리보기 열기
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false); 
+	const queryClient = useQueryClient();
+  const router = useRouter()
 
-  // 더미데이터
-  const chunks = [
-    {"chunk_number": "#001", "chunk_content": "프로젝트 계획서. 프로젝트 명칭과 계획서를 작성하며 필요한 내용을 기재합니다."},
-    {"chunk_number": "#002", "chunk_content": "팀 구성 및 역할. 팀원 각각의 역할을 정의하고 책임을 분담합니다."},
-    {"chunk_number": "#003", "chunk_content": "프로젝트 목표. 프로젝트의 최종 목표를 명확히 하고 중간 목표를 설정합니다."},
-    {"chunk_number": "#004", "chunk_content": "프로젝트 일정. 각 단계를 위한 세부 일정과 주요 마일스톤을 설정합니다."},
-    {"chunk_number": "#005", "chunk_content": "리스크 관리 계획. 프로젝트에서 발생할 수 있는 잠재적인 리스크와 그에 대한 대응 계획을 세웁니다."},
-    {"chunk_number": "#006", "chunk_content": "성과 평가 및 피드백 계획. 프로젝트의 성과를 평가하고 피드백을 받을 방법에 대해 작성합니다."}
-  ];
 
+  useEffect(() => {
+    if (!file) return;
+    createChunkMutation.mutate({
+      file,
+      chunkSize: maxChunkLength.toString(),
+      chunkOverlap: chunkOverlap.toString(),
+      separator: segmentIdentifier,
+    });
+  }, [file]);
+
+  // 미리보기 버튼 클릭 시 청크 요청
+  const onChangePreview = () => {
+    if (!file) return;
+    setIsPreviewOpen(true);
+    createChunkMutation.mutate({
+      file,
+      chunkSize: maxChunkLength.toString(),
+      chunkOverlap: chunkOverlap.toString(),
+      separator: segmentIdentifier,
+    });
+  };
+
+  // 지식 등록 후 다음 단계로 이동
   const onChange3Step = () => {
-    setCurrentStep(3)
-  }
+    if (!file) {
+      alert("파일을 업로드해주세요.");
+      return;
+    }
+
+    createMutation.mutate({
+      file,
+      chunkSize: maxChunkLength.toString(),
+      chunkOverlap: chunkOverlap.toString(),
+      separator: segmentIdentifier,
+    });
+    queryClient.invalidateQueries({ queryKey: ["knowledgeList"] }).then(() => {
+      router.refresh();  
+    })
+    setCurrentStep(3);
+  };
 
   const onChangeBack = () => {
-    setCurrentStep(1)
-  }
+    setCurrentStep(1);
+  };
 
-  const onChangePreview = () => {
-    setIsPreviewOpen(!isPreviewOpen)
-  }
+  const createMutation = useMutation({
+    mutationFn: postKnowledge,
+    onSuccess: (newKnowledge: KnowledgeData) => {
+      queryClient.setQueryData<KnowledgeData[]>(['knowledgeList'], (oldData = []) => [
+        ...oldData,
+        newKnowledge
+      ]);
+      setCurrentStep(3); 
+    },
+    onError: () => {
+      alert("지식 생성에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });;
+  
+
+  // 청크 미리보기 요청 및 결과 처리
+  const createChunkMutation = useMutation({
+    mutationFn: postKnowledgeChunk,
+    onSuccess: (data) => {
+      setPredictedChunkCount(data.chunkCount); 
+      setChunks(data.chunkList); 
+    },
+    onError: () => {
+      alert("청크 미리보기에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
 
   return (
     <>
@@ -60,9 +120,8 @@ export default function CreateSecond() {
                 </p>
               </div>
             </div>
-            
             <div className="border-b border-b-[#EAECF0]"></div>
-            
+
             <div className='flex flex-col items-center text-base font-normal mt-4'>
               <div className="w-[490px]">
                 <div className='flex gap-2 items-center'>
@@ -168,12 +227,12 @@ export default function CreateSecond() {
             </div>
 
             <div className='overflow-y-auto max-h-[calc(100vh-150px)] pt-4'> 
-              {chunks.map((chunk, index) => (
-                <div key={index} className="mb-4 p-4 w-[420px] min-h-[180px] h-auto rounded-lg bg-[rgba(217,217,217,0.2)] shadow-md">
+              {chunks.map((chunk) => (
+                <div key={chunk.chunkId} className="mb-4 p-4 w-[420px] min-h-[180px] h-auto rounded-lg bg-[rgba(217,217,217,0.2)] shadow-md">
                   <div className='border border-gray-400 w-[60px] h-[24px] rounded-lg text-center'>
-                    <p>{chunk.chunk_number}</p>
+                    <p># {String(chunk.chunkId).padStart(3, '0')}</p>
                   </div>
-                  <p className="mt-4">{chunk.chunk_content}</p>
+                  <p className="mt-4">{chunk.content}</p>
                 </div>
               ))}
             </div>

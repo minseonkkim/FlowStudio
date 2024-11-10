@@ -10,10 +10,9 @@ import { SharedChatFlow } from "@/types/chatbot";
 
 const chatFlows: SharedChatFlow[] = [
   {
-    chatFlowId: 1,
+    chatFlowId: "1",
     title: "챗봇 1",
-    description:
-      "챗봇 1 묘사",
+    description: "챗봇 1 묘사",
     author: {
       id: 1,
       username: "김싸피",
@@ -26,13 +25,12 @@ const chatFlows: SharedChatFlow[] = [
       { categoryId: 2, name: "금융" },
     ],
     public: true,
-    shareNum: 100
+    shareNum: 100,
   },
   {
-    chatFlowId: 2,
+    chatFlowId: "2",
     title: "챗봇 2",
-    description:
-      "챗봇 2 묘사",
+    description: "챗봇 2 묘사",
     author: {
       id: 2,
       username: "정싸피",
@@ -45,14 +43,14 @@ const chatFlows: SharedChatFlow[] = [
       { categoryId: 3, name: "교육" },
     ],
     public: true,
-    shareNum: 120
+    shareNum: 120,
   },
 ];
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [activeSlide, setActiveSlide] = useState<number>(0); 
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
   const categories = [
     "모든 챗봇",
@@ -61,7 +59,7 @@ export default function Page() {
     "전자 상거래",
     "여행",
     "교육",
-    "엔터테이먼트",
+    "엔터테인먼트",
     "기타",
   ];
 
@@ -69,15 +67,15 @@ export default function Page() {
     .sort((a, b) => b.shareNum - a.shareNum)
     .slice(0, 4);
 
-    const filteredChatFlows = chatFlows.filter((bot) => {
-      const matchesCategory =
-        selectedCategory === "모든 챗봇" ||
-        bot.categories.some((category) => category.name === selectedCategory);
-      const matchesSearch = bot.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
+  const filteredChatFlows = chatFlows.filter((bot) => {
+    const matchesCategory =
+      selectedCategory === "모든 챗봇" ||
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = bot.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
@@ -86,7 +84,9 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div>
-        <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
+        <p className="mb-4 font-semibold text-[24px] text-gray-700">
+          가장 인기있는 챗봇
+        </p>
         <div className="md:hidden">
           <Swiper
             spaceBetween={16}
@@ -132,7 +132,9 @@ export default function Page() {
       </div>
 
       <div className="mt-16">
-        <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
+        <p className="mb-2 font-semibold text-[24px] text-gray-700">
+          챗봇 라운지
+        </p>
 
         {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">
@@ -160,7 +162,7 @@ export default function Page() {
               ))}
             </select>
           </div>
-            <Search onSearchChange={setSearchTerm} />
+          <Search onSearchChange={setSearchTerm} />
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
