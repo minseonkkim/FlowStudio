@@ -41,6 +41,7 @@ interface EdgeData{
   edgeId: number;
   sourceNodeId: number;
   targetNodeId: number;
+  sourceConditionId?: number | null;
 }
 
 export interface NodeData{

@@ -93,6 +93,12 @@ export default function Page({ params }: WorkflowPageProps) {
   const chatFlowId = params.id;
   const queryClient = useQueryClient();
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
+  const [nodes, setNodes] = useState<NodeData[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+
 
   // 챗플로우 상세 조회
   const { isLoading, isError, error, data: chatFlow } = useQuery<ChatFlowDetail>({
@@ -105,6 +111,22 @@ export default function Page({ params }: WorkflowPageProps) {
       alert("챗플로우를 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
+
+  useEffect(() => {
+    // 챗플로우 조회로 부터 받은 노드와 엣지 정보로 정보 갱신
+    if (chatFlow?.nodes) {
+      setNodes(chatFlow.nodes);
+      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
+        node.outputEdges.map((edge) => ({
+          id: String(edge.edgeId),
+          source: String(edge.sourceNodeId),
+          target: String(edge.targetNodeId),
+          sourceHandle: edge.sourceConditionId ? String(edge.sourceConditionId) : undefined,
+        }))
+      );
+      setEdges(fetchedEdges);
+    }
+  }, [chatFlow]);
 
   // 노드 삭제
   const deleteNodeMutation = useMutation({
@@ -145,8 +167,8 @@ export default function Page({ params }: WorkflowPageProps) {
 
   // 엣지 삭제
   const deleteEdgeMutation = useMutation({
-    mutationFn: ({ chatFlowId, edgeId, data }: { chatFlowId: number; edgeId: number; data: EdgeData }) =>
-      deleteEdge(chatFlowId, edgeId, data),
+    mutationFn: ({ chatFlowId, edgeId }: { chatFlowId: number; edgeId: number }) =>
+      deleteEdge(chatFlowId, edgeId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatFlow", chatFlowId] });
       setSelectedEdge(null); 
@@ -159,20 +181,19 @@ export default function Page({ params }: WorkflowPageProps) {
   useEffect(() => {
     const handleDeleteKey = (event: KeyboardEvent) => {
       if (event.key === "Delete" && selectedEdge) {
-        const edgeId = parseInt(selectedEdge.id.replace("e", ""), 10);
-        const edgeData: EdgeData = {
-          sourceNodeId: parseInt(selectedEdge.source, 10),
-          targetNodeId: parseInt(selectedEdge.target, 10),
-          sourceConditionId: null,
-        };
+        const edgeId = parseInt(selectedEdge.id, 10);
   
-        deleteEdgeMutation.mutate({
-          chatFlowId,
-          edgeId,
-          data: edgeData,
-        });
+        if (!isNaN(edgeId)) {
+          deleteEdgeMutation.mutate({
+            chatFlowId,
+            edgeId,
+          });
+        } else {
+          console.error("Invalid edgeId:", selectedEdge.id);
+        }
       }
     };
+  
     window.addEventListener("keydown", handleDeleteKey);
     return () => {
       window.removeEventListener("keydown", handleDeleteKey);
@@ -200,28 +221,6 @@ export default function Page({ params }: WorkflowPageProps) {
   //   { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
   // ];
 
-
-  const [nodes, setNodes] = useState<NodeData[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
-  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
-  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
-
-  useEffect(() => {
-    // 챗플로우 조회로 부터 받은 노드와 엣지 정보로 정보 갱신
-    if (chatFlow?.nodes) {
-      setNodes(chatFlow.nodes);
-
-      const fetchedEdges = chatFlow.nodes.flatMap((node) =>
-        node.outputEdges.map((edge) => ({
-          id: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
-          source: String(edge.sourceNodeId),
-          target: String(edge.targetNodeId),
-        }))
-      );
-      setEdges(fetchedEdges);
-    }
-  }, [chatFlow]);
 
   // const onNodesChange = useCallback((changes: NodeChange[]) => {
   //   setNodes((nds) => applyNodeChanges(changes, nds));

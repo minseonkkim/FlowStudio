@@ -108,11 +108,10 @@ export async function putEdge(chatFlowId: number, edgeId: number, data: EdgeData
 }
 
 // 간선 삭제
-export async function deleteEdge(chatFlowId: number, edgeId: number, data: EdgeData){
-  
-  console.log(data)
+export async function deleteEdge(chatFlowId: number, edgeId: number){
+  console.log("chatFlowId", chatFlowId, "edgeId", edgeId)
   try {
-    const response = await axiosInstance.delete(`chat-flows/${chatFlowId}/edges/${edgeId}`, { data })
+    const response = await axiosInstance.delete(`chat-flows/${chatFlowId}/edges/${edgeId}`)
     if (response.status === 200) {
       return response.data;
     } else {
