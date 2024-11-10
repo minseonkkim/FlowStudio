@@ -17,3 +17,9 @@ export interface NodeData {
   },
   "nodeType": string;
 }
+
+export interface EdgeData {
+  "sourceNodeId": number;
+  "targetNodeId": number;
+  "sourceConditionId": null | number;
+}
