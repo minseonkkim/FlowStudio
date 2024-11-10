@@ -3,14 +3,16 @@ package com.ssafy.flowstudio.api.service.node;
 import com.ssafy.flowstudio.api.service.node.request.CoordinateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.Node;
-import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import com.ssafy.flowstudio.domain.node.entity.Start;
+import com.ssafy.flowstudio.domain.edge.entity.Edge;
+import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
@@ -42,6 +44,7 @@ class NodeServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NodeRepository nodeRepository;
+
 
     @DisplayName("Node를 생성하면 타입에 맞는 노드가 생성된다.")
     @Test
@@ -205,4 +208,147 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.FORBIDDEN.getMessage());
     }
 
+    @DisplayName("선행 노드가 없는 노드를 상세 조회한다.")
+    @Test
+    void getFirstNode() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Node start = Start.create(chatFlow, coordinate);
+        chatFlow.addNode(start);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        NodeDetailResponse startDetailResponse = nodeService.getNode(user, start.getId());
+
+        // then
+        assertThat(startDetailResponse).isNotNull();
+        assertThat(startDetailResponse.getPrecedingNodes())
+                .isEmpty();
+        assertThat(startDetailResponse.getNodeId())
+                .isEqualTo(start.getId());
+    }
+
+    @DisplayName("Answer 노드를 상세 조회한다.")
+    @Test
+    void getNode() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        // Start와 QuestionClassifier 노드 생성
+        Node start = Start.create(chatFlow, coordinate);
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+
+        // Start와 QuestionClassifier를 잇는 간선 생성
+        Edge edge1 = Edge.create(start, questionClassifier);
+        questionClassifier.getInputEdges().add(edge1);
+        start.getOutputEdges().add(edge1);
+
+        // Answer 노드 생성
+        Answer answer = Answer.create(chatFlow, coordinate);
+
+        // QuestionClassifier와 Answer를 잇는 간선 생성
+        Edge edge2 = Edge.create(questionClassifier, answer);
+        answer.getInputEdges().add(edge2);
+        questionClassifier.getOutputEdges().add(edge2);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        NodeDetailResponse answerDetailResponse = nodeService.getNode(user, answer.getId());
+
+        // then
+        assertThat(answerDetailResponse).isNotNull();
+        assertThat(answerDetailResponse.getPrecedingNodes())
+                .usingRecursiveFieldByFieldElementComparator()
+                .contains(SimpleNodeResponse.from(start), SimpleNodeResponse.from(questionClassifier));
+        assertThat(answerDetailResponse.getNodeId())
+                .isEqualTo(answer.getId());
+    }
+
+
+    @DisplayName("노드의 Input Edges를 순회하여 선행 노드들을 불러온다.")
+    @Test
+    void getPrecedingNodes() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        // Start와 QuestionClassifier 노드 생성
+        Node start = Start.create(chatFlow, coordinate);
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+
+        // Start와 QuestionClassifier를 잇는 간선 생성
+        Edge edge1 = Edge.create(start, questionClassifier);
+        questionClassifier.getInputEdges().add(edge1);
+        start.getOutputEdges().add(edge1);
+
+        // Answer 노드 생성
+        Answer answer = Answer.create(chatFlow, coordinate);
+
+        // QuestionClassifier와 Answer를 잇는 간선 생성
+        Edge edge2 = Edge.create(questionClassifier, answer);
+        answer.getInputEdges().add(edge2);
+        questionClassifier.getOutputEdges().add(edge2);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        List<Node> precedingNodes = nodeService.getPrecedingNodes(user, answer);
+
+        // then
+        assertThat(precedingNodes)
+                .hasSize(2)
+                .contains(start, questionClassifier);
+    }
 }

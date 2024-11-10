@@ -4,11 +4,13 @@ import com.ssafy.flowstudio.api.service.user.request.UserNicknameUpdateServiceRe
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.service.S3ImageService;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final S3ImageService s3ImageService;
 
     public UserResponse getUser(User user) {
         User findUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -39,6 +42,18 @@ public class UserService {
         }
 
         user.updateNickname(request.getNickname());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateProfileImage(User user, MultipartFile image) {
+        String imageUrl = null;
+
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3ImageService.upload(image);
+        }
+
+        user.updateProfileImage(imageUrl);
         userRepository.save(user);
     }
 
