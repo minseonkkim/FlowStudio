@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ChatCreateRequest {
 
     @NotNull(message = "미리보기 여부는 필수입니다.")
-    private boolean isPreview;
+    private Boolean isPreview;
 
     @Builder
     private ChatCreateRequest(boolean isPreview) {

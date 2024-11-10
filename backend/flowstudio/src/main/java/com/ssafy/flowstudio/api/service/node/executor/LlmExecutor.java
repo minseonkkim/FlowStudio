@@ -23,6 +23,8 @@ import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.output.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,7 @@ import java.util.List;
 @Component
 public class LlmExecutor extends NodeExecutor {
 
+    private static final Logger log = LoggerFactory.getLogger(LlmExecutor.class);
     private final RedisService redisService;
     private final TokenUsageLogRepository tokenUsageLogRepository;
     private final ChatRepository chatRepository;
@@ -55,6 +58,8 @@ public class LlmExecutor extends NodeExecutor {
         // 프롬프트 완성
         String promptSystem = messageParseUtil.replace(llmNode.getPromptSystem(), chat.getId());
         String promptUser = messageParseUtil.replace(llmNode.getPromptUser(), chat.getId());
+
+        log.info("promptSystem: {}", promptSystem);
 
         // 모델에게 보낼 메시지 생성
         List<ChatMessage> messageList = new ArrayList<>();

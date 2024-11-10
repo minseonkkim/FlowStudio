@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,16 +20,16 @@ public class ApiKey {
     @Column(name = "api_key_id")
     private Long id;
 
-    @Column
+    @Lob
     private String openAiKey;
 
-    @Column
+    @Lob
     private String claudeKey;
 
-    @Column
+    @Lob
     private String geminiKey;
 
-    @Column
+    @Lob
     private String clovaKey;
 
     @Builder

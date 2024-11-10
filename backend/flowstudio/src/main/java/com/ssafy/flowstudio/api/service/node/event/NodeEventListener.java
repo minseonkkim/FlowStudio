@@ -19,7 +19,8 @@ public class NodeEventListener {
     private final NodeVisitor visitor;
     private final SseEmitters sseEmitters;
 
-    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+//    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
+    @EventListener
     public void handleNodeEvent(NodeEvent event) {
         Node targetNode = event.getTargetNode();
         Chat chat = event.getChat();
