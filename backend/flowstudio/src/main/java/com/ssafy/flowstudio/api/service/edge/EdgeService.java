@@ -79,6 +79,9 @@ public class EdgeService {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
+        edgeRepository.findById(edgeId)
+                .orElseThrow(() -> new BaseException(ErrorCode.EDGE_NOT_FOUND));
+
         edgeRepository.deleteById(edgeId);
         return true;
     }
