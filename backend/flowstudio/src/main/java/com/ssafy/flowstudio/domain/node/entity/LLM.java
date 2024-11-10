@@ -56,6 +56,8 @@ public class LLM extends Node {
                 .coordinate(coordinate)
                 .temperature(0.7)
                 .maxTokens(512)
+                .promptSystem("")
+                .promptUser("")
                 .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O_MINI)
                 .build();
