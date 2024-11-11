@@ -78,4 +78,8 @@ public class LLM extends Node {
         this.maxTokens = maxTokens;
     }
 
+    public void updatePrompt(String systemPrompt, String userPrompt) {
+        this.promptSystem = systemPrompt;
+        this.promptUser = userPrompt;
+    }
 }
