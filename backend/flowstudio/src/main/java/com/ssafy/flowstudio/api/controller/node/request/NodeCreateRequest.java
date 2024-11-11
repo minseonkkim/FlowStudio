@@ -31,7 +31,7 @@ public class NodeCreateRequest {
     public NodeCreateServiceRequest toServiceRequest() {
         return NodeCreateServiceRequest.builder()
                 .chatFlowId(chatFlowId)
-                .coordinate(CoordinateRequest.toServiceRequest(coordinate))
+                .coordinate(coordinate.toServiceRequest())
                 .type(nodeType)
                 .build();
     }

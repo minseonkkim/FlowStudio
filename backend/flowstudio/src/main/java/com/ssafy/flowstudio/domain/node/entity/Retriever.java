@@ -1,6 +1,5 @@
 package com.ssafy.flowstudio.domain.node.entity;
 
-import com.ssafy.flowstudio.api.service.node.request.RetrieverUpdateServiceRequest;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
@@ -57,7 +56,9 @@ public class Retriever extends Node {
                 .build();
     }
 
-    public void update(Knowledge knowledge, int intervalTime, float scoreThreshold, int topK, String query) {
+    public void update(String name, Coordinate coordinate, Knowledge knowledge, int intervalTime, float scoreThreshold, int topK, String query) {
+        this.name = name;
+        this.coordinate = coordinate;
         this.knowledge = knowledge;
         this.intervalTime = intervalTime;
         this.scoreThreshold = scoreThreshold;
