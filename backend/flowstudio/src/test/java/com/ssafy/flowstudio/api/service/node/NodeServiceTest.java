@@ -122,6 +122,12 @@ class NodeServiceTest extends IntegrationTestSupport {
         QuestionClassifier castedNode = (QuestionClassifier) foundNode;
         assertThat(castedNode.getQuestionClasses())
                 .hasSize(2);
+
+        assertThat(castedNode.getQuestionClasses().get(0))
+                .extracting("content").isNull();
+
+        assertThat(castedNode.getQuestionClasses().get(1))
+                .extracting("content").isNull();
     }
 
     @DisplayName("유효하지 않은 ChatFlow 아이디로 Node를 생성하면 예외가 발생한다.")
