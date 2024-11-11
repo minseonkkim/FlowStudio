@@ -27,25 +27,20 @@ class QuestionClassControllerTest extends ControllerTestSupport {
     @Test
     void createQuestionClass() throws Exception {
         // given
-        QuestionClassCreateRequest questionClassCreateRequest = QuestionClassCreateRequest.builder()
-                .content("question-content")
-                .build();
-
         QuestionClassResponse questionClassResponse = QuestionClassResponse.builder()
                 .id(1L)
-                .content("question-content")
+                .content(null)
                 .edge(null)
                 .questionClassifierId(1L)
                 .build();
 
-        given(questionClassService.createQuestionClass(any(), any()))
+        given(questionClassService.createQuestionClass(any()))
                 .willReturn(questionClassResponse);
 
         // when
         ResultActions perform = mockMvc.perform(
                 post("/api/v1/chat-flows/nodes/{nodeId}/question-classes", 1)
                         .with(csrf())
-                        .content(objectMapper.writeValueAsString(questionClassCreateRequest))
                         .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -57,7 +52,7 @@ class QuestionClassControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.id").value(1L))
-                .andExpect(jsonPath("$.data.content").value("question-content"))
+                .andExpect(jsonPath("$.data.content").doesNotExist())
                 .andExpect(jsonPath("$.data.questionClassifierId").value(1L));
     }
 

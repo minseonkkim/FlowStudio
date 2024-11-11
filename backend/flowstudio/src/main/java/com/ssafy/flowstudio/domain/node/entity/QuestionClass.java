@@ -18,7 +18,7 @@ public class QuestionClass {
     @Column(name = "question_class_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,9 +31,8 @@ public class QuestionClass {
         this.questionClassifier = questionClassifier;
     }
 
-    public static QuestionClass create(String content) {
+    public static QuestionClass empty() {
         return QuestionClass.builder()
-                .content(content)
                 .build();
     }
 
