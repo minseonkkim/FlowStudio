@@ -24,7 +24,7 @@ public class QuestionClassService {
     private final QuestionClassRepository questionClassRepository;
 
     @Transactional
-    public QuestionClassResponse createQuestionClass(Long nodeId, QuestionClassCreateServiceRequest request) {
+    public QuestionClassResponse createQuestionClass(Long nodeId) {
         QuestionClassifier questionClassifier = (QuestionClassifier) nodeRepository.findById(nodeId).orElseThrow(
                 () -> new BaseException(ErrorCode.NODE_NOT_FOUND)
         );
