@@ -15,15 +15,17 @@ public class ChatFlowResponse {
     private final Long chatFlowId;
     private final String title;
     private final List<NodeResponse> nodes;
+    private final List<EdgeResponse> edges;
 
     @Builder
-    private ChatFlowResponse(Long chatFlowId, String title, List<NodeResponse> nodes) {
+    private ChatFlowResponse(Long chatFlowId, String title, List<NodeResponse> nodes, List<EdgeResponse> edges) {
         this.chatFlowId = chatFlowId;
         this.title = title;
         this.nodes = nodes;
+        this.edges = edges;
     }
 
-    public static ChatFlowResponse from(ChatFlow chatFlow) {
+    public static ChatFlowResponse from(ChatFlow chatFlow, List<EdgeResponse> edges) {
         return ChatFlowResponse.builder()
                 .chatFlowId(chatFlow.getId())
                 .title(chatFlow.getTitle())
@@ -34,6 +36,7 @@ public class ChatFlowResponse {
                             return factory.createNodeResponse(node);
                         })
                         .toList())
+                .edges(edges)
                 .build();
     }
 
