@@ -41,4 +41,9 @@ public class QuestionClassifier extends Node {
     public void addQuestionClass(QuestionClass questionClass) {
         getQuestionClasses().add(questionClass);
     }
+
+    public void update(String name, Coordinate coordinate) {
+        this.name = name;
+        this.coordinate = coordinate;
+    }
 }

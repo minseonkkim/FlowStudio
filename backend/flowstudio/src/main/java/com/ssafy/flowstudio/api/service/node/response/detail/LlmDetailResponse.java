@@ -52,4 +52,20 @@ public class LlmDetailResponse extends NodeDetailResponse {
                 .build();
     }
 
+    public static LlmDetailResponse from(LLM llm) {
+        return LlmDetailResponse.builder()
+                .nodeId(llm.getId())
+                .name(llm.getName())
+                .type(llm.getType())
+                .coordinate(CoordinateResponse.from(llm.getCoordinate()))
+                .promptSystem(llm.getPromptSystem())
+                .promptUser(llm.getPromptUser())
+                .context(llm.getContext())
+                .temperature(llm.getTemperature())
+                .maxTokens(llm.getMaxTokens())
+                .modelProvider(llm.getModelProvider())
+                .modelName(llm.getModelName())
+                .build();
+    }
+
 }
