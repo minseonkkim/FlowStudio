@@ -1,53 +1,96 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend"; 
+import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { setAuthorizationToken } from '@/api/token/axiosInstance';
 
 const ChatPage = () => {
-  const [messages, setMessages] = useState<string[]>([]); // 대화 메시지 리스트
-  const [input, setInput] = useState(""); // 입력창 상태
+  const [messages, setMessages] = useState<string[]>([]);
+  const [input, setInput] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null); // 스크롤 하단 참조
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  // const [connectionId, setConnectionId] = useState<string | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
-  // 새 채팅 시작
-  const startNewChat = () => {
-    setMessages([]); // 기존 메시지 초기화
+  // SSE 연결 설정
+  const initializeSSE = async () => {
+    try {
+      let token = localStorage.getItem("accessToken");
+      if (!token) {
+        token = await setAuthorizationToken();
+      }
+
+      const sse = new EventSourcePolyfill(`${BASE_URL}/sse/connect?duration=10`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+
+      sse.onopen = () => {
+        console.log("SSE 연결이 성공적으로 열렸습니다.");
+      };
+
+      sse.addEventListener('connect', (e) => {
+        const receivedConnectData = (e as MessageEvent).data;
+        if (receivedConnectData === "connected!") {
+          console.log('서버에서 연결 성공 메시지 수신:', receivedConnectData);
+          
+        }
+      });
+
+      sse.onmessage = (event) => {
+        const serverMessage = JSON.parse((event as MessageEvent).data);
+        setMessages((prevMessages) => [...prevMessages, serverMessage.content]);
+      };
+
+      // 연결 오류가 발생했을 때 에러 로그만 남김 (자동 재연결에 의존)
+      sse.onerror = () => {
+        console.error("SSE 연결 오류: 자동 재연결 시도 중...");
+      };
+
+      eventSourceRef.current = sse;
+    } catch (error) {
+      console.error("Failed to initialize SSE:", error);
+    }
   };
 
-  // 메시지 전송 핸들러
+  useEffect(() => {
+    initializeSSE();
+
+    return () => {
+      eventSourceRef.current?.close();
+    };
+  }, []);
+
+  const startNewChat = () => {
+    setMessages([]);
+  };
+
   const sendMessage = () => {
     if (input.trim()) {
-      setMessages([...messages, input]); // 메시지 리스트에 추가
-      setInput(""); // 입력창 초기화
+      setMessages([...messages, input]);
+      setInput("");
       if (inputRef.current) {
-        inputRef.current.style.height = "auto"; // 전송 후 높이 초기화
+        inputRef.current.style.height = "auto";
       }
     }
   };
 
-  // 스크롤을 자동으로 가장 아래로 내리기
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // 텍스트 입력 시 높이 자동 조절
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     if (inputRef.current) {
-      inputRef.current.style.height = "auto"; // 높이 초기화
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`; // 내용에 맞게 높이 조절
+      inputRef.current.style.height = "auto";
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
     }
   };
 
-  // 키 다운 핸들러
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
-        // Shift + Enter: 줄바꿈 추가
         setInput(input + "\n");
       } else {
-        // Enter: 메시지 전송
-        e.preventDefault(); // 엔터로 줄바꿈 되는 것을 막음
+        e.preventDefault();
         sendMessage();
       }
     }
@@ -55,28 +98,21 @@ const ChatPage = () => {
 
   return (
     <div className="flex h-screen">
-      {/* 왼쪽 사이드바 */}
       <div className="w-1/6 p-6 border-r bg-white">
-        {/* 챗봇 이름 */}
         <div className="flex items-center mb-8">
           <div className="w-10 h-10 rounded-lg bg-gray-300 mr-4"></div>
           <div className="text-lg font-semibold break-words max-w-[150px]">
             대출금리 상담
           </div>
         </div>
-
         <button
           onClick={startNewChat}
           className="mb-4 w-full py-2 px-4 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100"
         >
           새 채팅
         </button>
-        <button className="w-full py-2 px-4 bg-purple-100 text-purple-600 font-semibold rounded-xl">
-          새 대화
-        </button>
       </div>
 
-      {/* 채팅 영역 */}
       <div className="flex flex-col flex-grow bg-gray-50">
         <div className="border-b p-4 text-[18px] bg-white">
           새 대화
@@ -84,17 +120,9 @@ const ChatPage = () => {
 
         <div className="flex-grow p-6 space-y-4 overflow-y-auto">
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className="flex items-start justify-end space-x-4"
-            >
-              <div
-                className="bg-white border border-gray-300 rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm"
-                style={{
-                  maxWidth: "80%", 
-                  width: "fit-content", 
-                }}
-              >
+            <div key={index} className="flex items-start justify-end space-x-4">
+              <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm"
+                style={{ maxWidth: "80%", width: "fit-content" }}>
                 {msg}
               </div>
               <div className="w-10 h-10 rounded-full bg-gray-300"></div>
@@ -103,16 +131,15 @@ const ChatPage = () => {
           <div ref={chatEndRef} />
         </div>
 
-        {/* 메시지 입력 영역 */}
         <div className="border-t p-6 flex items-center bg-white">
           <textarea
-            ref={inputRef} 
+            ref={inputRef}
             placeholder="메시지를 입력하세요..."
             value={input}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
             className="flex-1 border border-gray-300 rounded-lg py-2 px-6 mr-3 resize-none overflow-y-hidden shadow-sm focus:outline-none focus:ring-1 focus:ring-[#9A75BF]"
-            rows={1} 
+            rows={1}
           />
           <button
             onClick={sendMessage}
