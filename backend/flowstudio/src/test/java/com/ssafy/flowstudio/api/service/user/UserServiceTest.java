@@ -141,7 +141,7 @@ class UserServiceTest extends IntegrationTestSupport {
                 .hasMessage(ErrorCode.NICKNAME_ALREADY_EXISTS.getMessage());
     }
 
-    @DisplayName("토큰 사용기록을 조회한다.")
+    @DisplayName("토큰 사용기록을 90일 전까지 조회한다.")
     @Test
     public void getTokenUsageLogs() {
         // given
@@ -164,8 +164,6 @@ class UserServiceTest extends IntegrationTestSupport {
 
         userRepository.save(user);
         tokenUsageLogRepository.saveAll(List.of(log1, log2));
-
-
 
         // when
         List<TokenUsageLogResponse> response = userService.getTokenUsageLogs(user);
