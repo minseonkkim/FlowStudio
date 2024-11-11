@@ -233,6 +233,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1, node2, node3, node4, node5))
+                .edges(List.of(edge1, edge2, edge3, edge4))
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
@@ -318,7 +319,15 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.nodes[].inputEdges[].targetNodeId").optional().type(JsonFieldType.NUMBER)
                                                 .description("input 간선 도착노드 아이디"),
                                         fieldWithPath("data.nodes[].inputEdges[].sourceConditionId").optional().type(JsonFieldType.NUMBER)
-                                                .description("input 간선 시작 조건 아이디")
+                                                .description("input 간선 시작 조건 아이디"),
+                                        fieldWithPath("data.edges[].edgeId").optional().type(JsonFieldType.NUMBER)
+                                                .description("edge 아이디"),
+                                        fieldWithPath("data.edges[].sourceNodeId").optional().type(JsonFieldType.NUMBER)
+                                                .description("시작 노드"),
+                                        fieldWithPath("data.edges[].targetNodeId").optional().type(JsonFieldType.NUMBER)
+                                                .description("도착 노드"),
+                                        fieldWithPath("data.edges[].sourceConditionId").optional().type(JsonFieldType.NUMBER)
+                                                .description("조건 아이디")
                                 )
                                 .build()
                         )
@@ -356,6 +365,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1))
+                .edges(null)
                 .build();
 
         given(chatFlowService.createChatFlow(any(User.class), any(ChatFlowServiceRequest.class)))
@@ -402,7 +412,9 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.nodes[].inputEdges").optional().type(JsonFieldType.ARRAY)
                                                 .description("input 간선 아이디"),
                                         fieldWithPath("data.nodes[].outputEdges").optional().type(JsonFieldType.ARRAY)
-                                                .description("output 간선")
+                                                .description("output 간선"),
+                                        fieldWithPath("data.edges").optional().type(JsonFieldType.NULL)
+                                                .description("edge 들")
                                 )
                                 .build()
                         )

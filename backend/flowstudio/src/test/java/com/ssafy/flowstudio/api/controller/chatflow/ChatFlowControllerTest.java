@@ -126,6 +126,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1, node2, node3))
+                .edges(List.of(edge1, edge2))
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
