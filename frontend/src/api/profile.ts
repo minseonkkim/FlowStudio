@@ -93,9 +93,24 @@ export async function putApiKeys(data: ApiKeys) {
   try {
     const response = await axiosInstance.put('users/keys', data);
     if (response.status === 200) {
-      return response.data;
+      return response.data.data;
     } else {
       throw new Error('Failed to put API keys');
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+// 토큰 사용 내역 조회
+export async function getTokenUsage() {
+  try {
+    const response = await axiosInstance.get('users/token-usage-logs');
+    if (response.status === 200) {
+      return response.data.data
+    } else {
+      throw new Error('Failed to get token usage logs');
     }
   } catch (error) {
     console.error(error);
