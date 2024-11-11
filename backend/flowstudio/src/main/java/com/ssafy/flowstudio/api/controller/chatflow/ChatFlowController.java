@@ -92,4 +92,16 @@ public class ChatFlowController {
         return ApiResponse.ok();
     }
 
+    /**
+     * 챗플로우 예제 생성
+     * @param user
+     * @return
+     */
+    @PostMapping("/api/v1/chat-flows/example")
+    public ApiResponse<ChatFlowResponse> createExampleChatFlow(
+            @CurrentUser User user
+    ) {
+        return ApiResponse.ok(chatFlowService.createExampleChatFlow(user));
+    }
+
 }

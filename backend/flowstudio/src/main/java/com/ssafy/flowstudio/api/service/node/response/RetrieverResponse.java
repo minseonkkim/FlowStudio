@@ -38,7 +38,7 @@ public class RetrieverResponse extends NodeResponse {
                 .coordinate(CoordinateResponse.from(retriever.getCoordinate()))
                 .outputEdges(retriever.getOutputEdges().stream().map(EdgeResponse::from).toList())
                 .inputEdges(retriever.getInputEdges().stream().map(EdgeResponse::from).toList())
-                .knowledge(KnowledgeResponse.from(retriever.getKnowledge()))
+                .knowledge(retriever.getKnowledge() == null ? null : KnowledgeResponse.from(retriever.getKnowledge()))
                 .intervalTime(retriever.getIntervalTime())
                 .topK(retriever.getTopK())
                 .scoreThreshold(retriever.getScoreThreshold())

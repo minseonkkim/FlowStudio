@@ -29,6 +29,7 @@ public class Start extends Node {
                 .name("Start")
                 .type(NodeType.START)
                 .coordinate(coordinate)
+                .maxLength(500)
                 .build();
     }
 

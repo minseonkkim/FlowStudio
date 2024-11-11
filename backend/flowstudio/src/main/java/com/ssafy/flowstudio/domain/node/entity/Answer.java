@@ -43,4 +43,7 @@ public class Answer extends Node {
         this.outputMessage = outputMessage;
     }
 
+    public void updateOutputMessage(String message) {
+        this.outputMessage = message;
+    }
 }
