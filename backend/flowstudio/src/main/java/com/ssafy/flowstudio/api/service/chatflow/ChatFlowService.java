@@ -4,6 +4,7 @@ import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -11,6 +12,7 @@ import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlowCategory;
 import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.Start;
@@ -30,6 +32,7 @@ public class ChatFlowService {
 
     private final ChatFlowRepository chatFlowRepository;
     private final CategoryRepository categoryRepository;
+    private final EdgeRepository edgeRepository;
 
     public List<ChatFlowListResponse> getChatFlows(User user) {
         List<ChatFlow> chatFlows = chatFlowRepository.findByUser(user);
@@ -56,7 +59,11 @@ public class ChatFlowService {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
-        return ChatFlowResponse.from(chatFlow);
+        List<EdgeResponse> edges = edgeRepository.findByChatFlowId(chatFlowId).stream()
+                .map(EdgeResponse::from)
+                .toList();
+
+        return ChatFlowResponse.from(chatFlow, edges);
     }
 
     @Transactional
@@ -71,7 +78,7 @@ public class ChatFlowService {
         chatFlow.addNode(startNode);
         ChatFlow savedChatflow = chatFlowRepository.save(chatFlow);
 
-        return ChatFlowResponse.from(savedChatflow);
+        return ChatFlowResponse.from(savedChatflow, null);
     }
 
     @Transactional
