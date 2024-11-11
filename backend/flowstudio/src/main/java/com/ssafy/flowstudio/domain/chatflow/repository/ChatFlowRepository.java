@@ -9,5 +9,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ChatFlowRepository extends JpaRepository<ChatFlow, Long>, CustomChatFlowRepository{
+
+    @Query("SELECT c FROM ChatFlow c " +
+            "LEFT JOIN FETCH c.nodes n " +
+            "WHERE c.id = :id ")
     Optional<ChatFlow> findById(Long id);
 }
