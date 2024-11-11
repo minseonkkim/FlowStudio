@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -84,6 +85,7 @@ public class UserController {
     public ApiResponse<List<TokenUsageLogResponse>> getTokenUsageLogs(
             @CurrentUser User user
     ) {
-        return ApiResponse.ok(userService.getTokenUsageLogs(user));
+        LocalDate now = LocalDate.now();
+        return ApiResponse.ok(userService.getTokenUsageLogs(user, now));
     }
 }

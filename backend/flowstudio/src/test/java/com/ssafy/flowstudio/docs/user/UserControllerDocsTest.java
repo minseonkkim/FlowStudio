@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -190,12 +190,11 @@ public class UserControllerDocsTest extends RestDocsSupport {
     void getTokenUsageLogs() throws Exception {
         // given
         TokenUsageLogResponse response = TokenUsageLogResponse.builder()
-                .id(1L)
                 .tokenUsage(1)
-                .createdAt(LocalDateTime.of(2021, 1, 1, 0, 0))
+                .date(LocalDateTime.of(2021, 1, 1, 0, 0).toLocalDate())
                 .build();
 
-        given(userService.getTokenUsageLogs(any(User.class)))
+        given(userService.getTokenUsageLogs(any(User.class), any()))
                 .willReturn(List.of(response));
 
         // when
@@ -218,11 +217,9 @@ public class UserControllerDocsTest extends RestDocsSupport {
                                                 .description("상태"),
                                         fieldWithPath("message").type(JsonFieldType.STRING)
                                                 .description("메시지"),
-                                        fieldWithPath("data[].id").type(JsonFieldType.NUMBER)
-                                                .description("토큰 사용량 로그 아이디"),
                                         fieldWithPath("data[].tokenUsage").type(JsonFieldType.NUMBER)
                                                 .description("사용량"),
-                                        fieldWithPath("data[].createdAt").type(JsonFieldType.STRING)
+                                        fieldWithPath("data[].date").type(JsonFieldType.STRING)
                                                 .description("사용 날짜")
                                 )
                                 .build())));

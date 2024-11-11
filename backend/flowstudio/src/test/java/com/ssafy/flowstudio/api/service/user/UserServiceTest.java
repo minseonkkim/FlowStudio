@@ -17,11 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.spy;
 
 @ActiveProfiles("test")
 @Transactional
@@ -145,6 +148,8 @@ class UserServiceTest extends IntegrationTestSupport {
     @Test
     public void getTokenUsageLogs() {
         // given
+        LocalDate now = LocalDate.of(2021, 4, 1);
+
         ApiKey apiKey = ApiKey.empty();
 
         User user = User.builder()
@@ -152,21 +157,30 @@ class UserServiceTest extends IntegrationTestSupport {
                 .apiKey(apiKey)
                 .build();
 
-        TokenUsageLog log1 = TokenUsageLog.builder()
+        TokenUsageLog log1 = spy(TokenUsageLog.builder()
                 .user(user)
                 .tokenUsage(10)
-                .build();
+                .build());
 
-        TokenUsageLog log2 = TokenUsageLog.builder()
+        TokenUsageLog log2 = spy(TokenUsageLog.builder()
                 .user(user)
                 .tokenUsage(20)
-                .build();
+                .build());
+
+        TokenUsageLog log3 = spy(TokenUsageLog.builder()
+                .user(user)
+                .tokenUsage(20)
+                .build());
+
+        given(log1.getCreatedAt()).willReturn(now.minusDays(80).atStartOfDay());
+        given(log2.getCreatedAt()).willReturn(now.minusDays(89).atStartOfDay());
+        given(log3.getCreatedAt()).willReturn(now.minusDays(91).atStartOfDay());
 
         userRepository.save(user);
         tokenUsageLogRepository.saveAll(List.of(log1, log2));
 
         // when
-        List<TokenUsageLogResponse> response = userService.getTokenUsageLogs(user);
+        List<TokenUsageLogResponse> response = userService.getTokenUsageLogs(user, now);
 
         // then
         assertThat(response)

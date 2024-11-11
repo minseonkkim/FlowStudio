@@ -67,8 +67,8 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<TokenUsageLogResponse> getTokenUsageLogs(User user) {
-        LocalDateTime startDateTime = LocalDate.now().minusDays(90).atStartOfDay();
+    public List<TokenUsageLogResponse> getTokenUsageLogs(User user, LocalDate now) {
+        LocalDateTime startDateTime = now.minusDays(90).atStartOfDay();
         List<TokenUsageLog> logs = tokenUsageLogRepository.findTokenUsageLogs(user.getId(), startDateTime);
 
         Map<LocalDate, Integer> dailyUsage = logs.stream()
@@ -76,6 +76,7 @@ public class UserService {
                         log -> log.getCreatedAt().toLocalDate(),
                         Collectors.summingInt(TokenUsageLog::getTokenUsage)
                 ));
+
 
         return dailyUsage.entrySet().stream()
                 .map(entry -> TokenUsageLogResponse.builder()
