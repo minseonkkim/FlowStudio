@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -146,12 +147,11 @@ class UserControllerTest extends ControllerTestSupport {
     public void getTokenUsageLog() throws Exception {
         // given
         TokenUsageLogResponse response = TokenUsageLogResponse.builder()
-                .id(1L)
                 .tokenUsage(1)
-                .createdAt(LocalDateTime.of(2021, 1, 1, 0, 0))
+                .date(LocalDateTime.of(2021, 1, 1, 0, 0).toLocalDate())
                 .build();
 
-        given(userService.getTokenUsageLogs(any(User.class)))
+        given(userService.getTokenUsageLogs(any(User.class), any()))
                 .willReturn(List.of(response));
 
         // when

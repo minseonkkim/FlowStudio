@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -63,12 +67,23 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<TokenUsageLogResponse> getTokenUsageLogs(User user) {
-        List<TokenUsageLog> logs = tokenUsageLogRepository.findByUser(user);
+    public List<TokenUsageLogResponse> getTokenUsageLogs(User user, LocalDate now) {
+        LocalDateTime startDateTime = now.minusDays(90).atStartOfDay();
+        List<TokenUsageLog> logs = tokenUsageLogRepository.findTokenUsageLogs(user.getId(), startDateTime);
 
-        return logs.stream()
-                .map(TokenUsageLogResponse::from)
-                .toList();
+        Map<LocalDate, Integer> dailyUsage = logs.stream()
+                .collect(Collectors.groupingBy(
+                        log -> log.getCreatedAt().toLocalDate(),
+                        Collectors.summingInt(TokenUsageLog::getTokenUsage)
+                ));
+
+
+        return dailyUsage.entrySet().stream()
+                .map(entry -> TokenUsageLogResponse.builder()
+                        .date(entry.getKey())
+                        .tokenUsage(entry.getValue())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }
