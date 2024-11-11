@@ -13,7 +13,9 @@ import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class QuestionClassService {
@@ -21,7 +23,8 @@ public class QuestionClassService {
     private final NodeRepository nodeRepository;
     private final QuestionClassRepository questionClassRepository;
 
-    public QuestionClassResponse createQuestionClass(Long nodeId) {
+    @Transactional
+    public QuestionClassResponse createQuestionClass(Long nodeId, QuestionClassCreateServiceRequest request) {
         QuestionClassifier questionClassifier = (QuestionClassifier) nodeRepository.findById(nodeId).orElseThrow(
                 () -> new BaseException(ErrorCode.NODE_NOT_FOUND)
         );
@@ -34,6 +37,7 @@ public class QuestionClassService {
         return QuestionClassResponse.from(questionClass);
     }
 
+    @Transactional
     public QuestionClassResponse updateQuestionClass(Long questionClassId, QuestionClassUpdateServiceRequest request) {
         QuestionClass questionClass = questionClassRepository.findById(questionClassId).orElseThrow(
                 () -> new BaseException(ErrorCode.QUESTION_CLASS_NOT_FOUND)

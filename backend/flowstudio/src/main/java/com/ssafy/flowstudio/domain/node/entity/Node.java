@@ -28,7 +28,7 @@ public abstract class Node extends BaseEntity {
     private ChatFlow chatFlow;
 
     @Column(nullable = false)
-    private String name;
+    protected String name;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -36,7 +36,7 @@ public abstract class Node extends BaseEntity {
 
     @Column(nullable = false)
     @Embedded
-    private Coordinate coordinate;
+    protected Coordinate coordinate;
 
     @OneToMany(mappedBy = "sourceNode", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Edge> outputEdges = new ArrayList<>();

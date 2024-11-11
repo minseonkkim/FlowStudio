@@ -186,7 +186,7 @@ public class EdgeControllerDocsTest extends RestDocsSupport {
                         preprocessResponse(prettyPrint()),
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Edge")
-                                .summary("간선 생성")
+                                .summary("간선 삭제")
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),
