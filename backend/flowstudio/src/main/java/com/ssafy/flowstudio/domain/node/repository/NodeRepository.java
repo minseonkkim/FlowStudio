@@ -9,18 +9,6 @@ import java.util.List;
 
 public interface NodeRepository extends JpaRepository<Node, Long> {
 
-    @Query(value = "WITH RECURSIVE node_tree AS (" +
-            "  SELECT * FROM node AS n WHERE id = :nodeId " +
-            "  UNION ALL " +
-            "  SELECT * " +
-            "  FROM node cn " +
-            "  JOIN node_tree nt ON cn.id = nt.id" +
-            ") " +
-            "SELECT * FROM category_tree", nativeQuery = true)
-    List<Node> findPrecedingNodesById(
-            @Param("nodeId") Long nodeId
-    );
-
     @Query(
             "select n from Node n where n.chatFlow.id = :chatFlowId"
     )
