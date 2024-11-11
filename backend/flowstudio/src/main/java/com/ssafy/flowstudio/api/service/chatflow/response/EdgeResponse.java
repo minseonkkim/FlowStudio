@@ -25,6 +25,7 @@ public class EdgeResponse {
                 .edgeId(edge.getId())
                 .sourceNodeId(edge.getSourceNode().getId())
                 .targetNodeId(edge.getTargetNode().getId())
+                .sourceConditionId(edge.getSourceConditionId())
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.chatflow.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -54,6 +55,9 @@ public class ChatFlow extends BaseEntity {
 
     @OneToMany(mappedBy = "chatFlow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Node> nodes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "chatFlow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
 
     @Builder
     private ChatFlow(Long id, User owner, User author, String title, String description, String thumbnail, boolean isPublic, int shareCount, String publishUrl) {
