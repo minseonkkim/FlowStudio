@@ -22,7 +22,6 @@ public class QuestionClassService {
 
     private final NodeRepository nodeRepository;
     private final QuestionClassRepository questionClassRepository;
-    private final EdgeRepository edgeRepository;
 
     @Transactional
     public QuestionClassResponse createQuestionClass(Long nodeId, QuestionClassCreateServiceRequest request) {
@@ -30,7 +29,7 @@ public class QuestionClassService {
                 () -> new BaseException(ErrorCode.NODE_NOT_FOUND)
         );
 
-        QuestionClass questionClass = QuestionClass.create(request.getContent());
+        QuestionClass questionClass = QuestionClass.empty();
         questionClass.updateQuestionClassifier(questionClassifier);
 
         questionClassRepository.save(questionClass);
