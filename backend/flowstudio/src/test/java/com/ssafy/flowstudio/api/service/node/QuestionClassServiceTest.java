@@ -41,12 +41,6 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
     @Autowired
     private QuestionClassRepository questionClassRepository;
 
-    @Autowired
-    private EdgeRepository edgeRepository;
-
-    @Autowired
-    private NodeRepository nodeRepository;
-
     @DisplayName("질문 분류를 생성한다.")
     @Test
     void createQuestionClass() {

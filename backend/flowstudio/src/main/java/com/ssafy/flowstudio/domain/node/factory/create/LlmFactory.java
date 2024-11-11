@@ -1,13 +1,13 @@
-package com.ssafy.flowstudio.domain.node.factory;
+package com.ssafy.flowstudio.domain.node.factory.create;
 
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.node.entity.*;
 
-public class ConditionalFactory extends NodeFactory {
+public class LlmFactory extends NodeFactory {
 
     @Override
     public Node createNode(ChatFlow chatFlow, Coordinate coordinate) {
-        return Conditional.create(chatFlow, coordinate);
+        return LLM.create(chatFlow, coordinate);
     }
 
 }

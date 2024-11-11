@@ -64,6 +64,10 @@ public class Retriever extends Node {
         this.query = query;
     }
 
+    public void updateKnowledge(Knowledge knowledge) {
+        this.knowledge = knowledge;
+    }
+
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);

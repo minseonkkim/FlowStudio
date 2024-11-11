@@ -31,6 +31,7 @@ public class ChatFlowResponse {
                 .title(chatFlow.getTitle())
                 .nodes(chatFlow.getNodes().stream()
                         .map(node -> {
+                            System.out.println("node in DTO = " + node.getId());
                             NodeResponseFactory factory = NodeResponseFactoryProvider.getFactory(node.getType());
 
                             return factory.createNodeResponse(node);

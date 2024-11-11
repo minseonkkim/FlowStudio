@@ -9,9 +9,9 @@ import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.Node;
-import com.ssafy.flowstudio.domain.node.entity.Start;
+import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
+import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
+import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,6 +43,9 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private KnowledgeRepository knowledgeRepository;
 
     @DisplayName("챗플로우 목록을 조회한다")
     @Test
@@ -223,6 +227,67 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
 
         // then
         assertTrue(result);
+
+    }
+
+    @DisplayName("챗플로우를 업로드한다.")
+    @Test
+    void uploadChatFlows() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        Knowledge knowledge = Knowledge.builder()
+                .user(user)
+                .title("my-knowledge")
+                .isPublic(true)
+                .build();
+
+        knowledgeRepository.save(knowledge);
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Retriever retriever = Retriever.builder()
+                .name("my-name")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.RETRIEVER)
+                .knowledge(knowledge)
+                .build();
+
+        chatFlow.addNode(retriever);
+
+        Answer answer = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+
+        chatFlow.addNode(answer);
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        ChatFlowResponse chatFlowResponse = chatFlowService.uploadChatFlow(user, chatFlow.getId());
+
+        // then
+        assertThat(chatFlow.getId()).isNotEqualTo(chatFlowResponse.getChatFlowId());
+        assertThat(chatFlowResponse).isNotNull();
+        assertThat(chatFlowResponse.getNodes()).size().isEqualTo(2);
 
     }
 
