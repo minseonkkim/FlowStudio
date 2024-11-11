@@ -36,4 +36,11 @@ public class Start extends Node {
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
     }
+
+    public void update(String name, Coordinate coordinate, Long maxLength) {
+        this.name = name;
+        this.coordinate = coordinate;
+        this.maxLength = maxLength.intValue();
+    }
+
 }

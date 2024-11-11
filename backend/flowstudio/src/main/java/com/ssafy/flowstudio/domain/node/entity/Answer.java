@@ -32,12 +32,15 @@ public class Answer extends Node {
             .build();
     }
 
-    public void updateOutputMessage(String outputMessage) {
-        this.outputMessage = outputMessage;
-    }
-
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
     }
+
+    public void update(String name, Coordinate coordinate, String outputMessage) {
+        this.name = name;
+        this.coordinate = coordinate;
+        this.outputMessage = outputMessage;
+    }
+
 }

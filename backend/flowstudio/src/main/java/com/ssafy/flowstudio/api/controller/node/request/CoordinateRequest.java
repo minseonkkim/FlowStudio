@@ -20,10 +20,10 @@ public class CoordinateRequest {
         this.y = y;
     }
 
-    public static CoordinateServiceRequest toServiceRequest(CoordinateRequest coordinate) {
+    public CoordinateServiceRequest toServiceRequest() {
         return CoordinateServiceRequest.builder()
-            .x(coordinate.getX())
-            .y(coordinate.getY())
+            .x(x)
+            .y(y)
             .build();
     }
 
