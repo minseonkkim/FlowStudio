@@ -11,6 +11,7 @@ import ReactFlow, {
   EdgeChange,
   ReactFlowProvider,
   Node,
+  NodeTypes,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/workflow/customnode/StartNode";
@@ -23,18 +24,21 @@ import VariableAllocatorNode from "@/components/chatbot/workflow/customnode/Vari
 import StartNodeDetail from "@/components/chatbot/workflow/nodedetail/StartNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/workflow/nodedetail/LlmNodeDetail";
 import KnowledgeNodeDetail from "@/components/chatbot/workflow/nodedetail/KnowledgeNodeDetail";
-import IfelseNodeDetail from "@/components/chatbot/workflow/nodedetail/IfelseNodeDetail";
+// import IfelseNodeDetail from "@/components/chatbot/workflow/nodedetail/IfelseNodeDetail";
 import AnswerNodeDetail from "@/components/chatbot/workflow/nodedetail/AnswerNodeDetail";
 import QuestionClassifierNodeDetail from "@/components/chatbot/workflow/nodedetail/QuestionClassifierNodeDetail";
-import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetail/VariableAllocatorNodeDetail";
+// import VariableAllocatorNodeDetail from "@/components/chatbot/workflow/nodedetail/VariableAllocatorNodeDetail";
 import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
 import { v4 as uunodeIdv4 } from "uuid";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
-import { ChatFlowDetail, NodeData } from "@/types/chatbot";
+import { ChatFlowDetail, Coordinate, NodeData } from "@/types/chatbot";
+import { EdgeData } from "@/types/chatbot";
+import { deleteEdge as deleteEdgeApi, deleteNode as deleteNodeApi, postEdge, postNode } from "@/api/workflow";
+import { NewNodeData } from "@/types/workflow";
 
 interface WorkflowPageProps {
   params: {
@@ -58,14 +62,14 @@ interface ConnectedNode {
   name: string;
 }
 
-interface Variable {
-  name: string;
-  value: string;
-  type: string;
-  isEditing: boolean;
-}
+// interface Variable {
+//   name: string;
+//   value: string;
+//   type: string;
+//   isEditing: boolean;
+// }
 
-const nodeTypes: { [key: string]: any } = {
+const nodeTypes: NodeTypes = {
   START: StartNode,
   LLM: LlmNode,
   RETRIEVER: KnowledgeNode,
@@ -86,12 +90,118 @@ const nodeTypeLabels: { [key: string]: string } = {
 };
 
 export default function Page({ params }: WorkflowPageProps) {
+  const [nodes, setNodes] = useState<NodeData[]>([]);
+  const [nodesWithSelection, setNodesWithSelection] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<EdgeData[]>([]);
+  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
+  const [selectedNodePosition, setSelectedNodePosition] = useState<Coordinate | null>({x: 0, y: 0});
+  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
   const pageId = params.id;
 
   const { isLoading, isError, error, data: chatFlow } = useQuery<ChatFlowDetail>({
     queryKey: ['chatFlow', pageId],  
     queryFn: ({ queryKey }) => getChatFlow(queryKey[1] as number) 
   });
+
+  const queryClient = useQueryClient();
+
+  const addNodeMutation = useMutation({
+    mutationFn: postNode,
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlow"] });
+      console.log("Node added successfully:", data);
+
+      // const { condition } = variables;
+      const newNodeId = data.nodeId; 
+      
+      if (newNodeId && selectedNodeId) {
+        const newEdge: EdgeData = {
+          edgeId: Date.now(),
+          sourceNodeId: selectedNodeId,
+          targetNodeId: newNodeId,
+          // sourceConditionId: condition || undefined,
+        };
+
+        console.log(newEdge);
+
+        addEdgeMutation.mutate({
+          chatFlowId: pageId,
+          edgeData: newEdge,
+        });
+
+        setEdges((prevEdges) => [...prevEdges, newEdge]);
+      }
+      
+    },
+    onError: (error) => {
+      console.error("Error adding node:", error);
+    },
+  });
+
+  // const deleteNodeMutation = useMutation({mutationFn: deleteNode, {
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries('nodes'); 
+  //   },
+  //   onError: (error) => {
+  //     console.error('Error deleting node:', error);
+  //   },
+  // });
+  const deleteNodeMutation = useMutation<unknown, Error, number>({
+    mutationFn: async (nodeId: number) => {
+      return await deleteNodeApi(nodeId);
+    },
+    onSuccess: (data, nodeId) => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlow"] });
+      console.log("Node deleted successfully:", data);
+
+      if (nodeId) {
+        setEdges((prevEdges) =>
+          prevEdges.filter(
+            (edge) => edge.sourceNodeId !== nodeId && edge.targetNodeId !== nodeId
+          )
+        );
+        console.log("Edges updated after node deletion:", edges);
+      }
+    },
+    onError: (error) => {
+      console.error("Error deleting node:", error);
+    },
+  });
+
+  const deleteEdgeMutation = useMutation<unknown, Error, number>({
+    mutationFn: async (edgeId: number) => {
+      return await deleteEdgeApi(pageId, edgeId);
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlow"] });
+      console.log("Edge deleted successfully:", data);
+
+    },
+    onError: (error) => {
+      console.error("Error deleting edge:", error);
+    },
+  });
+
+
+
+  const addEdgeMutation = useMutation<
+    EdgeData,
+    Error,
+    { chatFlowId: number; edgeData: EdgeData }
+  >({
+    mutationFn: ({ chatFlowId, edgeData }) => postEdge(chatFlowId, edgeData),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["chatFlow"] });
+      console.log("Edge added successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Error adding edge:", error);
+    },
+  });
+
+
+
 
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
@@ -100,26 +210,14 @@ export default function Page({ params }: WorkflowPageProps) {
     { name: "변수2", value: "", type: "string", isEditing: false },
   ]);
 
-  const initialEdges = [
-    { nodeId: "e1-2", source: 1, target: 2 },
-    { nodeId: "e2-3", source: 2, target: 3 },
-    { nodeId: "e3-4", source: 3, target: 4 },
-    { nodeId: "e4-5", source: 4, target: 5, sourceHandle: "elifsource" },
-    { nodeId: "e5-6", source: 5, target: 6 },
-    { nodeId: "e6-7", source: 6, target: 7, sourceHandle: "handle2" },
-  ];
-
-
-  const [nodes, setNodes] = useState<NodeData[]>([]);
-  const [edges, setEdges] = useState(initialEdges);
-  const [selectedNode, setSelectedNode] = useState<NodeData | null>(null);
-  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
 
   useEffect(() => {
-      console.log("노드 확인", chatFlow)
+    console.log(chatFlow);
       if (chatFlow?.nodes) {
         setNodes(chatFlow.nodes);
+      }
+      if (chatFlow?.edges){
+        setEdges(chatFlow.edges);
       }
 
       // const fetchedEdges = chatFlow.nodes.flatMap(node =>
@@ -134,8 +232,15 @@ export default function Page({ params }: WorkflowPageProps) {
   }, [chatFlow]);
 
   // const onNodesChange = useCallback((changes: NodeChange[]) => {
-  //   setNodes((nds) => applyNodeChanges(changes, nds));
+  //   setNodesWithSelection((nds) => applyNodeChanges(changes, nds)); // 상태 업데이트
   // }, []);
+const onNodesChange = useCallback((changes: NodeChange[]) => {
+  setNodesWithSelection((nds) => {
+    const updatedNodes = applyNodeChanges(changes, nds);
+    return updatedNodes;
+  });
+}, []);
+
 
   // const onEdgesChange = useCallback((changes: EdgeChange[]) => {
   //   setEdges((eds) =>
@@ -146,9 +251,11 @@ export default function Page({ params }: WorkflowPageProps) {
   //   );
   // }, []);
 
+
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       setSelectedNodeId(parseInt(node.id)); 
+      setSelectedNodePosition({x: node.position.x, y: node.position.y});
       setSelectedNode(node as unknown as NodeData); 
       setShowVariableDetail(false);
     },
@@ -157,6 +264,7 @@ export default function Page({ params }: WorkflowPageProps) {
 
   const handleCloseDetail = useCallback(() => {
     setSelectedNode(null);
+    setSelectedNodePosition(null);
   }, []);
 
   const handleVariableButtonClick = useCallback(() => {
@@ -194,28 +302,28 @@ export default function Page({ params }: WorkflowPageProps) {
   );
 
   // LLM - 프롬프트 업데이트
-  const updateNodePrompts = useCallback(
-    (nodeId: number, newPrompts: { type: string; text: string }[]) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.nodeId === nodeId
-            ? { ...node, prompts: newPrompts }
-            : node
-        )
-      );
-      if (selectedNode && selectedNode.nodeId === nodeId) {
-        setSelectedNode((prevNode) =>
-          prevNode
-            ? {
-                ...prevNode,
-                prompts: newPrompts,
-              }
-            : null
-        );
-      }
-    },
-    [selectedNode]
-  );
+  // const updateNodePrompts = useCallback(
+  //   (nodeId: number, newPrompts: { type: string; text: string }[]) => {
+  //     setNodes((nds) =>
+  //       nds.map((node) =>
+  //         node.nodeId === nodeId
+  //           ? { ...node, prompts: newPrompts }
+  //           : node
+  //       )
+  //     );
+  //     if (selectedNode && selectedNode.nodeId === nodeId) {
+  //       setSelectedNode((prevNode) =>
+  //         prevNode
+  //           ? {
+  //               ...prevNode,
+  //               prompts: newPrompts,
+  //             }
+  //           : null
+  //       );
+  //     }
+  //   },
+  //   [selectedNode]
+  // );
 
   // LLM - 프롬프트 삭제
   // const removePrompt = useCallback(
@@ -270,33 +378,35 @@ export default function Page({ params }: WorkflowPageProps) {
 
   // 답변 - 답변 업데이트
   const updateAnswer = useCallback((nodeId: number, answer: string) => {
-    setNodes((nds) =>
-      nds.map((node) =>
+    setNodes((nds) => {
+      console.log("check답변수정",nds);
+      
+      return nds.map((node) =>
         node.nodeId === nodeId
           ? { ...node, outputMessage: answer }
           : node
-      )
-    );
+      );
+  });
   }, []);
 
   // 질문 분류기 - 클래스 업데이트
-  const updateClasses = useCallback(
-    (nodeId: number, newClasses: { text: string }[]) => {
-      setNodes((nds) =>
-        nds.map((node) =>
-          node.nodeId === nodeId
-            ? { ...node, classes: newClasses  }
-            : node
-        )
-      );
-      if (selectedNode && selectedNode.nodeId === nodeId) {
-        setSelectedNode((prevNode) =>
-          prevNode ? { ...prevNode, classes: newClasses } : null
-        );
-      }
-    },
-    [selectedNode]
-  );
+  // const updateClasses = useCallback(
+  //   (nodeId: number, newClasses: { text: string }[]) => {
+  //     setNodes((nds) =>
+  //       nds.map((node) =>
+  //         node.nodeId === nodeId
+  //           ? { ...node, classes: newClasses  }
+  //           : node
+  //       )
+  //     );
+  //     if (selectedNode && selectedNode.nodeId === nodeId) {
+  //       setSelectedNode((prevNode) =>
+  //         prevNode ? { ...prevNode, classes: newClasses } : null
+  //       );
+  //     }
+  //   },
+  //   [selectedNode]
+  // );
 
   // 변수 할당자 - 변수 업데이트
   // const updateVariableOnNode = useCallback(
@@ -347,8 +457,10 @@ export default function Page({ params }: WorkflowPageProps) {
 
   // 노드 추가
   const addNode = useCallback(
-    (type: string, condition?: string) => {
-      if (!selectedNode) return;
+    (type: string, condition?: number) => {
+      if (selectedNodePosition == null || selectedNode == null) return;
+
+      const selectedPosition = selectedNodePosition;
 
       const isPositionOccupied = (x: number, y: number) => {
         return nodes.some(
@@ -358,61 +470,26 @@ export default function Page({ params }: WorkflowPageProps) {
         );
       };
 
-      const newX = selectedNode.coordinate.x + 200;
-      let newY = selectedNode.coordinate.y;
+      const newX = selectedPosition.x + 200;
+      let newY = selectedPosition.y;
 
       while (isPositionOccupied(newX, newY)) {
         newY += 160;
       }
 
-      let newNode;
-      if (type === "LLM") {
-        newNode = {
-          nodeId: uunodeIdv4(),
-          type,
-          prompts: [{ type: "system", text: "" }],
-          model: models[0].nodeId,
-          coordinate: { x: newX, y: newY },
-        };
-      } else if(type === "QUESTION_CLASSIFIER"){
-        newNode = {
-          nodeId: uunodeIdv4(),
-          type,
-          data: { classes: [{ text: "" }, { text: "" }] },
-          coordinate: { x: newX, y: newY },
-        };
-      } 
-      // else if(type === "VARIABLE_ASSIGNER"){
-      //   newNode = {
-      //     nodeId: uunodeIdv4(),
-      //     type,
-      //     data: { variable: variables[0] },
-      //     position: { x: newX, y: newY },
-      //   };
-      // } 
-      else {
-        newNode = {
-          nodeId: uunodeIdv4(),
-          type,
-          position: { x: newX, y: newY },
-        };
-      }
-
-      const newEdge = {
-        nodeId: `e${selectedNode.nodeId}-${newNode.nodeId}`,
-        source: selectedNode.nodeId,
-        sourceHandle: condition || undefined, 
-        target: newNode.nodeId,
+      const newNode: NewNodeData = {
+        chatFlowId: pageId,
+        coordinate: {
+          x: newX,
+          y: newY,
+        },
+        nodeType: type,
       };
-
-      // setNodes((nds) => [...nds, newNode]);
-      // setEdges((eds) => [...eds, newEdge]);
-      // setSelectedNode(newNode);
-      // setSelectedNodeId(newNode.nodeId);
+      
+      addNodeMutation.mutate(newNode);
     },
-    [selectedNode, nodes]
+    [selectedNode, nodes, edges]
   );
-
 
   useEffect(() => {
     if (selectedNodeId) {
@@ -423,52 +500,61 @@ export default function Page({ params }: WorkflowPageProps) {
 
   const getConnectedNodes = (nodeId: number) => {
     return edges
-      .filter((edge) => edge.source === nodeId)
+      .filter((edge) => edge.sourceNodeId === nodeId)
       .map((edge) => {
-        const targetNode = nodes.find((node) => node.nodeId === edge.target);
+        const targetNode = nodes.find((node) => node.nodeId === edge.targetNodeId);
         return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
       });
   };
 
-  const handleRemoveNode = (sourceNodeId: number, targetNodeId: number) => {
-    setEdges((currentEdges) =>
-      currentEdges.filter(
-        (edge) => !(edge.source === sourceNodeId && edge.target === targetNodeId)
-      )
+  const handleRemoveEdge = (sourceNodeId: number, targetNodeId: number) => {
+  setEdges((currentEdges) => {
+    const edgeToDelete = currentEdges.find(
+      (edge) => edge.sourceNodeId === sourceNodeId && edge.targetNodeId === targetNodeId
     );
-  };
 
-  const getConditionallyConnectedNodes = (nodeId: number) => {
-    const ifNodes = edges
-      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "ifsource")
-      .map((edge) => {
-        const targetNode = nodes.find((node) => node.nodeId === edge.target);
-        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
-      });
+    if (edgeToDelete) {
+      deleteEdgeMutation.mutate(edgeToDelete.edgeId);
+    }
 
-    const elifNodes = edges
-      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elifsource")
-      .map((edge) => {
-        const targetNode = nodes.find((node) => node.nodeId === edge.target);
-        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
-      });
+    return currentEdges.filter(
+      (edge) => !(edge.sourceNodeId === sourceNodeId && edge.targetNodeId === targetNodeId)
+    );
+  });
+};
 
-    const elseNodes = edges
-      .filter((edge) => edge.source === nodeId && edge.sourceHandle === "elsesource")
-      .map((edge) => {
-        const targetNode = nodes.find((node) => node.nodeId === edge.target);
-        return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
-      });
 
-    return { ifNodes, elifNodes, elseNodes };
-  };
+  // const getConditionallyConnectedNodes = (nodeId: number) => {
+  //   const ifNodes = edges
+  //     .filter((edge) => edge.sourceNodeId === nodeId && edge.sourceHandle === "ifsource")
+  //     .map((edge) => {
+  //       const targetNode = nodes.find((node) => node.nodeId === edge.target);
+  //       return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
+  //     });
 
-  const getConnectedNodesByCondition = (nodeId: number, conditions: string[]) => {
+  //   const elifNodes = edges
+  //     .filter((edge) => edge.sourceNodeId === nodeId && edge.sourceHandle === "elifsource")
+  //     .map((edge) => {
+  //       const targetNode = nodes.find((node) => node.nodeId === edge.target);
+  //       return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
+  //     });
+
+  //   const elseNodes = edges
+  //     .filter((edge) => edge.sourceNodeId === nodeId && edge.sourceHandle === "elsesource")
+  //     .map((edge) => {
+  //       const targetNode = nodes.find((node) => node.nodeId === edge.target);
+  //       return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
+  //     });
+
+  //   return { ifNodes, elifNodes, elseNodes };
+  // };
+
+  const getConnectedNodesByCondition = (nodeId: number, conditions: number[]) => {
     return conditions.reduce((acc, condition) => {
       acc[condition] = edges
-        .filter((edge) => edge.source === nodeId && edge.sourceHandle === condition)
+        .filter((edge) => edge.sourceNodeId === nodeId && edge.sourceConditionId === condition)
         .map((edge) => {
-          const targetNode = nodes.find((node) => node.nodeId === edge.target);
+          const targetNode = nodes.find((node) => node.nodeId === edge.targetNodeId);
           return { nodeId: targetNode?.nodeId || 0, name: targetNode?.type || "Unknown" };
         });
       return acc;
@@ -478,9 +564,10 @@ export default function Page({ params }: WorkflowPageProps) {
   const renderNodeDetail = () => {
     if (!selectedNode) return null;
 
-    const connectedNodeDetails = getConnectedNodes(selectedNode.nodeId);
+    const connectedNodeDetails = getConnectedNodes(selectedNodeId ?? -1);
+    console.log('연결된 다음 노드', connectedNodeDetails);
 
-    const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.nodeId);
+    // const ifelseNodeDetails = getConditionallyConnectedNodes(selectedNode.nodeId);
 
     // const questionClassifierConditions =
     // selectedNode.type === "questionclassifierNode"
@@ -501,7 +588,7 @@ export default function Page({ params }: WorkflowPageProps) {
             onClose={handleCloseDetail}
             connectedNodes={connectedNodeDetails}
             setConnectedNodes={(targetNodeId) =>
-              handleRemoveNode(selectedNode.nodeId, targetNodeId)
+              handleRemoveEdge(selectedNode.nodeId, targetNodeId)
             }
           />
         );
@@ -517,20 +604,20 @@ export default function Page({ params }: WorkflowPageProps) {
       //       onClose={handleCloseDetail}
       //       connectedNodes={connectedNodeDetails}
       //       setConnectedNodes={(targetNodeId) =>
-      //         handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //         handleRemoveEdge(selectedNode.nodeId, targetNodeId)
       //       }
       //     />
       //   );
-      // case "RETRIEVER":
-      //   return (
-      //     <KnowledgeNodeDetail 
-      //       addNode={addNode} 
-      //       updateKnowledgeFile={(fileName) => updateKnowledgeFile(selectedNode.nodeId, fileName)}
-      //       onClose={handleCloseDetail} 
-      //       connectedNodes={connectedNodeDetails}
-      //       setConnectedNodes={(targetNodeId) =>
-      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
-      //         }/>);
+      case "RETRIEVER":
+        return (
+          <KnowledgeNodeDetail 
+            addNode={addNode} 
+            updateKnowledgeFile={(fileName) => updateKnowledgeFile(selectedNode.nodeId, fileName)}
+            onClose={handleCloseDetail} 
+            connectedNodes={connectedNodeDetails}
+            setConnectedNodes={(targetNodeId) =>
+                handleRemoveEdge(selectedNode.nodeId, targetNodeId)
+              }/>);
       // case "CONDITIONAL":
       //   return (
       //   <IfelseNodeDetail 
@@ -539,7 +626,7 @@ export default function Page({ params }: WorkflowPageProps) {
       //     onClose={handleCloseDetail} 
       //     connectedNodes={ifelseNodeDetails}
       //     setConnectedNodes={(targetNodeId) =>
-      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //           handleRemoveEdge(selectedNode.nodeId, targetNodeId)
       //         }/>);
       case "ANSWER":
         return (
@@ -550,7 +637,7 @@ export default function Page({ params }: WorkflowPageProps) {
             onClose={handleCloseDetail}
             connectedNodes={connectedNodeDetails}
             setConnectedNodes={(targetNodeId) =>
-                handleRemoveNode(selectedNode.nodeId, targetNodeId)
+                handleRemoveEdge(selectedNode.nodeId, targetNodeId)
               }
           />
         );
@@ -563,7 +650,7 @@ export default function Page({ params }: WorkflowPageProps) {
       //       onClose={handleCloseDetail}
       //       connectedNodes={connectedNodesByCondition}
       //       setConnectedNodes={(targetNodeId) =>
-      //         handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //         handleRemoveEdge(selectedNode.nodeId, targetNodeId)
       //       }
       //     />
       //   );
@@ -576,7 +663,7 @@ export default function Page({ params }: WorkflowPageProps) {
       //       onClose={handleCloseDetail} 
       //       connectedNodes={connectedNodeDetails}
       //       setConnectedNodes={(targetNodeId) =>
-      //           handleRemoveNode(selectedNode.nodeId, targetNodeId)
+      //           handleRemoveEdge(selectedNode.nodeId, targetNodeId)
       //         }/>);
       default:
         return null;
@@ -624,36 +711,36 @@ export default function Page({ params }: WorkflowPageProps) {
     );
   };
 
-  const nodesWithSelection = nodes.map((node) => ({
-    id: String(node.nodeId), 
-    position: { x: node.coordinate.x, y: node.coordinate.y }, 
-    data: {
-      name: node.name,
-      maxLength: node.maxLength,
-      outputMessage: node.outputMessage,
-      promptSystem: node.promptSystem,
-      promptUser: node.promptUser,
-    }, 
-    type: node.type,
-    selected: node.nodeId === selectedNodeId,
-    onDelete: () => openDeleteModal(node.nodeId, node.type ?? ""),
-  }));
-
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [nodeToDelete, setNodeToDelete] = useState<number | null>(null);
   const [nodeTypeToDelete, setNodeTypeToDelete] = useState<string | null>(null);
 
-  const deleteNode = useCallback(
-    (nodeId: number) => {
-        setNodes((nds) => nds.filter((node) => node.nodeId !== nodeId));
-        setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
-        setSelectedNode(null);
-        setShowConfirmationModal(false);
-        setNodeToDelete(null);
-        setNodeTypeToDelete(null);
-      },
-      [setNodes, setEdges]
-    );
+  const deleteNode: (nodeId: number) => void = useCallback(
+    (nodeId) => {
+      // Edge를 먼저 필터링하여 상태 업데이트
+      setEdges((currentEdges) =>
+        currentEdges.filter(
+          (edge) => edge.sourceNodeId !== nodeId && edge.targetNodeId !== nodeId
+        )
+      );
+
+      // Node를 필터링하여 상태 업데이트
+      setNodes((currentNodes) => currentNodes.filter((node) => node.nodeId !== nodeId));
+
+      // 선택된 노드와 모달 관련 상태 초기화
+      setSelectedNode(null);
+      setShowConfirmationModal(false);
+      setNodeToDelete(null);
+      setNodeTypeToDelete(null);
+
+      // Node 삭제 Mutation 호출
+      deleteNodeMutation.mutate(nodeId);
+    },
+    [deleteNodeMutation] // deleteNodeMutation을 의존성에 추가
+  );
+
+
+
   
   const openDeleteModal = (nodeId: number, nodeType: string) => {
     setShowConfirmationModal(true);
@@ -665,6 +752,7 @@ export default function Page({ params }: WorkflowPageProps) {
     if (nodeToDelete) {
       deleteNode(nodeToDelete);
     }
+    setShowConfirmationModal(false);
   };
 
   const handleCancelDelete = () => {
@@ -672,6 +760,41 @@ export default function Page({ params }: WorkflowPageProps) {
     setNodeToDelete(null);
     setNodeTypeToDelete(null);
   };
+
+  useEffect(() => {
+    const updatedNodesWithSelection: Node[] = nodes.map((node) => ({
+      id: String(node.nodeId),
+      position: node.coordinate,
+      data: {
+        ...node,
+        onDelete: () => openDeleteModal(node.nodeId, node.type ?? ""),
+      },
+      type: node.type,
+      selected: node.nodeId === selectedNodeId,
+    }));
+
+    setNodesWithSelection(updatedNodesWithSelection); // 상태 업데이트
+  }, [nodes, selectedNodeId]);
+
+  // react-flow의 node가 변경되면 작동할 useEffect
+  useEffect(() => {
+    const coordinatesDiffer = nodesWithSelection.some((updatedNode, index) => {
+    const originalNode = nodes[index];
+      if (updatedNode.position.x !== originalNode.coordinate.x
+        || updatedNode.position.y !== originalNode.coordinate.y
+      ) {
+          nodes[index].coordinate.x = updatedNode.position.x;
+          nodes[index].coordinate.y = updatedNode.position.y;
+      }
+    });
+  }, [nodesWithSelection]);
+
+
+  const edgesWithCorrectType = edges.map((edge) => ({
+    id: `e${edge.sourceNodeId}-${edge.targetNodeId}`,
+    source: String(edge.sourceNodeId),
+    target: String(edge.targetNodeId),
+  }));
 
 
   return (
@@ -699,8 +822,8 @@ export default function Page({ params }: WorkflowPageProps) {
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
           <ReactFlow
             nodes={nodesWithSelection}
-            // edges={edges}
-            // onNodesChange={onNodesChange}
+            edges={edgesWithCorrectType}
+            onNodesChange={onNodesChange}
             // onEdgesChange={onEdgesChange}
             onNodeClick={onNodeClick}
             zoomOnScroll={true}
