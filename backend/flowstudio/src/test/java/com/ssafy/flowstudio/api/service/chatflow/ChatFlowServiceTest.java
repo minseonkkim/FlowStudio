@@ -37,6 +37,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 @Transactional
 @ActiveProfiles("test")
@@ -66,7 +67,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
     @Autowired
     private EntityManager em;
 
-    @DisplayName("챗플로우 목록을 조회한다")
+    @DisplayName("공유여부가 false인 유저의 챗플로우 목록을 조회한다")
     @Test
     void getChatFlows() {
         // given
@@ -100,7 +101,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -108,6 +109,98 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .extracting("chatFlowId", "title")
                 .containsExactlyInAnyOrder(
                         tuple(chatFlow1.getId(), chatFlow1.getTitle()),
+                        tuple(chatFlow2.getId(), chatFlow2.getTitle())
+                );
+    }
+
+    @DisplayName("유저가 공유여부가 true, false인 챗플로우들을 모두 보유하고 있을 때 공유여부가 false인 유저의 챗플로우 목록만 조회한다")
+    @Test
+    void getPrivateChatFlows() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow1 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title1")
+                .description("description")
+                .build();
+        ChatFlow chatFlow2 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title2")
+                .isPublic(true)
+                .description("description")
+                .build();
+
+        Category category1 = Category.builder()
+                .name("category1")
+                .build();
+        Category category2 = Category.builder()
+                .name("category1")
+                .build();
+
+        chatFlow1.updateCategories(List.of(category1, category2));
+
+        userRepository.save(user);
+        chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
+
+        // when
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false);
+
+        // then
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response).isNotNull()
+                .extracting("chatFlowId", "title")
+                .containsExactlyInAnyOrder(
+                        tuple(chatFlow1.getId(), chatFlow1.getTitle())
+                );
+    }
+
+    @DisplayName("유저가 공유여부가 true, false인 챗플로우들을 모두 보유하고 있을 때 공유여부가 true인 유저의 챗플로우 목록을 조회한다")
+    @Test
+    void getSharedChatFlows() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow1 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title1")
+                .description("description")
+                .build();
+        ChatFlow chatFlow2 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title2")
+                .isPublic(true)
+                .description("description")
+                .build();
+
+        Category category1 = Category.builder()
+                .name("category1")
+                .build();
+        Category category2 = Category.builder()
+                .name("category1")
+                .build();
+
+        chatFlow1.updateCategories(List.of(category1, category2));
+
+        userRepository.save(user);
+        chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
+
+        // when
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true);
+
+        // then
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response).isNotNull()
+                .extracting("chatFlowId", "title")
+                .contains(
                         tuple(chatFlow2.getId(), chatFlow2.getTitle())
                 );
     }
@@ -665,7 +758,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
 
     @DisplayName("게시된 챗플로우를 다운로드하면 원본 챗플로우의 shareCount가 증가한다.")
     @Test
-    void incremetShareCount() {
+    void incrementShareCount() {
         // given
         User user1 = User.builder()
                 .username("test1")
@@ -709,4 +802,56 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         assertThat(chatFlow.getShareCount()).isEqualTo(2);
     }
 
+    @DisplayName("공유 여부가 true인 모든 챗플로우를 불러온다.")
+    @Test
+    void getEveryoneChatFlows() {
+        // given
+        User user1 = User.builder()
+                .username("test1")
+                .build();
+
+        User user2 = User.builder()
+                .username("test2")
+                .build();
+
+        User user3 = User.builder()
+                .username("test3")
+                .build();
+
+        ChatFlow chatFlow1 = ChatFlow.builder()
+                .owner(user1)
+                .author(user1)
+                .title("title1")
+                .description("description")
+                .build();
+        ChatFlow chatFlow2 = ChatFlow.builder()
+                .owner(user2)
+                .author(user2)
+                .title("title2")
+                .isPublic(true)
+                .description("description")
+                .build();
+        ChatFlow chatFlow3 = ChatFlow.builder()
+                .owner(user3)
+                .author(user3)
+                .title("title3")
+                .isPublic(true)
+                .description("description")
+                .build();
+
+        userRepository.saveAll(List.of(user1, user2, user3));
+        chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2, chatFlow3));
+
+        // when
+        List<ChatFlowListResponse> response = chatFlowService.getEveryoneChatFlows();
+
+        // then
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response).isNotNull()
+                .extracting("chatFlowId", "title")
+                .contains(
+                        tuple(chatFlow2.getId(), chatFlow2.getTitle()),
+                        tuple(chatFlow3.getId(), chatFlow3.getTitle())
+                );
+    }
 }

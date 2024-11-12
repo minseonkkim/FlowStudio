@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -61,7 +62,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class)))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when
@@ -404,6 +405,56 @@ class ChatFlowControllerTest extends ControllerTestSupport {
         // when
         ResultActions perform = mockMvc.perform(
                 post("/api/v1/chat-flows/{chatFlowId}/download", 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
+
+    @DisplayName("모두의 챗플로우 목록을 조회한다.")
+    @WithMockUser
+    @Test
+    void getEveryoneChatFlows() throws Exception {
+        // given
+        UserResponse author = UserResponse.builder()
+                .id(1L)
+                .username("username")
+                .nickname("nickname")
+                .profileImage("profileImage")
+                .build();
+
+        CategoryResponse category1 = CategoryResponse.builder()
+                .categoryId(1L)
+                .name("카테고리1")
+                .build();
+
+        CategoryResponse category2 = CategoryResponse.builder()
+                .categoryId(2L)
+                .name("카테고리2")
+                .build();
+
+        ChatFlowListResponse response = ChatFlowListResponse.builder()
+                .chatFlowId(1L)
+                .title("title")
+                .description("description")
+                .author(author)
+                .thumbnail("1")
+                .categories(List.of(category1, category2))
+                .isPublic(false)
+                .build();
+
+        given(chatFlowService.getEveryoneChatFlows())
+                .willReturn(List.of(response));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/shares")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON));
 

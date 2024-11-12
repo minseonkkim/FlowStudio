@@ -32,6 +32,7 @@ import java.util.List;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -39,6 +40,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -85,12 +87,13 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .shareCount(0)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class)))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows")
+                        .param("shared", "false")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -102,6 +105,95 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("ChatFlow")
                                 .summary("챗플로우 목록 조회")
+                                .queryParameters(
+                                        parameterWithName("shared").optional().description("공유여부")
+                                )
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data[].chatFlowId").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우 아이디"),
+                                        fieldWithPath("data[].title").type(JsonFieldType.STRING)
+                                                .description("챗플로우 제목"),
+                                        fieldWithPath("data[].description").type(JsonFieldType.STRING)
+                                                .description("챗플로우 설명"),
+                                        fieldWithPath("data[].thumbnail").type(JsonFieldType.STRING)
+                                                .description("챗플로우 썸네일"),
+                                        fieldWithPath("data[].public").type(JsonFieldType.BOOLEAN)
+                                                .description("챗플로우 공유 여부"),
+                                        fieldWithPath("data[].author.id").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우 작성자 아이디"),
+                                        fieldWithPath("data[].author.id").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우 작성자 아이디"),
+                                        fieldWithPath("data[].author.username").type(JsonFieldType.STRING)
+                                                .description("챗플로우 작성자 이메일"),
+                                        fieldWithPath("data[].author.nickname").type(JsonFieldType.STRING)
+                                                .description("챗플로우 작성자 닉네임"),
+                                        fieldWithPath("data[].author.profileImage").type(JsonFieldType.STRING)
+                                                .description("챗플로우 작성자 프로필이미지"),
+                                        fieldWithPath("data[].shareCount").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우가 공유된 횟수"),
+                                        fieldWithPath("data[].categories[].categoryId").type(JsonFieldType.NUMBER)
+                                                .description("카테고리 아이디"),
+                                        fieldWithPath("data[].categories[].name").type(JsonFieldType.STRING)
+                                                .description("카테고리 이름"))
+                                .build())));
+
+    }
+
+    @DisplayName("모두의 챗플로우 목록을 조회한다")
+    @Test
+    void getEveryoneChatFlows() throws Exception {
+        // given
+        UserResponse author = UserResponse.builder()
+                .id(1L)
+                .username("username")
+                .nickname("nickname")
+                .profileImage("profileImage")
+                .build();
+
+        CategoryResponse category1 = CategoryResponse.builder()
+                .categoryId(1L)
+                .name("카테고리1")
+                .build();
+
+        CategoryResponse category2 = CategoryResponse.builder()
+                .categoryId(2L)
+                .name("카테고리2")
+                .build();
+
+        ChatFlowListResponse response = ChatFlowListResponse.builder()
+                .chatFlowId(1L)
+                .title("title")
+                .description("description")
+                .author(author)
+                .thumbnail("1")
+                .categories(List.of(category1, category2))
+                .isPublic(false)
+                .shareCount(0)
+                .build();
+
+        given(chatFlowService.getEveryoneChatFlows())
+                .willReturn(List.of(response));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/shares")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("get-everyone-chatflow-list",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("ChatFlow")
+                                .summary("모두의 챗플로우 목록 조회")
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),
