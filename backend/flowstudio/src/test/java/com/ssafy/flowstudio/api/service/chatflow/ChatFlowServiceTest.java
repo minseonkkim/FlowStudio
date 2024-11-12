@@ -5,11 +5,16 @@ import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.edge.entity.Edge;
+import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.*;
@@ -27,8 +32,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -52,10 +58,10 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
     private KnowledgeRepository knowledgeRepository;
 
     @Autowired
-    private QuestionClassRepository questionClassRepository;
+    private NodeRepository nodeRepository;
 
     @Autowired
-    private NodeRepository nodeRepository;
+    private EdgeRepository edgeRepository;
 
     @Autowired
     private EntityManager em;
@@ -411,7 +417,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         assertThat(clonedRetriever.getKnowledge()).isNull();
     }
 
-    @DisplayName("QuestionClassifier, Answer 노드를 가진 챗플로우를 업로드한다.")
+    @DisplayName("QuestionClassifier, Answer 노드, 간선을 가진 챗플로우를 업로드한다.")
     @Test
     void uploadChatFlowsWithQuestionClassifier() {
         // given
@@ -442,16 +448,32 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
 
         chatFlow.addNode(questionClassifier);
 
-        Answer answer = Answer.builder()
-                .name("my-answer")
+        Answer answer1 = Answer.builder()
+                .name("my-answer-1")
                 .chatFlow(chatFlow)
                 .coordinate(coordinate)
                 .type(NodeType.ANSWER)
-                .outputMessage("my-answer")
+                .outputMessage("my-answer-1")
                 .build();
 
-        chatFlow.addNode(answer);
+        Answer answer2 = Answer.builder()
+                .name("my-answer-2")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-2")
+                .build();
+
+        chatFlow.addNode(answer1);
+        chatFlow.addNode(answer2);
+
         chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(questionClassifier, answer1, questionClasses.get(0).getId());
+        Edge edge2 = Edge.create(questionClassifier, answer2, questionClasses.get(1).getId());
+
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
 
         // when
         ChatFlowResponse chatFlowResponse = chatFlowService.uploadChatFlow(user, chatFlow.getId());
@@ -459,12 +481,17 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         // then
 
         // 복제된 ChatFlow는 원본 ChatFlow와 ID가 다르다.
-        assertThat(chatFlowResponse).isNotNull();
-        assertThat(chatFlow.getId()).isNotEqualTo(chatFlowResponse.getChatFlowId());
+        ChatFlow clonedChatFlow = chatFlowRepository.findById(chatFlowResponse.getChatFlowId()).orElse(null);
+
+        assertThat(clonedChatFlow).isNotNull();
+        assertThat(chatFlow.getId()).isNotEqualTo(clonedChatFlow.getId());
+
+        // 복제된 ChatFlow는 공유 여부가 true다.
+        assertThat(clonedChatFlow.isPublic()).isTrue();
 
         // 복제된 ChatFlow는 원본 ChatFlow가 가진 노드를 함께 복제한다.
         List<NodeResponse> clonedNodes = chatFlowResponse.getNodes();
-        assertThat(clonedNodes).size().isEqualTo(2);
+        assertThat(clonedNodes).size().isEqualTo(3);
         assertThat(clonedNodes).extracting(NodeResponse::getType)
                 .contains(NodeType.QUESTION_CLASSIFIER, NodeType.ANSWER);
 
@@ -498,6 +525,188 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         assertThat(originalQuestionClassIds).doesNotContainAnyElementsOf(clonedQuestionClassIds);
         assertThat(clonedQuestionClassifier.getQuestionClasses()).extracting(QuestionClass::getContent)
                 .contains("question-class-1", "question-class-2");
+
+        // 복제된 ChatFlow는 원본 ChatFlow가 가진 간선을 함께 복제한다.
+        List<Edge> clonedEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId());
+        assertThat(clonedEdges).isNotNull();
+
+        // 복제된 간선은 원본 간선과 ID가 다르다.
+        List<Long> originalEdgeIds = List.of(edge1.getId(), edge2.getId());
+        List<Long> clonedEdgeIds = clonedEdges.stream().map(Edge::getId).toList();
+        assertThat(originalEdgeIds).doesNotContainAnyElementsOf(clonedEdgeIds);
+
+        // 복제된 간선은 복제된 질문 분류를 sourceConditionId로 갖고있다.
+        assertThat(clonedEdges.stream().map(Edge::getSourceConditionId).toList())
+                .containsExactlyInAnyOrderElementsOf(clonedQuestionClassIds);
+
+        // 복제된 간선들은 복제된 questionClassifier를 출처 노드로 갖고있다.
+        assertThat(clonedEdges.stream().map(Edge::getSourceNode).toList())
+                .containsExactlyInAnyOrder(clonedQuestionClassifier, clonedQuestionClassifier);
+
+        // 복제된 간선들은 복제된 answer1, answer2를 출처 노드로 갖고있다.
+        List<NodeResponse> clonedAnswers = clonedNodes.stream()
+                .filter(node -> NodeType.ANSWER.equals(node.getType())).toList();
+
+        assertThat(clonedAnswers).isNotEmpty();
+        assertThat(clonedEdges.stream().map(Edge::getTargetNode).toList())
+                .extracting("id")
+                .containsExactlyInAnyOrderElementsOf(clonedAnswers.stream().map(NodeResponse::getNodeId).toList());
+    }
+
+    @DisplayName("이미 게시된 상태의 챗플로우를 업로드하면 예외가 발생한다.")
+    @Test
+    void throwExeptionWhenUploadPublicChatFlow() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .isPublic(true)
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        // when & then
+        assertThatThrownBy(() -> chatFlowService.uploadChatFlow(user, chatFlow.getId()))
+                .isInstanceOf(BaseException.class)
+                .hasMessageContaining(ErrorCode.UPLOADED_CHAT_FLOW_CANNOT_BE_SHARED.getMessage());
+    }
+
+    @DisplayName("타인이 원작자인 챗플로우를 업로드하면 예외가 발생한다.")
+    @Test
+    void throwExeptionWhenUploadOthersChatFlow() {
+        // given
+        User user1 = User.builder()
+                .username("test1")
+                .build();
+
+        User user2 = User.builder()
+                .username("test2")
+                .build();
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user1)
+                .author(user1)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .isPublic(true)
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        // when & then
+        assertThatThrownBy(() -> chatFlowService.uploadChatFlow(user2, chatFlow.getId()))
+                .isInstanceOf(BaseException.class)
+                .hasMessageContaining(ErrorCode.FORBIDDEN.getMessage());
+    }
+
+    @DisplayName("게시된 챗플로우를 다운로드한다.")
+    @Test
+    void downloadChatFlow() {
+        // given
+        User user1 = User.builder()
+                .username("test1")
+                .build();
+
+        User user2 = User.builder()
+                .username("test2")
+                .build();
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user1)
+                .author(user1)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .isPublic(true)
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        ChatFlowResponse chatFlowResponse = chatFlowService.downloadChatFlow(user2, chatFlow.getId());
+
+        // then
+        ChatFlow clonedChatFlow = chatFlowRepository.findById(chatFlowResponse.getChatFlowId()).orElse(null);
+
+        assertThat(clonedChatFlow).isNotNull();
+        assertThat(clonedChatFlow.getId()).isNotEqualTo(chatFlow.getId());
+        assertThat(clonedChatFlow.getOwner().getId()).isEqualTo(user2.getId());
+        assertThat(clonedChatFlow.getAuthor().getId()).isEqualTo(user1.getId());
+        assertThat(clonedChatFlow.isPublic()).isFalse();
+    }
+
+    @DisplayName("게시된 챗플로우를 다운로드하면 원본 챗플로우의 shareCount가 증가한다.")
+    @Test
+    void incremetShareCount() {
+        // given
+        User user1 = User.builder()
+                .username("test1")
+                .build();
+
+        User user2 = User.builder()
+                .username("test2")
+                .build();
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user1)
+                .author(user1)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .isPublic(true)
+                .shareCount(0)
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        // when
+        ChatFlowResponse chatFlowResponse1 = chatFlowService.downloadChatFlow(user2, chatFlow.getId());
+        ChatFlowResponse chatFlowResponse2 = chatFlowService.downloadChatFlow(user2, chatFlow.getId());
+
+        // then
+        ChatFlow clonedChatFlow1 = chatFlowRepository.findById(chatFlowResponse1.getChatFlowId()).orElse(null);
+        ChatFlow clonedChatFlow2 = chatFlowRepository.findById(chatFlowResponse2.getChatFlowId()).orElse(null);
+
+        assertThat(clonedChatFlow1).isNotNull();
+        assertThat(clonedChatFlow2).isNotNull();
+        assertThat(clonedChatFlow1.getShareCount()).isEqualTo(0);
+        assertThat(clonedChatFlow2.getShareCount()).isEqualTo(0);
+        assertThat(chatFlow.getShareCount()).isEqualTo(2);
     }
 
 }

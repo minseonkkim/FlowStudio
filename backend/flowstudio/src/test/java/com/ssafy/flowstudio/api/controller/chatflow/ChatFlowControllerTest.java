@@ -348,4 +348,71 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data").exists());
     }
+
+    @DisplayName("챗플로우를 다운로드한다.")
+    @WithMockUser
+    @Test
+    void downloadChatFlow() throws Exception {
+        // given
+        EdgeResponse edge1 = EdgeResponse.builder()
+                .edgeId(1L)
+                .sourceNodeId(1L)
+                .targetNodeId(2L)
+                .build();
+
+        EdgeResponse edge2 = EdgeResponse.builder()
+                .edgeId(1L)
+                .sourceNodeId(2L)
+                .targetNodeId(3L)
+                .build();
+
+        NodeResponse node1 = StartResponse.builder()
+                .nodeId(1L)
+                .name("Start")
+                .type(NodeType.START)
+                .outputEdges(List.of(edge1))
+                .maxLength(10)
+                .build();
+
+        NodeResponse node2 = LlmResponse.builder()
+                .nodeId(2L)
+                .name("LLM")
+                .type(NodeType.LLM)
+                .promptSystem("promptSystem")
+                .promptUser("promptUser")
+                .inputEdges(List.of(edge1))
+                .outputEdges(List.of(edge2))
+                .build();
+
+        NodeResponse node3 = AnswerResponse.builder()
+                .nodeId(3L)
+                .name("Answer")
+                .type(NodeType.ANSWER)
+                .inputEdges(List.of(edge2))
+                .outputMessage("outputMessage")
+                .build();
+
+        ChatFlowResponse response = ChatFlowResponse.builder()
+                .chatFlowId(1L)
+                .title("title")
+                .nodes(List.of(node1, node2, node3))
+                .build();
+
+        given(chatFlowService.downloadChatFlow(any(User.class), any()))
+                .willReturn(response);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                post("/api/v1/chat-flows/{chatFlowId}/download", 1L)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
 }
