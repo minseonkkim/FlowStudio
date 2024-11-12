@@ -214,8 +214,6 @@ public class ChatFlowService {
 
                 // 복제된 지식을 DB에 저장 후 맵에 추가한다.
                 knowledgeRepository.save(clonedKnowledge);
-                System.out.println("originalKnowledge = " + originalKnowledge.getId());
-                System.out.println("clonedKnowledge = " + clonedKnowledge.getId());
                 knowledgeMap.put(originalKnowledge.getId(), clonedKnowledge);
             }
         }
@@ -224,7 +222,7 @@ public class ChatFlowService {
         Map<Long, Node> nodeMap = new HashMap<>();
 
         // 해당 ChatFlow에서 사용하는 노드들을 불러온 후 타입에 맞춰 복제한다.
-        List<Node> nodeList = nodeRepository.findAllByChatFlowId(chatFlowId);
+        List<Node> nodeList = chatFlow.getNodes();
 
         for (Node originalNode : nodeList) {
             NodeCopyFactory factory = nodeCopyFactoryProvider.getCopyFactory(originalNode.getType());
@@ -245,8 +243,6 @@ public class ChatFlowService {
 
             // 복제된 노드를 DB에 저장 후 맵에 추가한다.
             nodeRepository.save(clonedNode);
-            System.out.println("Cloned Node successfully saved = " + clonedNode.getId());
-            System.out.println("Cloned Node successfully saved with chatflow Id = " + clonedNode.getChatFlow().getId());
             nodeMap.put(originalNode.getId(), clonedNode);
         }
 
@@ -287,12 +283,10 @@ public class ChatFlowService {
             edgeRepository.save(edge);
         }
 
-        // DB와 동기화된 상태의 clonedChatFlow를 새롭게 불러와 반환한다.
+        // DB와 동기화된 상태의 clonedChatFlow, edgeList를 새롭게 불러와 반환한다.
+        List<EdgeResponse> newEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId()).stream().map(EdgeResponse::from).toList();
         entityManager.refresh(clonedChatFlow);
-        System.out.println("-----");
-        System.out.println("chatFlowId = " + clonedChatFlow);
-        System.out.println("clonedChatFlow = " + clonedChatFlow.getId());
-        System.out.println("최종 저장된 노드 리스트 = " + clonedChatFlow.getNodes());
-        return ChatFlowResponse.from(clonedChatFlow);
+
+        return ChatFlowResponse.from(clonedChatFlow, newEdges);
     }
 }
