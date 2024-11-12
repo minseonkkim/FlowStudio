@@ -66,4 +66,8 @@ public class Chat extends BaseEntity {
     public void updateHistory(String updatedChatHistory) {
         this.messageList = updatedChatHistory;
     }
+
+    public void updateChatFlow(ChatFlow publishChatFlow) {
+        this.chatFlow = publishChatFlow;
+    }
 }

@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
 
@@ -86,11 +87,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             // AI의 답변을 QuestionClass의 ID로 변환한다.
             Long foundId = Long.parseLong(responseText);
 
-            log.info("AI response: " + responseText);
+            log.info("AI response: {}, found ID: {}", responseText, foundId);
 
             // AI가 반환한 ID로 QuestionClass를 찾는다.
+            System.out.println(questionClasses);
             QuestionClass chosenQuestionClass = questionClasses.stream()
-                    .filter(qc -> qc.getId() == foundId)
+                    .filter(qc -> qc.getId().longValue() == foundId.longValue())
                     .findFirst()
                     .orElseThrow(() -> new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION));
 
