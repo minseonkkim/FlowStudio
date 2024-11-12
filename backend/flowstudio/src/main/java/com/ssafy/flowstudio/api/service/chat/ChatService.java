@@ -3,18 +3,30 @@ package com.ssafy.flowstudio.api.service.chat;
 import com.ssafy.flowstudio.api.service.chat.request.ChatCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
+import com.ssafy.flowstudio.common.constant.AuthConst;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.security.jwt.JWTService;
+import com.ssafy.flowstudio.common.security.jwt.JwtProperties;
+import com.ssafy.flowstudio.common.security.jwt.JwtToken;
+import com.ssafy.flowstudio.common.util.CookieUtils;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chat.repository.ChatRepository;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.node.entity.NodeVisitor;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -25,6 +37,10 @@ public class ChatService {
     private final NodeVisitor visitor;
     private final ChatRepository chatRepository;
     private final ChatFlowRepository chatFlowRepository;
+    private final UserRepository userRepository;
+
+    private final JWTService jwtService;
+    private final JwtProperties properties;
 
     @Transactional
     public void sendMessage(Long chatId, ChatMessageServiceRequest request) {
@@ -37,11 +53,18 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatCreateResponse createChat(User user, Long chatFlowId, ChatCreateServiceRequest request) {
-        // 비로그인 유저면 익명 유저 객체 생성
+    public ChatCreateResponse createChat(User user, Long chatFlowId, ChatCreateServiceRequest request, HttpServletResponse servletResponse) {
         if (user == null) {
-            user = User.createAnonymous();
+            String username = "anonymous " + UUID.randomUUID().toString().substring(0, 10);
+            user = User.createAnonymous(username);
+            userRepository.save(user);
+            Collection<GrantedAuthority> collection = new ArrayList<>();
+            collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS");
+
+            JwtToken token = jwtService.generateToken(user.getUsername(), collection);
+            CookieUtils.addCookie(servletResponse, "access-token", token.getAccessToken(), properties.getAccessExpire(), true);
         }
+
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 

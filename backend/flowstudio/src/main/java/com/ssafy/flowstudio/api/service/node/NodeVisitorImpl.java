@@ -33,10 +33,14 @@ public class NodeVisitorImpl implements NodeVisitor {
         log.info("Start chat flow");
         List<Node> nodes = chat.getChatFlow().getNodes();
 
-        Node startNode = nodes.stream()
+        Start startNode = (Start) nodes.stream()
                 .filter(node -> node.getType().equals(NodeType.START))
                 .findFirst()
                 .orElseThrow(() -> new BaseException(ErrorCode.START_NODE_NOT_FOUND));
+
+        if (startNode.getMaxLength() < message.length()) {
+            throw new BaseException(ErrorCode.MESSAGE_TOO_LONG);
+        }
 
         redisService.save(chat.getId(), ChatEnvVariable.INPUT_MESSAGE ,message);
 
