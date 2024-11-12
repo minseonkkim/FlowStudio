@@ -228,47 +228,47 @@ export default function LlmNodeDetail({
                 >
                   <div className="p-1 text-[15px]" role="none">
                     <div
-                      onClick={() => handleNodeTypeClick("llmNode")}
+                      onClick={() => handleNodeTypeClick("LLM")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <FaRobot className="text-[18px]" />
                       <div>LLM</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("knowledgeNode")}
+                      onClick={() => handleNodeTypeClick("RETRIEVER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <FiBookOpen className="text-[18px]" />
                       <div>지식 검색</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("answerNode")}
+                      onClick={() => handleNodeTypeClick("ANSWER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <RiQuestionAnswerFill className="text-[18px]" />
                       <div>답변</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("questionclassifierNode")}
+                      onClick={() => handleNodeTypeClick("QUESTION_CLASSIFIER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <GrTree className="text-[18px]" />
                       <div>질문 분류기</div>
                     </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("ifelseNode")}
+                    {/* <div
+                      onClick={() => handleNodeTypeClick("CONDITIONAL")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <IoGitBranchOutline className="text-[18px]" />
                       <div>IF/ELSE</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("variableallocatorNode")}
+                      onClick={() => handleNodeTypeClick("VARIABLE_ASSIGNER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <VscSymbolVariable className="text-[18px]" />
                       <div>변수 할당자</div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               )}

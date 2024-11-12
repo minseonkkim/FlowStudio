@@ -1,10 +1,13 @@
-import { EdgeData, NodeData } from "@/types/workflow";
+import { EdgeData, NodeData } from "@/types/chatbot";
 import axiosInstance from "./token/axiosInstance";
+import { NewNodeData } from "@/types/workflow";
 
 // 노드 생성
-export async function postNode(data: NodeData){
+export async function postNode(data: NewNodeData): Promise<NodeData>{
   try {
+    console.log('생성', data);
     const response = await axiosInstance.post('chat-flows/nodes', data)
+    
     if (response.status === 200) {
       return response.data.data;
     } else {
@@ -78,11 +81,12 @@ export async function postQuestionClassNode(nodeId: number, data: {"content" : s
 }
 
 // 간선 생성
-export async function postEdge(chatFlowId: number, data: EdgeData){
+export async function postEdge(chatFlowId: number, data: EdgeData): Promise<EdgeData>{
   try {
     const response = await axiosInstance.post(`chat-flows/${chatFlowId}/edges`, data)
     if (response.status === 200) {
-      return response.data.data;
+      
+      return response.data.data as EdgeData;
     } else {
       throw new Error('Failed to post edge');
     }

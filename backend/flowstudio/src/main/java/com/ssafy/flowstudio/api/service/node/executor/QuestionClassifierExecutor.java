@@ -1,5 +1,7 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
+import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
+import com.ssafy.flowstudio.api.service.edge.EdgeService;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.api.service.node.executor.prompt.QuestionClassifierPrompt;
@@ -35,12 +37,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(QuestionClassifierExecutor.class);
     private final SecretKeyProperties secretKeyProperties;
-    private final ApplicationEventPublisher eventPublisher;
+    private final EdgeService edgeService;
 
-    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher) {
-        super(redisService);
+    public QuestionClassifierExecutor(RedisService redisService, SecretKeyProperties secretKeyProperties, ApplicationEventPublisher eventPublisher, SseEmitters sseEmitters, EdgeService edgeService) {
+        super(redisService, eventPublisher, sseEmitters);
         this.secretKeyProperties = secretKeyProperties;
-        this.eventPublisher = eventPublisher;
+        this.edgeService = edgeService;
     }
 
     @Override
@@ -92,19 +94,21 @@ public class QuestionClassifierExecutor extends NodeExecutor {
                     .findFirst()
                     .orElseThrow(() -> new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION));
 
-            // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
-            Edge edge = chosenQuestionClass.getEdge();
-            Node targetNode = edge.getTargetNode();
-
-            // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
-            NodeEvent event = new NodeEvent(this, targetNode, chat);
-
-            // event를 발행한다.
-            eventPublisher.publishEvent(event);
-
             // Redis에 Output을 업데이트한다.
             redisService.save(chat.getId(), questionClassifierNode.getId(), chosenQuestionClass.getContent());
 
+            // SSE를 통해 클라이언트에게 실행되었음을 알린다.
+            sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
+
+            // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
+            Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
+            Node targetNode = edge.getTargetNode();
+
+            // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
+            NodeEvent event = NodeEvent.of(this, targetNode, chat);
+
+            // event를 발행한다.
+            publishEvent(event);
         } catch (NumberFormatException e) {
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);
         }

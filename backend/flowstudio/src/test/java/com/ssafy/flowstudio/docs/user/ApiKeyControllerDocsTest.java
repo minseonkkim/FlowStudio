@@ -19,6 +19,7 @@ import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.docume
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
@@ -61,10 +62,7 @@ public class ApiKeyControllerDocsTest extends RestDocsSupport {
                 .clovaKey("clova_or_null")
                 .build();
 
-        ApiKeyResponse response = ApiKeyResponse.from(apiKey);
-
-        given(apiKeyService.updateApiKey(any(User.class), any(ApiKeyServiceRequest.class)))
-                .willReturn(response);
+        doNothing().when(apiKeyService).updateApiKey(any(Long.class), any(ApiKeyServiceRequest.class));
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -96,11 +94,7 @@ public class ApiKeyControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("code").description("Response code"),
                                         fieldWithPath("status").description("Response status"),
                                         fieldWithPath("message").description("Response message"),
-                                        fieldWithPath("data").description("Data object"),
-                                        fieldWithPath("data.openAiKey").description("OpenAI API key, can be null"),
-                                        fieldWithPath("data.claudeKey").description("Claude API key, can be null"),
-                                        fieldWithPath("data.geminiKey").description("Gemini API key, can be null"),
-                                        fieldWithPath("data.clovaKey").description("Clova API key, can be null")
+                                        fieldWithPath("data").description("Response data")
                                 )
                                 .build())));
     }
@@ -122,8 +116,13 @@ public class ApiKeyControllerDocsTest extends RestDocsSupport {
                 .apiKey(apiKey)
                 .build();
 
-        given(apiKeyService.getApiKey(any(User.class)))
-                .willReturn(ApiKeyResponse.from(apiKey));
+        given(apiKeyService.getApiKey(any()))
+                .willReturn(ApiKeyResponse.from(
+                        "my_openai_key",
+                        "my_claude_key",
+                        "my_gemini_key",
+                        "my_clova_key"
+                ));
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/users/keys"));

@@ -2,6 +2,11 @@ package com.ssafy.flowstudio.common.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.api.ModelType;
+import dev.langchain4j.data.message.ChatMessage;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -23,6 +28,12 @@ public class MilvusUtils {
 
     public String generateName(Long id) {
         return String.join("_", "", id.toString());
+    }
+
+    public List<String> generateName(List<Long> ids) {
+        return ids.stream()
+                .map(this::generateName)
+                .toList();
     }
 
     public EmbeddingModel generateEmbeddingModel() {
@@ -69,5 +80,17 @@ public class MilvusUtils {
                         .withContent(chunk)
                         .build())
                 .toList();
+    }
+
+    public int getTokenCount(List<String> messages) {
+        EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+        ModelType model = ModelType.TEXT_EMBEDDING_3_LARGE;
+        Encoding encoding = registry.getEncodingForModel(model);
+        int sum = 0;
+        for (String message : messages) {
+            sum += encoding.countTokens(message);
+        }
+
+        return sum;
     }
 }

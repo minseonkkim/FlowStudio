@@ -14,11 +14,20 @@ import java.util.List;
 public class RetrieverResponse extends NodeResponse {
 
     private final KnowledgeResponse knowledge;
+    private final Integer intervalTime;
+    private final Integer topK;
+    private final Float scoreThreshold;
+    private final String query;
 
     @Builder
-    public RetrieverResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, KnowledgeResponse knowledge) {
+    public RetrieverResponse(Long nodeId, String name, NodeType type, CoordinateResponse coordinate, List<EdgeResponse> outputEdges, List<EdgeResponse> inputEdges, KnowledgeResponse knowledge,
+                             Integer intervalTime, Integer topK, Float scoreThreshold, String query) {
         super(nodeId, name, type, coordinate, outputEdges, inputEdges);
         this.knowledge = knowledge;
+        this.intervalTime = intervalTime;
+        this.topK = topK;
+        this.scoreThreshold = scoreThreshold;
+        this.query = query;
     }
 
     public static RetrieverResponse from(Retriever retriever) {
@@ -30,6 +39,10 @@ public class RetrieverResponse extends NodeResponse {
                 .outputEdges(retriever.getOutputEdges().stream().map(EdgeResponse::from).toList())
                 .inputEdges(retriever.getInputEdges().stream().map(EdgeResponse::from).toList())
                 .knowledge(KnowledgeResponse.from(retriever.getKnowledge()))
+                .intervalTime(retriever.getIntervalTime())
+                .topK(retriever.getTopK())
+                .scoreThreshold(retriever.getScoreThreshold())
+                .query(retriever.getQuery())
                 .build();
     }
 

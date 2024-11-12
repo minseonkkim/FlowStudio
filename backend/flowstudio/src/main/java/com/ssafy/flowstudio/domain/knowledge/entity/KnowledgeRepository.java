@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.domain.knowledge.entity;
 
+import feign.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,4 +13,7 @@ public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
 
     List<Knowledge> findByUserId(Long userId);
     Optional<Knowledge> findByUserIdAndId(Long userId, Long id);
+    @Query("select k from Knowledge k where k.id = :id and k.isPublic = :isPublic")
+    Optional<Knowledge> findByIdAndPublic(Long id, Boolean isPublic);
+
 }

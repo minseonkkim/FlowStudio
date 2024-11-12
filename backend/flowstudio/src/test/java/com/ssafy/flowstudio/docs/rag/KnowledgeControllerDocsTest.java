@@ -60,6 +60,8 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                         .knowledgeId(1L)
                         .title("test.txt")
                         .isPublic(true)
+                        .createdAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .totalToken(10)
                         .build()
         );
 
@@ -86,7 +88,9 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
                                         fieldWithPath("data[].knowledgeId").type(JsonFieldType.NUMBER).description("지식베이스 아이디"),
                                         fieldWithPath("data[].title").type(JsonFieldType.STRING).description("문서(파일명)"),
-                                        fieldWithPath("data[].isPublic").type(JsonFieldType.BOOLEAN).description("공유여부")
+                                        fieldWithPath("data[].isPublic").type(JsonFieldType.BOOLEAN).description("공유여부"),
+                                        fieldWithPath("data[].createdAt").type(JsonFieldType.STRING).description("등록일"),
+                                        fieldWithPath("data[].totalToken").type(JsonFieldType.NUMBER).description("토큰개수")
                                 )
                                 .build()
                         )
@@ -107,7 +111,8 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                 .knowledgeId(1L)
                 .title("update.txt")
                 .isPublic(true)
-                .createAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .createdAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .totalToken(10)
                 .build();
 
         given(knowledgeService.updateKnowledge(any(User.class), any(Long.class), any(KnowledgeServiceRequest.class)))
@@ -142,7 +147,8 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("data.knowledgeId").type(JsonFieldType.NUMBER).description("지식베이스 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING).description("문서(파일명)"),
                                         fieldWithPath("data.isPublic").type(JsonFieldType.BOOLEAN).description("공유여부"),
-                                        fieldWithPath("data.createAt").type(JsonFieldType.STRING).description("등록일")
+                                        fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("등록일"),
+                                        fieldWithPath("data.totalToken").type(JsonFieldType.NUMBER).description("토큰개수")
                                 )
                                 .build()
                         )

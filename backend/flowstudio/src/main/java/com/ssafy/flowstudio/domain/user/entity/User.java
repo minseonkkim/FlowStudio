@@ -40,14 +40,18 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProviderType providerType;
 
+    @Column
+    private boolean isAnonymous;
+
     @Builder
-    private User(Long id, ApiKey apiKey, String username, String nickname, String profileImage, ProviderType providerType) {
+    private User(Long id, ApiKey apiKey, String username, String nickname, String profileImage, ProviderType providerType, boolean isAnonymous) {
         this.id = id;
         this.apiKey = apiKey;
         this.username = username;
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.providerType = providerType;
+        this.isAnonymous = isAnonymous;
     }
 
     @Override
@@ -73,8 +77,21 @@ public class User extends BaseEntity {
                 .build();
     }
 
+    public static User createAnonymous() {
+        return User.builder()
+                .username("anonymous")
+                .apiKey(ApiKey.empty())
+                .nickname("anonymous")
+                .profileImage("")
+                .isAnonymous(true)
+                .build();
+    }
+
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
 
+    public void updateProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+    }
 }

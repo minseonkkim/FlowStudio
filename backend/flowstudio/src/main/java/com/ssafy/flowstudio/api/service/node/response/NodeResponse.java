@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.service.node.response;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,5 +29,4 @@ public abstract class NodeResponse {
         this.outputEdges = outputEdges;
         this.inputEdges = inputEdges;
     }
-
 }
