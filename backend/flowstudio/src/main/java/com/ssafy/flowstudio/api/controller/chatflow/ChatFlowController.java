@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.controller.chatflow;
 
 import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
+import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
@@ -144,4 +145,15 @@ public class ChatFlowController {
     ) {
         return ApiResponse.ok(chatFlowService.downloadChatFlow(user, chatFlowId));
     }
+
+
+    /**
+     * 챗플로우 카테고리 목록 조회
+     * @return List<CategoryResponse>
+     */
+    @GetMapping(value = "/api/v1/chat-flows/categories")
+    public ApiResponse<List<CategoryResponse>> getCategories() {
+        return ApiResponse.ok(chatFlowService.getCategories());
+    }
+
 }

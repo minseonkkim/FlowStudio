@@ -466,4 +466,37 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.message").value("OK"))
                 .andExpect(jsonPath("$.data").exists());
     }
+
+    @DisplayName("카테고리 목록을 조회한다.")
+    @WithMockUser
+    @Test
+    void getCategories() throws Exception {
+        // given
+        CategoryResponse category1 = CategoryResponse.builder()
+                .categoryId(1L)
+                .name("카테고리1")
+                .build();
+
+        CategoryResponse category2 = CategoryResponse.builder()
+                .categoryId(2L)
+                .name("카테고리2")
+                .build();
+
+        given(chatFlowService.getCategories())
+                .willReturn(List.of(category1, category2));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/categories")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
+
 }
