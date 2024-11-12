@@ -30,7 +30,6 @@ public class RetrieverCopyFactory extends NodeCopyFactory {
     @Override
     public Node copyNode(Node node, ChatFlow clonedChatFlow, Knowledge knowledge) {
         Retriever retriever = copyNode(node, clonedChatFlow);
-        System.out.println("updated knowledge in copynode = " + knowledge.getId());
         retriever.updateKnowledge(knowledge);
         return retriever;
     }

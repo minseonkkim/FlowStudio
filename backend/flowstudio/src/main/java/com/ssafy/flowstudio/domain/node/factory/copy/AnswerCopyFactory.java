@@ -12,7 +12,6 @@ public class AnswerCopyFactory extends NodeCopyFactory {
     @Override
     public Answer copyNode(Node node, ChatFlow clonedChatFlow) {
         Answer originalAnswer = (Answer) node;
-        System.out.println("Answer receiving clonedChatFlow = " + clonedChatFlow.getId());
         return Answer.builder()
                 .chatFlow(clonedChatFlow)
                 .name(originalAnswer.getName())
