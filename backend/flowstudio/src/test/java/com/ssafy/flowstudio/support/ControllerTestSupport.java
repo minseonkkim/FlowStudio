@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.support;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.flowstudio.api.controller.chat.ChatController;
 import com.ssafy.flowstudio.api.controller.chatflow.ChatFlowController;
 import com.ssafy.flowstudio.api.controller.edge.EdgeController;
 import com.ssafy.flowstudio.api.controller.node.NodeController;
@@ -9,6 +10,7 @@ import com.ssafy.flowstudio.api.controller.node.QuestionClassController;
 import com.ssafy.flowstudio.api.controller.user.ApiKeyController;
 import com.ssafy.flowstudio.api.controller.user.UserController;
 import com.ssafy.flowstudio.api.service.auth.CustomUserService;
+import com.ssafy.flowstudio.api.service.chat.ChatService;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.edge.EdgeService;
 import com.ssafy.flowstudio.api.service.node.NodeService;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.when;
                 QuestionClassController.class,
                 EdgeController.class,
                 NodeUpdateController.class,
+                ChatController.class,
         },
         excludeFilters = {
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {SecurityConfig.class}),
@@ -79,6 +82,9 @@ public abstract class ControllerTestSupport {
 
     @MockBean
     protected QuestionClassService questionClassService;
+
+    @MockBean
+    protected ChatService chatService;
 
     @MockBean
     protected NodeUpdateService nodeUpdateService;
