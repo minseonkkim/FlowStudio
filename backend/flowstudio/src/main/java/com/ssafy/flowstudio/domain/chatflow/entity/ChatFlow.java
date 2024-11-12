@@ -112,6 +112,10 @@ public class ChatFlow extends BaseEntity {
         }
     }
 
+    public void updatePublishUrl(String publishUrl) {
+        this.publishUrl = publishUrl;
+    }
+
     public void addNode(Node node) {
         this.nodes.add(node);
     }
