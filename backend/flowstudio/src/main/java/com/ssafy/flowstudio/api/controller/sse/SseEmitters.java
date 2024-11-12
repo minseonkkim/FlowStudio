@@ -3,7 +3,9 @@ package com.ssafy.flowstudio.api.controller.sse;
 import com.ssafy.flowstudio.api.controller.sse.response.SseResponse;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Getter
 @Slf4j
 public class SseEmitters {
 
@@ -39,15 +42,12 @@ public class SseEmitters {
         SseResponse data = SseResponse.from(node);
 
         SseEmitter emitter = emitters.get(user.getId());
-        log.info("emitter: {}", emitter);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
                         .data(data));
-                log.info("sent to user {}: {}", user.getId(), data);
             } catch (IOException e) {
-                log.info("SSE send error: {}", e);
                 throw new RuntimeException(e);
             }
         }
@@ -57,17 +57,30 @@ public class SseEmitters {
         SseResponse data = SseResponse.of(node, message);
 
         SseEmitter emitter = emitters.get(user.getId());
-        log.info("emitter: {}", emitter);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
                         .data(data));
-                log.info("sent to user {}: {}", user.getId(), data);
             } catch (IOException e) {
-                log.info("SSE send error: {}", e);
                 throw new RuntimeException(e);
             }
         }
     }
+
+    @Scheduled(fixedRate = 30000)
+    public void sendHeartbeat() {
+        emitters.forEach((userId, emitter) -> {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("heartbeat")
+                        .data("ping"));
+            } catch (IOException e) {
+                log.error("Failed to send heartbeat to user {}: {}", userId, e.getMessage());
+                emitter.complete();
+                emitters.remove(userId);
+            }
+        });
+    }
+
 }
