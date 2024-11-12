@@ -39,12 +39,15 @@ public class SseEmitters {
         SseResponse data = SseResponse.from(node);
 
         SseEmitter emitter = emitters.get(user.getId());
+        log.info("emitter: {}", emitter);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
                         .data(data));
+                log.info("sent to user {}: {}", user.getId(), data);
             } catch (IOException e) {
+                log.info("SSE send error: {}", e);
                 throw new RuntimeException(e);
             }
         }
@@ -54,12 +57,15 @@ public class SseEmitters {
         SseResponse data = SseResponse.of(node, message);
 
         SseEmitter emitter = emitters.get(user.getId());
+        log.info("emitter: {}", emitter);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
                         .data(data));
+                log.info("sent to user {}: {}", user.getId(), data);
             } catch (IOException e) {
+                log.info("SSE send error: {}", e);
                 throw new RuntimeException(e);
             }
         }

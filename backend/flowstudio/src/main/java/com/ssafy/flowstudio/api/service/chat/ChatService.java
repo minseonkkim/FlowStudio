@@ -65,7 +65,7 @@ public class ChatService {
             CookieUtils.addCookie(servletResponse, "access-token", token.getAccessToken(), properties.getAccessExpire(), true);
         }
 
-        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
+        ChatFlow chatFlow = chatFlㄴowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
         log.info("Preview: {}", request.isPreview());
