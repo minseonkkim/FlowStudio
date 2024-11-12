@@ -117,4 +117,7 @@ public class ChatFlow extends BaseEntity {
         this.nodes.add(node);
     }
 
+    public void incrementShareCount() {
+        this.shareCount++;
+    }
 }
