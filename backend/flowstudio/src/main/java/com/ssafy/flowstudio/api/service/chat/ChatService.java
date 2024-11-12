@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.service.chat;
 import com.ssafy.flowstudio.api.service.chat.request.ChatCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
+import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.common.constant.AuthConst;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -73,6 +75,16 @@ public class ChatService {
         Chat savedChat = chatRepository.save(chat);
 
         return ChatCreateResponse.from(savedChat);
+    }
+
+    public ChatListResponse getChats(User user, Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+
+        List<Chat> chats = chatRepository.findByChatFlowAndUser(chatFlow, user);
+        System.out.println("chats = " + chats.size());
+
+        return ChatListResponse.of(chatFlow, chats);
     }
 
 }
