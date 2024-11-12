@@ -9,7 +9,7 @@ interface SelectChatbotProps {
 
 const chatFlows: ChatFlow[] = [
   {
-    chatFlowId: 1,
+    chatFlowId: "1",
     title: "챗봇 1",
     description: "챗봇 1 묘사",
     author: {
@@ -26,7 +26,7 @@ const chatFlows: ChatFlow[] = [
     public: true,
   },
   {
-    chatFlowId: 2,
+    chatFlowId: "2",
     title: "챗봇 2",
     description: "챗봇 2 묘사",
     author: {

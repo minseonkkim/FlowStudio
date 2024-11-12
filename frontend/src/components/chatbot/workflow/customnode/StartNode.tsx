@@ -1,5 +1,6 @@
 import { Handle, Position } from "reactflow";
 import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
+import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 
 interface StartNodeData {
   onDelete: () => void;
@@ -12,6 +13,7 @@ interface StartNodeProps {
 }
 
 export default function StartNode({ data, selected }: StartNodeProps) {
+  const { onDelete } = data;
 
   return (
     <>
@@ -26,6 +28,12 @@ export default function StartNode({ data, selected }: StartNodeProps) {
               <IoPlay className="text-[#95C447] size-3" />
               <div className="text-[11px] font-semibold">시작</div>
             </div>
+            {selected && (
+              <MdDelete
+                className="cursor-pointer text-[#95C447] hover:text-[#6F9335] size-3.5"
+                onClick={onDelete}
+              />
+            )}
           </div>
           {typeof data.maxChars === "number" && !isNaN(data.maxChars) && (
             <div className="flex flex-col gap-0.5 text-[8px]">

@@ -29,9 +29,7 @@ export default function KnowledgeNode({ data, selected }: KnowledgeNodeProps){
           {selected && (
               <MdDelete
                 className="cursor-pointer text-[#F97316] hover:text-[#C75B13] size-3.5"
-                onClick={(e) => {
-                onDelete();
-              }}
+                onClick={onDelete}
               />
             )}
         </div>

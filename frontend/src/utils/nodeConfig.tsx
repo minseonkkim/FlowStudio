@@ -16,12 +16,12 @@ const icons = {
 };
 
 export const nodeConfig: Record<string, NodeConfig> = {
-  LLM: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
-  RETRIEVER: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
-  // CONDITIONAL: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
-  ANSWER: { label: "답변", icon: icons.RiQuestionAnswerFill, color: "E6F6F0" },
-  QUESTION_CLASSIFIER: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
-  // VARIABLE_ASSIGNER: { label: "변수 할당자", icon: icons.VscSymbolVariable, color: "D8D8D8" },
+  llmNode: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
+  knowledgeNode: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
+  ifelseNode: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
+  answerNode: { label: "답변", icon: icons.RiQuestionAnswerFill, color: "E6F6F0" },
+  questionclassifierNode: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
+  variableallocatorNode: { label: "변수 할당자", icon: icons.VscSymbolVariable, color: "D8D8D8" },
 };
 
 export const deleteIconColors: { [key: string]: string } = {

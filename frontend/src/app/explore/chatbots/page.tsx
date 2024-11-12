@@ -10,7 +10,7 @@ import { SharedChatFlow } from "@/types/chatbot";
 
 const chatFlows: SharedChatFlow[] = [
   {
-    chatFlowId: 1,
+    chatFlowId: "1",
     title: "챗봇 1",
     description: "챗봇 1 묘사",
     author: {
@@ -28,7 +28,7 @@ const chatFlows: SharedChatFlow[] = [
     shareNum: 100,
   },
   {
-    chatFlowId: 2,
+    chatFlowId: "2",
     title: "챗봇 2",
     description: "챗봇 2 묘사",
     author: {
