@@ -20,12 +20,12 @@ public class ApiKeyResponse {
         this.clovaKey = clovaKey;
     }
 
-    public static ApiKeyResponse from(ApiKey apiKey) {
+    public static ApiKeyResponse from(String decryptedOpenAiKey, String decryptedClaudeKey, String decryptedGeminiKey, String decryptedClovaKey) {
         return ApiKeyResponse.builder()
-                .openAiKey(apiKey.getOpenAiKey())
-                .claudeKey(apiKey.getClaudeKey())
-                .geminiKey(apiKey.getGeminiKey())
-                .clovaKey(apiKey.getClovaKey())
+                .openAiKey(decryptedOpenAiKey)
+                .claudeKey(decryptedClaudeKey)
+                .geminiKey(decryptedGeminiKey)
+                .clovaKey(decryptedClovaKey)
                 .build();
     }
 }

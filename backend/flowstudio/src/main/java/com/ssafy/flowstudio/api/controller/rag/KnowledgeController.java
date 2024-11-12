@@ -4,12 +4,11 @@ import com.azure.core.annotation.Patch;
 import com.drew.lang.annotations.NotNull;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeCreateRequest;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeRequest;
+import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeSearchRequest;
 import com.ssafy.flowstudio.api.service.rag.KnowledgeService;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
-import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
-import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
-import com.ssafy.flowstudio.api.service.rag.response.KnowledgeListResponse;
-import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
+import com.ssafy.flowstudio.api.service.rag.request.KnowledgeSearchServiceRequest;
+import com.ssafy.flowstudio.api.service.rag.response.*;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
@@ -93,8 +92,8 @@ public class KnowledgeController {
      * @param request
      * @return List<String>
      */
-    @GetMapping("chunks")
-    public ApiResponse<List<String>> knowledgeChunks(
+    @PostMapping("chunks")
+    public ApiResponse<ChunkListResponse> knowledgeChunks(
             @CurrentUser User user,
             @Valid @ModelAttribute KnowledgeCreateRequest request
     ) {
@@ -136,7 +135,7 @@ public class KnowledgeController {
      * @param user
      * @param knowledgeId
      * @param chunkId
-     * @param content
+     * @param request
      * @return Boolean
      */
     @PostMapping("{knowledgeId}/chunks/{chunkId}")
@@ -165,10 +164,17 @@ public class KnowledgeController {
         return ApiResponse.ok(vectorStoreService.deleteChunk(user, knowledgeService.getKnowledge(user, knowledgeId), chunkId));
     }
 
-    @GetMapping("{knowledgeId}/search")
-    public String search(@CurrentUser User user, @PathVariable Long knowledgeId, @RequestParam String query) {
-        vectorStoreService.search(user, knowledgeService.getKnowledge(user, knowledgeId), query);
+    /**
+     * 벡터 검색
+     * @param request
+     * @return List<String>
+     */
+    @GetMapping("search")
+    public ApiResponse<List<String>> search(
+            @NotNull @Valid @RequestBody KnowledgeSearchRequest request
+    ) {
+        KnowledgeSearchResponse knowledgeSearchResponse = knowledgeService.getKnowledge(request.getKnowledgeId());
 
-        return "search";
+        return ApiResponse.ok(vectorStoreService.searchVector(KnowledgeSearchServiceRequest.from(request, knowledgeSearchResponse)));
     }
 }
