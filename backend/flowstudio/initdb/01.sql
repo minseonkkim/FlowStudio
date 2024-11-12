@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS `flowstudio-db`;
+CREATE DATABASE IF NOT EXISTS `publish-db`;

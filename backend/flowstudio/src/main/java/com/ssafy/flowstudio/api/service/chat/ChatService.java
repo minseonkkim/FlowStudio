@@ -19,6 +19,7 @@ import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.node.entity.NodeVisitor;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import com.ssafy.flowstudio.publish.PublishService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +45,15 @@ public class ChatService {
 
     private final JWTService jwtService;
     private final JwtProperties properties;
+    private final PublishService publishService;
 
     @Transactional
     public void sendMessage(Long chatId, ChatMessageServiceRequest request) {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_NOT_FOUND));
+
+        ChatFlow publishChatFlow = publishService.getPublishChatFlow(chat.getChatFlow().getPublishUrl());
+        chat.updateChatFlow(publishChatFlow);
 
         String message = request.getMessage();
 
@@ -68,11 +73,10 @@ public class ChatService {
             servletResponse.setHeader("access-token", token.getAccessToken());
         }
 
-        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
-                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+        ChatFlow publishChatFlow = publishService.getPublishChatFlow(chatFlowId);
 
         log.info("Preview: {}", request.isPreview());
-        Chat chat = Chat.create(user, chatFlow, request.isPreview());
+        Chat chat = Chat.create(user, publishChatFlow, request.isPreview());
         Chat savedChat = chatRepository.save(chat);
 
         return ChatCreateResponse.from(savedChat);
