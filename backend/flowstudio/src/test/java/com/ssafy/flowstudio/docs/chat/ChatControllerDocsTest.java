@@ -77,7 +77,7 @@ public class ChatControllerDocsTest extends RestDocsSupport {
         perform
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andDo(document("create-chat",
+                .andDo(document("get-chats",
                         preprocessResponse(prettyPrint()),
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Chat")
