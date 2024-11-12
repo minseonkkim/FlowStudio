@@ -46,7 +46,7 @@ export default function CreateChatbotModal({
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ chatFlowId, data }: { chatFlowId: string; data: ChatFlowData }) =>
+    mutationFn: ({ chatFlowId, data }: { chatFlowId: number; data: ChatFlowData }) =>
       patchChatFlow(chatFlowId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
