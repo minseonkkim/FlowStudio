@@ -8,6 +8,7 @@ import com.ssafy.flowstudio.common.security.handler.CustomAuthenticationDeniedHa
 import com.ssafy.flowstudio.common.security.handler.CustomAuthenticationEntryPoint;
 import com.ssafy.flowstudio.common.security.handler.CustomSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -33,6 +35,9 @@ public class SecurityConfig {
     private final CustomAuthenticationDeniedHandler authenticationDeniedHandler;
     private final CustomAuthorizationRequestRepository customAuthorizationRequestRepository;
     private final JWTFilter jwtFilter;
+
+    @Value("${spring.aes.symmetric.key}")
+    private String symmetrickey;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -60,7 +65,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/**",
                                 "/actuator/**",
                                 "/login/**",
-                                "/oauth2/**"
+                                "/oauth2/**",
+                                "/api/v1/chat-flows/{chatFlowId}/chats"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login((oauth2) -> oauth2
@@ -74,5 +80,10 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AesBytesEncryptor aesBytesEncryptor() {
+        return new AesBytesEncryptor(symmetrickey, "2345436820457230");
     }
 }
