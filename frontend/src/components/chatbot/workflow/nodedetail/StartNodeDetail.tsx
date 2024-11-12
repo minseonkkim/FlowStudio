@@ -3,8 +3,6 @@ import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
-import { IoGitBranchOutline } from "@react-icons/all-files/io5/IoGitBranchOutline";
-import { VscSymbolVariable } from "@react-icons/all-files/vsc/VscSymbolVariable";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { useCallback, useState } from "react";
 import { ConnectedNode } from "@/types/workflow"; 
@@ -114,7 +112,6 @@ export default function StartNodeDetail({
                   </svg>
                 </button>
               </div>
-
               {isOpen && (
                 <div
                   className="origin-top-right absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
@@ -124,47 +121,47 @@ export default function StartNodeDetail({
                 >
                   <div className="p-1 text-[15px]" role="none">
                     <div
-                      onClick={() => handleNodeTypeClick("llmNode")}
+                      onClick={() => handleNodeTypeClick("LLM")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <FaRobot className="text-[18px]" />
                       <div>LLM</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("knowledgeNode")}
+                      onClick={() => handleNodeTypeClick("RETRIEVER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <FiBookOpen className="text-[18px]" />
                       <div>지식 검색</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("answerNode")}
+                      onClick={() => handleNodeTypeClick("ANSWER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <RiQuestionAnswerFill className="text-[18px]" />
                       <div>답변</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("questionclassifierNode")}
+                      onClick={() => handleNodeTypeClick("QUESTION_CLASSIFIER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <GrTree className="text-[18px]" />
                       <div>질문 분류기</div>
                     </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("ifelseNode")}
+                    {/* <div
+                      onClick={() => handleNodeTypeClick("CONDITIONAL")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <IoGitBranchOutline className="text-[18px]" />
                       <div>IF/ELSE</div>
                     </div>
                     <div
-                      onClick={() => handleNodeTypeClick("variableallocatorNode")}
+                      onClick={() => handleNodeTypeClick("VARIABLE_ASSIGNER")}
                       className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
                     >
                       <VscSymbolVariable className="text-[18px]" />
                       <div>변수 할당자</div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               )}

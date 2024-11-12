@@ -32,15 +32,16 @@ export interface SharedChatFlow extends ChatFlow {
 }
  
 
-interface Coordinate{
+export interface Coordinate{
   x: number;
   y: number;
 }
 
-interface EdgeData{
+export interface EdgeData{
   edgeId: number;
   sourceNodeId: number;
   targetNodeId: number;
+  sourceConditionId?: number;
 }
 
 export interface NodeData{
@@ -52,6 +53,7 @@ export interface NodeData{
   inputEdges: EdgeData[];
   maxLength?: number;
   outputMessage?: string;
+  questionClasses?: string[];
   promptSystem?: string;
   promptUser?: string;
 }
@@ -60,4 +62,5 @@ export interface ChatFlowDetail{
   chatFlowId: number;
   title: string;
   nodes: NodeData[];
+  edges: EdgeData[];
 }
