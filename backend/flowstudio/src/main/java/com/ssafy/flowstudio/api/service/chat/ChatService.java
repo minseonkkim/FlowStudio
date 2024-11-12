@@ -98,4 +98,18 @@ public class ChatService {
 
         return ChatDetailResponse.from(chat);
     }
+
+    @Transactional
+    public boolean deleteChat(User user, Long chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_NOT_FOUND));
+
+        if (!chat.getUser().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        chatRepository.delete(chat);
+        return true;
+    }
+
 }
