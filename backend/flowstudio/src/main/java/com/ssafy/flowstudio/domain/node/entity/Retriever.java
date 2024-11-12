@@ -3,10 +3,7 @@ package com.ssafy.flowstudio.domain.node.entity;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +14,8 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Retriever extends Node {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "knowledge_id")
     private Knowledge knowledge;
 
     @Column
