@@ -38,7 +38,7 @@ public class SecondaryDbConfig {
 
         Map<String, Object> properties = new HashMap<>();
 //        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        properties.put("hibernate.hbm2ddl.a.0uto", "update"); // secondary 데이터 소스의 ddl-auto 설정
+        properties.put("hibernate.hbm2ddl.auto", "update"); // secondary 데이터 소스의 ddl-auto 설정
         properties.put("hibernate.format_sql", true);
         properties.put("hibernate.show_sql", false);
         properties.put("hibernate.physical_naming_strategy", "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
