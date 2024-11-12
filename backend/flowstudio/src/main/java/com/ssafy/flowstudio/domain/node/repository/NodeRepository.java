@@ -14,11 +14,4 @@ public interface NodeRepository extends JpaRepository<Node, Long> {
     List<Node> findByChatFlowId(
             @Param("chatFlowId") Long chatFlowId
     );
-
-    @Query(
-            "select n from Node n where n.chatFlow.id = :chatFlowId"
-    )
-    List<Node> findByChatFlowId(
-            @Param("chatFlowId") Long chatFlowId
-    );
 }
