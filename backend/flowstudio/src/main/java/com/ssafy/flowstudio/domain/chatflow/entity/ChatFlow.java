@@ -94,6 +94,7 @@ public class ChatFlow extends BaseEntity {
                 .thumbnail(thumbnail)
                 .isPublic(false)
                 .publishUrl("")
+                .shareCount(0)
                 .build();
     }
 

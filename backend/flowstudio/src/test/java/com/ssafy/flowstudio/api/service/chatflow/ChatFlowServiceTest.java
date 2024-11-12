@@ -5,7 +5,6 @@ import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
-import com.ssafy.flowstudio.api.service.node.NodeFactoryProvider;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
@@ -28,9 +27,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.BDDAssertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -471,8 +469,13 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .contains(NodeType.QUESTION_CLASSIFIER, NodeType.ANSWER);
 
         // 복제된 노드들은 원본 노드들과 ID가 다르다.
-        assertThat(clonedNodes).extracting(NodeResponse::getNodeId)
-                .contains(3L, 4L);
+        List<Long> originalIds = chatFlow.getNodes().stream()
+                .map(Node::getId)
+                .toList();
+        List<Long> clonedIds = clonedNodes.stream()
+                .map(NodeResponse::getNodeId)
+                .toList();
+        assertThat(clonedIds).doesNotContainAnyElementsOf(originalIds);
 
         // 복제된 QuestionClassifier 노드는 원본 QuestionClassifier 노드와 ID가 다르다.
         NodeResponse clonedQuestionClassifierResponse = clonedNodes.stream()
@@ -489,10 +492,10 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         assertThat(clonedQuestionClassifier.getQuestionClasses()).hasSize(2);
 
         // 복제된 2개의 QuestionClass는 2개의 원본 QuestionClass과 ID는 다르지만 내용은 같다.
-        assertThat(questionClassifier.getQuestionClasses()).extracting(QuestionClass::getId)
-                .contains(1L, 2L);
-        assertThat(clonedQuestionClassifier.getQuestionClasses()).extracting(QuestionClass::getId)
-                .contains(3L, 4L);
+        List<Long> originalQuestionClassIds = questionClassifier.getQuestionClasses().stream().map(QuestionClass::getId).toList();
+        List<Long> clonedQuestionClassIds = clonedQuestionClassifier.getQuestionClasses().stream().map(QuestionClass::getId).toList();
+
+        assertThat(originalQuestionClassIds).doesNotContainAnyElementsOf(clonedQuestionClassIds);
         assertThat(clonedQuestionClassifier.getQuestionClasses()).extracting(QuestionClass::getContent)
                 .contains("question-class-1", "question-class-2");
     }
