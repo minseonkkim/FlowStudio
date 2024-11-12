@@ -7,6 +7,7 @@ import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +23,6 @@ public class ChatController {
 
     /**
      * 채팅 생성
-     *
      * @param user
      * @return
      */
@@ -30,9 +30,10 @@ public class ChatController {
     public ApiResponse<ChatCreateResponse> createChat(
             @CurrentUser User user,
             @PathVariable Long chatFlowId,
-            @Valid @RequestBody ChatCreateRequest request
+            @Valid @RequestBody ChatCreateRequest request,
+            HttpServletResponse servletResponse
     ) {
-        return ApiResponse.ok(chatService.createChat(user, chatFlowId, request.toServiceRequest()));
+        return ApiResponse.ok(chatService.createChat(user, chatFlowId, request.toServiceRequest(), servletResponse));
     }
 
     /**

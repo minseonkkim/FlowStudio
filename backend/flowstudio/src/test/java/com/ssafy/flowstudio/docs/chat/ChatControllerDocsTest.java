@@ -10,7 +10,6 @@ import com.ssafy.flowstudio.docs.RestDocsSupport;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -50,7 +49,7 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                 .isPreview(true)
                 .build();
 
-        given(chatService.createChat(any(User.class), anyLong(), any()))
+        given(chatService.createChat(any(User.class), anyLong(), any(), any()))
                 .willReturn(response);
 
         // when
