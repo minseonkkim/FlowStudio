@@ -1,12 +1,16 @@
 package com.ssafy.flowstudio.docs.chatflow;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ssafy.flowstudio.api.controller.chatflow.ChatFlowController;
 import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
-import com.ssafy.flowstudio.api.service.chatflow.response.*;
+import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
 import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
@@ -21,7 +25,6 @@ import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -35,15 +38,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ChatFlowDocsTest extends RestDocsSupport {
@@ -1240,7 +1244,50 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 ));
     }
 
+    @DisplayName("카테고리 목록을 조회한다.")
+    @Test
+    void getCategories() throws Exception {
+        // given
+        CategoryResponse category1 = CategoryResponse.builder()
+                .categoryId(1L)
+                .name("카테고리1")
+                .build();
 
+        CategoryResponse category2 = CategoryResponse.builder()
+                .categoryId(2L)
+                .name("카테고리2")
+                .build();
 
+        given(chatFlowService.getCategories())
+                .willReturn(List.of(category1, category2));
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/categories")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("get-categories",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("ChatFlow")
+                                .summary("챗플로우 카테고리 목록 조회")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data[].categoryId").type(JsonFieldType.NUMBER)
+                                                .description("카테고리 아이디"),
+                                        fieldWithPath("data[].name").type(JsonFieldType.STRING)
+                                                .description("카테고리 이름")
+                                )
+                                .build())));
+    }
 
 }
