@@ -80,4 +80,18 @@ public class ChatController {
         return ApiResponse.ok();
     }
 
+    /**
+     * 채팅 삭제
+     * @param chatId
+     * @return
+     */
+    @DeleteMapping(value = "/api/v1/chat-flows/{chatFlowId}/chats/{chatId}")
+    public ApiResponse<Void> deleteChat(
+            @CurrentUser User user,
+            @PathVariable Long chatId
+    ) {
+        chatService.deleteChat(user, chatId);
+        return ApiResponse.ok();
+    }
+
 }
