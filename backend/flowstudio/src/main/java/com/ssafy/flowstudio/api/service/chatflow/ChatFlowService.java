@@ -45,16 +45,31 @@ public class ChatFlowService {
     private final CategoryRepository categoryRepository;
     private final KnowledgeRepository knowledgeRepository;
     private final NodeRepository nodeRepository;
-    private final NodeFactoryProvider nodeFactoryProvider;
     private final NodeCopyFactoryProvider nodeCopyFactoryProvider;
-    private final NodeService nodeService;
     private final EdgeRepository edgeRepository;
     private final QuestionClassRepository questionClassRepository;
     private final EntityManager entityManager;
     private final UserRepository userRepository;
 
-    public List<ChatFlowListResponse> getChatFlows(User user) {
-        List<ChatFlow> chatFlows = chatFlowRepository.findByUser(user);
+    public List<ChatFlowListResponse> getEveryoneChatFlows() {
+        List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue();
+
+        return chatFlows.stream()
+                .map(chatFlow -> {
+                    List<ChatFlowCategory> chatFlowCategories = chatFlow.getCategories();
+
+                    List<Category> categories = chatFlowCategories.stream()
+                            .map(chatFlowCategory -> categoryRepository.findById(chatFlowCategory.getCategory().getId())
+                                    .orElseThrow(() -> new BaseException(ErrorCode.CATEGORY_NOT_FOUND)))
+                            .toList();
+
+                    return ChatFlowListResponse.of(chatFlow, categories);
+                })
+                .toList();
+    }
+
+    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared) {
+        List<ChatFlow> chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared);
 
         return chatFlows.stream()
                 .map(chatFlow -> {
@@ -106,6 +121,10 @@ public class ChatFlowService {
                 () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
         if (!chatFlow.getOwner().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        if (chatFlow.isPublic() && !chatFlow.getAuthor().equals(user)) {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 

@@ -21,15 +21,28 @@ public class ChatFlowController {
     private final ChatFlowService chatFlowService;
 
     /**
-     * 챗플로우 목록 조회
+     * 모두의 챗봇 (공유된 챗플로우 전체 목록) 조회
+     * @param user
+     * @return List<ChatFlowListResponse>
+     */
+    @GetMapping(value = "/api/v1/chat-flows/shares")
+    public ApiResponse<List<ChatFlowListResponse>> getEveryoneChatFlows(
+            @CurrentUser User user
+    ) {
+        return ApiResponse.ok(chatFlowService.getEveryoneChatFlows());
+    }
+
+    /**
+     * 유저의 챗플로우 목록 조회
      * @param user
      * @return List<ChatFlowListResponse>
      */
     @GetMapping(value = "/api/v1/chat-flows")
     public ApiResponse<List<ChatFlowListResponse>> getChatFlows(
-            @CurrentUser User user
+            @CurrentUser User user,
+            @RequestParam(required = false, defaultValue = "false") boolean isShared
     ) {
-        return ApiResponse.ok(chatFlowService.getChatFlows(user));
+        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared));
     }
 
     /**
