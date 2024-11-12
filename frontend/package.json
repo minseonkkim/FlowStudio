@@ -29,6 +29,7 @@
     "recoil-persist": "^5.1.0",
     "sharp": "^0.33.5",
     "swiper": "^11.1.14",
+    "tailwind-scrollbar-hide": "^1.1.7",
     "zustand": "5.0.0"
   },
   "devDependencies": {
