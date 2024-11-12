@@ -24,6 +24,7 @@ import com.ssafy.flowstudio.domain.node.factory.copy.NodeCopyFactory;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,7 @@ public class ChatFlowService {
     private final EdgeRepository edgeRepository;
     private final QuestionClassRepository questionClassRepository;
     private final EntityManager entityManager;
+    private final UserRepository userRepository;
 
     public List<ChatFlowListResponse> getChatFlows(User user) {
         List<ChatFlow> chatFlows = chatFlowRepository.findByUser(user);
@@ -171,27 +173,57 @@ public class ChatFlowService {
         List<EdgeResponse> edgeResponses = edges.stream().map(EdgeResponse::from).toList();
         return ChatFlowResponse.from(savedChatflow, edgeResponses);
     }
+
     @Transactional
     public ChatFlowResponse uploadChatFlow(User user, Long chatFlowId) {
+        ChatFlow clonedChatFlow = copyChatFlow(user.getId(), chatFlowId, true);
+        List<EdgeResponse> newEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId()).stream().map(EdgeResponse::from).toList();
 
+        return ChatFlowResponse.from(clonedChatFlow, newEdges);
+    }
+
+    @Transactional
+    public ChatFlowResponse downloadChatFlow(User user, Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(
+                () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+
+        ChatFlow clonedChatFlow = copyChatFlow(user.getId(), chatFlowId, false);
+        List<EdgeResponse> newEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId()).stream().map(EdgeResponse::from).toList();
+
+        chatFlow.incrementShareCount();
+
+        return ChatFlowResponse.from(clonedChatFlow, newEdges);
+    }
+
+    public ChatFlow copyChatFlow(Long userId, Long chatFlowId, boolean isUpload) {
         // ChatFlow를 조회한다.
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(
                 () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        if (!chatFlow.getOwner().equals(user)) {
+        User client = userRepository.findById(userId).orElseThrow(
+                () -> new BaseException(ErrorCode.NOT_FOUND_USER)
+        );
+
+        // 자신이 원작자인 챗봇만 업로드할 수 있다.
+        if (isUpload && !chatFlow.getAuthor().equals(client)) {
             throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        // 이미 게시된 상태의 챗플로우는 업로드할 수 없다.
+        if (chatFlow.isPublic() && isUpload) {
+            throw new BaseException(ErrorCode.UPLOADED_CHAT_FLOW_CANNOT_BE_SHARED);
         }
 
         // ChatFlow를 복제하여 DB에 저장한다.
         List<Category> categories = chatFlow.getCategories().stream().map(ChatFlowCategory::getCategory).toList();
 
         ChatFlow clonedChatFlow = ChatFlow.builder()
-                .owner(user)
-                .author(user)
+                .owner(client)
+                .author(chatFlow.getAuthor())
                 .title(chatFlow.getTitle())
                 .description(chatFlow.getDescription())
                 .thumbnail(chatFlow.getThumbnail())
-                .isPublic(true)
+                .isPublic(isUpload)
                 .shareCount(0)
                 .build();
 
@@ -258,6 +290,7 @@ public class ChatFlowService {
 
             // 복제된 질문 분류를 DB에 저장 후 맵에 추가한다.
             questionClassRepository.save(clonedQuestionClass);
+            System.out.println("originalQuestionClass.getId() = " + originalQuestionClass.getId());
             questionClassMap.put(originalQuestionClass.getId(), clonedQuestionClass);
         }
 
@@ -271,6 +304,7 @@ public class ChatFlowService {
 
             // 간선의 출처 노드가 질문 분류기면 위에서 복제된 질문 분류의 ID로 sourceConditionId를 새롭게 매핑한다.
             if (originalEdge.getSourceNode().getType() == NodeType.QUESTION_CLASSIFIER) {
+                System.out.println("originalEdge.getSourceConditionId() = " + originalEdge.getSourceConditionId());
                 sourceConditionId = questionClassMap.get(originalEdge.getSourceConditionId()).getId();
             }
 
@@ -283,10 +317,9 @@ public class ChatFlowService {
             edgeRepository.save(edge);
         }
 
-        // DB와 동기화된 상태의 clonedChatFlow, edgeList를 새롭게 불러와 반환한다.
-        List<EdgeResponse> newEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId()).stream().map(EdgeResponse::from).toList();
+        // DB와 동기화된 상태의 clonedChatFlow를 불러와 반환한다.
         entityManager.refresh(clonedChatFlow);
 
-        return ChatFlowResponse.from(clonedChatFlow, newEdges);
+        return clonedChatFlow;
     }
 }

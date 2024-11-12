@@ -118,4 +118,17 @@ public class ChatFlowController {
         return ApiResponse.ok(chatFlowService.uploadChatFlow(user, chatFlowId));
     }
 
+    /**
+     * 챗플로우 다운로드
+     * @param user
+     * @param chatFlowId
+     * @return ChatFlowResponse
+     */
+    @PostMapping(value = "/api/v1/chat-flows/{chatFlowId}/download")
+    public ApiResponse<ChatFlowResponse> downloadChatFlow(
+            @CurrentUser User user,
+            @PathVariable Long chatFlowId
+    ) {
+        return ApiResponse.ok(chatFlowService.downloadChatFlow(user, chatFlowId));
+    }
 }
