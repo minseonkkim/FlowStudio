@@ -1,16 +1,19 @@
 package com.ssafy.flowstudio.publish;
 
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlowCategory;
+import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
+import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
@@ -38,28 +41,48 @@ public class PublishService {
     private final PublishChatFlowRepository publishChatFlowRepository;
     private final EdgeRepository edgeRepository;
     private final NodeRepository nodeRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional(transactionManager = "multiTransactionManager")
-    public ChatFlowResponse getPublishChatFlow(Long chatFlowId) {
-        ChatFlow chatFlow = publishChatFlowRepository.findById(chatFlowId)
-                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+    public List<ChatFlowListResponse> getPublishChatFlows(User user) {
 
-        List<EdgeResponse> edges = edgeRepository.findByChatFlowId(chatFlowId).stream()
-                .map(EdgeResponse::from)
+        return publishChatFlowRepository.findByUserId(user.getId()).stream()
+                .map(chatFlow -> {
+                    List<ChatFlowCategory> chatFlowCategories = chatFlow.getCategories();
+
+                    List<Category> categories = chatFlowCategories.stream()
+                            .map(chatFlowCategory -> categoryRepository.findById(chatFlowCategory.getCategory().getId())
+                                    .orElseThrow(() -> new BaseException(ErrorCode.CATEGORY_NOT_FOUND)))
+                            .toList();
+
+                    return ChatFlowListResponse.of(chatFlow, categories);
+                })
                 .toList();
-        return ChatFlowResponse.from(chatFlow, edges);
     }
 
-    public Long getChatId(String publishUrl) {
-        ChatFlow chatFlow = publishChatFlowRepository.findByPublishUrl(publishUrl)
-                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_NOT_FOUND));
+    public ChatFlow getPublishChatFlow(String publishUrl) {
+        return publishChatFlowRepository.findByPublishUrl(publishUrl)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
+    }
 
-        return chatFlow.getId();
+    public ChatFlow getPublishChatFlow(Long publishChatFlowId) {
+        return publishChatFlowRepository.findById(publishChatFlowId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
+    }
+
+    @Transactional(transactionManager = "secondaryTransactionManager")
+    public Boolean unPublishChatFlow(User user, Long chatFlowId) {
+        ChatFlow publishChatFlow = publishChatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
+
+        publishChatFlow.updatePublishUrl("");
+        ChatFlow updateChatFlow = publishChatFlowRepository.save(publishChatFlow);
+        return updateChatFlow.getPublishUrl().isBlank();
     }
 
     @Transactional(transactionManager = "multiTransactionManager")
-    public String publishChatFlow(Long chatFlowId) {
-        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
+    public String publishChatFlow(User user, Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
         String publishUrl = chatFlow.getPublishUrl();
@@ -155,7 +178,7 @@ public class PublishService {
                 .setParameter(10, chatFlow.getCreatedAt())
                 .setParameter(11, chatFlow.getUpdatedAt())
                 .executeUpdate();
-        log.info("uuid : {}",chatFlow.getPublishUrl());
+        log.info("uuid : {}", chatFlow.getPublishUrl());
 
 
         for (Node node : nodes) {
