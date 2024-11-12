@@ -39,6 +39,7 @@ public enum ErrorCode {
     // Chat
     CHAT_NOT_FOUND(6000, HttpStatus.NOT_FOUND, "챗을 찾을 수 없습니다."),
     START_NODE_NOT_FOUND(6001, HttpStatus.NOT_FOUND, "시작 노드를 찾을 수 없습니다."),
+    MESSAGE_TOO_LONG(6002, HttpStatus.BAD_REQUEST, "메시지 길이가 너무 깁니다."),
 
     // Knowledge
     KNOWLEDGE_NOT_FOUND(7000, HttpStatus.NOT_FOUND, "지식베이스를 찾을 수 없습니다."),
@@ -64,7 +65,6 @@ public enum ErrorCode {
     // Redis
     REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
     ;
-
     private final int code;
     private final HttpStatus status;
     private final String message;

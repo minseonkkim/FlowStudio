@@ -77,10 +77,10 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    public static User createAnonymous() {
+    public static User createAnonymous(String username) {
         return User.builder()
-                .username("anonymous")
                 .apiKey(ApiKey.empty())
+                .username(username)
                 .nickname("anonymous")
                 .profileImage("")
                 .isAnonymous(true)
