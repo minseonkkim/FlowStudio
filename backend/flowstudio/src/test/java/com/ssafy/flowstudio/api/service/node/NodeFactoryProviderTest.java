@@ -1,8 +1,7 @@
 package com.ssafy.flowstudio.api.service.node;
 
-import com.ssafy.flowstudio.domain.node.entity.Conditional;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import com.ssafy.flowstudio.domain.node.factory.*;
+import com.ssafy.flowstudio.domain.node.factory.create.*;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
 class NodeFactoryProviderTest extends IntegrationTestSupport {

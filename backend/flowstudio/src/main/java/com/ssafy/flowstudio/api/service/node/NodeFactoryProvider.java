@@ -1,7 +1,7 @@
 package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
-import com.ssafy.flowstudio.domain.node.factory.*;
+import com.ssafy.flowstudio.domain.node.factory.create.*;
 import org.springframework.stereotype.Component;
 
 

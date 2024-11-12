@@ -18,9 +18,10 @@ public class ChatFlowListResponse {
     private final String thumbnail;
     private final List<CategoryResponse> categories;
     private final boolean isPublic;
+    private final Integer shareCount;
 
     @Builder
-    private ChatFlowListResponse(Long chatFlowId, String title, String description, UserResponse author, String thumbnail, List<CategoryResponse> categories, boolean isPublic) {
+    private ChatFlowListResponse(Long chatFlowId, String title, String description, UserResponse author, String thumbnail, List<CategoryResponse> categories, boolean isPublic, Integer shareCount) {
         this.chatFlowId = chatFlowId;
         this.title = title;
         this.description = description;
@@ -28,6 +29,7 @@ public class ChatFlowListResponse {
         this.thumbnail = thumbnail;
         this.categories = categories;
         this.isPublic = isPublic;
+        this.shareCount = shareCount;
     }
 
     public static ChatFlowListResponse of(ChatFlow chatFlow, List<Category> categories) {
@@ -41,6 +43,7 @@ public class ChatFlowListResponse {
                         .map(CategoryResponse::from)
                         .toList())
                 .isPublic(chatFlow.isPublic())
+                .shareCount(chatFlow.getShareCount())
                 .build();
     }
 
