@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflow;
 
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
+import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
@@ -341,4 +342,13 @@ public class ChatFlowService {
 
         return clonedChatFlow;
     }
+
+    public List<CategoryResponse> getCategories() {
+        List<Category> categories = categoryRepository.findAll();
+
+        return categories.stream()
+                .map(CategoryResponse::from)
+                .toList();
+    }
+
 }
