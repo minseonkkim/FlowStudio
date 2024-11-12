@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.service.chat;
 import com.ssafy.flowstudio.api.service.chat.request.ChatCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
+import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.common.constant.AuthConst;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -87,4 +88,14 @@ public class ChatService {
         return ChatListResponse.of(chatFlow, chats);
     }
 
+    public ChatDetailResponse getChat(User user, Long chatFlowId, Long chatId) {
+        Chat chat = chatRepository.findById(chatId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_NOT_FOUND));
+
+        if (!chat.getUser().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        return ChatDetailResponse.from(chat);
+    }
 }
