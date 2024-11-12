@@ -6,6 +6,7 @@ import com.ssafy.flowstudio.api.controller.chat.request.ChatCreateRequest;
 import com.ssafy.flowstudio.api.controller.chat.request.ChatMessageRequest;
 import com.ssafy.flowstudio.api.service.chat.ChatService;
 import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
+import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatSimpleResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
@@ -100,6 +101,50 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                                                 .description("채팅 아이디"),
                                         fieldWithPath("data.chats[].title").type(JsonFieldType.STRING)
                                                 .description("채팅 제목"))
+                                .build())));
+    }
+
+    @DisplayName("채팅 상세 조회")
+    @Test
+    void getChat() throws Exception {
+        // given
+        ChatDetailResponse response = ChatDetailResponse.builder()
+                .id(1L)
+                .title("title")
+                .messageList("[{question: 'question', answer: 'answer'}]")
+                .build();
+
+        given(chatService.getChat(any(User.class), any(Long.class), any(Long.class)))
+                .willReturn(response);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/chats/{chatId}", 1L, 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("get-chat",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Chat")
+                                .summary("채팅 상세 조회")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data.id").type(JsonFieldType.NUMBER)
+                                                .description("채팅 아이디"),
+                                        fieldWithPath("data.title").type(JsonFieldType.STRING)
+                                                .description("채팅 제목"),
+                                        fieldWithPath("data.messageList").type(JsonFieldType.STRING)
+                                                .description("대화 내용")
+                                )
                                 .build())));
     }
 

@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.controller.chat;
 
+import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatSimpleResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
@@ -29,7 +30,7 @@ class ChatControllerTest extends ControllerTestSupport {
     @DisplayName("채팅 목록 조회")
     @WithMockUser
     @Test
-    void getChatFlows() throws Exception {
+    void getChats() throws Exception {
         // given
         ChatSimpleResponse chat1 = ChatSimpleResponse.builder()
                 .id(1L)
@@ -54,6 +55,35 @@ class ChatControllerTest extends ControllerTestSupport {
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows/{chatFlowId}/chats", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
+
+
+    @DisplayName("채팅 상세 조회")
+    @WithMockUser
+    @Test
+    void getChat() throws Exception {
+        // given
+        ChatDetailResponse response = ChatDetailResponse.builder()
+                .id(1L)
+                .title("title")
+                .messageList("[{question: 'question', answer: 'answer'}]")
+                .build();
+
+        given(chatService.getChat(any(User.class), any(Long.class), any(Long.class)))
+                .willReturn(response);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/chats/{chatId}", 1L, 1L)
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
