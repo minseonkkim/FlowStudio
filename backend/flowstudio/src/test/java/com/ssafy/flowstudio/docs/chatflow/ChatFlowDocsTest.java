@@ -82,6 +82,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .thumbnail("1")
                 .categories(List.of(category1, category2))
                 .isPublic(false)
+                .shareCount(0)
                 .build();
 
         given(chatFlowService.getChatFlows(any(User.class)))
@@ -128,6 +129,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 작성자 닉네임"),
                                         fieldWithPath("data[].author.profileImage").type(JsonFieldType.STRING)
                                                 .description("챗플로우 작성자 프로필이미지"),
+                                        fieldWithPath("data[].shareCount").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우가 공유된 횟수"),
                                         fieldWithPath("data[].categories[].categoryId").type(JsonFieldType.NUMBER)
                                                 .description("카테고리 아이디"),
                                         fieldWithPath("data[].categories[].name").type(JsonFieldType.STRING)
