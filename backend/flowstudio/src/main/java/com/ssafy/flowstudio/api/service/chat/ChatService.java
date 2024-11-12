@@ -65,7 +65,7 @@ public class ChatService {
             collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS");
 
             JwtToken token = jwtService.generateToken(user.getUsername(), collection);
-            CookieUtils.addCookie(servletResponse, "access-token", token.getAccessToken(), properties.getAccessExpire(), true);
+            servletResponse.setHeader("access-token", token.getAccessToken());
         }
 
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
