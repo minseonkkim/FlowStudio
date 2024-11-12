@@ -104,4 +104,18 @@ public class ChatFlowController {
         return ApiResponse.ok(chatFlowService.createExampleChatFlow(user));
     }
 
+    /**
+     * 챗플로우 업로드
+     * @param user
+     * @param chatFlowId
+     * @return ChatFlowResponse
+     */
+    @PostMapping(value = "/api/v1/chat-flows/{chatFlowId}/upload")
+    public ApiResponse<ChatFlowResponse> uploadChatFlow(
+            @CurrentUser User user,
+            @PathVariable Long chatFlowId
+    ) {
+        return ApiResponse.ok(chatFlowService.uploadChatFlow(user, chatFlowId));
+    }
+
 }

@@ -5,6 +5,9 @@ import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
+import com.ssafy.flowstudio.api.service.node.NodeFactoryProvider;
+import com.ssafy.flowstudio.api.service.node.NodeService;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -14,22 +17,22 @@ import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
-import com.ssafy.flowstudio.domain.node.entity.Answer;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.LLM;
-import com.ssafy.flowstudio.domain.node.entity.Node;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
-import com.ssafy.flowstudio.domain.node.entity.Retriever;
-import com.ssafy.flowstudio.domain.node.entity.Start;
+import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
+import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
+import com.ssafy.flowstudio.domain.node.entity.*;
+import com.ssafy.flowstudio.domain.node.factory.copy.NodeCopyFactory;
+import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -39,7 +42,14 @@ public class ChatFlowService {
 
     private final ChatFlowRepository chatFlowRepository;
     private final CategoryRepository categoryRepository;
+    private final KnowledgeRepository knowledgeRepository;
+    private final NodeRepository nodeRepository;
+    private final NodeFactoryProvider nodeFactoryProvider;
+    private final NodeCopyFactoryProvider nodeCopyFactoryProvider;
+    private final NodeService nodeService;
     private final EdgeRepository edgeRepository;
+    private final QuestionClassRepository questionClassRepository;
+    private final EntityManager entityManager;
 
     public List<ChatFlowListResponse> getChatFlows(User user) {
         List<ChatFlow> chatFlows = chatFlowRepository.findByUser(user);
@@ -160,5 +170,123 @@ public class ChatFlowService {
 
         List<EdgeResponse> edgeResponses = edges.stream().map(EdgeResponse::from).toList();
         return ChatFlowResponse.from(savedChatflow, edgeResponses);
+    }
+    @Transactional
+    public ChatFlowResponse uploadChatFlow(User user, Long chatFlowId) {
+
+        // ChatFlow를 조회한다.
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(
+                () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+
+        if (!chatFlow.getOwner().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        // ChatFlow를 복제하여 DB에 저장한다.
+        List<Category> categories = chatFlow.getCategories().stream().map(ChatFlowCategory::getCategory).toList();
+
+        ChatFlow clonedChatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title(chatFlow.getTitle())
+                .description(chatFlow.getDescription())
+                .thumbnail(chatFlow.getThumbnail())
+                .isPublic(true)
+                .shareCount(0)
+                .build();
+
+        clonedChatFlow.updateCategories(categories);
+        chatFlowRepository.save(clonedChatFlow);
+
+        // 원본 지식 ID와 복제된 지식을 매핑시켜 줄 Map을 생성한다.
+        Map<Long, Knowledge> knowledgeMap = new HashMap<>();
+
+        // 해당 ChatFlow에서 사용하는 지식들을 불러온 후 공유 여부가 참이면 복제한다.
+        List<Knowledge> knowledgeList = knowledgeRepository.findByChatFlowId(chatFlowId);
+        for (Knowledge originalKnowledge : knowledgeList) {
+            if (originalKnowledge.isPublic()) {
+                Knowledge clonedKnowledge = Knowledge.create(
+                        originalKnowledge.getUser(),
+                        originalKnowledge.getTitle(),
+                        true,
+                        originalKnowledge.getTotalToken()
+                );
+
+                // 복제된 지식을 DB에 저장 후 맵에 추가한다.
+                knowledgeRepository.save(clonedKnowledge);
+                knowledgeMap.put(originalKnowledge.getId(), clonedKnowledge);
+            }
+        }
+
+        // 원본 노드 ID와 복제된 노드를 매핑시켜 줄 Map을 생성한다.
+        Map<Long, Node> nodeMap = new HashMap<>();
+
+        // 해당 ChatFlow에서 사용하는 노드들을 불러온 후 타입에 맞춰 복제한다.
+        List<Node> nodeList = chatFlow.getNodes();
+
+        for (Node originalNode : nodeList) {
+            NodeCopyFactory factory = nodeCopyFactoryProvider.getCopyFactory(originalNode.getType());
+
+            Node clonedNode;
+
+            if (originalNode.getType() == NodeType.RETRIEVER) {
+                Retriever originalRetriever = (Retriever) originalNode;
+                Knowledge knowledge = originalRetriever.getKnowledge();
+                if (knowledge != null && knowledge.isPublic()) {
+                    clonedNode = factory.copyNode(originalNode, clonedChatFlow, knowledgeMap.get(knowledge.getId()));
+                } else {
+                    clonedNode = factory.copyNode(originalNode, clonedChatFlow);
+                }
+            } else {
+                clonedNode = factory.copyNode(originalNode, clonedChatFlow);
+            }
+
+            // 복제된 노드를 DB에 저장 후 맵에 추가한다.
+            nodeRepository.save(clonedNode);
+            nodeMap.put(originalNode.getId(), clonedNode);
+        }
+
+        // 원본 질문 분류 ID와 복제된 질문 분류를 매핑시켜 줄 Map을 생성한다.
+        Map<Long, QuestionClass> questionClassMap = new HashMap<>();
+
+        List<QuestionClass> questionClasses = questionClassRepository.findByChatFlowId(chatFlowId);
+        for (QuestionClass originalQuestionClass : questionClasses) {
+            QuestionClass clonedQuestionClass = QuestionClass.builder()
+                    .content(originalQuestionClass.getContent())
+                    .questionClassifier((QuestionClassifier) nodeMap.get(originalQuestionClass.getQuestionClassifier().getId()))
+                    .build();
+
+            // 복제된 질문 분류를 DB에 저장 후 맵에 추가한다.
+            questionClassRepository.save(clonedQuestionClass);
+            questionClassMap.put(originalQuestionClass.getId(), clonedQuestionClass);
+        }
+
+        // 간선을 복제하여 저장한다.
+        List<Edge> edges = edgeRepository.findByChatFlowId(chatFlowId);
+
+        for (Edge originalEdge : edges) {
+            Long sourceNodeId = originalEdge.getSourceNode().getId();
+            Long targetNodeId = originalEdge.getTargetNode().getId();
+            Long sourceConditionId = null;
+
+            // 간선의 출처 노드가 질문 분류기면 위에서 복제된 질문 분류의 ID로 sourceConditionId를 새롭게 매핑한다.
+            if (originalEdge.getSourceNode().getType() == NodeType.QUESTION_CLASSIFIER) {
+                sourceConditionId = questionClassMap.get(originalEdge.getSourceConditionId()).getId();
+            }
+
+            Edge edge = Edge.create(
+                    nodeMap.get(sourceNodeId),
+                    nodeMap.get(targetNodeId),
+                    sourceConditionId
+            );
+
+            edgeRepository.save(edge);
+        }
+
+        // DB와 동기화된 상태의 clonedChatFlow, edgeList를 새롭게 불러와 반환한다.
+        List<EdgeResponse> newEdges = edgeRepository.findByChatFlowId(clonedChatFlow.getId()).stream().map(EdgeResponse::from).toList();
+        entityManager.refresh(clonedChatFlow);
+
+        return ChatFlowResponse.from(clonedChatFlow, newEdges);
     }
 }
