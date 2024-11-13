@@ -48,6 +48,7 @@ public enum ErrorCode {
     COLLECTION_NOT_FOUND(7100, HttpStatus.NOT_FOUND, "벡터저장소(컬렉션)를 찾을 수 없습니다."),
     PARTITION_NOT_FOUND(7200, HttpStatus.NOT_FOUND, "벡터저장소(파티션)를 찾을 수 없습니다."),
     PARTITION_NOT_AVAILABLE(7201, HttpStatus.SERVICE_UNAVAILABLE, "벡터저장소(파티션)를 불러올 수 없습니다."),
+    FAIL_COPY_VECTOR_STORE(7202, HttpStatus.BAD_REQUEST, "벡터저장소 복사에 실패했습니다. 재시도가 필요합니다."),
     SEARCH_INVALID_INPUT(7300, HttpStatus.BAD_REQUEST, "유효하지 않은 입력값 입니다."),
 
     // S3

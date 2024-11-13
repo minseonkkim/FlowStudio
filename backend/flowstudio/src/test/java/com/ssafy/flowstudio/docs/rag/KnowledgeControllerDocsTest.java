@@ -30,9 +30,9 @@ import java.util.Map;
 
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -193,7 +193,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
         ChunkListResponse response = ChunkListResponse.builder()
                 .chunkList(
                         List.of(
-                                ChunkResponse.builder().chunkId(0).content("sentence1").build()
+                                ChunkResponse.builder().chunkId(0L).content("sentence1").build()
                         )
                 )
                 .chunkCount(1)
@@ -237,7 +237,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
     void getKnowledgeChunkDetail() throws Exception {
         // given
         List<ChunkResponse> response = List.of(
-                ChunkResponse.builder().chunkId(0).content("sentence1").build()
+                ChunkResponse.builder().chunkId(0L).content("sentence1").build()
         );
 
         given(vectorStoreService.getDocumentChunk(any(), any(), any()))
@@ -343,6 +343,52 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("status").type(JsonFieldType.STRING).description("상태"),
                                         fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
                                         fieldWithPath("data").type(JsonFieldType.BOOLEAN).description("성공여부")
+                                )
+                                .build()
+                        )
+                ));
+
+    }
+
+    @DisplayName("지식베이스 복제")
+    @Test
+    void copyKnowledge() throws Exception {
+        // given
+        given(vectorStoreService.copyDocument(any(User.class), any(Long.class)))
+                .willReturn(KnowledgeResponse.builder()
+                        .knowledgeId(0L)
+                        .totalToken(100)
+                        .title("title")
+                        .createdAt(LocalDateTime.parse(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                        .isPublic(true)
+                        .build());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                post("/api/v1/knowledges/{knowledgeId}/copy", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andDo(MockMvcRestDocumentationWrapper.document("copy-knowledge",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Knowledge")
+                                .summary("지식베이스 복제")
+                                .pathParameters(
+                                        parameterWithName("knowledgeId").description("지식베이스 아이디")
+                                )
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER).description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING).description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING).description("메시지"),
+                                        fieldWithPath("data.knowledgeId").type(JsonFieldType.NUMBER).description("지식베이스 아이디"),
+                                        fieldWithPath("data.title").type(JsonFieldType.STRING).description("문서(파일명)"),
+                                        fieldWithPath("data.isPublic").type(JsonFieldType.BOOLEAN).description("공유여부"),
+                                        fieldWithPath("data.createdAt").type(JsonFieldType.STRING).description("등록일"),
+                                        fieldWithPath("data.totalToken").type(JsonFieldType.NUMBER).description("토큰개수")
                                 )
                                 .build()
                         )
