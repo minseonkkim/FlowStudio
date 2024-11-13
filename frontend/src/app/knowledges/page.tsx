@@ -10,7 +10,8 @@ import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
 import { useRecoilState } from 'recoil';
 import { chunkFileNameState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms'; 
-// import ChatPage from '../chat/[id]/page';
+import  ChatPage  from '@/app/chat/[id]/page'
+
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -150,7 +151,7 @@ export default function Page() {
           </tbody>
         </table>
       </div>
-      {/* <ChatPage customStyle={true}/> */}
+      <ChatPage customStyle={true}/>
     </div>
   );
 }
