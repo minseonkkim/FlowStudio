@@ -81,7 +81,7 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                         preprocessResponse(prettyPrint()),
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Chat")
-                                .summary("채팅 생성")
+                                .summary("채팅 목록")
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),

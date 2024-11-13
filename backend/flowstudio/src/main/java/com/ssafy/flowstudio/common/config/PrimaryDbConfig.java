@@ -45,6 +45,7 @@ public class PrimaryDbConfig {
         properties.put("hibernate.format_sql", true);
         properties.put("hibernate.show_sql", false);
         properties.put("hibernate.physical_naming_strategy", "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy");
+        properties.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
         properties.put("dbname", "primary");
 
         return builder

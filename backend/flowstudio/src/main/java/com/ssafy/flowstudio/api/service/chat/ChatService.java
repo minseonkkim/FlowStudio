@@ -52,8 +52,10 @@ public class ChatService {
         Chat chat = chatRepository.findById(chatId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_NOT_FOUND));
 
-        ChatFlow publishChatFlow = publishService.getPublishChatFlow(chat.getChatFlow().getPublishUrl());
-        chat.updateChatFlow(publishChatFlow);
+        if (!chat.isPreview()) {
+            ChatFlow publishChatFlow = publishService.getPublishChatFlow(chat.getChatFlow().getPublishUrl());
+            chat.updateChatFlow(publishChatFlow);
+        }
 
         String message = request.getMessage();
 
