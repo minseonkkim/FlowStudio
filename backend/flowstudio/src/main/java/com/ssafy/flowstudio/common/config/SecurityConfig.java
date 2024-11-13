@@ -66,7 +66,7 @@ public class SecurityConfig {
                                 "/actuator/**",
                                 "/login/**",
                                 "/oauth2/**",
-                                "/api/v1/chat-flows/{chatFlowId}/chats",
+                                "/api/v1/chats/{chatId}",
                                 "/api/v1/sse/connect"
                         ).permitAll()
                         .anyRequest().authenticated())
