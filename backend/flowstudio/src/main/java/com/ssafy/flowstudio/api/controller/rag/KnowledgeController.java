@@ -1,6 +1,5 @@
 package com.ssafy.flowstudio.api.controller.rag;
 
-import com.azure.core.annotation.Patch;
 import com.drew.lang.annotations.NotNull;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeCreateRequest;
 import com.ssafy.flowstudio.api.controller.rag.request.KnowledgeRequest;
@@ -11,13 +10,9 @@ import com.ssafy.flowstudio.api.service.rag.request.KnowledgeSearchServiceReques
 import com.ssafy.flowstudio.api.service.rag.response.*;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
-import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +28,7 @@ public class KnowledgeController {
 
     /**
      * 문서 목록 조회
+     *
      * @param user
      * @return List<KnowledgeListResponse>
      */
@@ -44,6 +40,7 @@ public class KnowledgeController {
 
     /**
      * 문서 등록
+     *
      * @param user
      * @param request
      * @return KnowledgeResponse
@@ -58,6 +55,7 @@ public class KnowledgeController {
 
     /**
      * 문서 수정
+     *
      * @param user
      * @param knowledgeId
      * @param request
@@ -74,6 +72,7 @@ public class KnowledgeController {
 
     /**
      * 문서 삭제
+     *
      * @param user
      * @param knowledgeId
      * @return Boolean
@@ -87,7 +86,23 @@ public class KnowledgeController {
     }
 
     /**
+     * 지식 복제하기
+     *
+     * @param user
+     * @param knowledgeId
+     * @return KnowledgeResponse
+     */
+    @PostMapping("{knowledgeId}/copy")
+    public ApiResponse<KnowledgeResponse> copyKnowledge(
+            @CurrentUser User user,
+            @PathVariable Long knowledgeId
+    ) {
+        return ApiResponse.ok(vectorStoreService.copyDocument(user, knowledgeId));
+    }
+
+    /**
      * 청크 미리보기
+     *
      * @param user
      * @param request
      * @return List<String>
@@ -102,6 +117,7 @@ public class KnowledgeController {
 
     /**
      * 청크 목록 보기
+     *
      * @param user
      * @param knowledgeId
      * @return ChunkListResponse
@@ -116,6 +132,7 @@ public class KnowledgeController {
 
     /**
      * 청크 상세 보기
+     *
      * @param user
      * @param knowledgeId
      * @param chunkId
@@ -132,6 +149,7 @@ public class KnowledgeController {
 
     /**
      * 청크 등록/수정
+     *
      * @param user
      * @param knowledgeId
      * @param chunkId
@@ -150,6 +168,7 @@ public class KnowledgeController {
 
     /**
      * 청크 삭제
+     *
      * @param user
      * @param knowledgeId
      * @param chunkId
@@ -166,6 +185,7 @@ public class KnowledgeController {
 
     /**
      * 벡터 검색
+     *
      * @param request
      * @return List<String>
      */

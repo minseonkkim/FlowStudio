@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class ChunkResponse {
-    private final Integer chunkId;
+    private final Long chunkId;
     private final String content;
 
     @Builder
-    public ChunkResponse(Integer chunkId, String content) {
+    public ChunkResponse(Long chunkId, String content) {
         this.chunkId = chunkId;
         this.content = content;
     }

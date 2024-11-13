@@ -6,7 +6,6 @@ import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.api.ModelType;
-import dev.langchain4j.data.message.ChatMessage;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.document.MetadataMode;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -65,7 +64,8 @@ public class MilvusUtils {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id", chunkId);
         JsonArray vectors = new JsonArray();
-        for (float vector : embeddingModel.embed(content)) {
+        float[] embeddings = embeddingModel.embed(content);
+        for (float vector : embeddings) {
             vectors.add(vector);
         }
         jsonObject.add("vector", vectors);
