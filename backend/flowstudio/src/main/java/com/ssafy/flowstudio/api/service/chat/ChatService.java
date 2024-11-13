@@ -72,13 +72,19 @@ public class ChatService {
             collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS");
 
             JwtToken token = jwtService.generateToken(user.getUsername(), collection);
-            servletResponse.setHeader("access-token", token.getAccessToken());
+            servletResponse.setHeader("Authorization", token.getAccessToken());
         }
 
-        ChatFlow publishChatFlow = publishService.getPublishChatFlow(chatFlowId);
+        ChatFlow chatFlow;
+        if (!request.isPreview()) {
+            chatFlow = publishService.getPublishChatFlow(chatFlowId);
+        } else {
+            chatFlow = chatFlowRepository.findById(chatFlowId)
+                    .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+        }
 
         log.info("Preview: {}", request.isPreview());
-        Chat chat = Chat.create(user, publishChatFlow, request.isPreview());
+        Chat chat = Chat.create(user, chatFlow, request.isPreview());
         Chat savedChat = chatRepository.save(chat);
 
         return ChatCreateResponse.from(savedChat);
