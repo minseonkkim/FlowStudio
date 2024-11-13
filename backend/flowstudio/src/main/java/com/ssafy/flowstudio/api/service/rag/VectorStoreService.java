@@ -1,12 +1,18 @@
 package com.ssafy.flowstudio.api.service.rag;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeSearchServiceRequest;
-import com.ssafy.flowstudio.api.service.rag.response.*;
+import com.ssafy.flowstudio.api.service.rag.response.ChunkListResponse;
+import com.ssafy.flowstudio.api.service.rag.response.ChunkResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeCreateServiceResponse;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
+import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
+import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import io.milvus.v2.client.MilvusClientV2;
 import io.milvus.v2.common.ConsistencyLevel;
@@ -29,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +48,7 @@ public class VectorStoreService {
     private final MilvusClientV2 milvusClient;
     private final LangchainService langchainService;
     private final MilvusUtils milvusUtils;
+    private final KnowledgeRepository knowledgeRepository;
 
     public void createCollection(String collectionName) {
         if (!hasCollection(collectionName)) {
@@ -93,10 +101,65 @@ public class VectorStoreService {
         return queryResp.getQueryResults().stream()
                 .map(QueryResp.QueryResult::getEntity)
                 .map(result -> ChunkResponse.builder()
-                        .chunkId(Integer.parseInt(result.get("id").toString()))
+                        .chunkId(Long.parseLong(result.get("id").toString()))
                         .content(result.get("content").toString())
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    public KnowledgeResponse copyDocument(User user, Long originKnowledgeId) {
+        Knowledge originKnowledge = knowledgeRepository.findByIdAndPublic(originKnowledgeId, true)
+                .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
+
+        List<ChunkResponse> chunkList = getDocumentChunk(originKnowledge.getUser(), KnowledgeResponse.from(originKnowledge), -1L);
+        List<Object> ids = new ArrayList<>();
+        chunkList.forEach(chunkResponse -> ids.add(chunkResponse.getChunkId()));
+
+        Knowledge copyKnowledge = Knowledge.builder()
+                .user(user)
+                .title(originKnowledge.getTitle())
+                .isPublic(originKnowledge.isPublic())
+                .totalToken(originKnowledge.getTotalToken())
+                .build();
+
+        knowledgeRepository.save(copyKnowledge);
+
+        String collectionName = milvusUtils.generateName(user.getId());
+        String partitionName = milvusUtils.generateName(copyKnowledge.getId());
+        createCollection(collectionName);
+        createPartition(collectionName, partitionName);
+
+        if (ids.isEmpty()) {
+            throw new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND);
+        }
+
+        GetReq getReq = GetReq.builder()
+                .collectionName(milvusUtils.generateName(originKnowledge.getUser().getId()))
+                .partitionName(milvusUtils.generateName(originKnowledge.getId()))
+                .ids(ids)
+                .build();
+
+        GetResp getResp = milvusClient.get(getReq);
+
+
+        List<JsonObject> data = new ArrayList<>();
+        getResp.getGetResults()
+                .forEach(result -> {
+                    data.add(new Gson().toJsonTree(result.getEntity()).getAsJsonObject());
+                });
+
+        UpsertReq upsertReq = UpsertReq.builder()
+                .collectionName(collectionName)
+                .partitionName(partitionName)
+                .data(data)
+                .build();
+        milvusClient.upsert(upsertReq);
+
+        UpsertResp upsertResp = milvusClient.upsert(upsertReq);
+        if (upsertResp.getUpsertCnt() != chunkList.size()) throw new BaseException(ErrorCode.FAIL_COPY_VECTOR_STORE);
+
+        return KnowledgeResponse.from(copyKnowledge);
     }
 
     public Boolean upsertChunk(User user, KnowledgeResponse knowledge, Long chunkId, String content) {
@@ -172,7 +235,7 @@ public class VectorStoreService {
     public ChunkListResponse previewChunks(KnowledgeCreateServiceRequest request) {
         List<String> splitText = langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), milvusUtils.getTextContent(request.getFile()));
 
-        final int[] i = {0};
+        final long[] i = {0};
         return ChunkListResponse.builder()
                 .chunkList(splitText.stream()
                         .limit(5)
@@ -190,7 +253,8 @@ public class VectorStoreService {
         if (request.getScoreThreshold() < 0.0f || request.getScoreThreshold() > 1.0f)
             throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
         if (request.getTopK() < 0 || request.getTopK() > 10) throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
-        if (request.getInterval() < 0 || request.getInterval() > 5) throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
+        if (request.getInterval() < 0 || request.getInterval() > 5)
+            throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
 
         String collectionName = milvusUtils.generateName(request.getKnowledge().getUserId());
         String partitionName = milvusUtils.generateName(request.getKnowledge().getKnowledgeId());
