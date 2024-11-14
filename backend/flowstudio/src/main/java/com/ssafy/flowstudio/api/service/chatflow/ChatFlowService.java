@@ -9,6 +9,8 @@ import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
 import com.ssafy.flowstudio.api.service.node.NodeFactoryProvider;
 import com.ssafy.flowstudio.api.service.node.NodeService;
+import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
+import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -51,6 +53,7 @@ public class ChatFlowService {
     private final QuestionClassRepository questionClassRepository;
     private final EntityManager entityManager;
     private final UserRepository userRepository;
+    private final VectorStoreService vectorStoreService;
 
     public List<ChatFlowListResponse> getEveryoneChatFlows() {
         List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue();
@@ -259,11 +262,9 @@ public class ChatFlowService {
         List<Knowledge> knowledgeList = knowledgeRepository.findByChatFlowId(chatFlowId);
         for (Knowledge originalKnowledge : knowledgeList) {
             if (originalKnowledge.isPublic()) {
-                Knowledge clonedKnowledge = Knowledge.create(
-                        originalKnowledge.getUser(),
-                        originalKnowledge.getTitle(),
-                        true,
-                        originalKnowledge.getTotalToken()
+                KnowledgeResponse clonedKnowledgeResponse = vectorStoreService.copyDocument(client, originalKnowledge.getId());
+                Knowledge clonedKnowledge = knowledgeRepository.findById(clonedKnowledgeResponse.getKnowledgeId()).orElseThrow(
+                        () -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND)
                 );
 
                 // 복제된 지식을 DB에 저장 후 맵에 추가한다.
