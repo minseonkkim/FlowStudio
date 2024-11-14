@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
 import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
+import com.ssafy.flowstudio.api.service.chatflowtest.event.ChatFlowTestEvent;
 import com.ssafy.flowstudio.api.service.node.event.NodeEvent;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.api.service.node.RedisService;
@@ -23,6 +24,10 @@ public abstract class NodeExecutor {
     public abstract NodeType getNodeType();
 
     protected void publishEvent(NodeEvent event) {
+        eventPublisher.publishEvent(event);
+    }
+
+    protected void publishEvent(ChatFlowTestEvent event) {
         eventPublisher.publishEvent(event);
     }
 

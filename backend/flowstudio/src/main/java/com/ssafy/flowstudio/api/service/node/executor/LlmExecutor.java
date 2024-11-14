@@ -80,7 +80,7 @@ public class LlmExecutor extends NodeExecutor {
             // 결과 SSE로 전송
             sseEmitters.send(chat.getUser(), llmNode, llmOutputMessage);
 
-            if (chat.getMessageList().equals("[]")) {
+            if (chat.getMessageList().equals("[]") && !chat.isPreview()) {
                 chatTitleMaker.makeTitle(chat, chatModel, promptUser);
             }
 
@@ -93,7 +93,14 @@ public class LlmExecutor extends NodeExecutor {
             // 챗 히스토리 업데이트
             updateChatHistory(chat, promptUser, llmOutputMessage);
 
+            // TODO 테스트일 떄 레디스에 출력 저장 + 테스트 식별용 SSE
+            if (chat.isTest()) {
+                redisService.saveTestValue(chat.getId(), llmOutputMessage);
+                sseEmitters.sendChatFlowTestLlm(chat, llmOutputMessage);
+            }
+
         } catch (OpenAiHttpException e) {
+            log.error("API_KEY_INVALID: ", e);
             throw new BaseException(ErrorCode.API_KEY_INVALID);
         }
 

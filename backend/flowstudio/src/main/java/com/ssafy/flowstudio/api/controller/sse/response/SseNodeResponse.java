@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SseResponse {
+public class SseNodeResponse {
 
     private Long nodeId;
     private NodeType type;
@@ -16,23 +16,23 @@ public class SseResponse {
     private String message;
 
     @Builder
-    private SseResponse(Long nodeId, NodeType type, String name, String message) {
+    private SseNodeResponse(Long nodeId, NodeType type, String name, String message) {
         this.nodeId = nodeId;
         this.type = type;
         this.name = name;
         this.message = message;
     }
 
-    public static SseResponse from(Node node) {
-        return SseResponse.builder()
+    public static SseNodeResponse from(Node node) {
+        return SseNodeResponse.builder()
                 .nodeId(node.getId())
                 .type(node.getType())
                 .name(node.getName())
                 .build();
     }
 
-    public static SseResponse of(Node node, String message) {
-        return SseResponse.builder()
+    public static SseNodeResponse of(Node node, String message) {
+        return SseNodeResponse.builder()
                 .nodeId(node.getId())
                 .type(node.getType())
                 .name(node.getName())
