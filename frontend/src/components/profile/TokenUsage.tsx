@@ -1,12 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getTokenUsage } from '@/api/profile'
+import { getTokenUsage } from '@/api/profile';
 import { TokenUsage } from '@/types/profile';
 import { MdKeyboardArrowLeft } from '@react-icons/all-files/md/MdKeyboardArrowLeft';
-import { MdKeyboardArrowRight } from '@react-icons/all-files/md/MdKeyboardArrowRight';import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ChartOptions } from 'chart.js';
+import { MdKeyboardArrowRight } from '@react-icons/all-files/md/MdKeyboardArrowRight';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions,
+} from 'chart.js';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -29,6 +40,10 @@ export default function Page() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.warn("Invalid date value:", dateString);
+      return "Invalid Date"; // 오류 발생 시 기본값을 반환
+    }
     return date.toISOString().split('T')[0];
   };
 
@@ -36,7 +51,7 @@ export default function Page() {
     const startIndex = currentDayIndex * 14;
     return data.slice(startIndex, startIndex + 14).map(d => ({
       ...d,
-      createdAt: formatDate(d.createdAt)
+      date: formatDate(d.date), 
     }));
   };
 
@@ -45,7 +60,7 @@ export default function Page() {
     for (let i = 0; i < data.length; i += 7) {
       const weekData = data.slice(i, i + 7);
       const avgUsage = weekData.reduce((sum, day) => sum + day.tokenUsage, 0) / weekData.length;
-      weeklyData.push({ Date: formatDate(weekData[0].createdAt), Usage: Math.round(avgUsage) });
+      weeklyData.push({ Date: formatDate(weekData[0].date), Usage: Math.round(avgUsage) });
     }
     return weeklyData;
   };
@@ -55,7 +70,7 @@ export default function Page() {
 
   const chartData = {
     labels: viewMode === 'daily'
-      ? getDailyData().map(d => d.createdAt.slice(5))
+      ? getDailyData().map(d => d.date.slice(5)) 
       : getWeeklyData().map(d => d.Date.slice(5)),
     datasets: [{
       label: '토큰 사용량',
@@ -66,7 +81,7 @@ export default function Page() {
     }],
   };
 
-  const yearLabel = viewMode === 'daily' ? getDailyData()[0]?.createdAt.slice(0, 4) : getWeeklyData()[0]?.Date.slice(0, 4);
+  const yearLabel = viewMode === 'daily' ? getDailyData()[0]?.date.slice(0, 4) : getWeeklyData()[0]?.Date.slice(0, 4);
 
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,
