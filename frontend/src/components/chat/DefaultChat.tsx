@@ -48,8 +48,15 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     
     sse.addEventListener("heartbeat", (event) => {
       const data = (event as MessageEvent).data;
+      console.log(data)
     
     });
+
+    sse.addEventListener("title", (event) => {
+      const data = JSON.parse((event as MessageEvent).data);
+      console.log(data);
+    });
+
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
@@ -129,14 +136,12 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   };
 
 
-
-  const { isError, error, data: chatDetail } = useQuery<getChatDetailList>(
-    {
+// 채팅 상세보기 
+  const { isError, error, data: chatDetail } = useQuery<getChatDetailList>({
       queryKey: ["chatDetail", chatFlowId, selectedChatId],
       queryFn: () => getChatting(chatFlowId, String(selectedChatId!)),
       enabled: !!selectedChatId,
-    }
-  );
+    });
 
   useEffect(() => {
     if (isError && error) {
@@ -144,7 +149,6 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     }
   }, [isError, error]);
   
-
   useEffect(() => {
     if (chatDetail) {
       try {
@@ -169,7 +173,6 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   
   
   
-  
   // Sidebar에서 선택된 채팅 ID를 설정하는 함수
   const handleSelectChat = (chatId: number) => {
     setSelectedChatId(chatId);
@@ -177,10 +180,15 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   };
 
   
+  const onNewChat = () => {
+    setMessages([]); 
+    createChatMutation.mutate({ isPreview: false }); // 새 채팅 생성 로직을 호출합니다
+  };
+
   return (
     <div className="flex h-screen">
       <div className="w-64 flex-shrink-0">
-        <SideBar onNewChat={() => setMessages([])} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} />
+        <SideBar onNewChat={onNewChat} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} />
       </div>
 
       {/* 채팅 영역 */}
