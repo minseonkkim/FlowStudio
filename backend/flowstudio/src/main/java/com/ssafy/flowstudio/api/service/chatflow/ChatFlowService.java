@@ -234,7 +234,7 @@ public class ChatFlowService {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
-        // 이미 게시된 상태의 챗플로우는 업로드할 수 없다.Ï
+        // 이미 게시된 상태의 챗플로우는 업로드할 수 없다.
         if (chatFlow.isPublic() && isUpload) {
             throw new BaseException(ErrorCode.UPLOADED_CHAT_FLOW_CANNOT_BE_SHARED);
         }

@@ -6,8 +6,6 @@ import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
-import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
-import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -25,30 +23,22 @@ import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
 import jakarta.persistence.EntityManager;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.BDDAssertions.tuple;
-import static org.joda.time.LocalDateTime.now;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 
 @Transactional
 @ActiveProfiles("test")
 class ChatFlowServiceTest extends IntegrationTestSupport {
-
-
 
     @Autowired
     private ChatFlowRepository chatFlowRepository;
@@ -70,9 +60,6 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private EntityManager em;
-
-    @MockBean
-    private VectorStoreService vectorStoreService;
 
     @Autowired
     private ChatFlowService chatFlowService;
