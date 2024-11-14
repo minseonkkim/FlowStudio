@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.api.controller.sse;
 
 import com.ssafy.flowstudio.api.controller.sse.response.SseResponse;
+import com.ssafy.flowstudio.api.controller.sse.response.SseTitleResponse;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.Getter;
@@ -46,6 +48,21 @@ public class SseEmitters {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
+                        .data(data));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void sendTitle(Chat chat, String title) {
+        SseTitleResponse data = SseTitleResponse.of(chat.getId(), title);
+
+        SseEmitter emitter = emitters.get(chat.getUser().getId());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("title")
                         .data(data));
             } catch (IOException e) {
                 throw new RuntimeException(e);
