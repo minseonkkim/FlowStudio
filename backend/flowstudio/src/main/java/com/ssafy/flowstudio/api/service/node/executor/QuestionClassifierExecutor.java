@@ -112,6 +112,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             // event를 발행한다.
             publishEvent(event);
         } catch (NumberFormatException e) {
+            log.error("AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA: ", e);
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);
         }
     }
