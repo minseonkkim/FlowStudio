@@ -94,6 +94,8 @@ public class ChatFlowService {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
+        System.out.println(chatFlow.getNodes());
+
         List<EdgeResponse> edges = edgeRepository.findByChatFlowId(chatFlowId).stream()
                 .map(EdgeResponse::from)
                 .toList();
