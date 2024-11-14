@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect } from "react";
 import { getChattingList, deleteChatting } from '@/api/chat';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
