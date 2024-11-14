@@ -85,7 +85,6 @@ public class LlmExecutor extends NodeExecutor {
                 // 토큰 사용로그 기록
                 Integer tokenUsage = response.tokenUsage().totalTokenCount();
                 tokenUsageLogRepository.save(TokenUsageLog.create(chat.getUser(), tokenUsage));
-
                 // 챗 히스토리 업데이트
                 updateChatHistory(chat, promptUser, LlmOutputMessage);
             }
@@ -122,6 +121,7 @@ public class LlmExecutor extends NodeExecutor {
             chat.updateHistory(updatedChatHistory);
             chatRepository.save(chat);
         } catch (Exception e) {
+            log.error("Chat history update failed: ", e);
             throw new IllegalArgumentException("Chat history update failed");
         }
     }
