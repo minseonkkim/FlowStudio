@@ -34,21 +34,23 @@ import java.util.List;
 @Component
 public class LlmExecutor extends NodeExecutor {
 
-    private static final Logger log = LoggerFactory.getLogger(LlmExecutor.class);
     private final RedisService redisService;
     private final TokenUsageLogRepository tokenUsageLogRepository;
     private final ChatRepository chatRepository;
     private final ChatModelFactory chatModelFactory;
     private final MessageParseUtil messageParseUtil;
+    private final ChatTitleMaker chatTitleMaker;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(LlmExecutor.class);
 
-    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters) {
+    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters, ChatTitleMaker chatTitleMaker) {
         super(redisService, eventPublisher, sseEmitters);
         this.tokenUsageLogRepository = tokenUsageLogRepository;
         this.chatRepository = chatRepository;
         this.redisService = redisService;
         this.chatModelFactory = chatModelFactory;
         this.messageParseUtil = messageParseUtil;
+        this.chatTitleMaker = chatTitleMaker;
     }
 
     @Override
@@ -58,8 +60,6 @@ public class LlmExecutor extends NodeExecutor {
         // 프롬프트 완성
         String promptSystem = messageParseUtil.replace(llmNode.getPromptSystem(), chat.getId());
         String promptUser = messageParseUtil.replace(llmNode.getPromptUser(), chat.getId());
-
-        log.info("promptSystem: {}", promptSystem);
 
         // 모델에게 보낼 메시지 생성
         List<ChatMessage> messageList = new ArrayList<>();
@@ -80,21 +80,10 @@ public class LlmExecutor extends NodeExecutor {
             // 결과 SSE로 전송
             sseEmitters.send(chat.getUser(), llmNode, llmOutputMessage);
 
-            // TODO 제목 만들기 비동기처리
             if (chat.getMessageList().equals("[]")) {
-                List<ChatMessage> titleMessage = new ArrayList<>();
-                titleMessage.add(new SystemMessage("문장을 제목으로 사용할건데 10글자 이하로 요약해"));
-                titleMessage.add(new UserMessage(promptUser));
-
-                Response<AiMessage> titleResponse = chatModel.generate(titleMessage);
-                String title = titleResponse.content().text();
-
-                chat.updateTitle(title);
-
-                sseEmitters.sendTitle(chat, title);
+                chatTitleMaker.makeTitle(chat, chatModel, promptUser);
             }
 
-            // 배포환경 추가 작업
             if (!chat.isPreview()) {
                 // 토큰 사용로그 기록
                 Integer tokenUsage = response.tokenUsage().totalTokenCount();
@@ -103,6 +92,7 @@ public class LlmExecutor extends NodeExecutor {
 
             // 챗 히스토리 업데이트
             updateChatHistory(chat, promptUser, llmOutputMessage);
+
         } catch (OpenAiHttpException e) {
             throw new BaseException(ErrorCode.API_KEY_INVALID);
         }
