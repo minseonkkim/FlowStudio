@@ -8,7 +8,7 @@ interface PopularChatbotCardProps {
   description: string;
   category: string[];
   iconId: string;
-  type?: "my" | "all" | "eval";
+  type?: "my" | "all" | "eval" | "shared";
   onCardClick?: () => void;
   onButtonUpdateClick?: () => void;
   onButtonDeleteClick?: () => void;

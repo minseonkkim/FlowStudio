@@ -16,5 +16,5 @@ export interface ApiKeys {
 export interface TokenUsage {
   id: number;
   tokenUsage: number;
-  createdAt: string
+  date: string;
 }
