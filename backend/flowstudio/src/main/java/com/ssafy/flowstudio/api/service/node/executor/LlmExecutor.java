@@ -72,23 +72,37 @@ public class LlmExecutor extends NodeExecutor {
 
             // 결과 반환
             Response<AiMessage> response = chatModel.generate(messageList);
-            String LlmOutputMessage = response.content().text();
+            String llmOutputMessage = response.content().text();
 
             // 레디스에 결과 저장
-            redisService.save(chat.getId(), node.getId(), LlmOutputMessage);
+            redisService.save(chat.getId(), node.getId(), llmOutputMessage);
 
             // 결과 SSE로 전송
-            sseEmitters.send(chat.getUser(), llmNode, LlmOutputMessage);
+            sseEmitters.send(chat.getUser(), llmNode, llmOutputMessage);
+
+            // TODO 제목 만들기 비동기처리
+            if (chat.getMessageList().equals("[]")) {
+                List<ChatMessage> titleMessage = new ArrayList<>();
+                titleMessage.add(new SystemMessage("문장을 제목으로 사용할건데 10글자 이하로 요약해"));
+                titleMessage.add(new UserMessage(promptUser));
+
+                Response<AiMessage> titleResponse = chatModel.generate(titleMessage);
+                String title = titleResponse.content().text();
+
+                chat.updateTitle(title);
+
+                sseEmitters.sendTitle(chat, title);
+            }
 
             // 배포환경 추가 작업
             if (!chat.isPreview()) {
                 // 토큰 사용로그 기록
                 Integer tokenUsage = response.tokenUsage().totalTokenCount();
                 tokenUsageLogRepository.save(TokenUsageLog.create(chat.getUser(), tokenUsage));
-                // 챗 히스토리 업데이트
-                updateChatHistory(chat, promptUser, LlmOutputMessage);
             }
 
+            // 챗 히스토리 업데이트
+            updateChatHistory(chat, promptUser, llmOutputMessage);
         } catch (OpenAiHttpException e) {
             throw new BaseException(ErrorCode.API_KEY_INVALID);
         }
@@ -120,6 +134,7 @@ public class LlmExecutor extends NodeExecutor {
             // 채팅 기록 업데이트
             chat.updateHistory(updatedChatHistory);
             chatRepository.save(chat);
+
         } catch (Exception e) {
             log.error("Chat history update failed: ", e);
             throw new IllegalArgumentException("Chat history update failed");

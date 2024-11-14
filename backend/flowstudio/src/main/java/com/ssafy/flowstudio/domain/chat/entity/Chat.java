@@ -70,4 +70,9 @@ public class Chat extends BaseEntity {
     public void updateChatFlow(ChatFlow publishChatFlow) {
         this.chatFlow = publishChatFlow;
     }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
 }
