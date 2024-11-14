@@ -1,0 +1,72 @@
+package com.ssafy.flowstudio.api.controller.chatflowtest;
+
+import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequest;
+import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestService;
+import com.ssafy.flowstudio.common.annotation.CurrentUser;
+import com.ssafy.flowstudio.common.payload.ApiResponse;
+import com.ssafy.flowstudio.domain.user.entity.User;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@RestController
+public class ChatFlowTestController {
+
+    private final ChatFlowTestService chatFlowTestService;
+
+    /**
+     * 챗플로우 테스트 목록 조회
+     * @param user
+     * @param chatFlowId
+     * @return
+     */
+    @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/tests")
+    public ApiResponse<Void> getChatFlowTests(
+            @CurrentUser User user,
+            @PathVariable Long chatFlowId
+    ) {
+        chatFlowTestService.getChatFlowTests(user, chatFlowId);
+        return ApiResponse.ok();
+    }
+
+    /**
+     * 챗플로우 테스트 상세 조회
+     * @param user
+     * @param chatFlowId
+     * @return
+     */
+    @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/tests/{chatFlowTestId}")
+    public ApiResponse<Void> getChatFlowTest(
+            @CurrentUser User user,
+            @PathVariable Long chatFlowId,
+            @PathVariable Long chatFlowTestId
+    ) {
+        chatFlowTestService.getChatFlowTest(user, chatFlowId, chatFlowTestId);
+        return ApiResponse.ok();
+    }
+
+    /**
+     * 챗플로우 테스트 생성
+     *
+     * @param user
+     * @param chatFlowId
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/api/v1/chat-flows/{chatFlowId}/tests")
+    public ApiResponse<List<Long>> createChatFlowTest(
+            @CurrentUser User user,
+            @PathVariable Long chatFlowId,
+            @Valid @RequestBody List<ChatFlowTestRequest> request
+    ) {
+        return ApiResponse.ok(chatFlowTestService.createChatFlowTest(user, chatFlowId, request.stream().map(ChatFlowTestRequest::toServiceRequest).toList()));
+    }
+
+}

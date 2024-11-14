@@ -1,6 +1,10 @@
 package com.ssafy.flowstudio.api.controller.sse;
 
-import com.ssafy.flowstudio.api.controller.sse.response.SseResponse;
+import com.ssafy.flowstudio.api.controller.sse.response.SseChatFlowTestPredictionResponse;
+import com.ssafy.flowstudio.api.controller.sse.response.SseChatFlowTestResponse;
+import com.ssafy.flowstudio.api.controller.sse.response.SseNodeResponse;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestResponse;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.api.controller.sse.response.SseTitleResponse;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
@@ -41,7 +45,7 @@ public class SseEmitters {
     }
 
     public void send(User user, Node node) {
-        SseResponse data = SseResponse.from(node);
+        SseNodeResponse data = SseNodeResponse.from(node);
 
         SseEmitter emitter = emitters.get(user.getId());
         if (emitter != null) {
@@ -71,13 +75,43 @@ public class SseEmitters {
     }
 
     public void send(User user, Node node, String message) {
-        SseResponse data = SseResponse.of(node, message);
+        SseNodeResponse data = SseNodeResponse.of(node, message);
 
         SseEmitter emitter = emitters.get(user.getId());
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("node")
+                        .data(data));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void sendChatFlowTestResult(Chat chat, ChatFlowTestResponse response) {
+        SseChatFlowTestResponse data = SseChatFlowTestResponse.of(chat, response);
+
+        SseEmitter emitter = emitters.get(chat.getUser().getId());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("result")
+                        .data(data));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void sendChatFlowTestLlm(Chat chat, String message) {
+        SseChatFlowTestPredictionResponse data = SseChatFlowTestPredictionResponse.of(chat.getId(), message);
+
+        SseEmitter emitter = emitters.get(chat.getUser().getId());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("prediction")
                         .data(data));
             } catch (IOException e) {
                 throw new RuntimeException(e);

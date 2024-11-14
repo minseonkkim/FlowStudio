@@ -41,6 +41,11 @@ public class RedisService {
         return value;
     }
 
+    public void saveTestValue(Long chatId, String value) {
+        String key = "test:" + chatId;
+        redisTemplate.opsForValue().set(key, value);
+    }
+
     public void save(Long chatId, Long nodeId, String value) {
         String key = chatId + ":" + nodeId;
         redisTemplate.opsForValue().set(key, value);

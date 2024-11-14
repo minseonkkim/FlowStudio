@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,13 +29,13 @@ public class ChatFlowTestCase extends BaseEntity {
     @JoinColumn(name = "chat_flow_test_id", nullable = false)
     private ChatFlowTest chatFlowTest;
 
-    @Column(nullable = false)
+    @Lob
     private String question;
 
-    @Column(nullable = false)
+    @Lob
     private String groundTruth;
 
-    @Column
+    @Lob
     private String prediction;
 
     @Column
@@ -57,11 +58,15 @@ public class ChatFlowTestCase extends BaseEntity {
         this.rougeMetric = rougeMetric;
     }
 
-    public static ChatFlowTestCase create(ChatFlowTest chatFlowTest, String question, String groundTruth) {
+    public static ChatFlowTestCase create(ChatFlowTest chatFlowTest, String question, String groundTruth, String prediction, Float embeddingDistance, Float crossEncoder, Float rougeMetric) {
         return ChatFlowTestCase.builder()
                 .chatFlowTest(chatFlowTest)
                 .question(question)
                 .groundTruth(groundTruth)
+                .prediction(prediction)
+                .embeddingDistance(embeddingDistance)
+                .crossEncoder(crossEncoder)
+                .rougeMetric(rougeMetric)
                 .build();
     }
 

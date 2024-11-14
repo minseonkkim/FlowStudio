@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.node.executor;
 
 import com.ssafy.flowstudio.api.controller.sse.SseEmitters;
+import com.ssafy.flowstudio.api.service.chatflowtest.event.ChatFlowTestEvent;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MessageParseUtil;
@@ -39,6 +40,11 @@ public class AnswerExecutor extends NodeExecutor {
 
         // 완성된 메시지를 SSE를 통해 클라이언트에게 전송한다.
         sseEmitters.send(chat.getUser(), answerNode, parsedOutputMessage);
+
+        if(chat.isTest()) {
+            ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
+            publishEvent(event);
+        }
     }
 
     @Override
