@@ -1,17 +1,18 @@
 "use client"; 
 
 import { postChatting } from '@/api/chat';
-import { useMutation } from "@tanstack/react-query";
 import { useRouter } from 'next/navigation';
 import ChatPage from './chat/[id]/page';
 import { useState } from 'react';
+import { useMutation } from "@tanstack/react-query";
+
 
 export default function Home() {
-  const chatFlowId = '1';
+  const chatFlowId = "1"; // 페이지에서 params.id로 받아서 넘겨주기
   const router = useRouter();
-  const [isPreview, setIsPreview] = useState(false); // 미리보기 여부 상태
-  const [data, setData] = useState<{ isPreview: boolean }>({ isPreview: false }); // data를 상태로 관리
-  const [chatId, setChatId] = useState<number | null>(null); 
+  const [isPreview, setIsPreview] = useState(false); 
+  const [, setData] = useState<{ isPreview: boolean }>({ isPreview: false }); 
+  const [chatId, setChatId] = useState<number>()
 
   const createMutation = useMutation({
     mutationFn: ({ chatFlowId, data }: { chatFlowId: string; data: { isPreview: boolean } }) =>
@@ -32,16 +33,17 @@ export default function Home() {
     },
   });
   
+
   const handelPostPreviewChat = () => {
+    setIsPreview(!isPreview);
     setData({ isPreview: true }); 
     createMutation.mutate({ chatFlowId, data: { isPreview: true } }); 
-    setIsPreview(true);
   };
 
   const handelPostDefaultChat = () => {
-    setData({ isPreview: false }); 
-    createMutation.mutate({ chatFlowId, data: { isPreview: false } });
-    setIsPreview(false);
+    // setIsPreview(false);
+    // setData({ isPreview: false }); 
+    // createMutation.mutate({ chatFlowId, data: { isPreview: false } });
     router.push(`/chat/${chatFlowId}`);
   };
 
@@ -55,7 +57,7 @@ export default function Home() {
       </button>
 
       {isPreview && chatId && (
-        <ChatPage customStyle={true} params={{ id: chatId }} /> 
+        <ChatPage customStyle={true} params={{ id: chatFlowId }} chatId={chatId}/> 
       )}
     </div>
   );

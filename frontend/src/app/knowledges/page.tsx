@@ -10,7 +10,6 @@ import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
 import { useRecoilState } from 'recoil';
 import { chunkFileNameState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms'; 
-import  ChatPage  from '@/app/chat/[id]/page'
 
 
 export default function Page() {
@@ -151,7 +150,6 @@ export default function Page() {
           </tbody>
         </table>
       </div>
-      <ChatPage customStyle={true}/>
     </div>
   );
 }

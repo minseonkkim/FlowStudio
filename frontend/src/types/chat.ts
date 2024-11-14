@@ -6,6 +6,6 @@ export interface ChatList {
 export interface getChatListData {
   id: number;
   title: string;
-  thumbnail: string;
+  thumbnail: number;
   chats: ChatList[]; 
 }
