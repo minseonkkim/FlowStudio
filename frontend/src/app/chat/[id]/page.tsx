@@ -13,7 +13,6 @@ type ChatPageProps = {
 
 export default function chatpage({ customStyle = "default", params }: ChatPageProps) {
   const chatFlowId = params.id;
-  
 
   return customStyle === "preview" ? (
     <PreviewChat chatFlowId={chatFlowId} />

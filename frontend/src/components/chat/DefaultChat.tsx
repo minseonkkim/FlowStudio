@@ -2,18 +2,13 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
-import { useQuery, useMutation, UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { postMessage, postChatting, getChatting } from "@/api/chat";
-import { getChatDetailList } from "@/types/chat"
+import { postMessage, postChatting, getChatting, getChattingList } from "@/api/chat";
+import { getChatDetailList, getChatListData, Message } from "@/types/chat";
 import SideBar from "@/components/chat/SideBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-type Message = {
-  text: string;
-  sender: "user" | "server";
-};
 
 type DefaultChatProps = {
   chatFlowId: string;
@@ -22,19 +17,23 @@ type DefaultChatProps = {
 export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [defaultChatId, setDefaultChatId] = useState<number>();
+  const [defaultChatId, setDefaultChatId] = useState<number | null>(null);
   const [isSSEConnected, setIsSSEConnected] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
+  const [title, setTitle] = useState<string>("새 대화");
+  const [, setChatlist] = useState<getChatListData | undefined>();
+  
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const [title, setTitle] = useState<string>("새 대화");
-  const [selectedChatId, setSelectedChatId] = useState<number>();
+
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // SSE 연결 함수
   const initializeSSE = (token: string) => {
     const sse = new EventSourcePolyfill(`${BASE_URL}/sse/connect`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -47,20 +46,23 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     };
     
     sse.addEventListener("heartbeat", (event) => {
-      const data = (event as MessageEvent).data;
-      console.log(data)
-    
+      console.log("Received heartbeat:", (event as MessageEvent).data);
     });
 
-    sse.addEventListener("title", (event) => {
+    sse.addEventListener("title", async (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      console.log(data);
-    });
-
+      setTitle(data.title);
+    
+      const updatedChatlist = await queryClient.fetchQuery<getChatListData>({
+        queryKey: ['chatlist', chatFlowId],
+        queryFn: () => getChattingList(chatFlowId),
+      });
+      
+      setChatlist(updatedChatlist as getChatListData);})
+      
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      console.log(data);
       if (data.type === "ANSWER") {
         setMessages((prev) => [...prev.slice(0, -1), { text: data.message, sender: "server" }]);
       }
@@ -72,14 +74,15 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     };
   };
 
+  // 새로운 채팅 생성
   const createChatMutation = useMutation({
     mutationFn: (data: { isPreview: boolean }) => postChatting(chatFlowId, data),
     onSuccess: (response) => {
       const newChatId = response.data.data.id;
       setDefaultChatId(newChatId);
 
+
       const accessToken = response.headers["authorization"] || localStorage.getItem("accessToken");
-      console.log(accessToken);
       if (accessToken) {
         initializeSSE(accessToken);
         if (pendingMessage) {
@@ -87,6 +90,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
           sendMessageMutation.mutate({ chatId: String(newChatId), message: pendingMessage });
           setPendingMessage(null);
         }
+        setTitle('새 대화')
       } else {
         console.error("SSE 연결을 위한 토큰이 없습니다.");
       }
@@ -113,6 +117,8 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     }
   };
 
+
+
   const sendMessageMutation = useMutation({
     mutationFn: (data: { chatId: string; message: string }) => postMessage(data.chatId, { message: data.message }),
     onError: () => {
@@ -135,25 +141,23 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     }
   };
 
-
-// 채팅 상세보기 
+  // 채팅 상세보기 쿼리
   const { isError, error, data: chatDetail } = useQuery<getChatDetailList>({
-      queryKey: ["chatDetail", chatFlowId, selectedChatId],
-      queryFn: () => getChatting(chatFlowId, String(selectedChatId!)),
-      enabled: !!selectedChatId,
-    });
+    queryKey: ["chatDetail", chatFlowId, defaultChatId],
+    queryFn: () => getChatting(chatFlowId, String(defaultChatId!)),
+    enabled: !!defaultChatId,
+  });
 
   useEffect(() => {
     if (isError && error) {
       alert("채팅내역을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
-  
+
   useEffect(() => {
     if (chatDetail) {
       try {
         const parsedMessageList = JSON.parse(chatDetail.messageList);
-        console.log(parsedMessageList)
         
         setMessages(
           parsedMessageList
@@ -163,35 +167,40 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             ])
             .flat()
         );
-  
-        setTitle(chatDetail.title);
+        if(chatDetail.title != null) {
+          setTitle(chatDetail.title);
+        } else {
+          setTitle('새 대화');
+        }
       } catch (error) {
         console.error("messageList 파싱 오류:", error);
       }
     }
   }, [chatDetail]);
-  
-  
-  
-  // Sidebar에서 선택된 채팅 ID를 설정하는 함수
+
   const handleSelectChat = (chatId: number) => {
-    setSelectedChatId(chatId);
     setDefaultChatId(chatId);
   };
 
-  
   const onNewChat = () => {
-    setMessages([]); 
-    createChatMutation.mutate({ isPreview: false }); // 새 채팅 생성 로직을 호출합니다
+    setMessages([]);
+    createChatMutation.mutate({ isPreview: false });
   };
+
+  const onDeleteNewChat = () =>{
+    setMessages([]); 
+    setDefaultChatId(undefined)
+    handleSendMessage()
+    setTitle('새 대화')
+    
+  }
 
   return (
     <div className="flex h-screen">
       <div className="w-64 flex-shrink-0">
-        <SideBar onNewChat={onNewChat} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} />
+        <SideBar onNewChat={onNewChat} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} onDeleteNewChat={onDeleteNewChat} selectedChatId={defaultChatId} />
       </div>
 
-      {/* 채팅 영역 */}
       <div className="flex flex-col flex-grow bg-gray-50">
         <div className="border-b p-4 bg-white text-[18px]">{title}</div>
         <div className="flex-grow h-0 px-14 pt-6 space-y-8 overflow-y-auto">

@@ -16,3 +16,7 @@ export interface getChatDetailList {
   messageList: string
 }
 
+export interface Message {
+  text: string;
+  sender: "user" | "server";
+};

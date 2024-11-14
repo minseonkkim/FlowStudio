@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { getChattingList, deleteChatting } from '@/api/chat';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getChatListData } from '@/types/chat';
@@ -15,15 +15,24 @@ type SidebarProps = {
   onNewChat: () => void;
   chatFlowId: string;
   onSelectChat: (chatId: number) => void;
+  onDeleteNewChat: () => void;
+  selectedChatId: number | null
 };
 
-export default function Sidebar({ onNewChat, chatFlowId, onSelectChat }: SidebarProps) {
+export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteNewChat, selectedChatId }: SidebarProps) {
   const queryClient = useQueryClient();
+  const [localSelectedChatId, setLocalSelectedChatId] = useState<number | null>(null); 
+
+  useEffect(() => {
+    setLocalSelectedChatId(selectedChatId);
+}, [selectedChatId]);
 
   const { isError, error, data: chatlist } = useQuery<getChatListData>({
     queryKey: ['chatlist', chatFlowId],
     queryFn: () => getChattingList(chatFlowId), 
   });
+
+
 
   useEffect(() => {
     if (isError && error) {
@@ -35,19 +44,22 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat }: Sidebar
     mutationFn: (chatId: string) => deleteChatting(chatFlowId, chatId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatlist', chatFlowId] });
+      setLocalSelectedChatId(null); 
+      onDeleteNewChat();
     },
     onError: () => {
       alert("채팅 삭제에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
+
   const handleDeleteClick = (chatId: string) => {
     deleteMutation.mutate(chatId);
   };
 
   const handleChatClick = (chatId: number) => {
+    setLocalSelectedChatId(chatId);
     onSelectChat(chatId);
-  }
+  };
 
   const thumbnailImages: { [key: number]: StaticImageData } = {
     1: one,
@@ -72,7 +84,10 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat }: Sidebar
       </div>
       
       <button
-        onClick={onNewChat}
+        onClick={() => {
+          onNewChat();
+          setLocalSelectedChatId(null); 
+        }}
         className="mb-4 w-full py-2 px-4 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-100"
       >
         새 채팅
@@ -82,13 +97,18 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat }: Sidebar
         {chatlist?.chats?.map((chat) => (
           <div 
             key={chat.id} 
-            className="p-2 border rounded-lg shadow-sm bg-gray-50 flex justify-between items-center hover:bg-[#E1D5F2] group"
+            className={`p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
+              localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
+            }`}
             onClick={() => handleChatClick(chat.id)}
           >
             <div className="text-gray-700">{chat.title}</div>
             <CgTrash  
               className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={() => handleDeleteClick(String(chat.id))}
+              onClick={(e) => {
+                e.stopPropagation(); 
+                handleDeleteClick(String(chat.id));
+              }}
             />
           </div>
         ))}

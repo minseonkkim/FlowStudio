@@ -5,13 +5,9 @@ import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
 import { useMutation } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { postMessage, postChatting } from "@/api/chat";
+import { Message } from '@/types/chat'
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-type Message = {
-  text: string;
-  sender: "user" | "server";
-};
 
 type PreviewChatProps = {
   chatFlowId: string;
@@ -33,6 +29,10 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
     });
 
     sse.onopen = () => console.log("SSE 연결이 성공적으로 열렸습니다.");
+
+    sse.addEventListener("heartbeat", (event) => {
+      console.log("Received heartbeat:", (event as MessageEvent).data);
+    });
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
