@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.chatflowtest.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
+import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +36,7 @@ public class ChatFlowTest extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_flow_id", nullable = false)
-    private ChatFlowTest chatFlow;
+    private ChatFlow chatFlow;
 
     @Column
     private Float embeddingDistanceMean;
@@ -56,7 +57,7 @@ public class ChatFlowTest extends BaseEntity {
     private Float rougeMetricVariance;
 
     @Builder
-    private ChatFlowTest(Long id, User user, ChatFlowTest chatFlow, Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
+    private ChatFlowTest(Long id, User user, ChatFlow chatFlow, Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
         this.id = id;
         this.user = user;
         this.chatFlow = chatFlow;
@@ -68,17 +69,19 @@ public class ChatFlowTest extends BaseEntity {
         this.rougeMetricVariance = rougeMetricVariance;
     }
 
-    public static ChatFlowTest create(User user, ChatFlowTest chatFlow, Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
+    public static ChatFlowTest create(User user, ChatFlow chatFlow) {
         return ChatFlowTest.builder()
                 .user(user)
                 .chatFlow(chatFlow)
-                .embeddingDistanceMean(embeddingDistanceMean)
-                .embeddingDistanceVariance(embeddingDistanceVariance)
-                .crossEncoderMean(crossEncoderMean)
-                .crossEncoderVariance(crossEncoderVariance)
-                .rougeMetricMean(rougeMetricMean)
-                .rougeMetricVariance(rougeMetricVariance)
                 .build();
     }
 
+    public void updateResult(Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
+        this.embeddingDistanceMean = embeddingDistanceMean;
+        this.embeddingDistanceVariance = embeddingDistanceVariance;
+        this.crossEncoderMean = crossEncoderMean;
+        this.crossEncoderVariance = crossEncoderVariance;
+        this.rougeMetricMean = rougeMetricMean;
+        this.rougeMetricVariance = rougeMetricVariance;
+    }
 }

@@ -13,4 +13,10 @@ public class ChatMessageServiceRequest {
         this.message = message;
     }
 
+    public static ChatMessageServiceRequest from(String testQuestion) {
+        return ChatMessageServiceRequest.builder()
+                .message(testQuestion)
+                .build();
+    }
+
 }

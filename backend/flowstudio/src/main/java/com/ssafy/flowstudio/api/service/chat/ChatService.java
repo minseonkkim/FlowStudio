@@ -5,13 +5,10 @@ import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import com.ssafy.flowstudio.api.service.chat.response.ChatCreateResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
-import com.ssafy.flowstudio.common.constant.AuthConst;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.security.jwt.JWTService;
-import com.ssafy.flowstudio.common.security.jwt.JwtProperties;
 import com.ssafy.flowstudio.common.security.jwt.JwtToken;
-import com.ssafy.flowstudio.common.util.CookieUtils;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chat.repository.ChatRepository;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
@@ -23,8 +20,10 @@ import com.ssafy.flowstudio.publish.PublishService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class ChatService {
     private final UserRepository userRepository;
 
     private final JWTService jwtService;
-    private final JwtProperties properties;
     private final PublishService publishService;
 
     @Transactional
@@ -95,7 +93,6 @@ public class ChatService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
         List<Chat> chats = chatRepository.findByChatFlowAndUser(chatFlow, user);
-        System.out.println("chats = " + chats.size());
 
         return ChatListResponse.of(chatFlow, chats);
     }

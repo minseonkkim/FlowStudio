@@ -2,16 +2,9 @@ package com.ssafy.flowstudio.domain.chat.entity;
 
 import com.ssafy.flowstudio.domain.BaseEntity;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTest;
 import com.ssafy.flowstudio.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,14 +37,30 @@ public class Chat extends BaseEntity {
     @Lob
     private String messageList;
 
+    @Transient
+    private ChatFlowTest chatFlowTest;
+
+    @Transient
+    private String testQuestion;
+
+    @Transient
+    private String groundTruth;
+
+    @Transient
+    private boolean isTest;
+
     @Builder
-    private Chat(Long id, User user, ChatFlow chatFlow, String title, boolean isPreview, String messageList) {
+    private Chat(Long id, User user, ChatFlow chatFlow, String title, boolean isPreview, String messageList, ChatFlowTest chatFlowTest, String testQuestion, String groundTruth, boolean isTest) {
         this.id = id;
         this.user = user;
         this.chatFlow = chatFlow;
         this.title = title;
         this.isPreview = isPreview;
         this.messageList = messageList;
+        this.chatFlowTest = chatFlowTest;
+        this.testQuestion = testQuestion;
+        this.groundTruth = groundTruth;
+        this.isTest = isTest;
     }
 
     public static Chat create(User user, ChatFlow chatFlow, boolean isPreview) {
@@ -60,6 +69,19 @@ public class Chat extends BaseEntity {
                 .chatFlow(chatFlow)
                 .isPreview(isPreview)
                 .messageList("[]")
+                .build();
+    }
+
+    public static Chat createTestChat(User user, ChatFlow chatFlow, boolean isPreview, ChatFlowTest chatFlowTest, String testQuestion, String groundTruth) {
+        return Chat.builder()
+                .user(user)
+                .chatFlow(chatFlow)
+                .isPreview(isPreview)
+                .messageList("[]")
+                .chatFlowTest(chatFlowTest)
+                .testQuestion(testQuestion)
+                .groundTruth(groundTruth)
+                .isTest(true)
                 .build();
     }
 
