@@ -14,9 +14,10 @@ import six from '../../../public/chatbot-icon/6.jpg';
 type SidebarProps = {
   onNewChat: () => void;
   chatFlowId: string;
+  onSelectChat: (chatId: number) => void;
 };
 
-export default function Sidebar({ onNewChat, chatFlowId }: SidebarProps) {
+export default function Sidebar({ onNewChat, chatFlowId, onSelectChat }: SidebarProps) {
   const queryClient = useQueryClient();
 
   const { isError, error, data: chatlist } = useQuery<getChatListData>({
@@ -43,6 +44,10 @@ export default function Sidebar({ onNewChat, chatFlowId }: SidebarProps) {
   const handleDeleteClick = (chatId: string) => {
     deleteMutation.mutate(chatId);
   };
+
+  const handleChatClick = (chatId: number) => {
+    onSelectChat(chatId);
+  }
 
   const thumbnailImages: { [key: number]: StaticImageData } = {
     1: one,
@@ -78,6 +83,7 @@ export default function Sidebar({ onNewChat, chatFlowId }: SidebarProps) {
           <div 
             key={chat.id} 
             className="p-2 border rounded-lg shadow-sm bg-gray-50 flex justify-between items-center hover:bg-[#E1D5F2] group"
+            onClick={() => handleChatClick(chat.id)}
           >
             <div className="text-gray-700">{chat.title}</div>
             <CgTrash  

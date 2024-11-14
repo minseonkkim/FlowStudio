@@ -9,3 +9,10 @@ export interface getChatListData {
   thumbnail: number;
   chats: ChatList[]; 
 }
+
+export interface getChatDetailList {
+  id: number;
+  title: string;
+  messageList: string
+}
+

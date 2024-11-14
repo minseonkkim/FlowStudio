@@ -2,9 +2,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, UseQueryOptions } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { postMessage, postChatting } from "@/api/chat";
+import { postMessage, postChatting, getChatting } from "@/api/chat";
+import { getChatDetailList } from "@/types/chat"
 import SideBar from "@/components/chat/SideBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -28,8 +29,8 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const [title, setTitle] = useState<string>("새 대화");
+  const [selectedChatId, setSelectedChatId] = useState<number>();
 
-  // Scroll to the bottom whenever messages change
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -45,6 +46,11 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       setIsSSEConnected(true);
     };
     
+    sse.addEventListener("heartbeat", (event) => {
+      const data = (event as MessageEvent).data;
+    
+    });
+
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       console.log(data);
@@ -122,10 +128,59 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     }
   };
 
+
+
+  const { isError, error, data: chatDetail } = useQuery<getChatDetailList>(
+    {
+      queryKey: ["chatDetail", chatFlowId, selectedChatId],
+      queryFn: () => getChatting(chatFlowId, String(selectedChatId!)),
+      enabled: !!selectedChatId,
+    }
+  );
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("채팅내역을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+  
+
+  useEffect(() => {
+    if (chatDetail) {
+      try {
+        const parsedMessageList = JSON.parse(chatDetail.messageList);
+        console.log(parsedMessageList)
+        
+        setMessages(
+          parsedMessageList
+            .map((msg: { question: string; answer: string; }) => [
+              { text: msg.question, sender: "user" as const },
+              { text: msg.answer, sender: "server" as const },
+            ])
+            .flat()
+        );
+  
+        setTitle(chatDetail.title);
+      } catch (error) {
+        console.error("messageList 파싱 오류:", error);
+      }
+    }
+  }, [chatDetail]);
+  
+  
+  
+  
+  // Sidebar에서 선택된 채팅 ID를 설정하는 함수
+  const handleSelectChat = (chatId: number) => {
+    setSelectedChatId(chatId);
+    setDefaultChatId(chatId);
+  };
+
+  
   return (
     <div className="flex h-screen">
       <div className="w-64 flex-shrink-0">
-        <SideBar onNewChat={() => setMessages([])} chatFlowId={chatFlowId} />
+        <SideBar onNewChat={() => setMessages([])} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} />
       </div>
 
       {/* 채팅 영역 */}

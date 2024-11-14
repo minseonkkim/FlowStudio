@@ -61,7 +61,7 @@ export async function deleteChatting(chatFlowId: string, chatId: string) {
   }
 }
 
-// 챗봇 발행 -> 아직 api 안나옴
+// 챗봇 발행
 export async function postChatBot(chatFlowId: string) {
   try {
     const response = await axiosInstance.post(`/chat-flows/${chatFlowId}/publish`);
