@@ -227,7 +227,7 @@ public class ChatFlowService {
         );
 
         // 자신이 원작자인 챗봇만 업로드할 수 있다.
-        if (isUpload && !chatFlow.getAuthor().equals(client)) {
+        if (isUpload && client.getId().longValue() != chatFlow.getAuthor().getId().longValue()) {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
