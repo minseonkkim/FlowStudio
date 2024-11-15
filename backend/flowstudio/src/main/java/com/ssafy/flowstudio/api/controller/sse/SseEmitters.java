@@ -1,11 +1,7 @@
 package com.ssafy.flowstudio.api.controller.sse;
 
-import com.ssafy.flowstudio.api.controller.sse.response.SseChatFlowTestPredictionResponse;
-import com.ssafy.flowstudio.api.controller.sse.response.SseChatFlowTestResponse;
-import com.ssafy.flowstudio.api.controller.sse.response.SseNodeResponse;
+import com.ssafy.flowstudio.api.controller.sse.response.*;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestResponse;
-import com.ssafy.flowstudio.domain.chat.entity.Chat;
-import com.ssafy.flowstudio.api.controller.sse.response.SseTitleResponse;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -16,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -90,14 +87,29 @@ public class SseEmitters {
         }
     }
 
-    public void sendChatFlowTestResult(Chat chat, ChatFlowTestResponse response) {
-        SseChatFlowTestResponse data = SseChatFlowTestResponse.of(chat, response);
+    public void sendChatFlowTestCaseResult(Chat chat, ChatFlowTestResponse response) {
+        SseChatFlowTestCaseResponse data = SseChatFlowTestCaseResponse.of(chat, response);
 
         SseEmitter emitter = emitters.get(chat.getUser().getId());
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
-                        .name("result")
+                        .name("testCase")
+                        .data(data));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void sendChatFlowTestResult(Chat chat, List<Float> result) {
+        SseChatFlowTestResponse data = SseChatFlowTestResponse.of(result);
+
+        SseEmitter emitter = emitters.get(chat.getUser().getId());
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("testResult")
                         .data(data));
             } catch (IOException e) {
                 throw new RuntimeException(e);
