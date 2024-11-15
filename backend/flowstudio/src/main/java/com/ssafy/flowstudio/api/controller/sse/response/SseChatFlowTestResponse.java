@@ -1,32 +1,39 @@
 package com.ssafy.flowstudio.api.controller.sse.response;
 
-import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestResponse;
-import com.ssafy.flowstudio.domain.chat.entity.Chat;
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 public class SseChatFlowTestResponse {
 
-    private final Long chatId;
-    private final Float embeddingDistance;
-    private final Float crossEncoder;
-    private final Float rougeMetric;
+    private final Float embeddingDistanceMean;
+    private final Float embeddingDistanceVariance;
+    private final Float crossEncoderMean;
+    private final Float crossEncoderVariance;
+    private final Float rougeMetricMean;
+    private final Float rougeMetricVariance;
 
     @Builder
-    private SseChatFlowTestResponse(Long chatId, Float embeddingDistance, Float crossEncoder, Float rougeMetric) {
-        this.chatId = chatId;
-        this.embeddingDistance = embeddingDistance;
-        this.crossEncoder = crossEncoder;
-        this.rougeMetric = rougeMetric;
+    private SseChatFlowTestResponse(Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
+        this.embeddingDistanceMean = embeddingDistanceMean;
+        this.embeddingDistanceVariance = embeddingDistanceVariance;
+        this.crossEncoderMean = crossEncoderMean;
+        this.crossEncoderVariance = crossEncoderVariance;
+        this.rougeMetricMean = rougeMetricMean;
+        this.rougeMetricVariance = rougeMetricVariance;
     }
 
-    public static SseChatFlowTestResponse of(Chat chat, ChatFlowTestResponse chatFlowTestResponse) {
+    public static SseChatFlowTestResponse of(List<Float> results) {
         return SseChatFlowTestResponse.builder()
-                .chatId(chat.getId())
-                .embeddingDistance(chatFlowTestResponse.getEmbeddingDistance())
-                .crossEncoder(chatFlowTestResponse.getCrossEncoder())
-                .rougeMetric(chatFlowTestResponse.getRougeMetric())
+                .embeddingDistanceMean(results.get(0))
+                .embeddingDistanceVariance(results.get(1))
+                .crossEncoderMean(results.get(2))
+                .crossEncoderVariance(results.get(3))
+                .rougeMetricMean(results.get(4))
+                .rougeMetricVariance(results.get(5))
                 .build();
     }
 

@@ -54,13 +54,14 @@ public class ChatFlowTestEventListener {
         chatFlowTestRepository.save(chatFlowTest);
 
         // 결과 전송
-        sseEmitters.sendChatFlowTestResult(chat, chatFlowTestResponse);
+        sseEmitters.sendChatFlowTestCaseResult(chat, chatFlowTestResponse);
 
         // 테스트 종료시 통계 계산
         if (chatFlowTest.isCompleted()) {
-            System.out.println("chatFlowTest.isCompleted() = " + chatFlowTest.isCompleted());
             List<Float> result = statisticCalculator.calculate(chatFlowTest.getChatFlowTestCases());
             chatFlowTest.updateResult(result);
+
+            sseEmitters.sendChatFlowTestResult(chat, result);
 
             chatFlowTestRepository.save(chatFlowTest);
         }
