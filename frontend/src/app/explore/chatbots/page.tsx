@@ -11,7 +11,7 @@ import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Page() {
-  const { isLoading, isError, error, data: chatFlows } = useQuery<SharedChatFlow[]>({
+  const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
     queryKey: ["sharedChatFlows"],
     queryFn: () => getSharedChatFlows(),
   });

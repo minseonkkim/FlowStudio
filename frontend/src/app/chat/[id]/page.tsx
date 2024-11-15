@@ -13,12 +13,13 @@ import remarkGfm from "remark-gfm";
 
 
 type ChatPageProps = {
-  customStyle?: boolean;
+  customStyle?: boolean; 
   params: {
     id: string;
   };
-  chatId: number
+  chatId: number;
 };
+
 
 const ChatPage: React.FC<ChatPageProps> = ({ customStyle = false, params, chatId}) => {
   const chatFlowId = params.id;
@@ -88,11 +89,16 @@ const ChatPage: React.FC<ChatPageProps> = ({ customStyle = false, params, chatId
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      e.shiftKey ? setInput(input + "\n") : sendMessage();
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (e.shiftKey) {
+      setInput(input + "\n");
+    } else {
+      sendMessage();
     }
-  };
+  }
+};
+
 
   return (
     <div

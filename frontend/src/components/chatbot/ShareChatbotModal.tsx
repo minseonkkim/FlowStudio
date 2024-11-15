@@ -1,7 +1,8 @@
-import { getAllChatFlows, getChatFlow } from '@/api/chatbot';
+import { getChatFlow } from '@/api/chatbot';
 import { putDocKnowledge } from '@/api/knowledge';
 import { postUploadChatFlow } from '@/api/share';
 import {ChatFlowDetail, NodeData } from '@/types/chatbot';
+import { KnowledgeData } from '@/types/knowledge';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
@@ -47,17 +48,20 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
     },
   });
 
-  const [knowledgeArray, setKnowledgeArray] = useState<any[]>([]);
+  const [knowledgeArray, setKnowledgeArray] = useState<KnowledgeData[]>([]);
 
   useEffect(() => {
     if (chatFlow && chatFlow.nodes) {
       const knowledgeArray = chatFlow.nodes
-            .filter((node: NodeData) => node.type === "RETRIEVER")
-            .map((node: NodeData) => node.knowledge);
+        .filter((node: NodeData) => node.type === "RETRIEVER" && node.knowledge)
+        .map((node: NodeData) => node.knowledge)
+        .filter((knowledge): knowledge is KnowledgeData => knowledge !== undefined);
+
       console.log('지식리스트', knowledgeArray);
       setKnowledgeArray(knowledgeArray);
     }
   }, [chatFlow, chatFlowId]);
+
 
   const handleTogglePublic = (id: number, title: string, isPublic: boolean) => {
     console.log(isPublic)

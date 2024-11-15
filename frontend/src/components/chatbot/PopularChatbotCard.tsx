@@ -91,14 +91,15 @@ export default function PopularChatbotCard({
           height={40}
           className="rounded-lg border border-gray-300"
         />
-        <p className="text-[16px]">{title}</p>
+        <p className="text-[16px] line-clamp-1 overflow-hidden">{title}</p>
       </div>
 
       <div className="flex flex-col h-[108px] justify-between">
-        <p className="text-[14px] text-[#667085]">{description}</p>
+        <p className="text-[14px] text-[#667085] line-clamp-3 overflow-hidden">{description}</p>
+
 
         <div className="flex justify-between items-center h-[40px]">
-          <div className="flex gap-1 flex-wrap">
+          <div className="line-clamp-1 overflow-hidden">
             {category.map((cat) => (
               <span key={cat} className="text-[13px] pr-2 text-[#667085]">
                 # {cat}

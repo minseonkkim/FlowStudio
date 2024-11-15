@@ -9,3 +9,5 @@ export interface getChatListData {
   thumbnail: number;
   chats: ChatList[]; 
 }
+
+export type CustomStyle = "preview" | "default"

@@ -69,13 +69,16 @@ export default function ChatbotCard({
           <p className="mb-1 text-[16px] text-[#1D2939]">{title}</p>
 
           <div className="flex justify-between items-center">
-            <p className="text-[14px] text-[#667085]">{description}</p>
-            <div className="flex gap-1 flex-wrap">
-              {category.map((cat) => (
-                <span key={cat} className="text-[13px] p-2 py-1 text-[#667085]">
-                  # {cat}
-                </span>
-              ))}
+            <p className="w-[70%] text-[14px] text-[#667085] line-clamp-1 overflow-hidden">{description}</p>
+            <div className="w-[30%] flex gap-1 flex-row">
+              <div className="w-[98%] line-clamp-1 overflow-hidden text-end">
+                {category.map((cat) => (
+                  <span key={cat} className="text-[13px] p-2 py-1 text-[#667085]">
+                    # {cat}
+                  </span>
+                ))}
+              </div>
+              
               {type === "all" && (
                 <button onClick={handleDownloadClick}>
                   <BsDownload
