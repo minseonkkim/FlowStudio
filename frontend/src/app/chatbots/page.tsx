@@ -19,15 +19,33 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+<<<<<<< Updated upstream
   const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
+=======
+  const [isViewingShared, setIsViewingShared] = useState(false); // 공유 챗봇 보기 모드 상태 추가
+  const [sharedChatFlows, setSharedChatFlows] = useState<ChatFlow[]>([]); // 공유 챗봇 상태 추가
+  const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
+>>>>>>> Stashed changes
   const router = useRouter();
   const queryClient = useQueryClient();
 
+
   const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
-    queryKey: ['chatFlows'],
-    queryFn: getAllChatFlows,
+    queryKey: ['chatFlows', isViewingShared], 
+    queryFn: () => getAllChatFlows(isViewingShared), 
   });
 
+<<<<<<< Updated upstream
+=======
+
+  // // 공유 챗봇 데이터 요청
+  // useEffect(() => {
+  //   if (isViewingShared) {
+  //     getSharedChatFlows().then((data) => setSharedChatFlows(data));
+  //   }
+  // }, [isViewingShared]);
+
+>>>>>>> Stashed changes
   useEffect(() => {
     if (isError && error) {
       alert("챗봇을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -75,6 +93,7 @@ export default function Page() {
     deleteMutation.mutate(chatFlowId);
   };
 
+<<<<<<< Updated upstream
   const filteredChatFlows = chatFlows?.filter((bot) => {
     const matchesCategory =
       selectedCategory === "모든 챗봇" ||
@@ -84,6 +103,17 @@ export default function Page() {
       .includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+=======
+  // const filteredData = (isViewingShared ? sharedChatFlows : chatFlows)?.filter((bot) => {
+  //   const matchesCategory =
+  //     selectedCategory === "모든 챗봇" ||
+  //     bot.categories.some((category) => category.name === selectedCategory);
+  //   const matchesSearch = bot.title
+  //     .toLowerCase()
+  //     .includes(searchTerm.toLowerCase());
+  //   return matchesCategory && matchesSearch;
+  // });
+>>>>>>> Stashed changes
 
   return (
     <div className="px-4 md:px-12 py-10">
@@ -124,9 +154,14 @@ export default function Page() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
+<<<<<<< Updated upstream
         {filteredChatFlows?.map((bot) => (
+=======
+        {chatFlows?.map((bot) => (
+>>>>>>> Stashed changes
           <PopularChatbotCard
             key={bot.chatFlowId}
+            chatbotId={bot.chatFlowId}
             iconId={bot.thumbnail}
             title={bot.title}
             description={bot.description}
@@ -136,8 +171,16 @@ export default function Page() {
               console.log("클릭");
               router.push(`/chatbot/${bot.chatFlowId}/workflow`)}}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
+<<<<<<< Updated upstream
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => setIsShareModalOpen(true)}
+=======
+            // onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
+            onButtonShareClick={() => {
+              setSelectedChatbot(bot);
+              setIsShareModalOpen(true);
+            }}
+>>>>>>> Stashed changes
           />
         ))}
       </div>
@@ -161,10 +204,14 @@ export default function Page() {
           onClick={() => setIsShareModalOpen(false)}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <ShareChatbotModal onClose={() => setIsShareModalOpen(false)} />
+            <ShareChatbotModal
+              onClose={() => setIsShareModalOpen(false)}
+              chatFlowId={selectedChatbot?.chatFlowId || 0}
+            />
           </div>
         </div>
       )}
+
     </div>
   );
 }
