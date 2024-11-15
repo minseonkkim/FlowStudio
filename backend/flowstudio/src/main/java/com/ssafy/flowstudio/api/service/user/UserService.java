@@ -5,20 +5,23 @@ import com.ssafy.flowstudio.api.service.user.response.TokenUsageLogResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.security.jwt.JWTService;
+import com.ssafy.flowstudio.common.security.jwt.JwtToken;
 import com.ssafy.flowstudio.common.service.S3ImageService;
 import com.ssafy.flowstudio.domain.user.entity.TokenUsageLog;
 import com.ssafy.flowstudio.domain.user.entity.TokenUsageLogRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
@@ -29,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3ImageService s3ImageService;
     private final TokenUsageLogRepository tokenUsageLogRepository;
+    private final JWTService jwtService;
 
     public UserResponse getUser(User user) {
         User findUser = userRepository.findByUsername(user.getUsername()).orElseThrow(
@@ -86,4 +90,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public UserResponse createAnonymousUser(HttpServletResponse servletResponse) {
+        String username = "anonymous " + UUID.randomUUID().toString().substring(0, 10);
+        User user = User.createAnonymous(username);
+        userRepository.save(user);
+        Collection<GrantedAuthority> collection = new ArrayList<>();
+        collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS");
+
+        JwtToken token = jwtService.generateToken(user.getUsername(), collection);
+        servletResponse.setHeader("Authorization", token.getAccessToken());
+
+        return UserResponse.from(user);
+    }
 }

@@ -162,7 +162,7 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                 .isPreview(true)
                 .build();
 
-        given(chatService.createChat(any(User.class), anyLong(), any(), any()))
+        given(chatService.createChat(any(User.class), anyLong(), any()))
                 .willReturn(response);
 
         // when

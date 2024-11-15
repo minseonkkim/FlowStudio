@@ -25,8 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -72,6 +71,54 @@ public class UserControllerDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("User")
                                 .summary("유저 정보 확인")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data.id").type(JsonFieldType.NUMBER)
+                                                .description("유저 아이디"),
+                                        fieldWithPath("data.username").type(JsonFieldType.STRING)
+                                                .description("로그인한 아이디"),
+                                        fieldWithPath("data.nickname").type(JsonFieldType.STRING)
+                                                .description("닉네임"),
+                                        fieldWithPath("data.profileImage").type(JsonFieldType.STRING)
+                                                .description("프로필 이미지")
+                                )
+                                .build())));
+    }
+
+    @DisplayName("익명 유저를 생성한다")
+    @Test
+    public void createAnonymousUser() throws Exception {
+        // given
+        UserResponse response = UserResponse.builder()
+                .id(1L)
+                .username("anonymous 1309dn23")
+                .nickname("anonymous")
+                .profileImage("")
+                .build();
+
+        given(userService.createAnonymousUser(any()))
+                .willReturn(response);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                post("/api/v1/users/anonymous")
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("create-anonymous-user",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("User")
+                                .summary("익명 유저 생성")
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),
