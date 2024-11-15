@@ -22,8 +22,12 @@ export default function Page() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isViewingShared, setIsViewingShared] = useState(false);
   const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
-  const [itemsToLoad, setItemsToLoad] = useState(20); // Number of items to load
-  const [isCategoryFixed, setIsCategoryFixed] = useState(false); // State to track if the category bar is fixed
+  const [itemsToLoad, setItemsToLoad] = useState(20);
+  const [isCategoryFixed, setIsCategoryFixed] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [chatFlowIdToDelete, setChatFlowIdToDelete] = useState<number | null>(null);
+  const [chatFlowTitleToDelete, setChatFlowTitleToDelete] = useState<string>("");
+
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -48,17 +52,15 @@ export default function Page() {
     },
   });
 
-  // Infinite scroll logic
   useEffect(() => {
     const handleScroll = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100
       ) {
-        setItemsToLoad((prev) => prev + 16); // Load 20 more items
+        setItemsToLoad((prev) => prev + 16);
       }
 
-      // Logic to fix the category bar
       if (window.scrollY >= 57) {
         setIsCategoryFixed(true);
       } else {
@@ -97,8 +99,21 @@ export default function Page() {
     setIsCreateModalOpen(true);
   };
 
-  const handleDeleteClick = (chatFlowId: number) => {
-    deleteMutation.mutate(chatFlowId);
+  const handleDeleteClick = (chatFlowId: number, chatFlowTitle: string) => {
+    setChatFlowIdToDelete(chatFlowId);
+    setChatFlowTitleToDelete(chatFlowTitle);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (chatFlowIdToDelete !== null) {
+      deleteMutation.mutate(chatFlowIdToDelete);
+      setIsDeleteModalOpen(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteModalOpen(false);
   };
 
   const handleSharedClick = () => {
@@ -114,6 +129,30 @@ export default function Page() {
         return matchesCategory && matchesSearch;
       })
     : [];
+
+  const ConfirmDeleteModal = ({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) => (
+    <div
+      className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white p-6 rounded-lg shadow-md w-96"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <p className="mb-6">
+          <b>{chatFlowTitleToDelete}</b>을(를) 삭제하시겠습니까? <br/>이 작업은 되돌릴 수 없습니다.
+        </p>
+        <div className="flex justify-end gap-4">
+          <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={onCancel}>
+            취소
+          </button>
+          <button className="px-4 py-2 bg-red-500 text-white bg-[#874aa5] rounded hover:bg-[#6e3a85]" onClick={onConfirm}>
+            삭제
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="px-4 md:px-12 py-10">
@@ -131,7 +170,6 @@ export default function Page() {
           <PurpleButton text="챗봇 만들기" onHandelButton={handleCreateClick} />
         </div>
 
-        {/* 카테고리 선택 */}
         <div
           className={`flex justify-between items-center mb-6 ${
             isCategoryFixed ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2" : ""
@@ -181,7 +219,7 @@ export default function Page() {
               router.push(`/chatbot/${bot.chatFlowId}/workflow`);
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
-            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
+            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId, bot.title)}
             onButtonShareClick={() => {
               setSelectedChatbot(bot);
               setIsShareModalOpen(true);
@@ -190,7 +228,6 @@ export default function Page() {
         ))}
       </div>
 
-      {/* 챗봇 생성 및 모달 */}
       {isCreateModalOpen && (
         <div
           className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
@@ -202,7 +239,6 @@ export default function Page() {
         </div>
       )}
 
-      {/* 챗봇 공유 모달 */}
       {isShareModalOpen && (
         <div
           className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
@@ -216,6 +252,8 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      {isDeleteModalOpen && <ConfirmDeleteModal onConfirm={confirmDelete} onCancel={cancelDelete} />}
     </div>
   );
 }

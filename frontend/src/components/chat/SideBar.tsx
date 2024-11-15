@@ -25,7 +25,7 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
 
   useEffect(() => {
     setLocalSelectedChatId(selectedChatId);
-}, [selectedChatId]);
+  }, [selectedChatId]);
 
   const { isError, error, data: chatlist } = useQuery<getChatListData>({
     queryKey: ['chatlist', chatFlowId],
@@ -97,7 +97,7 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
         {chatlist?.chats?.map((chat) => (
           <div 
             key={chat.id} 
-            className={`p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
+            className={`cursor-pointer p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
               localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
             }`}
             onClick={() => handleChatClick(chat.id)}
