@@ -12,3 +12,9 @@ export interface ApiKeys {
   geminiKey: string;
   clovaKey: string;
 }
+
+export interface TokenUsage {
+  id: number;
+  tokenUsage: number;
+  date: string;
+}

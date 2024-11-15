@@ -9,10 +9,10 @@ import { useState, useEffect } from "react";
 import { useRecoilState } from "recoil";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import PurpleButton from "@/components/common/PurpleButton";
-import { ChatFlow } from "@/types/chatbot"
+import WhiteButton from "@/components/common/whiteButton";
+import { ChatFlow } from "@/types/chatbot";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
-
+import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot"; // 공유 챗봇 요청 추가
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -31,21 +31,31 @@ export default function Page() {
     queryFn: () => getAllChatFlows(isViewingShared), 
   });
 
+  // // 공유 챗봇 데이터 요청
+  // useEffect(() => {
+  //   if (isViewingShared) {
+  //     getSharedChatFlows().then((data) => setSharedChatFlows(data));
+  //   }
+  // }, [isViewingShared]);
+
   useEffect(() => {
     if (isError && error) {
       alert("챗봇을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteChatFlow,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
-    },
-    onError: () => {
-      alert("챗봇 삭제에 실패했습니다. 다시 시도해 주세요.");
-    },
-  });
+  // const deleteMutation = useMutation({
+  //   mutationFn: deleteChatFlow,
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["chatFlows"] });
+  //     if (isViewingShared) {
+  //       getSharedChatFlows().then((data) => setSharedChatFlows(data)); // 삭제 후 공유 챗봇 목록 갱신
+  //     }
+  //   },
+  //   onError: () => {
+  //     alert("챗봇 삭제에 실패했습니다. 다시 시도해 주세요.");
+  //   },
+  // });
 
   if (isLoading) return <div>is Loading...</div>;
 
@@ -74,18 +84,28 @@ export default function Page() {
     setIsCreateModalOpen(true); 
   };
 
-  const handleDeleteClick = (chatFlowId: number) => {
-    deleteMutation.mutate(chatFlowId);
+  // const handleDeleteClick = (chatFlowId: number) => {
+  //   deleteMutation.mutate(chatFlowId);
+  // };
+
+  const handleSharedClick = () => {
+    setIsViewingShared(!isViewingShared);
   };
 
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
-        <div className="mb-2 flex items-center">
-          <p className="font-semibold text-[24px] text-gray-700 mr-6">나의 챗봇</p>
+        <div className="mb-2 flex items-center gap-2">
+          <p className="font-semibold text-[24px] text-gray-700 mr-4">
+            {isViewingShared ? "공유된 챗봇" : "나의 챗봇"}
+          </p>
           <PurpleButton text='챗봇 만들기' onHandelButton={handleCreateClick} />
+          <WhiteButton 
+            text={isViewingShared ? '나의 챗봇' : '공유 챗봇'} // 조건부 버튼 텍스트
+            onHandelButton={handleSharedClick} 
+          />
         </div>
-        
+
         {/* 카테고리 선택 */}
         <div className="flex justify-between items-center mb-6">
           <div className="hidden md:flex">
@@ -124,11 +144,11 @@ export default function Page() {
             iconId={bot.thumbnail}
             title={bot.title}
             description={bot.description}
-            type="my"
+            type={isViewingShared ? "shared" : "my"}
             category={bot.categories.map((cat) => cat.name)}
             onCardClick={() => {
-              console.log("클릭");
-              router.push(`/chatbot/${bot.chatFlowId}/workflow`)}}
+              router.push(`/chatbot/${bot.chatFlowId}/workflow`);
+            }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => {

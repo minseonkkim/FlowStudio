@@ -1,44 +1,64 @@
 "use client"; 
 
-import { setAuthorizationToken } from '@/api/token/axiosInstance';
-import { getAllChatFlows } from '@/api/chatbot'; // 파일 경로를 확인하고 수정하세요
+import { postChatting } from '@/api/chat';
+import { useRouter } from 'next/navigation';
+import ChatPage from './chat/[id]/page';
+import { useState } from 'react';
+import { useMutation } from "@tanstack/react-query";
+
 
 export default function Home() {
-  const handleTokenRefresh = async () => {
-    try {
-      const newToken = await setAuthorizationToken();
+  const chatFlowId = "1"; // 페이지에서 params.id로 받아서 넘겨주기
+  const router = useRouter();
+  const [isPreview, setIsPreview] = useState(false); 
+  const [, setData] = useState<{ isPreview: boolean }>({ isPreview: false }); 
+  const [chatId, setChatId] = useState<number>()
 
-      if (newToken) {
-        alert('Token refreshed successfully. Check localStorage for the new token.');
-        console.log('New Token:', newToken); 
-      } else {
-        alert('Token refresh failed.');
+  const createMutation = useMutation({
+    mutationFn: ({ chatFlowId, data }: { chatFlowId: string; data: { isPreview: boolean } }) =>
+      postChatting(chatFlowId, data),
+  
+    onSuccess: (response) => {
+      const newChatId = response.data.data.id; 
+      setChatId(newChatId); 
+      if (response.headers['authorization']) {
+        const accessToken = response.headers['authorization'];
+        localStorage.setItem("fake-access-token", accessToken);
+        console.log("Fake access token 저장:", accessToken);
       }
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      alert('Token refresh failed. Check the console for details.');
-    }
+    },
+  
+    onError: () => {
+      alert("채팅 생성에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+  
+
+  const handelPostPreviewChat = () => {
+    setIsPreview(!isPreview);
+    setData({ isPreview: true }); 
+    createMutation.mutate({ chatFlowId, data: { isPreview: true } }); 
   };
 
-  const handleGetChatFlows = async () => {
-    try {
-      const chatFlows = await getAllChatFlows();
-      alert('Chat flows loaded successfully. Check the console for data.');
-      console.log('Chat Flows:', chatFlows); 
-    } catch (error) {
-      console.error('Error fetching chat flows:', error);
-      alert('Failed to load chat flows. Check the console for details.');
-    }
+  const handelPostDefaultChat = () => {
+    // setIsPreview(false);
+    // setData({ isPreview: false }); 
+    // createMutation.mutate({ chatFlowId, data: { isPreview: false } });
+    router.push(`/chat/${chatFlowId}`);
   };
 
   return (
     <div>
-      <button onClick={handleTokenRefresh} className="border p-2 m-12 bg-red-300">
-        Refresh Token
+      <button onClick={handelPostPreviewChat} className="border p-2 m-12 bg-blue-300">
+        Create PreviewChat
       </button>
-      <button onClick={handleGetChatFlows} className="border p-2 m-12 bg-blue-300">
-        Load Chat Flows
+      <button onClick={handelPostDefaultChat} className="border p-2 m-12 bg-blue-300">
+        Create DefaultChat
       </button>
+
+      {isPreview && chatId && (
+        <ChatPage customStyle={true} params={{ id: chatFlowId }} chatId={chatId}/> 
+      )}
     </div>
   );
 }
