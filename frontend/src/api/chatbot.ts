@@ -7,7 +7,7 @@ export async function getAllChatFlows(shared:boolean) {
     let url = 'chat-flows';
     
     if (shared) {
-      url += '?shared=true';
+      url += '?isShared=true';
     }
     console.log(url);
     const response = await axiosInstance.get(url);
