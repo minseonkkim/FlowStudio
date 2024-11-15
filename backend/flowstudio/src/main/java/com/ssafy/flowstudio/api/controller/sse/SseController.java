@@ -51,4 +51,10 @@ public class SseController {
         return ApiResponse.ok(sseEmitters.isConnected(user));
     }
 
+    @GetMapping(value = "/api/v1/sse/show")
+    public ApiResponse<Void> show(
+    ) {
+        sseEmitters.showSseEmitters();
+        return ApiResponse.ok();
+    }
 }
