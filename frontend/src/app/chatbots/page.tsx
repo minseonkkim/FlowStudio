@@ -21,13 +21,14 @@ export default function Page() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isViewingShared, setIsViewingShared] = useState(false); // 공유 챗봇 보기 모드 상태 추가
   const [sharedChatFlows, setSharedChatFlows] = useState<ChatFlow[]>([]); // 공유 챗봇 상태 추가
-  const [, setSelectedChatbot] = useRecoilState(selectedChatbotState);
+  const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const router = useRouter();
   const queryClient = useQueryClient();
 
+
   const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
-    queryKey: ['chatFlows'],
-    queryFn: getAllChatFlows,
+    queryKey: ['chatFlows', isViewingShared], 
+    queryFn: () => getAllChatFlows(isViewingShared), 
   });
 
   // // 공유 챗봇 데이터 요청
@@ -91,16 +92,6 @@ export default function Page() {
     setIsViewingShared(!isViewingShared);
   };
 
-  const filteredData = (isViewingShared ? sharedChatFlows : chatFlows)?.filter((bot) => {
-    const matchesCategory =
-      selectedCategory === "모든 챗봇" ||
-      bot.categories.some((category) => category.name === selectedCategory);
-    const matchesSearch = bot.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
@@ -146,9 +137,10 @@ export default function Page() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {filteredData?.map((bot) => (
+        {chatFlows?.map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
+            chatbotId={bot.chatFlowId}
             iconId={bot.thumbnail}
             title={bot.title}
             description={bot.description}
@@ -158,8 +150,11 @@ export default function Page() {
               router.push(`/chatbot/${bot.chatFlowId}/workflow`);
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
-            // onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
-            onButtonShareClick={() => setIsShareModalOpen(true)}
+            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
+            onButtonShareClick={() => {
+              setSelectedChatbot(bot);
+              setIsShareModalOpen(true);
+            }}
           />
         ))}
       </div>
@@ -183,10 +178,14 @@ export default function Page() {
           onClick={() => setIsShareModalOpen(false)}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <ShareChatbotModal onClose={() => setIsShareModalOpen(false)} />
+            <ShareChatbotModal
+              onClose={() => setIsShareModalOpen(false)}
+              chatFlowId={selectedChatbot?.chatFlowId || 0}
+            />
           </div>
         </div>
       )}
+
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { FiShare } from "@react-icons/all-files/fi/FiShare";
+import { BsDownload } from "@react-icons/all-files/bs/BsDownload";
 import Image from "next/image";
 
 interface ChatbotCardProps {
@@ -47,7 +47,7 @@ export default function ChatbotCard({
               ))}
               {type === "all" && (
                 <button>
-                  <FiShare
+                  <BsDownload
                     size={18}
                     className="ml-6 text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
                   />

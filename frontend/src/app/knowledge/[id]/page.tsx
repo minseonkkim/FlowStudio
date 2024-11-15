@@ -12,14 +12,11 @@ import { useRouter } from 'next/navigation';
 import { useRecoilState } from 'recoil';
 import { chunkFileNameState } from '@/store/knoweldgeAtoms'
  
-interface KnowledgePageProps {
-  params: {
-    id: number;
-  };
-}
 
-const Page = ({ params }: KnowledgePageProps) => {
-  const knowledgeId = String(params.id);
+
+
+const Page = () => {
+  const knowledgeId = typeof window !== "undefined" ? window.location.pathname.split("/").pop() ?? null : null;
   const [searchTerm, setSearchTerm] = useState(''); 
   const [isModalOpen, setModalOpen] = useState(false); 
   const [selectedContentId, setSelectedContentId] = useState(''); 
