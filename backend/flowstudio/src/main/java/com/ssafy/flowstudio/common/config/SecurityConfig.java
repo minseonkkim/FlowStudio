@@ -67,8 +67,8 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/oauth2/**",
                                 "/api/v1/chats/{chatId}",
-                                "/api/v1/chat-flows/{chatFlowId}/chats",
-                                "/api/v1/sse/connect"
+                                "/api/v1/sse/connect",
+                                "/api/v1/users/anonymous"
                         ).permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login((oauth2) -> oauth2

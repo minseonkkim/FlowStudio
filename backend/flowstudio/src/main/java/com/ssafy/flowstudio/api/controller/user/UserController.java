@@ -8,6 +8,7 @@ import com.ssafy.flowstudio.api.service.user.response.UserResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,17 @@ public class UserController {
             @CurrentUser User user
     ) {
         return ApiResponse.ok(userService.getUser(user));
+    }
+
+    /**
+     * 익명 유저 생성
+     * @return UserResponse
+     */
+    @PostMapping(value = "/api/v1/users/anonymous")
+    public ApiResponse<UserResponse> createAnonymityUser(
+            HttpServletResponse servletResponse
+    ) {
+        return ApiResponse.ok(userService.createAnonymousUser(servletResponse));
     }
 
     /**
