@@ -50,7 +50,7 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
   const [knowledgeArray, setKnowledgeArray] = useState<any[]>([]);
 
   useEffect(() => {
-    if (chatFlow && chatFlow.edges) {
+    if (chatFlow && chatFlow.nodes) {
       const knowledgeArray = chatFlow.nodes
             .filter((node: NodeData) => node.type === "RETRIEVER")
             .map((node: NodeData) => node.knowledge);
@@ -94,19 +94,19 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
           </thead>
           <tbody>
             {knowledgeArray.map((doc, index) => (
-              <tr key={doc.id} className="border-b text-gray-800">
+              <tr key={doc.knowledgeId} className="border-b text-gray-800">
                 <td className="py-3">{index + 1}</td>
                 <td className="py-3">{doc?.title}</td>
                 <td className="py-3 flex justify-end">
                   <div
                     onClick={() => handleTogglePublic(doc.knowledgeId, doc.title, doc.isPublic)}
                     className={`relative w-12 h-6 flex items-center cursor-pointer ${
-                      doc.isPublic ? 'bg-[#9A75BF]' : 'bg-gray-400'
+                      doc?.isPublic ? 'bg-[#9A75BF]' : 'bg-gray-400'
                     } rounded-full p-1 transition-colors duration-300 ease-in-out`}
                   >
                     <div
                       className={`h-4 w-4 bg-white rounded-full shadow-md transform ${
-                        doc.isPublic ? 'translate-x-6' : 'translate-x-0'
+                        doc?.isPublic ? 'translate-x-6' : 'translate-x-0'
                       } transition-transform duration-300 ease-in-out`}
                     />
                   </div>

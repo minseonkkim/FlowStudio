@@ -10,94 +10,12 @@ import { SharedChatFlow } from "@/types/chatbot";
 import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
 
-<<<<<<< HEAD
-const chatFlows: SharedChatFlow[] = [
-  {
-    chatFlowId: "1",
-    title: "챗봇 1",
-    description: "챗봇 1 묘사",
-    author: {
-      id: 1,
-      username: "김싸피",
-      nickname: "김싸피",
-      profileImage: "kim.png",
-    },
-    thumbnail: "1",
-    categories: [
-      { categoryId: 1, name: "교육" },
-      { categoryId: 2, name: "금융" },
-    ],
-    public: true,
-    shareNum: 100,
-  },
-  {
-    chatFlowId: "2",
-    title: "챗봇 2",
-    description: "챗봇 2 묘사",
-    author: {
-      id: 2,
-      username: "정싸피",
-      nickname: "정싸피",
-      profileImage: "jeong.png",
-    },
-    thumbnail: "2",
-    categories: [
-      { categoryId: 1, name: "금융" },
-      { categoryId: 3, name: "교육" },
-    ],
-    public: true,
-    shareNum: 120,
-  },
-];
-=======
-// const chatFlows: SharedChatFlow[] = [
-//   {
-//     chatFlowId: 1,
-//     title: "챗봇 1",
-//     description: "챗봇 1 묘사",
-//     author: {
-//       id: 1,
-//       username: "김싸피",
-//       nickname: "김싸피",
-//       profileImage: "kim.png",
-//     },
-//     thumbnail: "1",
-//     categories: [
-//       { categoryId: 1, name: "교육" },
-//       { categoryId: 2, name: "금융" },
-//     ],
-//     public: true,
-//     shareNum: 100,
-//   },
-//   {
-//     chatFlowId: 2,
-//     title: "챗봇 2",
-//     description: "챗봇 2 묘사",
-//     author: {
-//       id: 2,
-//       username: "정싸피",
-//       nickname: "정싸피",
-//       profileImage: "jeong.png",
-//     },
-//     thumbnail: "2",
-//     categories: [
-//       { categoryId: 1, name: "금융" },
-//       { categoryId: 3, name: "교육" },
-//     ],
-//     public: true,
-//     shareNum: 120,
-//   },
-// ];
->>>>>>> b9f0fd4 ([#60] Feature: 공유 api 연결)
 
 export default function Page() {
   const { isLoading, isError, error, data: chatFlows } = useQuery<SharedChatFlow[]>({
     queryKey: ['sharedChatFlows'],
     queryFn: () => getSharedChatFlows(),
   });
-
-
-
 
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
