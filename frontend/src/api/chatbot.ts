@@ -2,26 +2,19 @@ import axiosInstance from '@/api/token/axiosInstance'
 import { ChatFlowData } from '@/types/chatbot'
 
 // 챗플로우 목록 조회
-export async function getAllChatFlows(shared:boolean) {
+export async function getAllChatFlows(){
   try {
-    let url = 'chat-flows';
-    
-    if (shared) {
-      url += '?isShared=true';
-    }
-    const response = await axiosInstance.get(url);
-    console.log(response);
+    const response = await axiosInstance.get('chat-flows')
     if (response.status === 200) {
       return response.data.data;
     } else {
       throw new Error('Failed to get chat-flows');
     }
   } catch (error) {
-    console.error(error);
-    throw error;
+    console.error(error)
+    throw error
   }
 }
-
 
 // 챗플로우 생성
 export async function postChatFlow(data: ChatFlowData){

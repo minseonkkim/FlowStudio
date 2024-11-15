@@ -11,7 +11,6 @@ import { useRecoilState } from 'recoil';
 import { chunkFileNameState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms'; 
 
-
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
   const [, setKnowledgeTitle] = useRecoilState(chunkFileNameState);
