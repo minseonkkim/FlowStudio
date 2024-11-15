@@ -172,6 +172,38 @@ export default function PopularChatbotCard({
               )}
             </div>
           )}
+          {type === "shared" && (
+            <div
+              ref={dropdownRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+              className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
+            >
+              <button>
+                <BsThreeDots size={18} className="text-[#667085]" />
+              </button>
+              {/* Dropdown menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-10 w-40 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
+                  <ul className="text-sm text-gray-700">
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        if (onButtonDeleteClick) {
+                          onButtonDeleteClick();
+                        }
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      챗봇 삭제
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -179,7 +211,7 @@ export default function PopularChatbotCard({
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg">
-            <p className="mb-4 text-[17px]">나의 챗봇에 {title} 챗봇을 추가하시겠습니까?</p>
+            <p className="mb-4 text-[17px]">나의 챗봇에 <b>{title}</b>을(를) 추가하시겠습니까?</p>
             <div className="flex justify-end gap-4">
               <button
                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
@@ -188,7 +220,7 @@ export default function PopularChatbotCard({
                 취소
               </button>
               <button
-                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                className="px-4 py-2 bg-[#874aa5] text-white rounded hover:bg-[#6e3a85]"
                 onClick={handleConfirmDownload}
               >
                 확인
