@@ -12,7 +12,8 @@ import PurpleButton from "@/components/common/PurpleButton";
 import WhiteButton from "@/components/common/whiteButton";
 import { ChatFlow } from "@/types/chatbot";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot"; // 공유 챗봇 요청 추가
+import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
+import { CgArrowsExchangeAltV } from "@react-icons/all-files/cg/CgArrowsExchangeAltV";
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -25,18 +26,11 @@ export default function Page() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-
   const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
     queryKey: ['chatFlows', isViewingShared], 
     queryFn: () => getAllChatFlows(isViewingShared), 
   });
 
-  // // 공유 챗봇 데이터 요청
-  // useEffect(() => {
-  //   if (isViewingShared) {
-  //     getSharedChatFlows().then((data) => setSharedChatFlows(data));
-  //   }
-  // }, [isViewingShared]);
 
   useEffect(() => {
     if (isError && error) {
@@ -95,15 +89,14 @@ export default function Page() {
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
-        <div className="mb-2 flex items-center gap-2">
-          <p className="font-semibold text-[24px] text-gray-700 mr-4">
-            {isViewingShared ? "공유된 챗봇" : "나의 챗봇"}
-          </p>
+        <div className="mb-2 flex items-center gap-4">
+          <div className="flex flex-row items-center">
+            <p className="font-semibold text-[24px] text-gray-700 mr-1">
+              {isViewingShared ? "공유된 챗봇" : "나의 챗봇"}
+            </p>
+            <CgArrowsExchangeAltV className="size-6 text-gray-500 cursor-pointer" onClick={handleSharedClick}/>
+          </div>
           <PurpleButton text='챗봇 만들기' onHandelButton={handleCreateClick} />
-          <WhiteButton 
-            text={isViewingShared ? '나의 챗봇' : '공유 챗봇'} // 조건부 버튼 텍스트
-            onHandelButton={handleSharedClick} 
-          />
         </div>
 
         {/* 카테고리 선택 */}
@@ -150,7 +143,7 @@ export default function Page() {
               router.push(`/chatbot/${bot.chatFlowId}/workflow`);
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
-            onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
+            // onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId)}
             onButtonShareClick={() => {
               setSelectedChatbot(bot);
               setIsShareModalOpen(true);
