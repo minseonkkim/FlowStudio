@@ -17,7 +17,7 @@ export async function getAllKnowledges() {
 }
 
 // 지식베이스 문서공개 여부 수정
-export async function putDocKnowledge(knowledgeId: string, data: { title: string; isPublic: boolean }) {
+export async function putDocKnowledge(knowledgeId: number, data: { title: string; isPublic: boolean }) {
   try {
     const response = await axiosInstance.put(`knowledges/${knowledgeId}`, data);
     if (response.status === 200) {

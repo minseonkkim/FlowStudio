@@ -43,6 +43,14 @@ interface EdgeData{
   targetNodeId: number;
 }
 
+export interface Knowledge{
+  knowledgeId: number;
+  title: string;
+  isPublic: boolean;
+  createdAt: string;
+  totalToken: number;
+}
+
 export interface NodeData{
   nodeId: number;
   name: string;
@@ -54,6 +62,7 @@ export interface NodeData{
   outputMessage?: string;
   promptSystem?: string;
   promptUser?: string;
+  knowledge?: Knowledge;
 }
 
 export interface ChatFlowDetail{
