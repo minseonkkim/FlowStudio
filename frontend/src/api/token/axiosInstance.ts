@@ -36,6 +36,7 @@ const setAuthorizationToken = async () => {
       if (error.response && error.response.status === 401) {
         // 로그아웃 처리 - 액세스 토큰 삭제
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('profileImage');
       }
     } else {
       // 다른 에러일 경우
