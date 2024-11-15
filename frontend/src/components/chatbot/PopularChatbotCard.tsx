@@ -172,6 +172,38 @@ export default function PopularChatbotCard({
               )}
             </div>
           )}
+          {type === "shared" && (
+            <div
+              ref={dropdownRef}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
+              className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
+            >
+              <button>
+                <BsThreeDots size={18} className="text-[#667085]" />
+              </button>
+              {/* Dropdown menu */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-10 w-40 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
+                  <ul className="text-sm text-gray-700">
+                    <li
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        if (onButtonDeleteClick) {
+                          onButtonDeleteClick();
+                        }
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      챗봇 삭제
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

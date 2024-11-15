@@ -20,6 +20,14 @@ type SidebarProps = {
 
 export default function Sidebar({ onNewChat, chatFlowId }: SidebarProps) {
   const queryClient = useQueryClient();
+<<<<<<< Updated upstream
+=======
+  const [localSelectedChatId, setLocalSelectedChatId] = useState<number | null>(null); 
+
+  useEffect(() => {
+    setLocalSelectedChatId(selectedChatId);
+  }, [selectedChatId]);
+>>>>>>> Stashed changes
 
   const { isError, error, data: chatlist } = useQuery<getChatListData>({
     queryKey: ['chatlist', chatFlowId],
@@ -79,7 +87,14 @@ export default function Sidebar({ onNewChat, chatFlowId }: SidebarProps) {
         {chatlist?.chats?.map((chat) => (
           <div 
             key={chat.id} 
+<<<<<<< Updated upstream
             className="p-2 border rounded-lg shadow-sm bg-gray-50 flex justify-between items-center hover:bg-[#E1D5F2] group"
+=======
+            className={`cursor-pointer p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
+              localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
+            }`}
+            onClick={() => handleChatClick(chat.id)}
+>>>>>>> Stashed changes
           >
             <div className="text-gray-700">{chat.title}</div>
             <CgTrash  
