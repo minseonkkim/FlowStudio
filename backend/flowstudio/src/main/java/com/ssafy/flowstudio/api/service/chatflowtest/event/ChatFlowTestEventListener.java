@@ -5,17 +5,18 @@ import com.ssafy.flowstudio.api.service.chatflowtest.request.ChatFlowTestRequest
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestResponse;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.api.service.rag.request.LangchainClient;
+import com.ssafy.flowstudio.common.util.StatisticCalculator;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflowtest.ChatFlowTestRepository;
 import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTest;
 import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTestCase;
-import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTestCaseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -26,7 +27,8 @@ public class ChatFlowTestEventListener {
     private final RedisService redisService;
     private final LangchainClient langchainClient;
 
-    private final ChatFlowTestCaseRepository chatFlowTestCaseRepository;
+    private final ChatFlowTestRepository chatFlowTestRepository;
+    private final StatisticCalculator statisticCalculator;
 
     @EventListener
     public void handleChatFlowTestEvent(ChatFlowTestEvent event) {
@@ -37,7 +39,6 @@ public class ChatFlowTestEventListener {
         ChatFlowTestRequest chatFlowTestRequest = ChatFlowTestRequest.of(chat.getGroundTruth(), prediction);
         ChatFlowTestResponse chatFlowTestResponse = langchainClient.chatFlowTest(chatFlowTestRequest);
 
-        // 받아온 결과 저장
         ChatFlowTestCase chatFlowTestCase = ChatFlowTestCase.create(
                 chatFlowTest,
                 chat.getTestQuestion(),
@@ -47,13 +48,22 @@ public class ChatFlowTestEventListener {
                 chatFlowTestResponse.getCrossEncoder(),
                 chatFlowTestResponse.getRougeMetric()
         );
-        chatFlowTestCaseRepository.save(chatFlowTestCase);
+        chatFlowTest.addChatFlowTestCase(chatFlowTestCase);
 
-        // TODO: 모든 테스트케이스가 끝나면 총 수치 계산
-        // 카운트를 1씩 늘려서 개수만큼 됐는지 확인 -> 챗플로우 테스트에 총 테케 개수 추가
+        chatFlowTest.incrementSuccessCount();
+        chatFlowTestRepository.save(chatFlowTest);
 
         // 결과 전송
         sseEmitters.sendChatFlowTestResult(chat, chatFlowTestResponse);
+
+        // 테스트 종료시 통계 계산
+        if (chatFlowTest.isCompleted()) {
+            System.out.println("chatFlowTest.isCompleted() = " + chatFlowTest.isCompleted());
+            List<Float> result = statisticCalculator.calculate(chatFlowTest.getChatFlowTestCases());
+            chatFlowTest.updateResult(result);
+
+            chatFlowTestRepository.save(chatFlowTest);
+        }
     }
 
 }
