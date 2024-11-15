@@ -25,7 +25,7 @@ function CallbackContent() {
 
       if (userInfo) {
         setProfileImg(userInfo.profileImage);
-        localStorage.setItem('profileImage', userInfo.profileImage); // Save to local storage
+        localStorage.setItem('profileImage', userInfo.profileImage);
       }
 
       router.push('/');
