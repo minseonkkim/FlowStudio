@@ -66,7 +66,11 @@ public enum ErrorCode {
 
     // Redis
     REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
+
+    // ChatFlowTest
+    CHAT_FLOW_TEST_NOT_FOUND(11001, HttpStatus.NOT_FOUND, "챗플로우 테스트를 찾을 수 없습니다."),
     ;
+
     private final int code;
     private final HttpStatus status;
     private final String message;

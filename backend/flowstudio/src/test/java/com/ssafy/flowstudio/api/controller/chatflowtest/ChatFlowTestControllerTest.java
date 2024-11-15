@@ -4,6 +4,8 @@ import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequ
 import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatSimpleResponse;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestCaseResponse;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestDetailResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
@@ -70,26 +72,55 @@ class ChatFlowTestControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data").exists());
     }
 
+    @DisplayName("챗플로우 테스트 상세 조회")
+    @WithMockUser
+    @Test
+    void getChat() throws Exception {
+        // given
+        ChatFlowTestCaseResponse response1 = ChatFlowTestCaseResponse.builder()
+                .groundTruth("groundTruth")
+                .testQuestion("testQuestion")
+                .prediction("prediction")
+                .embeddingDistance(1.0f)
+                .crossEncoder(1.0f)
+                .rougeMetric(1.0f)
+                .build();
 
-//    @DisplayName("챗플로우 테스트 상세 조회")
-//    @WithMockUser
-//    @Test
-//    void getChat() throws Exception {
-//        // given
-//
-//        // when
-//        ResultActions perform = mockMvc.perform(
-//                get("/api/v1/chat-flows/{chatFlowId}/tests/{chatFlowTestId}", 1L, 1L)
-//                        .contentType(MediaType.APPLICATION_JSON));
-//
-//        // then
-//        perform.andDo(print())
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.code").value("200"))
-//                .andExpect(jsonPath("$.status").value("OK"))
-//                .andExpect(jsonPath("$.message").value("OK"))
-//                .andExpect(jsonPath("$.data").exists());
-//    }
+        ChatFlowTestCaseResponse response2 = ChatFlowTestCaseResponse.builder()
+                .groundTruth("groundTruth")
+                .testQuestion("testQuestion")
+                .prediction("prediction")
+                .embeddingDistance(1.0f)
+                .crossEncoder(1.0f)
+                .rougeMetric(1.0f)
+                .build();
+
+        ChatFlowTestDetailResponse response = ChatFlowTestDetailResponse.builder()
+                .embeddingDistanceMean(1.0f)
+                .embeddingDistanceVariance(0.1f)
+                .crossEncoderMean(1.0f)
+                .crossEncoderVariance(0.1f)
+                .rougeMetricMean(1.0f)
+                .rougeMetricVariance(0.1f)
+                .chatFlowTestCases(List.of(response1, response2))
+                .build();
+
+        given(chatFlowTestService.getChatFlowTest(any(User.class), any(Long.class)))
+                .willReturn(response);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/tests/{chatFlowTestId}", 1L, 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
 
     @DisplayName("챗플로우 테스트 생성")
     @WithMockUser
