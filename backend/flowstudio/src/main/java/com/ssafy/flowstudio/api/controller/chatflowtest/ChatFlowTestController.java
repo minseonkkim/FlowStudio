@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.controller.chatflowtest;
 
 import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequest;
 import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestService;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -23,17 +24,17 @@ public class ChatFlowTestController {
 
     /**
      * 챗플로우 테스트 목록 조회
+     *
      * @param user
      * @param chatFlowId
      * @return
      */
     @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/tests")
-    public ApiResponse<Void> getChatFlowTests(
+    public ApiResponse<List<ChatFlowTestListResponse>> getChatFlowTests(
             @CurrentUser User user,
             @PathVariable Long chatFlowId
     ) {
-        chatFlowTestService.getChatFlowTests(user, chatFlowId);
-        return ApiResponse.ok();
+        return ApiResponse.ok(chatFlowTestService.getChatFlowTests(user, chatFlowId));
     }
 
     /**
