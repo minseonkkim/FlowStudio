@@ -40,7 +40,9 @@ public class ChatService {
     private final NodeVisitor visitor;
     private final ChatRepository chatRepository;
     private final ChatFlowRepository chatFlowRepository;
+    private final UserRepository userRepository;
 
+    private final JWTService jwtService;
     private final PublishService publishService;
 
     @Transactional
@@ -59,7 +61,18 @@ public class ChatService {
     }
 
     @Transactional
-    public ChatCreateResponse createChat(User user, Long chatFlowId, ChatCreateServiceRequest request) {
+    public ChatCreateResponse createChat(User user, Long chatFlowId, ChatCreateServiceRequest request, HttpServletResponse servletResponse) {
+        if (user == null) {
+            String username = "anonymous " + UUID.randomUUID().toString().substring(0, 10);
+            user = User.createAnonymous(username);
+            userRepository.save(user);
+            Collection<GrantedAuthority> collection = new ArrayList<>();
+            collection.add((GrantedAuthority) () -> "ROLE_ANONYMOUS");
+
+            JwtToken token = jwtService.generateToken(user.getUsername(), collection);
+            servletResponse.setHeader("Authorization", token.getAccessToken());
+        }
+
         ChatFlow chatFlow;
         if (!request.isPreview()) {
             chatFlow = publishService.getPublishChatFlow(chatFlowId);
