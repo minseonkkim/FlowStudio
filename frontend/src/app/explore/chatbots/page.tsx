@@ -3,23 +3,24 @@
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from "@/components/common/Search";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { SharedChatFlow } from "@/types/chatbot";
 import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
 
-
 export default function Page() {
-  const { isLoading, isError, error, data: chatFlows } = useQuery<SharedChatFlow[]>({
-    queryKey: ['sharedChatFlows'],
+  const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
+    queryKey: ["sharedChatFlows"],
     queryFn: () => getSharedChatFlows(),
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeSlide, setActiveSlide] = useState<number>(0);
+  const [itemsToLoad, setItemsToLoad] = useState<number>(8);
+  const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); // New state
 
   const categories = [
     "모든 챗봇",
@@ -32,37 +33,66 @@ export default function Page() {
     "기타",
   ];
 
-  const popularChatbots = chatFlows ? [...chatFlows]
-    .sort((a, b) => b.shareNum - a.shareNum)
-    .slice(0, 4) : [];
+  const popularChatbots = chatFlows
+    ? [...chatFlows].sort((a, b) => b.shareNum - a.shareNum).slice(0, 4)
+    : [];
 
-  const filteredChatFlows = chatFlows ? chatFlows.filter((bot) => {
-    const matchesCategory =
-      selectedCategory === "모든 챗봇" ||
-      bot.categories.some((category) => category.name === selectedCategory);
-    const matchesSearch = bot.title
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }) : [];
+  const filteredChatFlows = chatFlows
+    ? chatFlows.filter((bot) => {
+        const matchesCategory =
+          selectedCategory === "모든 챗봇" ||
+          bot.categories.some((category) => category.name === selectedCategory);
+        const matchesSearch = bot.title
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        return matchesCategory && matchesSearch;
+      })
+    : [];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setIsCategoryFixed(true);
+      } else {
+        setIsCategoryFixed(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100
+      ) {
+        setItemsToLoad((prev) => prev + 8);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
 
+  if (isLoading) return <div>Loading...</div>;
+
   return (
     <div className="px-4 md:px-12 py-10">
       <div>
-        <p className="mb-4 font-semibold text-[24px] text-gray-700">
-          가장 인기있는 챗봇
-        </p>
+        <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
         <div className="md:hidden">
           <Swiper
             spaceBetween={16}
             slidesPerView={1}
             onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
           >
-            {popularChatbots.map((chatbot) => (
+            {popularChatbots?.slice().reverse().map((chatbot) => (
               <SwiperSlide key={chatbot.chatFlowId}>
                 <PopularChatbotCard
                   chatbotId={chatbot.chatFlowId}
@@ -75,9 +105,8 @@ export default function Page() {
               </SwiperSlide>
             ))}
           </Swiper>
-          {/* 현재 슬라이드 인덱스 표시 */}
           <div className="flex justify-center mt-2">
-            {popularChatbots.map((_, index) => (
+            {popularChatbots?.slice().reverse().map((_, index) => (
               <span
                 key={index}
                 className={`h-2 w-2 rounded-full mx-1 ${
@@ -88,7 +117,7 @@ export default function Page() {
           </div>
         </div>
         <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 w-full gap-4">
-          {popularChatbots.map((chatbot) => (
+          {popularChatbots?.slice().reverse().map((chatbot) => (
             <PopularChatbotCard
               key={chatbot.chatFlowId}
               chatbotId={chatbot.chatFlowId}
@@ -103,18 +132,23 @@ export default function Page() {
       </div>
 
       <div className="mt-16">
-        <p className="mb-2 font-semibold text-[24px] text-gray-700">
-          챗봇 라운지
-        </p>
+        <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
 
-        {/* 카테고리 선택 */}
-        <div className="flex justify-between items-center mb-6">
+        <div
+          className={`flex justify-between items-center mb-6 ${
+            isCategoryFixed
+              ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2"
+              : ""
+          }`}
+        >
           <div className="hidden md:flex">
             {categories.map((label) => (
               <button
                 key={label}
                 onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
+                className={`mr-6 ${
+                  selectedCategory === label ? "font-semibold" : "text-gray-600"
+                }`}
               >
                 {label}
               </button>
@@ -137,9 +171,10 @@ export default function Page() {
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
-          {filteredChatFlows.map((bot) => (
+          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
             <ChatbotCard
               key={bot.chatFlowId}
+              chatbotId={bot.chatFlowId}
               title={bot.title}
               description={bot.description}
               iconId={bot.thumbnail}
@@ -150,7 +185,7 @@ export default function Page() {
         </div>
 
         <div className="md:hidden flex flex-col gap-4">
-          {filteredChatFlows.map((bot) => (
+          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
             <PopularChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
