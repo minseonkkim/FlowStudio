@@ -1,16 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
-import { EventSourcePolyfill } from "event-source-polyfill";
-import { postMessage } from "@/api/chat";
-import SideBar from "@/components/chat/SideBar";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-
-
-
+import React from "react";
+import PreviewChat from "@/components/chat/PreviewChat";
+import DefaultChat from "@/components/chat/DefaultChat";
 
 type ChatPageProps = {
   customStyle?: boolean; 
@@ -23,11 +15,6 @@ type ChatPageProps = {
 
 const ChatPage: React.FC<ChatPageProps> = ({ customStyle = false, params, chatId}) => {
   const chatFlowId = params.id;
-  const [messages, setMessages] = useState<{ text: string; sender: "user" | "server" }[]>([]);
-  const [input, setInput] = useState("");
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 
 
@@ -152,6 +139,4 @@ const ChatPage: React.FC<ChatPageProps> = ({ customStyle = false, params, chatId
       </div>
     </div>
   );
-};
-
-export default ChatPage; 
+}

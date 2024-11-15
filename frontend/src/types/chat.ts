@@ -10,4 +10,13 @@ export interface getChatListData {
   chats: ChatList[]; 
 }
 
-export type CustomStyle = "preview" | "default"
+export interface getChatDetailList {
+  id: number;
+  title: string;
+  messageList: string
+}
+
+export interface Message {
+  text: string;
+  sender: "user" | "server";
+};
