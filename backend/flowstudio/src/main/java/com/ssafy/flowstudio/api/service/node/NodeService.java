@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class NodeService {
     private final EdgeRepository edgeRepository;
 
     @Transactional
-    public NodeCreateResponse createNode(User user, NodeCreateServiceRequest request) {
+    public NodeDetailResponse createNode(User user, NodeCreateServiceRequest request) {
         ChatFlow chatFlow = chatFlowRepository.findById(request.getChatFlowId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
@@ -45,7 +46,7 @@ public class NodeService {
 
         Node savedNode = nodeRepository.save(factory.createNode(chatFlow, coordinate));
 
-        return NodeCreateResponse.from(savedNode);
+        return nodeDetailResponseMapper.getCorrespondNodeDetailResponse(savedNode, new ArrayList<>());
     }
 
     @Transactional

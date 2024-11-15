@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
@@ -61,13 +62,17 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                 .nodeType(NodeType.START)
                 .build();
 
-        NodeCreateResponse response = NodeCreateResponse.builder()
+        AnswerDetailResponse answerNodeDetailResponse = AnswerDetailResponse.builder()
                 .nodeId(1L)
-                .nodeType(NodeType.START)
+                .name("Answer")
+                .type(NodeType.ANSWER)
+                .outputMessage("AI 답변 템플릿")
+                .precedingNodes(new ArrayList<>())
+                .coordinate(CoordinateResponse.from(Coordinate.builder().x(1.0F).y(1.0F).build()))
                 .build();
 
         given(nodeService.createNode(any(User.class), any(NodeCreateServiceRequest.class)))
-                .willReturn(response);
+                .willReturn(answerNodeDetailResponse);
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -103,8 +108,22 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                                                 .description("메시지"),
                                         fieldWithPath("data.nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
-                                        fieldWithPath("data.nodeType").type(JsonFieldType.STRING)
-                                                .description("노드 타입")
+                                        fieldWithPath("data.type").type(JsonFieldType.STRING)
+                                                .description("노드 타입"),
+                                        fieldWithPath("data.name").type(JsonFieldType.STRING)
+                                                .description("노드 이름"),
+                                        fieldWithPath("data.coordinate.x").type(JsonFieldType.NUMBER)
+                                                .description("노드 X좌표"),
+                                        fieldWithPath("data.coordinate.y").type(JsonFieldType.NUMBER)
+                                                .description("노드 Y좌표"),
+                                        fieldWithPath("data.inputEdges").type(JsonFieldType.NULL)
+                                                .description("진입 간선들의 리스트"),
+                                        fieldWithPath("data.outputEdges").type(JsonFieldType.NULL)
+                                                .description("진출 간선들의 리스트"),
+                                        fieldWithPath("data.precedingNodes[]").type(JsonFieldType.ARRAY)
+                                                .description("선행 노드"),
+                                        fieldWithPath("data.outputMessage").type(JsonFieldType.STRING)
+                                                .description("Answer 노드의 내용")
                                 )
                                 .build())));
     }

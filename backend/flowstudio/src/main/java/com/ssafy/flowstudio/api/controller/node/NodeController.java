@@ -24,7 +24,7 @@ public class NodeController {
      * @return 
      */
     @PostMapping("/api/v1/chat-flows/nodes")
-    public ApiResponse<NodeCreateResponse> createNode(
+    public ApiResponse<NodeDetailResponse> createNode(
             @CurrentUser User user,
             @Valid @RequestBody NodeCreateRequest request
     ) {
