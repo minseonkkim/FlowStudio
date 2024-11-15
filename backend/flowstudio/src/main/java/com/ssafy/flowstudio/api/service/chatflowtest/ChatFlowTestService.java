@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflowtest;
 
 import com.ssafy.flowstudio.api.service.chatflowtest.request.ChatFlowTestServiceRequest;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
@@ -9,14 +10,12 @@ import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.chatflowtest.ChatFlowTestRepository;
 import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTest;
-import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTestCase;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +33,17 @@ public class ChatFlowTestService {
 
     private final EntityManager em;
 
-    public void getChatFlowTests(User user, Long chatFlowId) {
+    public List<ChatFlowTestListResponse> getChatFlowTests(User user, Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findByIdWithTests(chatFlowId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
+        if (!chatFlow.getOwner().getId().equals(user.getId())) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        return chatFlow.getTests().stream()
+                .map(ChatFlowTestListResponse::from)
+                .toList();
     }
 
     public void getChatFlowTest(User user, Long chatFlowId, Long chatFlowTestId) {
