@@ -53,14 +53,17 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       const data = JSON.parse((event as MessageEvent).data);
       setTitle(data.title);
     
-      const updatedChatlist = await queryClient.fetchQuery<getChatListData>({
-        queryKey: ['chatlist', chatFlowId],
-        queryFn: () => getChattingList(chatFlowId),
-      });
-      
-      setChatlist(updatedChatlist as getChatListData);})
-      
-
+      const accessToken = localStorage.getItem("accessToken");
+      if (accessToken) {
+        const updatedChatlist = await queryClient.fetchQuery<getChatListData>({
+          queryKey: ["chatlist", chatFlowId],
+          queryFn: () => getChattingList(chatFlowId),
+        });
+        setChatlist(updatedChatlist);
+      }
+    });
+    
+    
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       if (data.type === "ANSWER") {
@@ -141,13 +144,12 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     }
   };
 
-  // 채팅 상세보기 쿼리
   const { isError, error, data: chatDetail } = useQuery<getChatDetailList>({
     queryKey: ["chatDetail", chatFlowId, defaultChatId],
     queryFn: () => getChatting(chatFlowId, String(defaultChatId!)),
-    enabled: !!defaultChatId,
+    enabled: !!defaultChatId && typeof window !== "undefined" && !!localStorage.getItem("accessToken"),
   });
-
+  
   useEffect(() => {
     if (isError && error) {
       alert("채팅내역을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
@@ -197,11 +199,19 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
 
   return (
     <div className="flex h-screen">
-      <div className="w-64 flex-shrink-0">
-        <SideBar onNewChat={onNewChat} chatFlowId={chatFlowId} onSelectChat={handleSelectChat} onDeleteNewChat={onDeleteNewChat} selectedChatId={defaultChatId} />
-      </div>
-
-      <div className="flex flex-col flex-grow bg-gray-50">
+      {typeof window !== "undefined" && localStorage.getItem("accessToken") ? (
+        <div className="w-64 flex-shrink-0">
+          <SideBar 
+            onNewChat={onNewChat} 
+            chatFlowId={chatFlowId} 
+            onSelectChat={handleSelectChat} 
+            onDeleteNewChat={onDeleteNewChat} 
+            selectedChatId={defaultChatId} 
+          />
+        </div>
+      ) : null}
+      
+      <div className={`flex flex-col ${typeof window !== "undefined" && localStorage.getItem("accessToken") ? 'flex-grow' : 'w-full'} bg-gray-50`}>
         <div className="border-b p-4 bg-white text-[18px]">{title}</div>
         <div className="flex-grow h-0 px-14 pt-6 space-y-8 overflow-y-auto">
           {messages.map((msg, index) => (
@@ -240,4 +250,4 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       </div>
     </div>
   );
-}
+}  
