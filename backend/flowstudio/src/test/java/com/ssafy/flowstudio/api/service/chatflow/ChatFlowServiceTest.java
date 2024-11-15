@@ -92,6 +92,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
@@ -139,6 +140,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
@@ -185,6 +187,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
