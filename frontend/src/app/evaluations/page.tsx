@@ -10,7 +10,7 @@ import { ChatFlow } from "@/types/chatbot";
 
 const chatFlows: ChatFlow[] = [
   {
-    chatFlowId: "1",
+    chatFlowId: 1,
     title: "챗봇 1",
     description: "챗봇 1 묘사",
     author: {
@@ -27,7 +27,7 @@ const chatFlows: ChatFlow[] = [
     public: true,
   },
   {
-    chatFlowId: "2",
+    chatFlowId: 2,
     title: "챗봇 2",
     description: "챗봇 2 묘사",
     author: {
@@ -79,7 +79,7 @@ export default function Page() {
     router.push("/evaluation");
   };
 
-  const handleResultClick = (id: string) => {
+  const handleResultClick = (id: number) => {
     router.push(`/evaluation/${id}/result`);
   };
 
@@ -128,6 +128,7 @@ export default function Page() {
         {filteredChatFlows.map((bot) => (
           <ChatbotCard
             key={bot.chatFlowId}
+            chatbotId={bot.chatFlowId}
             title={bot.title}
             description={bot.description}
             iconId={bot.thumbnail}
@@ -142,6 +143,7 @@ export default function Page() {
         {filteredChatFlows.map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
+            chatbotId={bot.chatFlowId}
             title={bot.title}
             description={bot.description}
             iconId={bot.thumbnail}
