@@ -61,7 +61,7 @@ export async function deleteChatting(chatFlowId: string, chatId: string) {
   }
 }
 
-// 챗봇 발행 -> 아직 api 안나옴
+// 챗봇 발행
 export async function postChatBot(chatFlowId: string) {
   try {
     const response = await axiosInstance.post(`/chat-flows/${chatFlowId}/publish`);
@@ -84,6 +84,21 @@ export async function postMessage(chatId: string, data: { message: string }) {
       return response.data.data;
     } else {
       throw new Error('Failed to send message');
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+// sse 연결여부
+export async function getSseConnect() {
+  try {
+    const response = await axiosInstance.get('/sse/connected');
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to fetch chat list');
     }
   } catch (error) {
     console.error(error);

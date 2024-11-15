@@ -1,38 +1,19 @@
-import React from "react";
+"use client";
+
+import React, { useState, useRef, useEffect } from "react";
+import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { postMessage, postChatting, getChatting, getChattingList } from "@/api/chat";
+import { getChatDetailList, getChatListData, Message } from "@/types/chat";
 import SideBar from "@/components/chat/SideBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
-import { useRecoilValue } from "recoil";
-import { messagesState } from "@/store/chatAtoms";
 
 type DefaultChatProps = {
-  input: string;
-  handleInput: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  sendMessage: () => void;
-  chatEndRef: React.RefObject<HTMLDivElement>;
-  onNewChat: () => void;
-  handleKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  chatFlowId: string;
 };
 
-<<<<<<< Updated upstream
-const DefaultChat: React.FC<DefaultChatProps> = ({
-  input,
-  handleInput,
-  sendMessage,
-  chatEndRef,
-  onNewChat,
-  handleKeyDown,
-}) => {
-  const messages = useRecoilValue(messagesState);
-
-  return (
-    <div className="flex w-full h-screen overflow-hidden">
-      <SideBar onNewChat={onNewChat} />
-      <div className="flex flex-col flex-grow bg-gray-50">
-        <div className="border-b p-4 text-[18px] bg-white">새 대화</div>
-        <div className="flex-grow h-0 p-6 overflow-y-auto space-y-4">
-=======
 export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -233,15 +214,12 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       <div className={`flex flex-col ${typeof window !== "undefined" && localStorage.getItem("accessToken") ? 'flex-grow' : 'w-full'} bg-gray-50`}>
         <div className="border-b p-4 bg-white text-[18px]">{title}</div>
         <div className="flex-grow h-0 px-14 pt-6 space-y-8 overflow-y-auto">
->>>>>>> Stashed changes
           {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} space-x-4`}
-            >
+            <div key={index} className={`flex items-start ${msg.sender === "user" ? "justify-end" : "justify-start"} space-x-6`}>
+              {msg.sender === "server" && <div className="rounded-full w-10 h-10 bg-gray-500"></div>}
               <div
-                className={`rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm max-w-[60%] ${
-                  msg.sender === "server" ? "bg-[#f9f9f9] border border-gray-300" : "bg-[#f3f3f3]"
+                className={`rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm ${
+                  msg.sender === "server" ? "bg-[#f9f9f9] border border-gray-300 max-w-[80%]" : "bg-[#f3f3f3] max-w-[60%]"
                 }`}
               >
                 {msg.sender === "server" ? (
@@ -250,30 +228,26 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
                   msg.text
                 )}
               </div>
+              {msg.sender === "user" && <div className="rounded-full w-10 h-10 bg-gray-300"></div>}
             </div>
           ))}
           <div ref={chatEndRef} />
         </div>
         <div className="border-t p-6 flex items-center bg-white">
           <textarea
+            ref={inputRef}
+            placeholder="메시지를 입력하세요..."
             value={input}
             onChange={handleInput}
             onKeyDown={handleKeyDown}
+            className="flex-1 border border-gray-300 rounded-lg py-2 px-6 mr-3 resize-none overflow-y-hidden shadow-sm focus:outline-none focus:ring-1 focus:ring-[#9A75BF] text-base"
             rows={1}
-            placeholder="메시지를 입력하세요..."
-            className="flex-1 border border-gray-300 rounded-lg py-2 px-4 resize-none overflow-y-hidden shadow-sm focus:outline-none focus:ring-1 focus:ring-[#9A75BF]"
           />
-          <button onClick={sendMessage} className="ml-3 p-2 bg-[#9A75BF] hover:bg-[#7C5DAF] rounded text-white">
-            <AiOutlineSend size={20} />
+          <button onClick={handleSendMessage} className="text-white bg-[#9A75BF] hover:bg-[#7C5DAF] rounded-lg p-2">
+            <AiOutlineSend size={15} />
           </button>
         </div>
       </div>
     </div>
   );
-<<<<<<< Updated upstream
-};
-
-export default DefaultChat;
-=======
 }  
->>>>>>> Stashed changes

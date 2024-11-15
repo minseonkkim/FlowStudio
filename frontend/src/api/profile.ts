@@ -1,6 +1,7 @@
 import axiosInstance from '@/api/token/axiosInstance';
 import { ApiKeys } from '@/types/profile';
 
+
 // 유저 정보 조회
 export async function getUserInfo() {
   try {
