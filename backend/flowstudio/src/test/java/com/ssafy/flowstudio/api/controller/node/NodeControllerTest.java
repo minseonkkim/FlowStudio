@@ -2,8 +2,12 @@ package com.ssafy.flowstudio.api.controller.node;
 
 import com.ssafy.flowstudio.api.controller.node.request.CoordinateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.NodeCreateRequest;
+import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.AnswerDetailResponse;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
@@ -16,6 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -51,10 +58,17 @@ class NodeControllerTest extends ControllerTestSupport {
                 .nodeType(NodeType.START)
                 .build();
 
-        NodeCreateResponse response = NodeCreateResponse.from(Start.create(chatFlow, Coordinate.create(1, 1)));
+        AnswerDetailResponse answerNodeDetailResponse = AnswerDetailResponse.builder()
+                .nodeId(1L)
+                .name("Answer")
+                .type(NodeType.ANSWER)
+                .outputMessage("AI 답변 템플릿")
+                .precedingNodes(new ArrayList<>())
+                .coordinate(CoordinateResponse.from(Coordinate.builder().x(1.0F).y(1.0F).build()))
+                .build();
 
         given(nodeService.createNode(any(User.class), any(NodeCreateServiceRequest.class)))
-                .willReturn(response);
+                .willReturn(answerNodeDetailResponse);
 
         // when
         ResultActions perform = mockMvc.perform(
