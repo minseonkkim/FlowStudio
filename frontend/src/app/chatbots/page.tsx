@@ -23,6 +23,7 @@ export default function Page() {
   const [isViewingShared, setIsViewingShared] = useState(false);
   const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const [itemsToLoad, setItemsToLoad] = useState(20); // Number of items to load
+  const [isCategoryFixed, setIsCategoryFixed] = useState(false); // State to track if the category bar is fixed
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -55,6 +56,13 @@ export default function Page() {
         document.documentElement.offsetHeight - 100
       ) {
         setItemsToLoad((prev) => prev + 16); // Load 20 more items
+      }
+
+      // Logic to fix the category bar
+      if (window.scrollY >= 57) {
+        setIsCategoryFixed(true);
+      } else {
+        setIsCategoryFixed(false);
       }
     };
 
@@ -124,7 +132,11 @@ export default function Page() {
         </div>
 
         {/* 카테고리 선택 */}
-        <div className="flex justify-between items-center mb-6">
+        <div
+          className={`flex justify-between items-center mb-6 ${
+            isCategoryFixed ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2" : ""
+          }`}
+        >
           <div className="hidden md:flex">
             {categories.map((label) => (
               <button

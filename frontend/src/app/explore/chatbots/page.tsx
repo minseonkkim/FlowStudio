@@ -19,7 +19,8 @@ export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeSlide, setActiveSlide] = useState<number>(0);
-  const [itemsToLoad, setItemsToLoad] = useState<number>(8); // Number of items to load initially
+  const [itemsToLoad, setItemsToLoad] = useState<number>(8);
+  const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); // New state
 
   const categories = [
     "모든 챗봇",
@@ -50,6 +51,19 @@ export default function Page() {
 
   useEffect(() => {
     const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setIsCategoryFixed(true);
+      } else {
+        setIsCategoryFixed(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
       if (
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100
@@ -61,7 +75,6 @@ export default function Page() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
@@ -121,7 +134,13 @@ export default function Page() {
       <div className="mt-16">
         <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
 
-        <div className="flex justify-between items-center mb-6">
+        <div
+          className={`flex justify-between items-center mb-6 ${
+            isCategoryFixed
+              ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2"
+              : ""
+          }`}
+        >
           <div className="hidden md:flex">
             {categories.map((label) => (
               <button
