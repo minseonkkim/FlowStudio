@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EvaluationFirst from "@/components/evaluation/SelectChatbot";
 import EvaluationSecond from "@/components/evaluation/TestCaseInput";
 import EvaluationThird from "@/components/evaluation/TestResult";
@@ -10,10 +10,16 @@ const tabNames = ["챗봇 선택", "테스트케이스 입력", "테스트 결�
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState<string>("챗봇 선택");
 
+
+
   const renderContent = () => {
     switch (selectedTab) {
       case "챗봇 선택":
-        return <EvaluationFirst onNext={() => setSelectedTab("테스트케이스 입력")} />;
+        return <EvaluationFirst
+        onNext={() => {
+          setSelectedTab("테스트케이스 입력");
+        }}
+      />;
       case "테스트케이스 입력":
         return (
           <EvaluationSecond
