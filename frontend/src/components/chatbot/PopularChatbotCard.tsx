@@ -1,9 +1,10 @@
 import { BsDownload } from "@react-icons/all-files/bs/BsDownload";
 import { BsThreeDots } from "@react-icons/all-files/bs/BsThreeDots";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postDownloadChatFlow } from "@/api/share";
+import { useRouter } from 'next/navigation';
 
 interface PopularChatbotCardProps {
   chatbotId: number;
@@ -31,8 +32,11 @@ export default function PopularChatbotCard({
   onButtonShareClick,
 }: PopularChatbotCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const downloadChatFlowMutation = useMutation({
     mutationFn: postDownloadChatFlow,
@@ -45,9 +49,32 @@ export default function PopularChatbotCard({
   });
 
   const handleDownloadClick = () => {
-    console.log('id', chatbotId);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmDownload = () => {
     downloadChatFlowMutation.mutate(chatbotId);
-  }
+    router.push('/chatbots');
+    setIsModalOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div
@@ -91,6 +118,7 @@ export default function PopularChatbotCard({
           )}
           {type === "my" && (
             <div
+              ref={dropdownRef}
               onClick={(e) => {
                 e.stopPropagation();
                 setIsDropdownOpen(!isDropdownOpen);
@@ -101,7 +129,7 @@ export default function PopularChatbotCard({
                 <BsThreeDots size={18} className="text-[#667085]" />
               </button>
 
-              {/* 드롭다운 메뉴 */}
+              {/* Dropdown menu */}
               {isDropdownOpen && (
                 <div className="absolute right-0 top-10 w-40 bg-white shadow-lg rounded-lg border border-gray-200 z-10">
                   <ul className="text-sm text-gray-700">
@@ -145,6 +173,29 @@ export default function PopularChatbotCard({
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <p className="mb-4 text-[17px]">나의 챗봇에 {title} 챗봇을 추가하시겠습니까?</p>
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                onClick={handleCloseModal}
+              >
+                취소
+              </button>
+              <button
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                onClick={handleConfirmDownload}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -20,8 +20,7 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [isViewingShared, setIsViewingShared] = useState(false); // 공유 챗봇 보기 모드 상태 추가
-  const [sharedChatFlows, setSharedChatFlows] = useState<ChatFlow[]>([]); // 공유 챗봇 상태 추가
+  const [isViewingShared, setIsViewingShared] = useState(false); 
   const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -86,6 +85,15 @@ export default function Page() {
     setIsViewingShared(!isViewingShared);
   };
 
+  const filteredChatFlows = chatFlows ? chatFlows.filter((bot) => {
+    const matchesCategory = 
+      selectedCategory === "모든 챗봇" || 
+      bot.categories.some((category) => category.name === selectedCategory);
+    const matchesSearch = 
+      bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  }) : [];
+
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex flex-col">
@@ -130,7 +138,7 @@ export default function Page() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {chatFlows?.map((bot) => (
+        {filteredChatFlows?.slice().reverse().map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}

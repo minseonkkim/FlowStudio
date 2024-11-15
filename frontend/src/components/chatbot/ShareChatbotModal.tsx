@@ -94,7 +94,7 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
           </thead>
           <tbody>
             {knowledgeArray.map((doc, index) => (
-              <tr key={doc.knowledgeId} className="border-b text-gray-800">
+              <tr key={doc?.knowledgeId} className="border-b text-gray-800">
                 <td className="py-3">{index + 1}</td>
                 <td className="py-3">{doc?.title}</td>
                 <td className="py-3 flex justify-end">

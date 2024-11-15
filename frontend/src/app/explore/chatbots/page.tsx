@@ -62,7 +62,7 @@ export default function Page() {
             slidesPerView={1}
             onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
           >
-            {popularChatbots.map((chatbot) => (
+            {popularChatbots?.slice().reverse().map((chatbot) => (
               <SwiperSlide key={chatbot.chatFlowId}>
                 <PopularChatbotCard
                   chatbotId={chatbot.chatFlowId}
@@ -77,7 +77,7 @@ export default function Page() {
           </Swiper>
           {/* 현재 슬라이드 인덱스 표시 */}
           <div className="flex justify-center mt-2">
-            {popularChatbots.map((_, index) => (
+            {popularChatbots?.slice().reverse().map((_, index) => (
               <span
                 key={index}
                 className={`h-2 w-2 rounded-full mx-1 ${
@@ -88,7 +88,7 @@ export default function Page() {
           </div>
         </div>
         <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 w-full gap-4">
-          {popularChatbots.map((chatbot) => (
+          {popularChatbots?.slice().reverse().map((chatbot) => (
             <PopularChatbotCard
               key={chatbot.chatFlowId}
               chatbotId={chatbot.chatFlowId}
@@ -137,9 +137,10 @@ export default function Page() {
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
-          {filteredChatFlows.map((bot) => (
+          {filteredChatFlows?.slice().reverse().map((bot) => (
             <ChatbotCard
               key={bot.chatFlowId}
+              chatbotId={bot.chatFlowId}
               title={bot.title}
               description={bot.description}
               iconId={bot.thumbnail}
@@ -150,7 +151,7 @@ export default function Page() {
         </div>
 
         <div className="md:hidden flex flex-col gap-4">
-          {filteredChatFlows.map((bot) => (
+          {filteredChatFlows?.slice().reverse().map((bot) => (
             <PopularChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
