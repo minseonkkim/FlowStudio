@@ -189,7 +189,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
 
   const onDeleteNewChat = () =>{
     setMessages([]); 
-    setDefaultChatId(undefined)
+    setDefaultChatId(null)
     handleSendMessage()
     setTitle('새 대화')
     

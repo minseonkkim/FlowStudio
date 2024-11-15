@@ -90,3 +90,18 @@ export async function postMessage(chatId: string, data: { message: string }) {
     throw error;
   }
 }
+
+// sse 연결여부
+export async function getSseConnect() {
+  try {
+    const response = await axiosInstance.get('/sse/connected');
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to fetch chat list');
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
