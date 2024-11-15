@@ -47,14 +47,14 @@ public class ChatFlowTestService {
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
+        ChatFlowTest chatFlowTest = ChatFlowTest.create(user, chatFlow, request.size());
+        chatFlowTestRepository.save(chatFlowTest);
+
         List<Long> chatIds = new ArrayList<>();
 
         for (ChatFlowTestServiceRequest chatFlowTestServiceRequest : request) {
             String testQuestion = chatFlowTestServiceRequest.getTestQuestion();
             String groundTruth = chatFlowTestServiceRequest.getGroundTruth();
-
-            ChatFlowTest chatFlowTest = ChatFlowTest.create(user, chatFlow);
-            chatFlowTestRepository.save(chatFlowTest);
 
             Chat chat = Chat.createTestChat(user, chatFlow, true, chatFlowTest, testQuestion, groundTruth);
             chatRepository.save(chat);

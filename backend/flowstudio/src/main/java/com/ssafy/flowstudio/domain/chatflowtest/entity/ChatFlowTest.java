@@ -3,15 +3,7 @@ package com.ssafy.flowstudio.domain.chatflowtest.entity;
 import com.ssafy.flowstudio.domain.BaseEntity;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +31,12 @@ public class ChatFlowTest extends BaseEntity {
     private ChatFlow chatFlow;
 
     @Column
+    private int totalTestCount;
+
+    @Column
+    private int successCount;
+
+    @Column
     private Float embeddingDistanceMean;
 
     @Column
@@ -56,11 +54,16 @@ public class ChatFlowTest extends BaseEntity {
     @Column
     private Float rougeMetricVariance;
 
+    @OneToMany(mappedBy = "chatFlowTest", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatFlowTestCase> chatFlowTestCases = new ArrayList<>();
+
     @Builder
-    private ChatFlowTest(Long id, User user, ChatFlow chatFlow, Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
+    private ChatFlowTest(Long id, User user, ChatFlow chatFlow, int totalTestCount, int successCount, Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
         this.id = id;
         this.user = user;
         this.chatFlow = chatFlow;
+        this.totalTestCount = totalTestCount;
+        this.successCount = successCount;
         this.embeddingDistanceMean = embeddingDistanceMean;
         this.embeddingDistanceVariance = embeddingDistanceVariance;
         this.crossEncoderMean = crossEncoderMean;
@@ -69,19 +72,34 @@ public class ChatFlowTest extends BaseEntity {
         this.rougeMetricVariance = rougeMetricVariance;
     }
 
-    public static ChatFlowTest create(User user, ChatFlow chatFlow) {
+    public static ChatFlowTest create(User user, ChatFlow chatFlow, int totalTestCount) {
         return ChatFlowTest.builder()
                 .user(user)
                 .chatFlow(chatFlow)
+                .totalTestCount(totalTestCount)
+                .successCount(0)
                 .build();
     }
 
-    public void updateResult(Float embeddingDistanceMean, Float embeddingDistanceVariance, Float crossEncoderMean, Float crossEncoderVariance, Float rougeMetricMean, Float rougeMetricVariance) {
-        this.embeddingDistanceMean = embeddingDistanceMean;
-        this.embeddingDistanceVariance = embeddingDistanceVariance;
-        this.crossEncoderMean = crossEncoderMean;
-        this.crossEncoderVariance = crossEncoderVariance;
-        this.rougeMetricMean = rougeMetricMean;
-        this.rougeMetricVariance = rougeMetricVariance;
+    public void updateResult(List<Float> result) {
+        this.embeddingDistanceMean = result.get(0);
+        this.embeddingDistanceVariance = result.get(1);
+        this.crossEncoderMean = result.get(2);
+        this.crossEncoderVariance = result.get(3);
+        this.rougeMetricMean = result.get(4);
+        this.rougeMetricVariance = result.get(5);
     }
+
+    public void incrementSuccessCount() {
+        this.successCount += 1;
+    }
+
+    public boolean isCompleted() {
+        return this.totalTestCount == this.successCount;
+    }
+
+    public void addChatFlowTestCase(ChatFlowTestCase chatFlowTestCase) {
+        this.chatFlowTestCases.add(chatFlowTestCase);
+    }
+
 }
