@@ -134,4 +134,8 @@ public class SseEmitters {
         });
     }
 
+    public Boolean isConnected(User user) {
+        return emitters.containsKey(user.getId());
+    }
+
 }

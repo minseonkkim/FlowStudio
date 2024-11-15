@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.controller.sse;
 
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
+import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -41,6 +42,13 @@ public class SseController {
                 .headers(headers)
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(emitter);
+    }
+
+    @GetMapping(value = "/api/v1/sse/connected")
+    public ApiResponse<Boolean> check(
+            @CurrentUser User user
+    ) {
+        return ApiResponse.ok(sseEmitters.isConnected(user));
     }
 
 }
