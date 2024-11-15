@@ -13,6 +13,7 @@ import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.util.MessageParseUtil;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlowCategory;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -54,6 +56,7 @@ public class ChatFlowService {
     private final EntityManager entityManager;
     private final UserRepository userRepository;
     private final VectorStoreService vectorStoreService;
+    private final MessageParseUtil messageParseUtil;
 
     public List<ChatFlowListResponse> getEveryoneChatFlows() {
         List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue();
@@ -285,6 +288,7 @@ public class ChatFlowService {
             Node clonedNode;
 
             if (originalNode.getType() == NodeType.RETRIEVER) {
+                // Retriever 노드라면 복제된 knowledge를 새로 매핑한다.
                 Retriever originalRetriever = (Retriever) originalNode;
                 Knowledge knowledge = originalRetriever.getKnowledge();
                 if (knowledge != null && knowledge.isPublic()) {
@@ -292,6 +296,14 @@ public class ChatFlowService {
                 } else {
                     clonedNode = factory.copyNode(originalNode, clonedChatFlow);
                 }
+            } else if (originalNode.getType() == NodeType.LLM) {
+                // Llm 노드라면 프롬프트 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
+                LLM originalLLM = (LLM) originalNode;
+                String originalSystemPrompt = originalLLM.getPromptSystem();
+                String originalUserPrompt = originalLLM.getPromptUser();
+                String clonedSystemPrompt = messageParseUtil.replace(originalSystemPrompt, nodeMap);
+                String clonedUserPrompt = messageParseUtil.replace(originalUserPrompt, nodeMap);
+                clonedNode = factory.copyNode(originalNode, clonedChatFlow, clonedSystemPrompt, clonedUserPrompt);
             } else {
                 clonedNode = factory.copyNode(originalNode, clonedChatFlow);
             }
@@ -327,7 +339,6 @@ public class ChatFlowService {
 
             // 간선의 출처 노드가 질문 분류기면 위에서 복제된 질문 분류의 ID로 sourceConditionId를 새롭게 매핑한다.
             if (originalEdge.getSourceNode().getType() == NodeType.QUESTION_CLASSIFIER) {
-                System.out.println("originalEdge.getSourceConditionId() = " + originalEdge.getSourceConditionId());
                 sourceConditionId = questionClassMap.get(originalEdge.getSourceConditionId()).getId();
             }
 

@@ -19,13 +19,18 @@ public class LlmCopyFactory extends NodeCopyFactory {
                                 .y(originalLlm.getCoordinate().getY())
                                 .build()
                 )
-                .promptSystem(originalLlm.getPromptSystem())
-                .promptUser(originalLlm.getPromptUser())
                 .context(originalLlm.getContext())
                 .temperature(originalLlm.getTemperature())
                 .maxTokens(originalLlm.getMaxTokens())
                 .modelProvider(originalLlm.getModelProvider())
                 .modelName(originalLlm.getModelName())
                 .build();
+    }
+
+    @Override
+    public Node copyNode(Node node, ChatFlow clonedChatFlow, String clonedPromptSystem, String clonedPromptUser) {
+        LLM clonedLlm = (LLM) copyNode(node, clonedChatFlow);
+        clonedLlm.updatePrompt(clonedPromptSystem, clonedPromptUser);
+        return clonedLlm;
     }
 }
