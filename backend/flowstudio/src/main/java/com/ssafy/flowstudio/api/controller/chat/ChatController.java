@@ -59,9 +59,10 @@ public class ChatController {
     public ApiResponse<ChatCreateResponse> createChat(
             @CurrentUser User user,
             @PathVariable Long chatFlowId,
-            @Valid @RequestBody ChatCreateRequest request
+            @Valid @RequestBody ChatCreateRequest request,
+            HttpServletResponse servletResponse
     ) {
-        return ApiResponse.ok(chatService.createChat(user, chatFlowId, request.toServiceRequest()));
+        return ApiResponse.ok(chatService.createChat(user, chatFlowId, request.toServiceRequest(), servletResponse));
     }
 
     /**
