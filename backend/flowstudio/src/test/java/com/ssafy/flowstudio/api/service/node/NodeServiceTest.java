@@ -6,6 +6,7 @@ import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.StartDetailResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
@@ -74,11 +75,11 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .build();
 
         // when
-        NodeCreateResponse response = nodeService.createNode(user, request);
+        NodeDetailResponse response = nodeService.createNode(user, request);
 
         // then
         assertThat(response).isNotNull()
-                .extracting("nodeType")
+                .extracting("type")
                 .isEqualTo(NodeType.START);
     }
 
@@ -109,12 +110,12 @@ class NodeServiceTest extends IntegrationTestSupport {
                 .build();
 
         // when
-        NodeCreateResponse response = nodeService.createNode(user, request);
+        NodeDetailResponse response = nodeService.createNode(user, request);
         Node foundNode = nodeRepository.findById(response.getNodeId()).orElse(null);
 
         // then
         assertThat(response).isNotNull()
-                .extracting("nodeType")
+                .extracting("type")
                 .isEqualTo(NodeType.QUESTION_CLASSIFIER);
 
         assertThat(foundNode).isNotNull();
