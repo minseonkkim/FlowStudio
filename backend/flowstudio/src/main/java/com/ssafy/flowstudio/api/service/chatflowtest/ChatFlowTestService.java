@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflowtest;
 
 import com.ssafy.flowstudio.api.service.chatflowtest.request.ChatFlowTestServiceRequest;
+import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestDetailResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
@@ -46,8 +47,15 @@ public class ChatFlowTestService {
                 .toList();
     }
 
-    public void getChatFlowTest(User user, Long chatFlowId, Long chatFlowTestId) {
+    public ChatFlowTestDetailResponse getChatFlowTest(User user, Long chatFlowTestId) {
+        ChatFlowTest chatFlowTest = chatFlowTestRepository.findByIdWithTestCase(chatFlowTestId)
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_TEST_NOT_FOUND));
 
+        if (!chatFlowTest.getUser().equals(user)) {
+            throw new BaseException(ErrorCode.FORBIDDEN);
+        }
+
+        return ChatFlowTestDetailResponse.from(chatFlowTest);
     }
 
     @Transactional
