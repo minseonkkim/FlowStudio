@@ -97,7 +97,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows")
-                        .param("shared", "false")
+                        .param("isShared", "false")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -110,7 +110,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                 .tag("ChatFlow")
                                 .summary("챗플로우 목록 조회")
                                 .queryParameters(
-                                        parameterWithName("shared").optional().description("공유여부")
+                                        parameterWithName("isShared").optional().description("공유여부")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)

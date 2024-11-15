@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -135,7 +136,19 @@ public class SseEmitters {
     }
 
     public Boolean isConnected(User user) {
+        log.info("isConnected: {}", emitters.containsKey(user.getId()));
         return emitters.containsKey(user.getId());
+    }
+
+    public void showSseEmitters() {
+        if (emitters.isEmpty()) {
+            log.info("emitters is empty");
+            return;
+        }
+
+        for (Map.Entry<Long, SseEmitter> l : emitters.entrySet()) {
+            log.info("userId: {}, emitter: {}", l.getKey(), l.getValue());
+        }
     }
 
 }

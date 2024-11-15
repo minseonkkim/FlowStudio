@@ -92,6 +92,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
@@ -139,6 +140,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
@@ -185,6 +187,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .name("category1")
                 .build();
 
+        categoryRepository.saveAll(List.of(category1, category2));
         chatFlow1.updateCategories(List.of(category1, category2));
 
         userRepository.save(user);
@@ -630,6 +633,104 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         assertThat(clonedEdges.stream().map(Edge::getTargetNode).toList())
                 .extracting("id")
                 .containsExactlyInAnyOrderElementsOf(clonedAnswers.stream().map(NodeResponse::getNodeId).toList());
+    }
+
+    @DisplayName("Start, Llm, Answer 노드를 가진 챗플로우를 업로드한다.")
+    @Test
+    void uploadChatFlowsWithLlm() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        Node startNode = Start.create(chatFlow, coordinate);
+        nodeRepository.save(startNode);
+
+        LLM llmNode = LLM.builder()
+                .promptSystem("{{" + startNode.getId() + "}}")
+                .promptUser("{{INPUT_MESSAGE}}")
+                .temperature(3.0)
+                .maxTokens(100)
+                .modelProvider(ModelProvider.OPENAI)
+                .modelName(ModelName.GPT_4_O)
+                .chatFlow(chatFlow)
+                .name("llm")
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .build();
+        nodeRepository.save(llmNode);
+
+        Answer answerNode = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+        nodeRepository.save(answerNode);
+
+        Edge edge1 = Edge.create(startNode, llmNode);
+        Edge edge2 = Edge.create(llmNode, answerNode);
+
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+
+        em.clear();
+
+        // when
+        ChatFlowResponse chatFlowResponse = chatFlowService.uploadChatFlow(user, chatFlow.getId());
+
+        // then
+
+        // 복제된 ChatFlow는 원본 ChatFlow와 ID가 다르다.
+        assertThat(chatFlow.getId()).isNotEqualTo(chatFlowResponse.getChatFlowId());
+        assertThat(chatFlowResponse).isNotNull();
+
+        // 복제된 ChatFlow는 원본 ChatFlow가 가진 노드를 함께 복제한다.
+        List<NodeResponse> clonedNodes = chatFlowResponse.getNodes();
+        assertThat(clonedNodes).size().isEqualTo(3);
+        assertThat(clonedNodes).extracting(NodeResponse::getType)
+                .contains(NodeType.START, NodeType.LLM, NodeType.ANSWER);
+
+        // 복제된 LLM 노드를 불러온다.
+        NodeResponse clonedLlmResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.LLM.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        LLM clonedLlm = (LLM) nodeRepository.findById(clonedLlmResponse.getNodeId()).orElse(null);
+        em.refresh(clonedLlm);
+
+        // 복제된 Start 노드를 불러온다.
+        NodeResponse clonedStartResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.START.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        Start clonedStart = (Start) nodeRepository.findById(clonedStartResponse.getNodeId()).orElse(null);
+        em.refresh(clonedStart);
+
+        // 복제된 LLM 노드는 원본 LLM 노드와 ID가 다르다.
+        assertThat(clonedLlm.getId()).isNotEqualTo(llmNode.getId());
+        assertThat(clonedLlm.getPromptSystem())
+                .isNotEqualTo(llmNode.getPromptSystem())
+                .isEqualTo("{{" + clonedStart.getId() + "}}");
+        assertThat(clonedLlm.getPromptUser())
+                .isEqualTo("{{INPUT_MESSAGE}}");
     }
 
     @DisplayName("이미 게시된 상태의 챗플로우를 업로드하면 예외가 발생한다.")
