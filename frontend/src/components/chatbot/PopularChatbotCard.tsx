@@ -1,9 +1,12 @@
-import { FiShare } from "@react-icons/all-files/fi/FiShare";
+import { BsDownload } from "@react-icons/all-files/bs/BsDownload";
 import { BsThreeDots } from "@react-icons/all-files/bs/BsThreeDots";
 import { useState } from "react";
 import Image from "next/image";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { postDownloadChatFlow } from "@/api/share";
 
 interface PopularChatbotCardProps {
+  chatbotId: number;
   title: string;
   description: string;
   category: string[];
@@ -16,6 +19,7 @@ interface PopularChatbotCardProps {
 }
 
 export default function PopularChatbotCard({
+  chatbotId,
   title,
   description,
   category,
@@ -27,6 +31,23 @@ export default function PopularChatbotCard({
   onButtonShareClick,
 }: PopularChatbotCardProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const downloadChatFlowMutation = useMutation({
+    mutationFn: postDownloadChatFlow,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chatFlows'] });
+    },
+    onError: () => {
+      alert('챗봇 다운로드에 실패했습니다. 다시 시도해 주세요.');
+    },
+  });
+
+  const handleDownloadClick = () => {
+    console.log('id', chatbotId);
+    downloadChatFlowMutation.mutate(chatbotId);
+  }
 
   return (
     <div
@@ -49,7 +70,7 @@ export default function PopularChatbotCard({
       <div className="flex flex-col h-[108px] justify-between">
         <p className="text-[14px] text-[#667085]">{description}</p>
 
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center h-[40px]">
           <div className="flex gap-1 flex-wrap">
             {category.map((cat) => (
               <span key={cat} className="text-[13px] pr-2 text-[#667085]">
@@ -59,9 +80,9 @@ export default function PopularChatbotCard({
           </div>
 
           {type === "all" && (
-            <div className="flex items-center p-2">
+            <div className="flex items-center p-2" onClick={handleDownloadClick}>
               <button>
-                <FiShare
+                <BsDownload
                   size={18}
                   className="text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
                 />

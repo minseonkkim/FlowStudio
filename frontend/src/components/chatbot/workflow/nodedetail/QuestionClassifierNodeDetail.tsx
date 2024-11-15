@@ -213,12 +213,12 @@ export default function QuestionClassifierNodeDetail({
                       >
                         <div className="p-1 text-[15px]" role="none">
                           {[
-                            "LLM",
-                            "RETRIEVER",
-                            "ANSWER",
-                            "QUESTION_CLASSIFIER",
-                            // "CONDITIONAL",
-                            // "VARIABLE_ASSIGNER",
+                            "llmNode",
+                            "knowledgeNode",
+                            "answerNode",
+                            "questionclassifierNode",
+                            "ifelseNode",
+                            "variableallocatorNode",
                           ].map((nodeType) => (
                             <div
                               key={nodeType}
