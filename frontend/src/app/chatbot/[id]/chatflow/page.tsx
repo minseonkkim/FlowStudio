@@ -6,38 +6,22 @@ import ReactFlow, {
   Controls,
   MiniMap,
   applyNodeChanges,
-  applyEdgeChanges,
   OnNodesChange,
-  NodeChange,
-  EdgeChange,
   ReactFlowProvider,
   Edge,
   Node,
-  NodeTypes,
   useNodesState,
-  useOnSelectionChange,
   useEdgesState,
   addEdge,
-  reconnectEdge,
-  ReconnectEdgeOptions,
-  Connection,
-  Viewport,
-  useViewport,
-  useReactFlow,
-  useOnViewportChange
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
 import StartNodeDetail from "@/components/chatbot/chatflow/nodedetail/StartNodeDetail";
-import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
-import { v4 as uunodeIdv4 } from "uuid";
-import ConfirmationModal from "@/components/common/ConfirmationModal";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
-import { ChatFlowDetail, Coordinate, NodeData } from "@/types/chatbot";
+import { NodeData } from "@/types/chatbot";
 import { EdgeData } from "@/types/chatbot";
-import { deleteEdge, deleteEdge as deleteEdgeApi, deleteNode, deleteNode as deleteNodeApi, getNodeDetail, postEdge, postNode, putNode } from "@/api/workflow";
+import { deleteEdge, getNodeDetail, postEdge, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
 import { createNodeData } from "@/utils/node";
@@ -47,6 +31,7 @@ import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
 import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/QuestionClassifierNode";
 import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/RetrieverNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetail";
+import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedetail/QuestionClassifierNodeDetail";
 
 interface ChatflowPageProps {
   params: {
@@ -298,6 +283,7 @@ export default function Page({ params }: ChatflowPageProps) {
         return {
           nodeId: +(targetNode?.id || "0"), // 기본값 설정
           name: targetNode?.type || "Unknown", // 기본값 설정
+          sourceConditionId: edge.sourceHandle || 0
         };
       }, [nodes, edges]);
   };
@@ -315,6 +301,22 @@ export default function Page({ params }: ChatflowPageProps) {
     if (selectedNode.data.type == "START") {
       return (
         <StartNodeDetail
+          chatFlowId={params.id}
+          node={selectedNode}
+          nodes={nodes}
+          edges={edges}
+          setNodes={setNodes}
+          setEdges={setEdges}
+          setSelectedNode={setSelectedNode}
+          onClose={handleNodeDetailClose}
+          connectedNodes={connectedNodes}
+        />
+      );
+    }
+
+    if (selectedNode.data.type == "QUESTION_CLASSIFIER") {
+      return (
+        <QuestionClassifierNodeDetail
           chatFlowId={params.id}
           node={selectedNode}
           nodes={nodes}
@@ -456,6 +458,7 @@ export default function Page({ params }: ChatflowPageProps) {
                   setEdges={setEdges}
                   setSelectedNode={setSelectedNode}
                   isDetail={false} // 세부 메뉴인지 여부
+                  questionClass={0}
                 />
               </div>
             )}

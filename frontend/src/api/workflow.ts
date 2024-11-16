@@ -97,6 +97,21 @@ export async function postQuestionClassNode(nodeId: number, data: {"content" : s
   }
 }
 
+// 질문 분류 클래스 삭제
+export async function deleteQuestionClassNode(questionClassId: number){
+  try {
+    const response = await axiosInstance.delete(`chat-flows/nodes/question-classes/${questionClassId}`)
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to post question-class node');
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
 // 간선 생성
 export async function postEdge(chatFlowId: number, data: EdgeData): Promise<EdgeData>{
   try {
