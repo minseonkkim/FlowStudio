@@ -1,19 +1,24 @@
 import axiosInstance from '@/api/token/axiosInstance';
 
-// 테스트 완료한 챗플로우 목록 조회 -> 바꿔야함
-export async function getChatFlowTestList(chatFlowId: string) {
+// 테스트 완료한 챗플로우 목록 조회
+export async function getChatFlowTestList(test:boolean) {
   try {
-    const response = await axiosInstance.get(`/chat-flows/${chatFlowId}/tests`);
+    let url = 'chat-flows';
+    if (test) {
+      url += '?test=true';
+    }
+    const response = await axiosInstance.get(url);
     if (response.status === 200) {
-      return response.data.data 
+      return response.data.data;
     } else {
-      throw new Error('Failed to get knowledges');
+      throw new Error('Failed to get chat-flows');
     }
   } catch (error) {
     console.error(error);
     throw error;
   }
 }
+
 
 // 챗플로우 테스트 목록 조회
 export async function getChatTestList(chatFlowId: string) {

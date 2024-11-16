@@ -1,10 +1,21 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ModalTestResult from "@/components/evaluation/ModalTestResult";
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
+import { getChatTestList } from '@/api/evaluation'
+import { useQuery } from '@tanstack/react-query';
+import { ChatFlowTestResult } from '@/types/evaluation'
 
-export default function Page() {
+interface EvaluationPageProps {
+  params: {
+    id: number;
+  };
+}
+
+export default function Page({ params }: EvaluationPageProps) {
+  const chatFlowId = String(params.id);
   const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
+  const [testList, setTestList] = useState<ChatFlowTestResult[]>([]);
 
   const openModal = () => {
     setIsModalOpen(true); // 모달 열기
@@ -13,6 +24,27 @@ export default function Page() {
   const closeModal = () => {
     setIsModalOpen(false); // 모달 닫기
   };
+
+  const { isError, error, data: testResultList } = useQuery<ChatFlowTestResult[]>({
+    queryKey: ['testResultList'],
+    queryFn: () => getChatTestList(chatFlowId),
+    
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("테스트 완료한 챗플로우 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
+  useEffect(() => {
+    
+    if (testResultList) {
+      setTestList(testResultList);
+    }
+    console.log(testResultList)
+  }, [testResultList]);
+  
 
   return (
     <div className="relative">
@@ -24,31 +56,31 @@ export default function Page() {
           <table className="w-full text-[14px] border border-collapse border-gray-300 mb-8">
             <thead>
               <tr className="bg-gray-100">
-                <th className="border px-4 py-2">번호</th>
-                <th className="border px-4 py-2">Embedding Distance 평균</th>
-                <th className="border px-4 py-2">Embedding Distance 분산</th>
-                <th className="border px-4 py-2">ROUGE Metric 평균</th>
-                <th className="border px-4 py-2">ROUGE Metric 분산</th>
-                <th className="border px-4 py-2">Cross Encoder 평균</th>
-                <th className="border px-4 py-2">Cross Encoder 분산</th>
-                <th className="border px-4 py-2 min-w-[150px]">DateTime</th>
+                <th className="border px-6 py-2">번호</th>
+                <th className="border px-6 py-4">Embedding Distance 평균</th>
+                <th className="border px-6 py-2">Embedding Distance 분산</th>
+                <th className="border px-6 py-2">ROUGE Metric 평균</th>
+                <th className="border px-6 py-2">ROUGE Metric 분산</th>
+                <th className="border px-6 py-2">Cross Encoder 평균</th>
+                <th className="border px-6 py-2">Cross Encoder 분산</th>
+                <th className="border px-6 py-2">테스트 횟수</th>
               </tr>
             </thead>
             <tbody>
-              {[...Array(5)].map((_, index) => (
+              {testList.map((item, index) => (
                 <tr
                   key={index}
                   className="cursor-pointer hover:bg-gray-100"
                   onClick={openModal} 
                 >
-                  <td className="border px-4 py-2 text-center">{index + 1}</td>
-                  <td className="border px-4 py-2 text-center">0.85</td>
-                  <td className="border px-4 py-2 text-center">0.02</td>
-                  <td className="border px-4 py-2 text-center">0.6</td>
-                  <td className="border px-4 py-2 text-center">0.01</td>
-                  <td className="border px-4 py-2 text-center">0.7</td>
-                  <td className="border px-4 py-2 text-center">0.03</td>
-                  <td className="border px-4 py-2 text-center">2024-10-22 10:00</td>
+                  <td className="border px-6 py-2 text-center">{index + 1}</td>
+                  <td className="border px-6 py-2 text-center">{item.embeddingDistanceMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.embeddingDistanceVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.rougeMetricMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.rougeMetricVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.crossEncoderMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.crossEncoderVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.totalTestCount}</td>
                 </tr>
               ))}
             </tbody>
