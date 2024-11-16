@@ -91,10 +91,6 @@ export default function Page({ params }: ChatflowPageProps) {
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
- /**
- * 처음 화면에 들어왔을 때 노드 초기화
- */
-useEffect(() => {
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
     try {
@@ -145,23 +141,28 @@ useEffect(() => {
       }));
 
       console.log(reactFlowEdges);
-      
+
       setEdges(reactFlowEdges); // 엣지 상태 설정
     } catch (error) {
       console.error("Flow 초기화 중 오류 발생:", error);
     }
   };
 
-  // 비동기 함수 호출
-  initializeFlow();
 
-}, [params.id, setNodes, setEdges, setSelectedNode]);
+  /**
+  * 처음 화면에 들어왔을 때 노드 초기화
+  */
+  useEffect(() => {
+    // 비동기 함수 호출
+    initializeFlow();
 
-useEffect(() => {
-  console.log("EDGES", edges);
-  
-}, [edges]);
-  
+  }, [params.id, setNodes, setEdges, setSelectedNode]);
+
+  useEffect(() => {
+    console.log("EDGES", edges);
+
+  }, [edges]);
+
   /**
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
@@ -240,7 +241,7 @@ useEffect(() => {
     setEdges((eds) => eds.filter((e) => e.id !== edge.id));
   }, []);
 
-  
+
   /**
    * NodeDetail 화면에서 닫기 했을때 처리
    */
@@ -260,7 +261,7 @@ useEffect(() => {
     );
     setSelectedNode(null);
   }
-  
+
 
   /**
   * 마우스 우클릭 메뉴
@@ -271,8 +272,8 @@ useEffect(() => {
     console.log("page", event.pageX, event.pageY);
     console.log("clientX", event.clientX, event.clientY);
     console.log("screen", event.screenX, event.screenY);
-    
-    setMenuPosition({ x: event.clientX + 180, y: event.clientY - 80}); // 클릭 위치 저장
+
+    setMenuPosition({ x: event.clientX + 180, y: event.clientY - 80 }); // 클릭 위치 저장
   };
 
   /**
@@ -301,15 +302,15 @@ useEffect(() => {
   };
   const connectedNodes = useMemo(() => getConnectedNodes(selectedNode), [nodes, edges]);
 
-  
+
   /**
    * @returns 노드 상세 화면
    */
   const renderNodeDetail = useMemo(() => {
     if (selectedNode == null) return null;
-  
+
     console.log(selectedNode);
-  
+
     if (selectedNode.data.type == "START") {
       return (
         <StartNodeDetail
@@ -341,7 +342,7 @@ useEffect(() => {
         />
       );
     }
-  
+
     if (selectedNode.data.type == "ANSWER") {
       return (
         <AnswerNodeDetail
@@ -351,7 +352,7 @@ useEffect(() => {
         />
       );
     }
-  
+
     return null;
   }, [selectedNode, nodes, edges, connectedNodes]);
 
@@ -387,7 +388,7 @@ useEffect(() => {
       {/* {renderChatbotCreationModal()} */}
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
-          
+
           <ReactFlow
             nodes={nodes}
             edges={edges}
