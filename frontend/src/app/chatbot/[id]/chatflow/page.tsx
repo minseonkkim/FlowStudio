@@ -46,6 +46,7 @@ import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNod
 import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
 import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/QuestionClassifierNode";
 import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/RetrieverNodeDetail";
+import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetail";
 
 interface ChatflowPageProps {
   params: {
@@ -330,6 +331,22 @@ export default function Page({ params }: ChatflowPageProps) {
     if (selectedNode.data.type == "RETRIEVER") {
       return (
         <RetrieverNodeDetail
+          chatFlowId={params.id}
+          node={selectedNode}
+          nodes={nodes}
+          edges={edges}
+          setNodes={setNodes}
+          setEdges={setEdges}
+          setSelectedNode={setSelectedNode}
+          onClose={handleNodeDetailClose}
+          connectedNodes={connectedNodes}
+        />
+      );
+    }
+
+    if (selectedNode.data.type == "LLM") {
+      return (
+        <LlmNodeDetail
           chatFlowId={params.id}
           node={selectedNode}
           nodes={nodes}
