@@ -19,6 +19,15 @@ interface TestCaseInputProps {
   onPrevious: () => void;
 }
 
+interface ChatResponseItem {
+  chatId: number;
+  testQuestion: string;
+  groundTruth: string;
+  prediction?: string;
+  embeddingDistance?: number;
+  rougeMetric?: number;
+  crossEncoder?: number;
+}
 
 export default function TestCaseInput({
   onNext,
@@ -42,7 +51,7 @@ export default function TestCaseInput({
       onSuccess: (res) => {
       setParsedTestData((prev) => {
         const updatedData = [...prev];
-        res.forEach((item: any) => {
+        res.forEach((item: ChatResponseItem) => {
           const existingItemIndex = updatedData.findIndex((data) => data.chatId === item.chatId);
 
           if (existingItemIndex !== -1) {

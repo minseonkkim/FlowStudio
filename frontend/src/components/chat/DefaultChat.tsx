@@ -13,7 +13,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useRecoilValue } from "recoil";
 import { profileImageAtom } from "@/store/profileAtoms";
-import Image, { StaticImageData } from 'next/image';
+import Image from 'next/image';
 import one from '../../../public/chatbot-icon/1.jpg';
 import two from '../../../public/chatbot-icon/2.jpg';
 import three from '../../../public/chatbot-icon/3.jpg';
