@@ -1,5 +1,5 @@
 import { deleteNode, postNode } from "@/api/workflow";
-import { NodeData } from "@/types/chatbot";
+import { NodeData, Knowledge } from "@/types/chatbot";
 import { Dispatch, SetStateAction, useCallback } from "react";
 import { Edge, Node } from "reactflow"
 
@@ -12,18 +12,13 @@ export const createNodeData = (
   setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
 ): NodeData => {
   return {
+    chatFlowId,
     nodeId: params.nodeId || 0,
     name: params.name || params.type + params.nodeId,
     type: params.type || "DEFAULT",
     coordinate: params.coordinate || { x: 1, y: 1 },
     outputEdges: params.outputEdges || [],
     inputEdges: params.inputEdges || [],
-    maxLength: params.maxLength || 10,
-    outputMessage: params.outputMessage || "",
-    // questionClasses: params.questionClasses || [],
-    promptSystem: params.promptSystem || "",
-    promptUser: params.promptUser || "",
-    chatFlowId,
     onDelete: (nodeId: string) => {
       // 1. 연결된 엣지 삭제
       setEdges((eds) =>
@@ -38,6 +33,19 @@ export const createNodeData = (
       deleteNode(+nodeId); // API 호출
       setSelectedNode(null);
     },
+
+    maxLength: params.maxLength || 10,
+
+    outputMessage: params.outputMessage || "",
+
+    // questionClasses: params.questionClasses || [],
+    promptSystem: params.promptSystem || "",
+    promptUser: params.promptUser || "",
+    
+    knowledge: params.knowledge || {} as Knowledge,
+    knowledgeId: params.knowledgeId || params.knowledge?.knowledgeId || 0,
+    intervalTime: params.intervalTime || 1,
+    topK: params.topK || 3,
   };
 };
 

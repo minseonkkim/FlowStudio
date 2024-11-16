@@ -40,8 +40,9 @@ import { EdgeData } from "@/types/chatbot";
 import { deleteEdge, deleteEdge as deleteEdgeApi, deleteNode, deleteNode as deleteNodeApi, postEdge, postNode, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
-import { createNodeData } from "@/components/utils/node";
+import { createNodeData } from "@/utils/node";
 import NodeAddMenu from "@/components/chatbot/chatflow/nodedetail/NodeAddMenu";
+import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
 
 interface ChatflowPageProps {
   params: {
@@ -73,7 +74,8 @@ interface ConnectedNode {
 // }
 const nodeTypes = {
   START: StartNode,
-  ANSWER: AnswerNode
+  ANSWER: AnswerNode,
+  RETRIEVER: RetrieverNode,
 }
 
 

@@ -5,7 +5,7 @@ import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { addEdge, Edge, Node } from "reactflow";
 import { getNodeDetail, postEdge } from "@/api/workflow";
-import { addNode, createNodeData } from "@/components/utils/node";
+import { addNode, createNodeData } from "@/utils/node";
 import { EdgeData } from "@/types/chatbot";
 
 export default function NodeAddMenu({

@@ -2,6 +2,7 @@ import { NodeData } from "@/types/workflow";
 import axiosInstance from "./token/axiosInstance";
 import { Dispatch, SetStateAction } from "react";
 import { Edge, Node } from "reactflow";
+import { EdgeData } from "@/types/chatbot";
 
 // 노드 생성
 export async function postNode(data: NodeData){

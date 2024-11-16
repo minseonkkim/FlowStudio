@@ -17,7 +17,7 @@ const icons = {
 
 export const nodeConfig: Record<string, NodeConfig> = {
   LLM: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
-  RRTRIEVER: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
+  RETRIEVER: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
   IFELSE: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
   ANSWER: { label: "답변", icon: icons.RiQuestionAnswerFill, color: "E6F6F0" },
   QUESTION_CLASSIFIER: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
@@ -27,7 +27,7 @@ export const nodeConfig: Record<string, NodeConfig> = {
 export const deleteIconColors: { [key: string]: string } = {
     START: "#95C447",
     LLM: "#3B82F6",
-    RRTRIEVER: "#F97316",
+    RETRIEVER: "#F97316",
     IFELSE: "#EF4444",
     ANSWER: "#34D399",
     QUESTION_CLASSIFIER: "#1E3A8A",
