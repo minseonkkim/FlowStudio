@@ -45,6 +45,7 @@ import NodeAddMenu from "@/components/chatbot/chatflow/nodedetail/NodeAddMenu";
 import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
 import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
 import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/QuestionClassifierNode";
+import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/RetrieverNodeDetail";
 
 interface ChatflowPageProps {
   params: {
@@ -138,7 +139,7 @@ useEffect(() => {
       const reactFlowEdges = initEdges.map((edge) => ({
         id: edge.edgeId.toString(),
         source: edge.sourceNodeId.toString(),
-        sourceHandle: edge.sourceConditionId.toString(), // Handle 특정하기
+        sourceHandle: edge.sourceConditionId?.toString(), // Handle 특정하기
         target: edge.targetNodeId.toString(),
         data: { ...edge },
       }));
@@ -218,7 +219,7 @@ useEffect(() => {
           id: data.edgeId.toString(),
           source: data.sourceNodeId.toString(),
           target: data.targetNodeId.toString(),
-          sourceHandle: data.sourceConditionId.toString(), // Handle 특정하기
+          sourceHandle: data.sourceConditionId?.toString(), // Handle 특정하기
           data: { ...data }
         }
         setEdges((els) => {
@@ -312,6 +313,22 @@ useEffect(() => {
     if (selectedNode.data.type == "START") {
       return (
         <StartNodeDetail
+          chatFlowId={params.id}
+          node={selectedNode}
+          nodes={nodes}
+          edges={edges}
+          setNodes={setNodes}
+          setEdges={setEdges}
+          setSelectedNode={setSelectedNode}
+          onClose={handleNodeDetailClose}
+          connectedNodes={connectedNodes}
+        />
+      );
+    }
+
+    if (selectedNode.data.type == "RETRIEVER") {
+      return (
+        <RetrieverNodeDetail
           chatFlowId={params.id}
           node={selectedNode}
           nodes={nodes}
