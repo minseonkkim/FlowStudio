@@ -1,10 +1,11 @@
 "use client";
 
+import { EventSourcePolyfill } from "event-source-polyfill";
 import { useState, useEffect } from "react";
 import WhiteButton from "../common/whiteButton";
 import PurpleButton from "../common/PurpleButton";
-import { useRecoilValue } from "recoil";
-import { chatbotIdState } from "@/store/evaluationAtoms";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { chatbotIdState, parsedTestDataState } from "@/store/evaluationAtoms";
 import { postChatFlowTest } from "@/api/evaluation";
 import { useMutation } from "@tanstack/react-query";
 
@@ -19,31 +20,58 @@ interface TestCaseInputProps {
 }
 
 
-
 export default function TestCaseInput({
   onNext,
   onPrevious,
 }: TestCaseInputProps) {
- 
+  
+  // 챗플로우 아이디
   const chatbotId = useRecoilValue(chatbotIdState);
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  const accessToken = localStorage.getItem("accessToken");
+  const setParsedTestData = useSetRecoilState(parsedTestDataState);
+
   useEffect(()=>{
-    console.log(chatbotId)
+    setParsedTestData([])
   },[])
 
-  // Mutation 설정
+  // 테스트 케이스와 정답 값 보내기
   const createMutation = useMutation({
     mutationFn: ({ chatbotId, data }: { chatbotId: string; data: TestCase[] }) =>
       postChatFlowTest(chatbotId, data),
-    onSuccess: (res) => {
-      console.log(res)
-      //sse연결
-      alert("테스트 케이스가 성공적으로 전송되었습니다!");
-      onNext(); // 성공 시 다음 단계로 이동
-    },
-    onError: () => {
-      alert("테스트 케이스 전송에 실패했습니다. 다시 시도해주세요.");
-    },
-  });
+      onSuccess: (res) => {
+      setParsedTestData((prev) => {
+        const updatedData = [...prev];
+        res.forEach((item: any) => {
+          const existingItemIndex = updatedData.findIndex((data) => data.chatId === item.chatId);
+
+          if (existingItemIndex !== -1) {
+            updatedData[existingItemIndex] = {
+              ...updatedData[existingItemIndex],
+              testQuestion: item.testQuestion,
+              groundTruth: item.groundTruth,
+            };
+          } else {
+            updatedData.push({
+              chatId: item.chatId,
+              testQuestion: item.testQuestion,
+              groundTruth: item.groundTruth,
+              prediction: "",
+              embeddingDistance: 0,
+              rougeMetric: 0,
+              crossEncoder: 0,
+            });
+          }
+        });
+        return updatedData;
+      });
+      onNext(); 
+        },
+        onError: () => {
+          alert("테스트 케이스 전송에 실패했습니다. 다시 시도해주세요.");
+        },
+      });
+
 
   // 테스트케이스 상태 관리
   const [items, setItems] = useState<TestCase[]>([
@@ -73,13 +101,95 @@ export default function TestCaseInput({
     );
   };
 
+    // SSE 연결 함수 
+    const initializeSSE = (token: string) => {
+      const sse = new EventSourcePolyfill(`${BASE_URL}/sse/connect`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
+  
+      sse.onopen = () => {
+        console.log("SSE 연결이 성공적으로 열렸습니다.");
+      };
+  
+      sse.addEventListener("prediction", (event) => {
+        const predictionData = JSON.parse((event as MessageEvent).data);
+        console.log(predictionData);
+      
+        setParsedTestData((prev) => {
+          const updatedData = [...prev];
+      
+          const existingItemIndex = updatedData.findIndex(
+            (data) => data.chatId === predictionData.chatId
+          );
+      
+          if (existingItemIndex !== -1) {
+            updatedData[existingItemIndex] = {
+              ...updatedData[existingItemIndex],
+              prediction: predictionData.prediction,
+            };
+          } else {
+            updatedData.push({
+              chatId: predictionData.chatId,
+              testQuestion: "",
+              groundTruth: "",
+              prediction: predictionData.prediction,
+              embeddingDistance: 0,
+              rougeMetric: 0,
+              crossEncoder: 0,
+            });
+          }
+      
+          return updatedData;
+        });
+      });
+      
+
+      sse.addEventListener("testCase", (event) => {
+        const testCaseData = JSON.parse((event as MessageEvent).data);
+      
+        setParsedTestData((prev) => {
+          const updatedData = [...prev];
+      
+          const existingItemIndex = updatedData.findIndex(
+            (data) => data.chatId === testCaseData.chatId
+          );
+      
+          if (existingItemIndex !== -1) {
+            updatedData[existingItemIndex] = {
+              ...updatedData[existingItemIndex],
+              embeddingDistance: testCaseData.embeddingDistance,
+              rougeMetric: testCaseData.rougeMetric,
+              crossEncoder: testCaseData.crossEncoder,
+            };
+          } else {
+            updatedData.push({
+              chatId: testCaseData.chatId,
+              testQuestion: "",
+              groundTruth: "",
+              prediction: "",
+              embeddingDistance: testCaseData.embeddingDistance,
+              rougeMetric: testCaseData.rougeMetric,
+              crossEncoder: testCaseData.crossEncoder,
+            });
+          }
+      
+          return updatedData;
+        });
+      });
+      
+      sse.onerror = () => {
+        console.error("SSE 연결 오류: 자동 재연결 시도 중...");
+      };
+    };
+  
   // 테스트케이스 전송
   const handleSubmit = () => {
     if (!chatbotId) {
       alert("챗봇 ID를 가져오지 못했습니다. 다시 시도해주세요.");
       return;
     }
-
+    initializeSSE(accessToken as string)
     const data = items.map(({ testQuestion, groundTruth }) => ({
       testQuestion,
       groundTruth,
@@ -146,3 +256,5 @@ export default function TestCaseInput({
     </div>
   );
 }
+
+
