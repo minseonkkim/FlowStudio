@@ -7,8 +7,6 @@ import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
-import com.ssafy.flowstudio.api.service.node.NodeFactoryProvider;
-import com.ssafy.flowstudio.api.service.node.NodeService;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -38,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -75,8 +72,14 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared) {
-        List<ChatFlow> chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared);
+    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test) {
+        List<ChatFlow> chatFlows;
+
+        if (test) {
+            chatFlows = chatFlowRepository.findByOwnerWithTest(user.getId());
+        } else {
+            chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared);
+        }
 
         return chatFlows.stream()
                 .map(chatFlow -> {
@@ -186,7 +189,7 @@ public class ChatFlowService {
         Long retrieverId = retriever.getId();
         Long llmId = llm.getId();
 
-        llm.updatePrompt("아래 글에 기반해서 대답해줘\n \\n\\n{{"+ retrieverId +"}}", "{{INPUT_MESSAGE}}");
+        llm.updatePrompt("아래 글에 기반해서 대답해줘\n \\n\\n{{" + retrieverId + "}}", "{{INPUT_MESSAGE}}");
         answer.updateOutputMessage("{{" + llmId + "}}");
 
         // 노드 연결
