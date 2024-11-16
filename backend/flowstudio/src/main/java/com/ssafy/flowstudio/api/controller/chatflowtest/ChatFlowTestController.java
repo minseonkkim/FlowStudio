@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.api.controller.chatflowtest;
 
 import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequest;
+import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestCreateResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestService;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestDetailResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
@@ -60,7 +61,7 @@ public class ChatFlowTestController {
      * @return
      */
     @PostMapping(value = "/api/v1/chat-flows/{chatFlowId}/tests")
-    public ApiResponse<List<Long>> createChatFlowTest(
+    public ApiResponse<List<ChatFlowTestCreateResponse>> createChatFlowTest(
             @CurrentUser User user,
             @PathVariable Long chatFlowId,
             @Valid @RequestBody List<ChatFlowTestRequest> request
