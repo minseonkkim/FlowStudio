@@ -130,6 +130,7 @@ export default function RetrieverNodeDetail({
                 setEdges={setEdges}
                 setSelectedNode={setSelectedNode}
                 isDetail={true}
+                questionClass={0}
               />
             </div>
           </div>

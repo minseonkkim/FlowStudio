@@ -202,6 +202,7 @@ export default function LlmNodeDetail({
                 setEdges={setEdges}
                 setSelectedNode={setSelectedNode}
                 isDetail={true}
+                questionClass={0}
               />
             </div>
           </div>

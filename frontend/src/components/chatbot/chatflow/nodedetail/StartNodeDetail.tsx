@@ -122,6 +122,7 @@ export default function StartNodeDetail({
               setEdges={setEdges}
               setSelectedNode={setSelectedNode}
               isDetail={true}
+              questionClass={0}
             />
           </div>
         </div>

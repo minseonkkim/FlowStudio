@@ -15,6 +15,7 @@ export default function NodeAddMenu({
     setEdges,
     setSelectedNode,
     isDetail,
+    questionClass,
 }: {
     node: Node<any, string | undefined>,
     nodes: Node<any, string | undefined>[],
@@ -22,6 +23,7 @@ export default function NodeAddMenu({
     setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
     setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>,
     isDetail: Boolean,
+    questionClass: number | null | undefined,
 }) {
     const [isOpen, setIsOpen] = useState(false);
     const toggleDropdown = () => {
@@ -31,7 +33,6 @@ export default function NodeAddMenu({
     useEffect(() => {
         if (isDetail === false) { // pane에서 클릭하면 바로 열린형태로 보이기
             setIsOpen(true);
-            
         }
     }, [])
 
@@ -65,7 +66,7 @@ export default function NodeAddMenu({
                                 edgeId: 0,
                                 sourceNodeId: node.data.nodeId,
                                 targetNodeId: newNode.nodeId,
-                                sourceConditionId: 0,
+                                sourceConditionId: questionClass || 0,
                             };
                             // 노드 상세보기에서 추가한 경우 엣지를 추가
                             postEdge(node.data.chatFlowId, edgeData)
@@ -75,6 +76,7 @@ export default function NodeAddMenu({
                                         id: data.edgeId.toString(),
                                         source: data.sourceNodeId.toString(),
                                         target: data.targetNodeId.toString(),
+                                        sourceHandle: data.sourceConditionId.toString(),
                                         data: { ...data }
                                     }
                                     setEdges((els) => {
