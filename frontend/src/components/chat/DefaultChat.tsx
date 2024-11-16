@@ -250,11 +250,11 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   return (
     <div className="flex h-screen flex-col md:flex-row">
       <div className="md:hidden p-4 bg-white border-b flex justify-between items-center">
-        <button onClick={toggleSidebar} className="text-gray-600">
+        <button onClick={()=>toggleSidebar()} className="text-gray-600">
           <FiMenu size={24} />
         </button>
         <div className="text-lg font-semibold">{title}</div>
-        <button onClick={onNewChat} className="text-[#9A75BF] font-medium">
+        <button onClick={()=>onNewChat()} className="text-[#9A75BF] font-medium">
           새 채팅
         </button>
       </div>
@@ -262,7 +262,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={closeSidebar}
+          onClick={() => closeSidebar()}
         />
       )}
 
@@ -272,7 +272,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
         } transition-transform md:relative md:translate-x-0 md:shadow-none z-50 w-64`}
       >
         <div className="p-4 flex justify-between items-center md:hidden">
-          <button onClick={closeSidebar} className="text-gray-600">
+          <button onClick={() => closeSidebar()} className="text-gray-600">
             <FiX size={24} />
           </button>
         </div>
@@ -336,7 +336,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             rows={1}
           />
           <button
-            onClick={handleSendMessage}
+            onClick={()=>handleSendMessage()}
             className="text-white bg-[#9A75BF] hover:bg-[#7C5DAF] rounded-lg p-2 md:p-2.5"
           >
             <AiOutlineSend size={15} />
