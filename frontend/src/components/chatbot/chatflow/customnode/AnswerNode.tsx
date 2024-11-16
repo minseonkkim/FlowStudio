@@ -1,4 +1,4 @@
-import { Handle, Position, type NodeProps, type Node } from "reactflow"
+import { Handle, Position, NodeProps} from "reactflow"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import { NodeData } from "@/types/chatbot";

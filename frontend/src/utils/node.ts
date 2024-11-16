@@ -41,9 +41,14 @@ export const createNodeData = (
     // questionClasses: params.questionClasses || [],
     promptSystem: params.promptSystem || "",
     promptUser: params.promptUser || "",
+    context: params.context || "",
+    temperature: params.temperature || 0.7,
+    maxTokens: params.maxTokens || 512,
+    modelProvider: params.modelProvider || "",
+    modelName: params.modelName || "",
     
     knowledge: params.knowledge || {} as Knowledge,
-    knowledgeId: params.knowledgeId || params.knowledge?.knowledgeId || 0,
+    knowledgeId: params.knowledgeId || params.knowledge?.knowledgeId,
     intervalTime: params.intervalTime || 1,
     topK: params.topK || 3,
   };

@@ -68,6 +68,11 @@ export interface NodeData{
 
   promptSystem?: string;
   promptUser?: string;
+  context?: string;
+  temperature?: number;
+  maxTokens?: number;
+  modelProvider?: string;
+  modelName?: string;
 
   knowledge?: Knowledge;
   knowledgeId?: number;

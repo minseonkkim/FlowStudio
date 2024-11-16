@@ -37,12 +37,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getChatFlow } from "@/api/chatbot";
 import { ChatFlowDetail, Coordinate, NodeData } from "@/types/chatbot";
 import { EdgeData } from "@/types/chatbot";
-import { deleteEdge, deleteEdge as deleteEdgeApi, deleteNode, deleteNode as deleteNodeApi, postEdge, postNode, putNode } from "@/api/workflow";
+import { deleteEdge, deleteEdge as deleteEdgeApi, deleteNode, deleteNode as deleteNodeApi, getNodeDetail, postEdge, postNode, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
 import { createNodeData } from "@/utils/node";
 import NodeAddMenu from "@/components/chatbot/chatflow/nodedetail/NodeAddMenu";
 import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
+import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
 
 interface ChatflowPageProps {
   params: {
@@ -76,6 +77,7 @@ const nodeTypes = {
   START: StartNode,
   ANSWER: AnswerNode,
   RETRIEVER: RetrieverNode,
+  LLM: LlmNode,
 }
 
 
@@ -90,47 +92,59 @@ export default function Page({ params }: ChatflowPageProps) {
    * 처음 화면에 들어왔을 때 노드 초기화
    */
   useEffect(() => {
-    getChatFlow(params.id).then((data) => {
-      // 초기 노드 데이터 가져오기
-      const initNodes: NodeData[] = data.nodes;
-
-      // 팩토리 함수로 NodeData 생성
-      const newNodes = initNodes.map((node) =>
-        createNodeData(
-          node,
-          params.id, // chatFlowId 전달
-          setNodes,
-          setEdges,
-          setSelectedNode,
-        )
-      );
-
-      // ReactFlow에 필요한 노드 데이터로 변환
-      const reactFlowNodes = newNodes.map((node) => ({
-        id: node.nodeId.toString(),
-        type: node.type,
-        position: node.coordinate,
-        data: node, // 팩토리 함수로 생성된 NodeData 객체 전달
-      }));
-
-      setNodes(reactFlowNodes); // 노드 상태 설정
-
-      // 초기 엣지 데이터 가져오기
-      const initEdges: EdgeData[] = data.edges;
-
-      // ReactFlow에 필요한 엣지 데이터로 변환
-      const reactFlowEdges = initEdges.map((edge) => ({
-        id: edge.edgeId.toString(),
-        source: edge.sourceNodeId.toString(),
-        target: edge.targetNodeId.toString(),
-        data: { ...edge },
-      }));
-
-      setEdges(reactFlowEdges); // 엣지 상태 설정
-    });
-
-  }, []);
-
+    // 노드와 엣지를 초기화하는 비동기 함수
+    const initializeFlow = async () => {
+      try {
+        const data = await getChatFlow(params.id);
+  
+        // 초기 노드 데이터 가져오기
+        const initNodes: NodeData[] = data.nodes;
+  
+        // 비동기 작업 처리
+        const newNodes = await Promise.all(
+          initNodes.map(async (node) => {
+            const nodeDetail = await getNodeDetail(node.nodeId); // getNodeDetail 호출
+            return createNodeData(
+              nodeDetail,
+              params.id, // chatFlowId 전달
+              setNodes,
+              setEdges,
+              setSelectedNode
+            );
+          })
+        );
+  
+        // ReactFlow에 필요한 노드 데이터로 변환
+        const reactFlowNodes = newNodes.map((node) => ({
+          id: node.nodeId.toString(),
+          type: node.type,
+          position: node.coordinate,
+          data: node, // 팩토리 함수로 생성된 NodeData 객체 전달
+        }));
+  
+        setNodes(reactFlowNodes); // 노드 상태 설정
+  
+        // 초기 엣지 데이터 가져오기
+        const initEdges: EdgeData[] = data.edges;
+  
+        // ReactFlow에 필요한 엣지 데이터로 변환
+        const reactFlowEdges = initEdges.map((edge) => ({
+          id: edge.edgeId.toString(),
+          source: edge.sourceNodeId.toString(),
+          target: edge.targetNodeId.toString(),
+          data: { ...edge },
+        }));
+  
+        setEdges(reactFlowEdges); // 엣지 상태 설정
+      } catch (error) {
+        console.error("Flow 초기화 중 오류 발생:", error);
+      }
+    };
+  
+    // 비동기 함수 호출
+    initializeFlow();
+  }, [params.id, setNodes, setEdges, setSelectedNode]);
+  
   /**
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
