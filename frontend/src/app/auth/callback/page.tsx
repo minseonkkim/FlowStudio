@@ -28,7 +28,7 @@ function CallbackContent() {
         localStorage.setItem('profileImage', userInfo.profileImage);
       }
 
-      router.push('/');
+      router.push('/explore/chatbots');
     } else {
       console.error('accessToken not found in query parameters');
       router.push('/login');

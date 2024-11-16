@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { motion, useAnimation } from "framer-motion";
 import robotImg from "@/assets/landing/robot.png";
@@ -30,7 +30,19 @@ export default function Page() {
   const evaluationAnimation = useAnimation();
   const finalSectionAnimation = useAnimation();
   const router = useRouter();
+  const [isLogin, setIsLogin] = useState<boolean>(false);
   
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLogin(!!token); 
+  }, []);
+
+  useEffect(() => {
+    if (isLogin) {
+      router.push('/explore/chatbots');
+    }
+  }, [isLogin, router]);
+
 
    useEffect(() => {
     if (inView1) {
