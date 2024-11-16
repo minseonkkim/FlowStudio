@@ -3,9 +3,6 @@ import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { parsedTestDataState,  } from "@/store/evaluationAtoms";
 
-
-
-
 export default function TestResult() {
 
   
