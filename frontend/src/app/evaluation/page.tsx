@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import EvaluationFirst from "@/components/evaluation/SelectChatbot";
 import EvaluationSecond from "@/components/evaluation/TestCaseInput";
 import EvaluationThird from "@/components/evaluation/TestResult";

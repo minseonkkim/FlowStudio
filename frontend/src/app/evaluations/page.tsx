@@ -1,49 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from "@/components/common/Search";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import PurpleButton from "@/components/common/PurpleButton";
 import { ChatFlow } from "@/types/chatbot";
-
-const chatFlows: ChatFlow[] = [
-  {
-    chatFlowId: 1,
-    title: "챗봇 1",
-    description: "챗봇 1 묘사",
-    author: {
-      id: 1,
-      username: "김싸피",
-      nickname: "김싸피",
-      profileImage: "kim.png",
-    },
-    thumbnail: "1",
-    categories: [
-      { categoryId: 1, name: "교육" },
-      { categoryId: 2, name: "금융" },
-    ],
-    public: true,
-  },
-  {
-    chatFlowId: 2,
-    title: "챗봇 2",
-    description: "챗봇 2 묘사",
-    author: {
-      id: 2,
-      username: "정싸피",
-      nickname: "정싸피",
-      profileImage: "jeong.png",
-    },
-    thumbnail: "2",
-    categories: [
-      { categoryId: 1, name: "금융" },
-      { categoryId: 3, name: "교육" },
-    ],
-    public: true,
-  },
-];
+import { getChatFlowTestList } from "@/api/evaluation"
+import { useQuery } from '@tanstack/react-query';
 
 export default function Page() {
   const router = useRouter();
@@ -61,11 +26,23 @@ export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
+  const { isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
+    queryKey: ['chatFlows'],
+    queryFn: () => getChatFlowTestList(true),
+    
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("테스트 완료한 챗플로우 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
 
-  const filteredChatFlows = chatFlows.filter((bot) => {
+  const filteredChatFlows = (chatFlows || []).filter((bot) => {
     const matchesCategory =
       selectedCategory === "모든 챗봇" ||
       bot.categories.some((category) => category.name === selectedCategory);
@@ -133,7 +110,7 @@ export default function Page() {
             description={bot.description}
             iconId={bot.thumbnail}
             category={bot.categories.map((cat) => cat.name)}
-            onCardClick={() => handleResultClick(bot.chatFlowId)}
+            onCardClick={() => handleResultClick(String(bot.chatFlowId))}
             type="eval"
           />
         ))}
@@ -149,8 +126,7 @@ export default function Page() {
             iconId={bot.thumbnail}
             category={bot.categories.map((cat) => cat.name)}
             type="eval"
-            onCardClick={() => handleResultClick(bot.chatFlowId)}
-          />
+            onCardClick={() => handleResultClick(String(bot.chatFlowId))}/>
         ))}
       </div>
     </div>

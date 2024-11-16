@@ -1,10 +1,8 @@
 "use client"; 
 
-import { postChatting } from '@/api/chat';
 import { useRouter } from 'next/navigation';
 import ChatPage from './chat/[id]/page';
 import { useState } from 'react';
-import { useMutation } from "@tanstack/react-query";
 
 
 export default function Home() {

@@ -5,13 +5,13 @@ import PreviewChat from "@/components/chat/PreviewChat";
 import DefaultChat from "@/components/chat/DefaultChat";
 
 type ChatPageProps = {
-  customStyle?: string;
+  customStyle?: "preview" | "default"; 
   params: {
     id: string;
   };
 };
 
-export default function chatpage({ customStyle = "default", params }: ChatPageProps) {
+export default function ChatPage({ customStyle = "default", params }: ChatPageProps) {
   const chatFlowId = params.id;
 
   return customStyle === "preview" ? (
