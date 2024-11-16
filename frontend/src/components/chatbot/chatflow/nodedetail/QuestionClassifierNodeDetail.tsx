@@ -76,24 +76,53 @@ export default function QuestionClassifierNodeDetail({
   const handleAddClass = () => {
     if (localClasses.length < 5) {
       postQuestionClassNode(node.data.nodeId, {content : ""})
-      .then((data) => {
+      .then((data : QuestionClass) => {
         setLocalClasses([...localClasses, data]);
+        // handleClassContentChange(data)
       })
     }
   };
 
-  const handleClassChange = (currentClass: QuestionClass, newValue: string) => {
+  const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
+    // localClasses 업데이트
     const updatedClasses = localClasses.map((cls) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     );
     setLocalClasses(updatedClasses);
+  
+    console.log("Before update:", node.data.questionClasses);
+  
+    // node.data.questionClasses 업데이트
+    const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
+      cls.id === currentClass.id ? { ...cls, content: newValue } : cls
+    );
+  
+    // node의 데이터에 새로운 questionClasses 반영
+    const updatedNode = {
+      ...node,
+      data: {
+        ...node.data,
+        questionClasses: updatedQuestionClasses,
+      },
+    };
+  
+    console.log("After update:", updatedNode.data.questionClasses);
+  
+    // 상태 업데이트
+    setNodes((prevNodes: Node[]) =>
+      prevNodes.map((n) =>
+        n.id === node.id ? updatedNode : n // 기존 노드와 id가 같으면 업데이트
+      )
+    );
   };
   
+
   const handleDeleteClass = (currentClass: QuestionClass) => {
     deleteQuestionClassNode(currentClass.id)
     .then((data) => {
       if (data) { // 삭제 성공 여부
         setLocalClasses(localClasses.filter((cls) => cls.id !== currentClass.id));
+        // handleClassContentChange(currentClass);
       }
     })
   };  
@@ -146,7 +175,7 @@ export default function QuestionClassifierNodeDetail({
               }}
               value={cls?.content || ""}
               onChange={(e) => {
-                handleClassChange(cls, e.target.value);
+                handleClassContentChange(cls, e.target.value);
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
               }}
