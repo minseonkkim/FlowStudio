@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -22,6 +24,7 @@ public class QuestionClassService {
 
     private final NodeRepository nodeRepository;
     private final QuestionClassRepository questionClassRepository;
+    private final EdgeRepository edgeRepository;
 
     @Transactional
     public QuestionClassResponse createQuestionClass(Long nodeId) {
@@ -47,4 +50,18 @@ public class QuestionClassService {
 
         return QuestionClassResponse.from(questionClass);
     }
+
+    @Transactional
+    public boolean deleteQuestionClass(Long questionClassId) {
+        QuestionClass questionClass = questionClassRepository.findById(questionClassId).orElseThrow(
+                () -> new BaseException(ErrorCode.QUESTION_CLASS_NOT_FOUND)
+        );
+
+        Optional<Edge> edge = edgeRepository.findBySourceConditionId(questionClassId);
+        edge.ifPresent(edgeRepository::delete);
+
+        questionClassRepository.delete(questionClass);
+        return true;
+    }
+
 }
