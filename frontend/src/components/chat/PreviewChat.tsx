@@ -5,7 +5,7 @@ import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
 import { useMutation } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { postMessage, postChatting } from "@/api/chat";
-import { Message } from '@/types/chat'
+import { Message } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -19,10 +19,16 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
   const [previewChatId, setPreviewChatId] = useState<number>();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const sseRef = useRef<EventSourcePolyfill | null>(null); // SSE 인스턴스 추적
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
   // SSE 연결 초기화 함수
   const initializeSSE = (token: string) => {
+    if (sseRef.current) {
+      console.log("이미 연결된 SSE");
+      sseRef.current.close(); // 기존 연결 닫기
+    }
+
     const sse = new EventSourcePolyfill(`${BASE_URL}/sse/connect`, {
       headers: { Authorization: `Bearer ${token}` },
       withCredentials: true,
@@ -36,13 +42,19 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      console.log(data)
+      console.log("Node Event Received:", data);
       if (data.type === "ANSWER") {
         setMessages((prev) => [...prev.slice(0, -1), { text: data.message, sender: "server" }]);
       }
     });
 
-    sse.onerror = () => console.error("SSE 연결 오류: 자동 재연결 시도 중...");
+    sse.onerror = (error) => {
+      console.error("SSE 연결 오류:", error);
+      sse.close(); // 오류 시 기존 연결 닫기
+      sseRef.current = null; // 레퍼런스 초기화
+    };
+
+    sseRef.current = sse; // SSE 레퍼런스 업데이트
   };
 
   // 채팅 ID 생성 및 토큰 저장 후 SSE 연결
@@ -52,10 +64,10 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
       const newChatId = response.data.data.id;
       setPreviewChatId(newChatId);
 
-      const accessToken = response.headers["authorization"] || localStorage.getItem("accessToken") 
-      console.log(accessToken)
+      const accessToken = response.headers["authorization"] || localStorage.getItem("accessToken");
+      console.log("Access Token:", accessToken);
       if (accessToken) {
-        initializeSSE(accessToken); 
+        initializeSSE(accessToken);
       } else {
         console.error("SSE 연결을 위한 토큰이 없습니다.");
       }
@@ -67,8 +79,10 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
 
   // 초기 설정: 채팅 ID 생성 후 토큰 저장 및 SSE 연결
   useEffect(() => {
-    createChatMutation.mutate({ isPreview: true });
-  }, []);
+    if (!sseRef.current && !previewChatId) {
+      createChatMutation.mutate({ isPreview: true });
+    }
+  }, [previewChatId]); 
 
   useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [messages]);
 

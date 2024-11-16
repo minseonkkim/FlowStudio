@@ -1,34 +1,18 @@
-const items = [
-  {
-    id: 1,
-    testQuestion: "What is the capital of France?",
-    groundTruth: "Paris",
-    prediction: "Paris",
-    embeddingDistance: 0.95,
-    rougeMetric: 0.95,
-    crossEncoder: 0.95,
-  },
-  {
-    id: 2,
-    testQuestion: "What is 2 + 2?",
-    groundTruth: "4",
-    prediction: "4",
-    embeddingDistance: 0.95,
-    rougeMetric: 0.95,
-    crossEncoder: 0.95,
-  },
-  {
-    id: 3,
-    testQuestion: "Who wrote 'To Kill a Mockingbird'?",
-    groundTruth: "Harper Lee",
-    prediction: "Harper Lee",
-    embeddingDistance: 0.95,
-    rougeMetric: 0.95,
-    crossEncoder: 0.95,
-  },
-];
+"use client";
+import { useEffect } from "react";
+import { useRecoilValue } from "recoil";
+import { parsedTestDataState,  } from "@/store/evaluationAtoms";
 
 export default function TestResult() {
+
+  
+  const items = useRecoilValue(parsedTestDataState)
+
+
+  useEffect(()=>{
+    console.log(items)
+
+  },[items])
   const calculateMeanAndVariance = (key: keyof typeof items[0]) => {
     const values = items.map((item) => item[key] as number);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
@@ -45,9 +29,9 @@ export default function TestResult() {
   return (
     <div className="container">
       {items.map((item) => (
-        <div key={item.id} className="border-2 rounded-xl mb-4">
+        <div key={item.chatId} className="border-2 rounded-xl mb-4">
           <details className="py-4 px-6">
-            <summary className="font-semibold">테스트 케이스 {item.id}</summary>
+            <summary className="font-semibold">테스트 케이스 {item.chatId}</summary>
             <div className="mt-4">
               <label className="block mb-2">평가 결과</label>
               <div>Embedding Distance: {item.embeddingDistance}</div>
