@@ -28,6 +28,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -165,4 +166,36 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                                 )
                                 .build())));
     }
+
+
+    @DisplayName("질문 분류를 삭제.")
+    @Test
+    void deleteQuestionClass() throws Exception {
+        // when
+        ResultActions perform = mockMvc.perform(
+                delete("/api/v1/chat-flows/nodes/question-classes/{questionClassId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("delete-question-class",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("Node")
+                                .summary("질문 분류 (질문 클래스) 사겢")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data").type(JsonFieldType.BOOLEAN)
+                                                .description("삭제 여부")
+                                )
+                                .build())));
+    }
+
 }

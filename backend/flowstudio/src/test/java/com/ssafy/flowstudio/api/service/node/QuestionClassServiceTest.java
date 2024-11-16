@@ -11,6 +11,7 @@ import com.ssafy.flowstudio.domain.node.entity.Answer;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
 import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
 import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
+import com.ssafy.flowstudio.domain.node.entity.Start;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -40,6 +41,9 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private QuestionClassRepository questionClassRepository;
+
+    @Autowired
+    private EdgeRepository edgeRepository;
 
     @DisplayName("질문 분류를 생성한다.")
     @Test
@@ -121,4 +125,52 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
                 .extracting("id", "content", "questionClassifierId")
                 .containsExactly(questionClass.getId(), "updated-question-content", questionClassifier.getId());
     }
+
+    @DisplayName("질문 분류를 삭제한다.")
+    @Test
+    void deleteQuestionClassContent() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        Start start = Start.create(chatFlow, coordinate);
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(start);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        QuestionClass questionClass = QuestionClass.empty();
+        questionClass.updateQuestionClassifier(questionClassifier);
+        questionClassRepository.save(questionClass);
+
+        Edge edge = Edge.builder()
+                .sourceNode(start)
+                .targetNode(questionClassifier)
+                .sourceConditionId(questionClass.getId())
+                .build();
+
+        edgeRepository.save(edge);
+
+        // when
+        boolean result = questionClassService.deleteQuestionClass(questionClass.getId());
+
+        // then
+        assertThat(result).isTrue();
+        assertThat(edgeRepository.existsById(edge.getId())).isFalse();
+    }
+
 }
