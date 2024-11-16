@@ -28,4 +28,9 @@ public interface ChatFlowRepository extends JpaRepository<ChatFlow, Long>, Custo
             "LEFT JOIN FETCH c.nodes n " +
             "WHERE c.id = :id ")
     Optional<ChatFlow> findById(Long id);
+
+    @Query("SELECT c FROM ChatFlow c " +
+            "JOIN FETCH c.tests t " +
+            "WHERE c.owner.id = :userId ")
+    List<ChatFlow> findByOwnerWithTest(Long userId);
 }

@@ -91,7 +91,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .shareCount(0)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when
@@ -110,7 +110,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                 .tag("ChatFlow")
                                 .summary("챗플로우 목록 조회")
                                 .queryParameters(
-                                        parameterWithName("isShared").optional().description("공유여부")
+                                        parameterWithName("isShared").optional().description("공유여부"),
+                                        parameterWithName("test").optional().description("테스트 존재 여부")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
