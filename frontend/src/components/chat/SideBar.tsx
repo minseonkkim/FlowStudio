@@ -93,24 +93,26 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
       </button>
       
       <div className="flex-grow overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 space-y-4">
-        {chatlist?.chats?.map((chat) => (
-          <div 
-            key={chat.id} 
-            className={`cursor-pointer p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
-              localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
-            }`}
-            onClick={() => handleChatClick(chat.id)}
-          >
-            <div className="text-gray-700">{chat.title}</div>
-            <CgTrash  
-              className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation(); 
-                handleDeleteClick(String(chat.id));
-              }}
-            />
-          </div>
-        ))}
+        {chatlist?.chats
+      ?.filter((chat) => chat.title !== null) // title이 null인 항목 제외
+      .map((chat) => (
+        <div 
+          key={chat.id} 
+          className={`cursor-pointer p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
+            localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
+          }`}
+          onClick={() => handleChatClick(chat.id)}
+        >
+          <div className="text-gray-700">{chat.title}</div>
+          <CgTrash  
+            className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation(); 
+              handleDeleteClick(String(chat.id));
+            }}
+          />
+        </div>
+      ))}
       </div>
     </div>
   );

@@ -35,6 +35,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [, setChatlist] = useState<getChatListData | undefined>();
   const profileImage = useRecoilValue(profileImageAtom);
+  const [isLogin, setIsLogin] = useState<boolean>(false)
 
   const thumbnailImages: { [key: number]: string } = {
     1: one,
@@ -51,7 +52,13 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+ 
 
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLogin(!!token); 
+  }, []);
+  
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -95,6 +102,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
+      console.log(data)
       if (data.type === "ANSWER") {
         setMessages((prev) => [...prev.slice(0, -1), { text: data.message, sender: "server" }]);
       }
@@ -113,6 +121,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       setDefaultChatId(newChatId);
 
       const accessToken = response.headers["authorization"] || localStorage.getItem("accessToken");
+    
       if (accessToken) {
         initializeSSE(accessToken);
         if (pendingMessage) {
@@ -135,6 +144,8 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     },
   });
 
+
+  
   const handleSendMessage = () => {
     if (input.trim()) {
       const message = input.trim();
@@ -154,6 +165,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       if (inputRef.current) inputRef.current.style.height = "auto";
     }
   };
+
 
   const sendMessageMutation = useMutation({
     mutationFn: (data: { chatId: string; message: string }) =>
@@ -184,24 +196,29 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     enabled: !!defaultChatId && typeof window !== "undefined" && !!localStorage.getItem("accessToken"),
   });
 
+
   useEffect(() => {
     if (isError && error) {
       alert("채팅내역을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
-
+  
+  
   useEffect(() => {
     if (chatDetail) {
       try {
         const parsedMessageList = JSON.parse(chatDetail.messageList);
-        setMessages(
-          parsedMessageList
-            .map((msg: { question: string; answer: string }) => [
-              { text: msg.question, sender: "user" as const },
-              { text: msg.answer, sender: "server" as const },
-            ])
-            .flat()
-        );
+        if (parsedMessageList && parsedMessageList.length > 0) {
+          setMessages(
+            parsedMessageList
+              .map((msg: { question: string; answer: string }) => [
+                { text: msg.question, sender: "user" as const },
+                { text: msg.answer, sender: "server" as const },
+              ])
+              .flat()
+          );
+        }
+  
         if (chatDetail.title != null) {
           setTitle(chatDetail.title);
         } else {
@@ -212,10 +229,11 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
       }
     }
   }, [chatDetail]);
-
+    
   const handleSelectChat = (chatId: number) => {
     setDefaultChatId(chatId);
   };
+
 
   const onNewChat = () => {
     setMessages([]);
@@ -258,6 +276,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             <FiX size={24} />
           </button>
         </div>
+        {isLogin && 
         <SideBar
           onNewChat={onNewChat}
           chatFlowId={chatFlowId}
@@ -265,6 +284,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
           onDeleteNewChat={onDeleteNewChat}
           selectedChatId={defaultChatId}
         />
+        }
       </div>
 
       <div className="flex flex-col flex-grow bg-gray-50">
