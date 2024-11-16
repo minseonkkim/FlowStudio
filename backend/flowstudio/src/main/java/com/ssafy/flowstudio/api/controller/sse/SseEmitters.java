@@ -39,6 +39,8 @@ public class SseEmitters {
             emitter.complete();
         });
 
+        emitter.onError(e -> log.warn("SSE connection error: {}", e.getMessage()));
+
         return emitter;
     }
 
@@ -96,7 +98,9 @@ public class SseEmitters {
                 emitter.send(SseEmitter.event()
                         .name("testCase")
                         .data(data));
+                log.info("테스트케이스 전송 성공: {}", data);
             } catch (IOException e) {
+                log.error("테스트케이스 전송 실패");
                 throw new RuntimeException(e);
             }
         }
@@ -111,7 +115,9 @@ public class SseEmitters {
                 emitter.send(SseEmitter.event()
                         .name("testResult")
                         .data(data));
+                log.info("테스트 결과 전송 성공: {}", data);
             } catch (IOException e) {
+                log.error("테스트 결과 전송 실패");
                 throw new RuntimeException(e);
             }
         }
@@ -126,7 +132,9 @@ public class SseEmitters {
                 emitter.send(SseEmitter.event()
                         .name("prediction")
                         .data(data));
+                log.info("prediction 전송 성공");
             } catch (IOException e) {
+                log.error("prediction 전송 실패");
                 throw new RuntimeException(e);
             }
         }
