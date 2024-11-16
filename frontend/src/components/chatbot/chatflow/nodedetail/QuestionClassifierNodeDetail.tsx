@@ -1,29 +1,15 @@
-import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
-import { useCallback, Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
+import { Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
-import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { Edge, Node } from "reactflow";
-import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode } from "@/api/workflow";
+import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode, putQuestionClassNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
-import { getAllKnowledges } from "@/api/knowledge";
-import { EdgeData, Knowledge, QuestionClass } from "@/types/chatbot";
-
-// type ClassType = { text: string };
-// type ConnectedNodesType = { [key: string]: ConnectedNode[] };
-
-// interface QuestionClassifierNodeDetailProps {
-//   classes: ClassType[];
-//   setClasses: (updatedClasses: ClassType[]) => void;
-//   addNode: (type: string, condition: string) => void;
-//   onClose: () => void;
-//   connectedNodes: ConnectedNodesType;
-//   setConnectedNodes: (targetNodeId: number) => void;
-// }
+import { QuestionClass } from "@/types/chatbot";
+import { debounce } from "@/utils/node";
 
 
 export default function QuestionClassifierNodeDetail({
@@ -47,20 +33,13 @@ export default function QuestionClassifierNodeDetail({
   onClose: () => void
   connectedNodes: ConnectedNode[];
 }) {
-  const [isOpen, setIsOpen] = useState<{ [key: string]: boolean }>({});
-  const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>([]);
-
-  const toggleDropdown = (classId: string) => {
-    setIsOpen((prev) => ({ ...prev, [classId]: !prev[classId] }));
-  };
-
   const [localClasses, setLocalClasses] = useState<QuestionClass[]>([]);
 
   useEffect(() => {
     console.log("이것이 현재 클래스들이다 ", node.data.questionClasses);
-    
+
     setLocalClasses(node.data.questionClasses);
   }, [node.data.questionClasses]);
 
@@ -79,44 +58,57 @@ export default function QuestionClassifierNodeDetail({
         // localClasses 업데이트
         const updatedLocalClasses = [...localClasses, data];
         setLocalClasses(updatedLocalClasses);
-  
+
         // node.data.questionClasses 업데이트
         const updatedQuestionClasses = [...node.data.questionClasses, data];
         updateNodeDataQuestionClasses(updatedQuestionClasses);
       });
     }
   };
-  
+
   const handleDeleteClass = (currentClass: QuestionClass) => {
     deleteQuestionClassNode(currentClass.id).then((data) => {
       if (data) {
         // localClasses 업데이트
         const updatedLocalClasses = localClasses.filter((cls) => cls.id !== currentClass.id);
         setLocalClasses(updatedLocalClasses);
-  
+
         // node.data.questionClasses 업데이트
         const updatedQuestionClasses = node.data.questionClasses.filter(
-          (cls : QuestionClass) => cls.id !== currentClass.id
+          (cls: QuestionClass) => cls.id !== currentClass.id
         );
         updateNodeDataQuestionClasses(updatedQuestionClasses);
       }
     });
   };
-  
+
+  const debouncedSaveRef = useRef<(id: number, content: string) => void>();
+
+  useEffect(() => {
+    // debounce를 useRef에 저장
+    debouncedSaveRef.current = debounce((id: number, content: string) => {
+      putQuestionClassNode(id, { content });
+    }, 500);
+  }, []); // debounce는 한 번만 생성
+
   const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
-    // localClasses 업데이트
     const updatedLocalClasses = localClasses.map((cls) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     );
     setLocalClasses(updatedLocalClasses);
-  
-    // node.data.questionClasses 업데이트
+
     const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     );
     updateNodeDataQuestionClasses(updatedQuestionClasses);
+
+    // debouncedSave 호출
+    if (debouncedSaveRef.current) {
+      debouncedSaveRef.current(currentClass.id, newValue || "");
+    }
   };
-  
+
+
   /**
    * node.data.questionClasses를 업데이트하고 상태 반영
    */
@@ -129,9 +121,9 @@ export default function QuestionClassifierNodeDetail({
         questionClasses: updatedQuestionClasses,
       },
     };
-  
+
     console.log("Updated node data:", updatedNode.data.questionClasses);
-  
+
     // 상태 업데이트
     setNodes((prevNodes: Node[]) =>
       prevNodes.map((n) =>
@@ -139,15 +131,15 @@ export default function QuestionClassifierNodeDetail({
       )
     );
   };
-  
+
 
   useEffect(() => {
     // 상태 업데이트
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes, localClasses]); // 의존성 배열에 필요한 값 추가
-  
-  
-  
+
+
+
 
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString() && edge.sourceHandle == targetNode.sourceConditionId?.toString());
@@ -226,18 +218,18 @@ export default function QuestionClassifierNodeDetail({
                   <div className="flex flex-col w-[185px] mt-[6px]">
                     {connectedNodes?.map((node, edgeIndex) =>
                       node.sourceConditionId == cls.id ? (
-                      <div
-                        key={edgeIndex}
-                        className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-                      >
-                        {nodeConfig[node.name]?.icon}
-                        <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
-                        <AiOutlineClose
-                          className="cursor-pointer ml-auto"
-                          style={{ color: deleteIconColors[node.name] || "gray" }}
-                          onClick={() => deleteConnectEdge(node)}
-                        />
-                      </div>
+                        <div
+                          key={edgeIndex}
+                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                        >
+                          {nodeConfig[node.name]?.icon}
+                          <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
+                          <AiOutlineClose
+                            className="cursor-pointer ml-auto"
+                            style={{ color: deleteIconColors[node.name] || "gray" }}
+                            onClick={() => deleteConnectEdge(node)}
+                          />
+                        </div>
                       ) : null
                     )}
 

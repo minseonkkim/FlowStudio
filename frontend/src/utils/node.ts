@@ -1,6 +1,6 @@
 import { deleteNode, postNode } from "@/api/workflow";
 import { NodeData, Knowledge } from "@/types/chatbot";
-import { Dispatch, SetStateAction, useCallback } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Edge, Node } from "reactflow"
 
 // 노드 생성 팩토리 함수
@@ -92,4 +92,25 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
   return postNode(newNode);
 }
 );
+
+
+/**
+ * 디바운스 유틸리티 함수
+ * @param func 실행할 함수
+ * @param delay 지연 시간 (ms)
+ */
+export function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
+  let timer: NodeJS.Timeout;
+
+  return (...args: Parameters<T>) => {
+    if (timer) {
+      clearTimeout(timer); // 이전 타이머 취소
+    }
+
+    timer = setTimeout(() => {
+      func(...args); // 지연 후 함수 실행
+    }, delay);
+  };
+}
+
 

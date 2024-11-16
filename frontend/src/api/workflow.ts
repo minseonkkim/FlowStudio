@@ -1,7 +1,5 @@
 import { NodeData } from "@/types/workflow";
 import axiosInstance from "./token/axiosInstance";
-import { Dispatch, SetStateAction } from "react";
-import { Edge, Node } from "reactflow";
 import { EdgeData } from "@/types/chatbot";
 
 // 노드 생성
@@ -69,6 +67,8 @@ export async function putNode(nodeId: number, data: any){
 
 // 질문 분류 클래스 수정
 export async function putQuestionClassNode(questionClassId: number, data: {"content" : string}){
+  console.log("질문 분류 클래스 수정", data);
+  
   try {
     const response = await axiosInstance.put(`chat-flows/nodes/question-classes/${questionClassId}`, data)
     if (response.status === 200) {
