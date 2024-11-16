@@ -305,6 +305,15 @@ export default function Page({ params }: ChatflowPageProps) {
     return null;
   }, [selectedNode, nodes, edges, connectedNodes]);
 
+  /**
+   * 드래그가 멈춘 노드는 위치정보를 업데이트
+   * @param event 
+   * @param node 드래그가 된 노드
+   */
+  function handleNodeDragStop(event: React.MouseEvent<Element>, node: Node<any, string | undefined>): void {
+    putNode(node.data.nodeId, node.data);
+  }
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
@@ -339,6 +348,7 @@ export default function Page({ params }: ChatflowPageProps) {
             onConnect={onConnect}
             onPaneContextMenu={handlePaneContextMenu}
             onPaneClick={() => setMenuPosition(null)}
+            onNodeDragStop={handleNodeDragStop}
             zoomOnScroll={true}
             zoomOnPinch={true}
             panOnScroll={true}
