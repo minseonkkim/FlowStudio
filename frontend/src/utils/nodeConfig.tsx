@@ -16,20 +16,20 @@ const icons = {
 };
 
 export const nodeConfig: Record<string, NodeConfig> = {
-  llmNode: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
-  knowledgeNode: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
-  ifelseNode: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
-  answerNode: { label: "답변", icon: icons.RiQuestionAnswerFill, color: "E6F6F0" },
-  questionclassifierNode: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
-  variableallocatorNode: { label: "변수 할당자", icon: icons.VscSymbolVariable, color: "D8D8D8" },
+  LLM: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
+  RRTRIEVER: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
+  IFELSE: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
+  ANSWER: { label: "답변", icon: icons.RiQuestionAnswerFill, color: "E6F6F0" },
+  QUESTION_CLASSIFIER: { label: "질문 분류기", icon: icons.GrTree, color: "E1E6F3" },
+  VARIABLE: { label: "변수 할당자", icon: icons.VscSymbolVariable, color: "D8D8D8" },
 };
 
 export const deleteIconColors: { [key: string]: string } = {
-    startNode: "#95C447",
-    llmNode: "#3B82F6",
-    knowledgeNode: "#F97316",
-    ifelseNode: "#EF4444",
-    answerNode: "#34D399",
-    questionclassifierNode: "#1E3A8A",
-    variableallocatorNode: "#6B7280",
+    START: "#95C447",
+    LLM: "#3B82F6",
+    RRTRIEVER: "#F97316",
+    IFELSE: "#EF4444",
+    ANSWER: "#34D399",
+    QUESTION_CLASSIFIER: "#1E3A8A",
+    VARIABLE: "#6B7280",
 };
