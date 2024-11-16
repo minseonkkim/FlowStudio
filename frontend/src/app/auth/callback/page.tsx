@@ -10,9 +10,9 @@ import { UserInfo } from '@/types/profile';
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [profileImg, setProfileImg] = useRecoilState(profileImageAtom);
+  const [, setProfileImg] = useRecoilState(profileImageAtom);
 
-  const { isLoading: isUserInfoLoading, isError: isUserInfoError, error: userInfoError, data: userInfo } = useQuery<UserInfo>({
+  const { data: userInfo } = useQuery<UserInfo>({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
   });
