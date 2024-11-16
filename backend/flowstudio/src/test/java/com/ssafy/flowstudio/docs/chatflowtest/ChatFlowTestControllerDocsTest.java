@@ -46,6 +46,7 @@ public class ChatFlowTestControllerDocsTest extends RestDocsSupport {
     void getChats() throws Exception {
         // given
         ChatFlowTestListResponse response11 = ChatFlowTestListResponse.builder()
+                .id(1L)
                 .embeddingDistanceMean(1.0f)
                 .embeddingDistanceVariance(0.1f)
                 .crossEncoderMean(1.0f)
@@ -56,6 +57,7 @@ public class ChatFlowTestControllerDocsTest extends RestDocsSupport {
                 .build();
 
         ChatFlowTestListResponse response2 = ChatFlowTestListResponse.builder()
+                .id(1L)
                 .embeddingDistanceMean(1.0f)
                 .embeddingDistanceVariance(0.1f)
                 .crossEncoderMean(1.0f)
@@ -89,6 +91,8 @@ public class ChatFlowTestControllerDocsTest extends RestDocsSupport {
                                                 .description("상태"),
                                         fieldWithPath("message").type(JsonFieldType.STRING)
                                                 .description("메시지"),
+                                        fieldWithPath("data[].id").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우 아이디"),
                                         fieldWithPath("data[].embeddingDistanceMean").type(JsonFieldType.NUMBER)
                                                 .description("평균"),
                                         fieldWithPath("data[].embeddingDistanceVariance").type(JsonFieldType.NUMBER)
