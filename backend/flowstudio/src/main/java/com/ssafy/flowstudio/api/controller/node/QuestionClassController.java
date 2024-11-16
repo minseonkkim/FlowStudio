@@ -1,6 +1,5 @@
 package com.ssafy.flowstudio.api.controller.node;
 
-import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassUpdateRequest;
 import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
 import com.ssafy.flowstudio.api.service.node.QuestionClassService;
@@ -41,4 +40,16 @@ public class QuestionClassController {
         QuestionClassResponse questionClassResponse = questionClassService.updateQuestionClass(questionClassId, request.toServiceRequest());
         return ApiResponse.ok(questionClassResponse);
     }
+    
+    /**
+     * 질문 분류 삭제
+     */
+    @DeleteMapping("/api/v1/chat-flows/nodes/question-classes/{questionClassId}")
+    public ApiResponse<Boolean> deleteQuestionClass(
+            @CurrentUser User user,
+            @PathVariable Long questionClassId
+    ) {
+        return ApiResponse.ok(questionClassService.deleteQuestionClass(questionClassId));
+    }
+
 }
