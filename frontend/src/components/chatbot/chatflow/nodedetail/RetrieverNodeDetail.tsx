@@ -36,7 +36,9 @@ export default function RetrieverNodeDetail({
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedKnowledge, setSelectedKnowledge] = useState<Knowledge>(node.data.knowledge);
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>(initialConnectedNodes);
-  const [knowledges, setKnowledges] = useState<Knowledge[]>([])
+  const [knowledges, setKnowledges] = useState<Knowledge[]>([]);
+  const [topK, setTopK] = useState(node.data.topK);
+  const [scoreThreshold, setScoreThreshold] = useState(node.data.scoreThreshold);
 
   const openModal = () => {
     getAllKnowledges()
@@ -98,6 +100,44 @@ export default function RetrieverNodeDetail({
             {selectedKnowledge.title}
           </div>
         </div>
+        <div className="flex flex-col items-start gap-2">
+            <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
+              검색 결과 수: <span className="text-sm font-medium text-gray-600">
+                {topK}
+              </span>
+            </label>
+            <div className="flex items-center gap-4 w-full">
+              <input
+                id="top-k-range"
+                type="range"
+                max={10}
+                min={1}
+                step={1}
+                value={topK}
+                onChange={(e) => setTopK(Number(e.target.value))}
+                className="w-full accent-blue-600"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col items-start gap-2">
+            <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
+              검색 유사도: <span className="text-sm font-medium text-gray-600">
+                {scoreThreshold}
+              </span>
+            </label>
+            <div className="flex items-center gap-4 w-full">
+              <input
+                id="top-k-range"
+                type="range"
+                max={1}
+                min={0}
+                step={0.01}
+                value={scoreThreshold}
+                onChange={(e) => setScoreThreshold(Number(e.target.value))}
+                className="w-full accent-blue-600"
+              />
+            </div>
+          </div>
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">다음 블록을 추가하세요.</div>
           <div className="flex flex-row justify-between w-full">

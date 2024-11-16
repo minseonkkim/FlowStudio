@@ -84,6 +84,8 @@ export interface NodeData{
   knowledgeId?: number;
   topK?: number;
   intervalTime?: number;
+  scoreThreshold?: number,
+  query?: string
 
   questionClasses?: QuestionClass[];
 }
