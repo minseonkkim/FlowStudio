@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.docs.chatflowtest;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.ssafy.flowstudio.api.controller.chatflowtest.ChatFlowTestController;
 import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequest;
+import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestCreateResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestService;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestCaseResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestDetailResponse;
@@ -215,8 +216,22 @@ public class ChatFlowTestControllerDocsTest extends RestDocsSupport {
                 .testQuestion("testQuestion")
                 .build();
 
+
+        ChatFlowTestCreateResponse response1 = ChatFlowTestCreateResponse.builder()
+                .chatId(1L)
+                .testQuestion("testQuestion")
+                .groundTruth("groundTruth")
+                .build();
+
+        ChatFlowTestCreateResponse response2 = ChatFlowTestCreateResponse.builder()
+                .chatId(2L)
+                .testQuestion("testQuestion")
+                .groundTruth("groundTruth")
+                .build();
+
+
         given(chatFlowTestService.createChatFlowTest(any(User.class), any(Long.class), any()))
-                .willReturn(List.of(1L, 2L));
+                .willReturn(List.of(response1, response2));
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -246,8 +261,12 @@ public class ChatFlowTestControllerDocsTest extends RestDocsSupport {
                                                 .description("상태"),
                                         fieldWithPath("message").type(JsonFieldType.STRING)
                                                 .description("메시지"),
-                                        fieldWithPath("data").type(JsonFieldType.ARRAY)
-                                                .description("챗 아이디")
+                                        fieldWithPath("data[].chatId").type(JsonFieldType.NUMBER)
+                                                .description("챗 아이디"),
+                                        fieldWithPath("data[].testQuestion").type(JsonFieldType.STRING)
+                                                .description("testQuestion"),
+                                        fieldWithPath("data[].groundTruth").type(JsonFieldType.STRING)
+                                                .description("groundTruth")
                                 )
                                 .build())));
     }

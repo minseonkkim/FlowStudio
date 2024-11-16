@@ -59,7 +59,7 @@ public class ChatFlowTestService {
     }
 
     @Transactional
-    public List<Long> createChatFlowTest(User user, Long chatFlowId, List<ChatFlowTestServiceRequest> request) {
+    public List<ChatFlowTestCreateResponse> createChatFlowTest(User user, Long chatFlowId, List<ChatFlowTestServiceRequest> request) {
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
@@ -81,7 +81,13 @@ public class ChatFlowTestService {
             testExecutor.execute(chat.getId(), chatFlowTestServiceRequest);
         }
 
-        return chatIds;
+        List<ChatFlowTestCreateResponse> response = new ArrayList<>();
+
+        for (int i = 0; i < request.size(); i++) {
+            response.add(ChatFlowTestCreateResponse.from(chatIds.get(i), request.get(i)));
+        }
+
+        return response;
     }
 
 }

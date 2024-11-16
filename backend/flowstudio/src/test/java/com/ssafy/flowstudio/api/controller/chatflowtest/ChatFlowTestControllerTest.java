@@ -4,6 +4,7 @@ import com.ssafy.flowstudio.api.controller.chatflowtest.request.ChatFlowTestRequ
 import com.ssafy.flowstudio.api.service.chat.response.ChatDetailResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatListResponse;
 import com.ssafy.flowstudio.api.service.chat.response.ChatSimpleResponse;
+import com.ssafy.flowstudio.api.service.chatflowtest.ChatFlowTestCreateResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestCaseResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestDetailResponse;
 import com.ssafy.flowstudio.api.service.chatflowtest.response.ChatFlowTestListResponse;
@@ -137,8 +138,22 @@ class ChatFlowTestControllerTest extends ControllerTestSupport {
                 .testQuestion("testQuestion")
                 .build();
 
+        ChatFlowTestCreateResponse response1 = ChatFlowTestCreateResponse.builder()
+                .chatId(1L)
+                .testQuestion("testQuestion")
+                .groundTruth("groundTruth")
+                .build();
+
+        ChatFlowTestCreateResponse response2 = ChatFlowTestCreateResponse.builder()
+                .chatId(2L)
+                .testQuestion("testQuestion")
+                .groundTruth("groundTruth")
+                .build();
+
+
+
         given(chatFlowTestService.createChatFlowTest(any(User.class), any(Long.class), any()))
-                .willReturn(List.of(1L, 2L));
+                .willReturn(List.of(response1, response2));
 
         // when
         ResultActions perform = mockMvc.perform(
