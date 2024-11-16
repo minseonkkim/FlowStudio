@@ -74,7 +74,7 @@ export default function QuestionClassifierNode({
       {data.questionClasses?.map((value, index) => (
         <Handle
           key={index}
-          id={value.id.toString()}
+          id={value.id.toString()} // QuestionClass id, Edge의 sourceHandle과 값이 같아야함
           type="source"
           position={Position.Right}
           style={{ top: handlePositions[index] }} // 동적 위치 설정

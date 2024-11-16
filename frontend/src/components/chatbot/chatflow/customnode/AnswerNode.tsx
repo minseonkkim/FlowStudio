@@ -31,7 +31,7 @@ export default function AnswerNode({
             {data.outputMessage}
           </div>
         </div>
-        <Handle type="source" position={Position.Right} />
+        {/* <Handle type="source" position={Position.Right} /> */}
       </div>
     </>
   );
