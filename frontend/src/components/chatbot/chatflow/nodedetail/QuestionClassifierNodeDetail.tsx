@@ -75,28 +75,52 @@ export default function QuestionClassifierNodeDetail({
 
   const handleAddClass = () => {
     if (localClasses.length < 5) {
-      postQuestionClassNode(node.data.nodeId, {content : ""})
-      .then((data : QuestionClass) => {
-        setLocalClasses([...localClasses, data]);
-        // handleClassContentChange(data)
-      })
+      postQuestionClassNode(node.data.nodeId, { content: "" }).then((data: QuestionClass) => {
+        // localClasses 업데이트
+        const updatedLocalClasses = [...localClasses, data];
+        setLocalClasses(updatedLocalClasses);
+  
+        // node.data.questionClasses 업데이트
+        const updatedQuestionClasses = [...node.data.questionClasses, data];
+        updateNodeDataQuestionClasses(updatedQuestionClasses);
+      });
     }
   };
-
+  
+  const handleDeleteClass = (currentClass: QuestionClass) => {
+    deleteQuestionClassNode(currentClass.id).then((data) => {
+      if (data) {
+        // localClasses 업데이트
+        const updatedLocalClasses = localClasses.filter((cls) => cls.id !== currentClass.id);
+        setLocalClasses(updatedLocalClasses);
+  
+        // node.data.questionClasses 업데이트
+        const updatedQuestionClasses = node.data.questionClasses.filter(
+          (cls : QuestionClass) => cls.id !== currentClass.id
+        );
+        updateNodeDataQuestionClasses(updatedQuestionClasses);
+      }
+    });
+  };
+  
   const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
     // localClasses 업데이트
-    const updatedClasses = localClasses.map((cls) =>
+    const updatedLocalClasses = localClasses.map((cls) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     );
-    setLocalClasses(updatedClasses);
-  
-    console.log("Before update:", node.data.questionClasses);
+    setLocalClasses(updatedLocalClasses);
   
     // node.data.questionClasses 업데이트
     const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     );
+    updateNodeDataQuestionClasses(updatedQuestionClasses);
+  };
   
+  /**
+   * node.data.questionClasses를 업데이트하고 상태 반영
+   */
+  const updateNodeDataQuestionClasses = (updatedQuestionClasses: QuestionClass[]) => {
     // node의 데이터에 새로운 questionClasses 반영
     const updatedNode = {
       ...node,
@@ -106,7 +130,7 @@ export default function QuestionClassifierNodeDetail({
       },
     };
   
-    console.log("After update:", updatedNode.data.questionClasses);
+    console.log("Updated node data:", updatedNode.data.questionClasses);
   
     // 상태 업데이트
     setNodes((prevNodes: Node[]) =>
@@ -116,16 +140,6 @@ export default function QuestionClassifierNodeDetail({
     );
   };
   
-
-  const handleDeleteClass = (currentClass: QuestionClass) => {
-    deleteQuestionClassNode(currentClass.id)
-    .then((data) => {
-      if (data) { // 삭제 성공 여부
-        setLocalClasses(localClasses.filter((cls) => cls.id !== currentClass.id));
-        // handleClassContentChange(currentClass);
-      }
-    })
-  };  
 
   useEffect(() => {
     // 상태 업데이트
