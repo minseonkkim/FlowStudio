@@ -56,7 +56,7 @@ export default function Page() {
     router.push("/evaluation");
   };
 
-  const handleResultClick = (id: string) => {
+  const handleResultClick = (id: number) => {
     router.push(`/evaluation/${id}/result`);
   };
 
@@ -105,6 +105,7 @@ export default function Page() {
         {filteredChatFlows.map((bot) => (
           <ChatbotCard
             key={bot.chatFlowId}
+            chatbotId={bot.chatFlowId}
             title={bot.title}
             description={bot.description}
             iconId={bot.thumbnail}

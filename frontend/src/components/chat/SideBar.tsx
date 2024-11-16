@@ -3,7 +3,7 @@ import { getChattingList, deleteChatting } from '@/api/chat';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getChatListData } from '@/types/chat';
 import { CgTrash } from '@react-icons/all-files/cg/CgTrash';
-import Image, { StaticImageData } from 'next/image';
+import Image from 'next/image';
 import one from '../../../public/chatbot-icon/1.jpg';
 import two from '../../../public/chatbot-icon/2.jpg';
 import three from '../../../public/chatbot-icon/3.jpg';
@@ -16,7 +16,7 @@ type SidebarProps = {
   chatFlowId: string;
   onSelectChat: (chatId: number) => void;
   onDeleteNewChat: () => void;
-  selectedChatId: number | null
+  selectedChatId: number | null;
 };
 
 export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteNewChat, selectedChatId }: SidebarProps) {
@@ -25,14 +25,12 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
 
   useEffect(() => {
     setLocalSelectedChatId(selectedChatId);
-}, [selectedChatId]);
+  }, [selectedChatId]);
 
   const { isError, error, data: chatlist } = useQuery<getChatListData>({
     queryKey: ['chatlist', chatFlowId],
     queryFn: () => getChattingList(chatFlowId), 
   });
-
-
 
   useEffect(() => {
     if (isError && error) {
@@ -61,7 +59,8 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
     onSelectChat(chatId);
   };
 
-  const thumbnailImages: { [key: number]: StaticImageData } = {
+  // Ensure StaticImageData or default to an image
+  const thumbnailImages: { [key: number]: string } = {
     1: one,
     2: two,
     3: three,
@@ -73,9 +72,9 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
   return (
     <div className="w-64 p-6 border-r bg-white h-screen flex flex-col">
       <div className="flex items-center mb-8">
-        {chatlist?.thumbnail && thumbnailImages[chatlist.thumbnail] && (
+        {chatlist?.thumbnail && thumbnailImages[Number(chatlist.thumbnail)] && (
           <Image 
-            src={thumbnailImages[chatlist.thumbnail]} 
+            src={thumbnailImages[Number(chatlist.thumbnail)]} 
             alt={`Thumbnail ${chatlist.thumbnail}`} 
             className="rounded-lg w-10 h-10 mr-4" 
           />
@@ -94,24 +93,26 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
       </button>
       
       <div className="flex-grow overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 space-y-4">
-        {chatlist?.chats?.map((chat) => (
-          <div 
-            key={chat.id} 
-            className={`p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
-              localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
-            }`}
-            onClick={() => handleChatClick(chat.id)}
-          >
-            <div className="text-gray-700">{chat.title}</div>
-            <CgTrash  
-              className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation(); 
-                handleDeleteClick(String(chat.id));
-              }}
-            />
-          </div>
-        ))}
+        {chatlist?.chats
+      ?.filter((chat) => chat.title !== null) // title이 null인 항목 제외
+      .map((chat) => (
+        <div 
+          key={chat.id} 
+          className={`cursor-pointer p-2 border rounded-lg shadow-sm flex justify-between items-center hover:bg-[#E1D5F2] group ${
+            localSelectedChatId === chat.id ? "bg-[#E1D5F2]" : "bg-gray-50"
+          }`}
+          onClick={() => handleChatClick(chat.id)}
+        >
+          <div className="text-gray-700">{chat.title}</div>
+          <CgTrash  
+            className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation(); 
+              handleDeleteClick(String(chat.id));
+            }}
+          />
+        </div>
+      ))}
       </div>
     </div>
   );
