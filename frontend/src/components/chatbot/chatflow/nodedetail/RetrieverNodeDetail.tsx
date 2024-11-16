@@ -1,12 +1,12 @@
 import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
-import { deleteEdge } from "@/api/workflow";
+import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
 import { getAllKnowledges } from "@/api/knowledge";
 import { Knowledge } from "@/types/chatbot";
@@ -40,6 +40,12 @@ export default function RetrieverNodeDetail({
   const [topK, setTopK] = useState(node.data.topK);
   const [scoreThreshold, setScoreThreshold] = useState(node.data.scoreThreshold);
 
+  const topKRef = useRef(node.data.topK);
+  const scoreThresholdRef = useRef(node.data.scoreThreshold);
+
+  const topKTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scoreThresholdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const openModal = () => {
     getAllKnowledges()
       .then((data) => {
@@ -69,6 +75,63 @@ export default function RetrieverNodeDetail({
     setSelectedKnowledge(node.data.knowledge);
     setConnectedNodes(initialConnectedNodes);
   }, [node, initialConnectedNodes]);
+
+  const debouncedUpdateNode = (updatedData: any) => {
+    console.log("CALL NODE UPDATE:", updatedData);
+    putNode(node.data.nodeId, updatedData);
+  };
+
+  const handleTopKChange = (value: number) => {
+    setTopK(value);
+    topKRef.current = value;
+
+    if (topKTimerRef.current) {
+      clearTimeout(topKTimerRef.current); // Reset the timer on each input
+    }
+
+    topKTimerRef.current = setTimeout(() => {
+      // Update the node data only after user stops typing
+      const updatedNode = {
+        ...node,
+        data: {
+          ...node.data,
+          topK: topKRef.current,
+        },
+      };
+
+      setNodes((prevNodes) =>
+        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
+      );
+
+      debouncedUpdateNode(updatedNode.data);
+    }, 500); // Wait for 500ms of inactivity
+  };
+
+  const handleScoreThresholdChange = (value: number) => {
+    setScoreThreshold(value);
+    scoreThresholdRef.current = value;
+
+    if (scoreThresholdTimerRef.current) {
+      clearTimeout(scoreThresholdTimerRef.current); // Reset the timer on each input
+    }
+
+    scoreThresholdTimerRef.current = setTimeout(() => {
+      // Update the node data only after user stops typing
+      const updatedNode = {
+        ...node,
+        data: {
+          ...node.data,
+          scoreThreshold: scoreThresholdRef.current,
+        },
+      };
+
+      setNodes((prevNodes) =>
+        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
+      );
+
+      debouncedUpdateNode(updatedNode.data);
+    }, 500); // Wait for 500ms of inactivity
+  };
 
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString());
@@ -100,44 +163,64 @@ export default function RetrieverNodeDetail({
             {selectedKnowledge.title}
           </div>
         </div>
+
         <div className="flex flex-col items-start gap-2">
-            <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
-              검색 결과 수: <span className="text-sm font-medium text-gray-600">
-                {topK}
-              </span>
-            </label>
-            <div className="flex items-center gap-4 w-full">
-              <input
-                id="top-k-range"
-                type="range"
-                max={10}
-                min={1}
-                step={1}
-                value={topK}
-                onChange={(e) => setTopK(Number(e.target.value))}
-                className="w-full accent-blue-600"
-              />
-            </div>
+          <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
+            검색 결과 수
+          </label>
+          <div className="flex items-center gap-4 w-full">
+            {/* Number Input for direct value */}
+            <input
+              type="number"
+              value={topK}
+              min={1}
+              max={10}
+              step={1}
+              onChange={(e) => handleTopKChange(Number(e.target.value))}
+              className="w-[80px] p-1 text-center border border-gray-300 rounded-md focus:ring focus:ring-blue-400"
+            />
+            {/* Range Input for slider */}
+            <input
+              id="top-k-range"
+              type="range"
+              max={10}
+              min={1}
+              step={1}
+              value={topK}
+              onChange={(e) => handleTopKChange(Number(e.target.value))}
+              className="flex-grow accent-blue-600"
+            />
           </div>
-          <div className="flex flex-col items-start gap-2">
-            <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
-              검색 유사도: <span className="text-sm font-medium text-gray-600">
-                {scoreThreshold}
-              </span>
-            </label>
-            <div className="flex items-center gap-4 w-full">
-              <input
-                id="top-k-range"
-                type="range"
-                max={1}
-                min={0}
-                step={0.01}
-                value={scoreThreshold}
-                onChange={(e) => setScoreThreshold(Number(e.target.value))}
-                className="w-full accent-blue-600"
-              />
-            </div>
+        </div>
+
+        <div className="flex flex-col items-start gap-2">
+          <label htmlFor="score-threshold-range" className="text-sm font-semibold text-gray-700">
+            검색 유사도
+          </label>
+          <div className="flex items-center gap-4 w-full">
+            {/* Number Input for direct input */}
+            <input
+              type="number"
+              value={scoreThreshold}
+              min={0}
+              max={1}
+              step={0.01}
+              onChange={(e) => handleScoreThresholdChange(Number(e.target.value))}
+              className="w-[80px] p-1 text-center border border-gray-300 rounded-md focus:ring focus:ring-blue-400"
+            />
+            {/* Range Input for slider */}
+            <input
+              id="score-threshold-range"
+              type="range"
+              max={1}
+              min={0}
+              step={0.01}
+              value={scoreThreshold}
+              onChange={(e) => handleScoreThresholdChange(Number(e.target.value))}
+              className="flex-grow accent-blue-600"
+            />
           </div>
+        </div>
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">다음 블록을 추가하세요.</div>
           <div className="flex flex-row justify-between w-full">
