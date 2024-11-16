@@ -62,7 +62,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when

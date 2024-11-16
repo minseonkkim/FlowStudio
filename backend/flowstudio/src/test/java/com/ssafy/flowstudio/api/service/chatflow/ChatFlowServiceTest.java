@@ -12,6 +12,7 @@ import com.ssafy.flowstudio.domain.chatflow.entity.Category;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.CategoryRepository;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
+import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTest;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
@@ -98,8 +99,10 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
 
+        boolean test = false;
+
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -146,8 +149,10 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
 
+        boolean test = false;
+
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -155,6 +160,61 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .extracting("chatFlowId", "title")
                 .containsExactlyInAnyOrder(
                         tuple(chatFlow1.getId(), chatFlow1.getTitle())
+                );
+    }
+
+
+    @DisplayName("테스트가 있는 챗플로우 목록을 조회한다")
+    @Test
+    void getChatFlowsWithTest() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+
+        ChatFlow chatFlow1 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title1")
+                .description("description")
+                .build();
+        ChatFlow chatFlow2 = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title2")
+                .isPublic(true)
+                .description("description")
+                .build();
+
+        ChatFlowTest chatFlowTest1 = ChatFlowTest.builder()
+                .user(user)
+                .chatFlow(chatFlow1)
+                .build();
+
+        ChatFlowTest chatFlowTest2 = ChatFlowTest.builder()
+                .user(user)
+                .chatFlow(chatFlow2)
+                .build();
+
+        chatFlow1.getTests().add(chatFlowTest1);
+        chatFlow2.getTests().add(chatFlowTest2);
+
+        userRepository.save(user);
+        chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
+
+        boolean test = true;
+
+        // when
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+
+        // then
+        assertThat(response.size()).isEqualTo(2);
+        assertThat(response).isNotNull()
+                .extracting("chatFlowId", "title")
+                .containsExactlyInAnyOrder(
+                        tuple(chatFlow1.getId(), chatFlow1.getTitle()),
+                        tuple(chatFlow2.getId(), chatFlow2.getTitle())
                 );
     }
 
@@ -193,8 +253,10 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         userRepository.save(user);
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2));
 
+        boolean test = false;
+
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test);
 
         // then
         assertThat(response.size()).isEqualTo(1);
