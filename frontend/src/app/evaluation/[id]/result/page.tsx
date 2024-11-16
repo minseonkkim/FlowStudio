@@ -1,46 +1,97 @@
-export default function Page() {
-  return (
-    <div className="rounded-xl border-2 border-[#9A75BF] p-12 my-16 mx-36">
-      <div className="p-8 text-[#333]">
-        <h2 className="text-2xl font-semibold mb-12">Workflow Planning Assistant</h2>
+'use client';
+import { useState, useEffect } from "react";
+import ModalTestResult from "@/components/evaluation/ModalTestResult";
+import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
+import { getChatTestList } from '@/api/evaluation'
+import { useQuery } from '@tanstack/react-query';
+import { ChatFlowTestResult } from '@/types/evaluation'
 
-        {/* 표 */}
-        <table className="w-full text-[14px] border border-collapse border-gray-300 mb-8">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-4 py-2">번호</th>
-              <th className="border px-4 py-2">Embedding Distance 평균</th>
-              <th className="border px-4 py-2">Embedding Distance 분산</th>
-              <th className="border px-4 py-2">ROUGE Metric 평균</th>
-              <th className="border px-4 py-2">ROUGE Metric 분산</th>
-              <th className="border px-4 py-2">Cross Encoder 평균</th>
-              <th className="border px-4 py-2">Cross Encoder 분산</th>
-              <th className="border px-4 py-2 min-w-[150px]">DateTime</th>
-            </tr>
-          </thead>
-          <tbody>
-            {/* 예시 데이터 */}
-            {[...Array(5)].map((_, index) => (
-              <tr key={index}>
-                <td className="border px-4 py-2 text-center">{index + 1}</td> {/* 행 번호 */}
-                <td className="border px-4 py-2 text-center">0.85</td>
-                <td className="border px-4 py-2 text-center">0.02</td>
-                <td className="border px-4 py-2 text-center">0.6</td>
-                <td className="border px-4 py-2 text-center">0.01</td>
-                <td className="border px-4 py-2 text-center">0.7</td>
-                <td className="border px-4 py-2 text-center">0.03</td>
-                <td className="border px-4 py-2 text-center">2024-10-22 10:00</td>
+interface EvaluationPageProps {
+  params: {
+    id: number;
+  };
+}
+
+export default function Page({ params }: EvaluationPageProps) {
+  const chatFlowId = String(params.id);
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
+  const [testList, setTestList] = useState<ChatFlowTestResult[]>([]);
+
+  const openModal = () => {
+    setIsModalOpen(true); // 모달 열기
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); // 모달 닫기
+  };
+
+  const { isError, error, data: testResultList } = useQuery<ChatFlowTestResult[]>({
+    queryKey: ['testResultList'],
+    queryFn: () => getChatTestList(chatFlowId),
+    
+  });
+
+  useEffect(() => {
+    if (isError && error) {
+      alert("테스트 완료한 챗플로우 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }
+  }, [isError, error]);
+
+  useEffect(() => {
+    
+    if (testResultList) {
+      setTestList(testResultList);
+    }
+    console.log(testResultList)
+  }, [testResultList]);
+  
+
+  return (
+    <div className="relative">
+      <div className="rounded-xl border-2 border-[#9A75BF] p-12 my-16 mx-36" >
+        <div className="p-8 text-[#333]">
+          <h2 className="text-2xl font-semibold mb-12">Workflow Planning Assistant</h2>
+
+          {/* 표 */}
+          <table className="w-full text-[14px] border border-collapse border-gray-300 mb-8">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border px-6 py-2">번호</th>
+                <th className="border px-6 py-4">Embedding Distance 평균</th>
+                <th className="border px-6 py-2">Embedding Distance 분산</th>
+                <th className="border px-6 py-2">ROUGE Metric 평균</th>
+                <th className="border px-6 py-2">ROUGE Metric 분산</th>
+                <th className="border px-6 py-2">Cross Encoder 평균</th>
+                <th className="border px-6 py-2">Cross Encoder 분산</th>
+                <th className="border px-6 py-2">테스트 횟수</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {testList.map((item, index) => (
+                <tr
+                  key={index}
+                  className="cursor-pointer hover:bg-gray-100"
+                  onClick={openModal} 
+                >
+                  <td className="border px-6 py-2 text-center">{index + 1}</td>
+                  <td className="border px-6 py-2 text-center">{item.embeddingDistanceMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.embeddingDistanceVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.rougeMetricMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.rougeMetricVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.crossEncoderMean.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.crossEncoderVariance.toFixed(5)}</td>
+                  <td className="border px-6 py-2 text-center">{item.totalTestCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* 설명 텍스트 */}
         <div className="text-[14px] text-[#757575] mb-8">
           <p>
-            ROUGE Metric과 Embedding Distance는 텍스트 유사도를 측정하는 데
-            사용되었으며, Cross Encoder는 문장 간 의미적 일치도를 평가하기 위한
-            지표로 활용되었습니다.
+            ROUGE Metric과 Embedding Distance는 텍스트 유사도를 측정하는 데 사용되었으며,
+            Cross Encoder는 문장 간 의미적 일치도를 평가하기 위한 지표로 활용되었습니다.
           </p>
           <ul className="list-disc list-inside ml-5">
             <li>Embedding Distance: 텍스트를 벡터공간에 매핑하고 거리를 측정하여 유사도를 평가</li>
@@ -64,6 +115,16 @@ export default function Page() {
           </ul>
         </div>
       </div>
+
+      {/* 모달 */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-3xl w-full relative">
+            <ModalTestResult />
+            <TiDeleteOutline onClick={closeModal} className="absolute top-4 right-4 w-6 h-6"/>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
+}
