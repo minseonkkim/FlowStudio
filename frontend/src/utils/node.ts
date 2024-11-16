@@ -51,6 +51,8 @@ export const createNodeData = (
     knowledgeId: params.knowledgeId || params.knowledge?.knowledgeId,
     intervalTime: params.intervalTime || 1,
     topK: params.topK || 3,
+
+    questionClasses: params.questionClasses || [],
   };
 };
 

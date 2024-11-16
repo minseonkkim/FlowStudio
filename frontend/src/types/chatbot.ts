@@ -52,6 +52,12 @@ export interface Knowledge{
   totalToken: number;
 }
 
+export interface QuestionClass {
+  id: number;
+  content?: string;
+  questionClassifierId: number;
+}
+
 export interface NodeData{
   chatFlowId: number;
   nodeId: number;
@@ -78,6 +84,8 @@ export interface NodeData{
   knowledgeId?: number;
   topK?: number;
   intervalTime?: number;
+
+  questionClasses?: QuestionClass[];
 }
 
 export interface ChatFlowDetail{

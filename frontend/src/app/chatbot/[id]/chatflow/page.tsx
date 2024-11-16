@@ -44,6 +44,7 @@ import { createNodeData } from "@/utils/node";
 import NodeAddMenu from "@/components/chatbot/chatflow/nodedetail/NodeAddMenu";
 import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
 import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
+import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/QuestionClassifierNode";
 
 interface ChatflowPageProps {
   params: {
@@ -78,6 +79,7 @@ const nodeTypes = {
   ANSWER: AnswerNode,
   RETRIEVER: RetrieverNode,
   LLM: LlmNode,
+  QUESTION_CLASSIFIER: QuestionClassifierNode,
 }
 
 
@@ -88,62 +90,76 @@ export default function Page({ params }: ChatflowPageProps) {
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  /**
-   * 처음 화면에 들어왔을 때 노드 초기화
-   */
-  useEffect(() => {
-    // 노드와 엣지를 초기화하는 비동기 함수
-    const initializeFlow = async () => {
-      try {
-        const data = await getChatFlow(params.id);
+ /**
+ * 처음 화면에 들어왔을 때 노드 초기화
+ */
+useEffect(() => {
+  // 노드와 엣지를 초기화하는 비동기 함수
+  const initializeFlow = async () => {
+    try {
+      const data = await getChatFlow(params.id);
+
+      // 초기 노드 데이터 가져오기
+      const initNodes: NodeData[] = data.nodes;
+
+      // Question Classifier 노드 필터링
+      const qcNodes: NodeData[] = initNodes.filter(
+        (node: NodeData) => node.type === "QUESTION_CLASSIFIER"
+      );
+
+      // 비동기 작업 처리
+      const newNodes = await Promise.all(
+        initNodes.map(async (node) => {
+          const nodeDetail = await getNodeDetail(node.nodeId); // getNodeDetail 호출
+          return createNodeData(
+            nodeDetail,
+            params.id, // chatFlowId 전달
+            setNodes,
+            setEdges,
+            setSelectedNode
+          );
+        })
+      );
+
+      // ReactFlow에 필요한 노드 데이터로 변환
+      const reactFlowNodes = newNodes.map((node) => ({
+        id: node.nodeId.toString(),
+        type: node.type,
+        position: node.coordinate,
+        data: node, // 팩토리 함수로 생성된 NodeData 객체 전달
+      }));
+
+      setNodes(reactFlowNodes); // 노드 상태 설정
+
+      // 초기 엣지 데이터 가져오기
+      const initEdges: EdgeData[] = data.edges;
+
+      // ReactFlow에 필요한 엣지 데이터로 변환
+      const reactFlowEdges = initEdges.map((edge) => ({
+        id: edge.edgeId.toString(),
+        source: edge.sourceNodeId.toString(),
+        sourceHandle: edge.sourceConditionId.toString(), // Handle 특정하기
+        target: edge.targetNodeId.toString(),
+        data: { ...edge },
+      }));
+
+      console.log(reactFlowEdges);
+      
+      setEdges(reactFlowEdges); // 엣지 상태 설정
+    } catch (error) {
+      console.error("Flow 초기화 중 오류 발생:", error);
+    }
+  };
+
+  // 비동기 함수 호출
+  initializeFlow();
+
+}, [params.id, setNodes, setEdges, setSelectedNode]);
+
+useEffect(() => {
+  console.log("EDGES", edges);
   
-        // 초기 노드 데이터 가져오기
-        const initNodes: NodeData[] = data.nodes;
-  
-        // 비동기 작업 처리
-        const newNodes = await Promise.all(
-          initNodes.map(async (node) => {
-            const nodeDetail = await getNodeDetail(node.nodeId); // getNodeDetail 호출
-            return createNodeData(
-              nodeDetail,
-              params.id, // chatFlowId 전달
-              setNodes,
-              setEdges,
-              setSelectedNode
-            );
-          })
-        );
-  
-        // ReactFlow에 필요한 노드 데이터로 변환
-        const reactFlowNodes = newNodes.map((node) => ({
-          id: node.nodeId.toString(),
-          type: node.type,
-          position: node.coordinate,
-          data: node, // 팩토리 함수로 생성된 NodeData 객체 전달
-        }));
-  
-        setNodes(reactFlowNodes); // 노드 상태 설정
-  
-        // 초기 엣지 데이터 가져오기
-        const initEdges: EdgeData[] = data.edges;
-  
-        // ReactFlow에 필요한 엣지 데이터로 변환
-        const reactFlowEdges = initEdges.map((edge) => ({
-          id: edge.edgeId.toString(),
-          source: edge.sourceNodeId.toString(),
-          target: edge.targetNodeId.toString(),
-          data: { ...edge },
-        }));
-  
-        setEdges(reactFlowEdges); // 엣지 상태 설정
-      } catch (error) {
-        console.error("Flow 초기화 중 오류 발생:", error);
-      }
-    };
-  
-    // 비동기 함수 호출
-    initializeFlow();
-  }, [params.id, setNodes, setEdges, setSelectedNode]);
+}, [edges]);
   
   /**
    * 노드에 변화가 있을 때 처리
@@ -188,12 +204,12 @@ export default function Page({ params }: ChatflowPageProps) {
    * 간선 연결
    */
   const onConnect = useCallback((connection: any) => {
-    console.log(connection);
+    console.log("간선 연결할때 정보", connection);
     const edgeData: EdgeData = {
       edgeId: 0,
       sourceNodeId: connection.source,
       targetNodeId: connection.target,
-      sourceConditionId: 0,
+      sourceConditionId: connection.sourceHandle,
     };
     postEdge(params.id, edgeData)
       .then((data) => {
@@ -202,6 +218,7 @@ export default function Page({ params }: ChatflowPageProps) {
           id: data.edgeId.toString(),
           source: data.sourceNodeId.toString(),
           target: data.targetNodeId.toString(),
+          sourceHandle: data.sourceConditionId.toString(), // Handle 특정하기
           data: { ...data }
         }
         setEdges((els) => {
