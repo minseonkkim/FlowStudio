@@ -27,6 +27,24 @@ export default function AnswerNodeDetail({
 }) {
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const textareaRef = useRef<(HTMLDivElement | null)>(null);
+
+  useEffect(() => {
+    setLocalAnswer(node.data.outputMessage);
+
+    // 초기 화면 진입 시 height 조정
+  const adjustHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  adjustHeight();
+
+  // DOM이 준비된 이후에도 높이를 재조정
+  setTimeout(adjustHeight, 0);
+  }, [node.id]);
 
   const handleAnswerChange = (value: string) => {
     // Node 상태 업데이트
@@ -79,6 +97,7 @@ export default function AnswerNodeDetail({
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">답변을 입력하세요.</div>
         <div
+          ref={textareaRef}
           contentEditable={true}
           suppressContentEditableWarning
           onInput={(e) => {
