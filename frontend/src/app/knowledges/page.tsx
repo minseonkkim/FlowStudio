@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Search from '@/components/common/Search';
 import PurpleButton from '@/components/common/PurpleButton';
@@ -10,7 +10,7 @@ import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
 import { useRecoilState } from 'recoil';
 import { chunkFileNameState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms'; 
-
+import Loading from '@/components/common/Loading';
 
 export default function Page() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,12 +18,15 @@ export default function Page() {
   const [, setCurrentStepState] = useRecoilState(currentStepState);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const observerTarget = useRef(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+  const [displayedData, setDisplayedData] = useState<KnowledgeData[]>([]);
 
   const { isLoading, isError, error, data: knowledgeList } = useQuery<KnowledgeData[]>({
     queryKey: ['knowledgeList'],
     queryFn: getAllKnowledges,
-    
   });
 
   useEffect(() => {
@@ -32,8 +35,15 @@ export default function Page() {
     }
   }, [isError, error]);
 
+  useEffect(() => {
+    if (knowledgeList) {
+      const newItems = knowledgeList.slice(0, currentPage * itemsPerPage);
+      setDisplayedData(newItems);
+    }
+  }, [knowledgeList, currentPage]);
+
   const putMutation = useMutation({
-    mutationFn: ({ knowledgeId, data }: { knowledgeId: string; data: KnowledgeIsPublic }) =>
+    mutationFn: ({ knowledgeId, data }: { knowledgeId: number; data: KnowledgeIsPublic }) =>
       putDocKnowledge(knowledgeId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
@@ -53,7 +63,27 @@ export default function Page() {
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && knowledgeList && displayedData.length < knowledgeList.length) {
+        setCurrentPage((prev) => prev + 1);
+      }
+    }, {
+      threshold: 1.0,
+    });
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [observerTarget, knowledgeList, displayedData]);
+
+  if (isLoading) return <Loading/>;
 
   const goToCreatePage = (): void => {
     setCurrentStepState(1)
@@ -70,14 +100,14 @@ export default function Page() {
       title: file.title,
       isPublic: !file.isPublic,
     };
-    putMutation.mutate({ knowledgeId: String(file.knowledgeId), data: knowledgeData });
+    putMutation.mutate({ knowledgeId: file.knowledgeId, data: knowledgeData });
   };
 
-  const handleDeleteClick = (knowledgeId: string) => {
+  const handleDeleteClick = (knowledgeId: number) => {
     deleteMutation.mutate(knowledgeId);
   };
 
-  const filteredData = knowledgeList?.filter((file) =>
+  const filteredData = displayedData?.filter((file) =>
     file.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -108,7 +138,7 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {filteredData?.map((file) => (
+            {filteredData?.reverse().map((file) => (
               <tr key={file.knowledgeId} className="border-b cursor-pointer hover:bg-gray-100">
                 <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.knowledgeId}</td>
                 <td
@@ -140,7 +170,7 @@ export default function Page() {
                 <td className="p-1 sm:p-2 lg:p-4">
                   <button
                     className="text-[10px] sm:text-xs lg:text-[13px] w-[36px] sm:w-[40px] lg:w-[50px] h-[24px] sm:h-[28px] lg:h-[32px] bg-[#9A75BF] text-white rounded-lg shadow-sm hover:bg-[#874aa5] active:bg-[#733d8a] transition-all duration-200 ease-in-out"
-                    onClick={() => { handleDeleteClick(String(file.knowledgeId)); }}
+                    onClick={() => { handleDeleteClick(file.knowledgeId); }}
                   >
                     삭제
                   </button>
@@ -149,6 +179,7 @@ export default function Page() {
             ))}
           </tbody>
         </table>
+        <div ref={observerTarget} className="h-10" />
       </div>
     </div>
   );

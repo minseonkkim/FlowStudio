@@ -9,6 +9,7 @@ import PurpleButton from "@/components/common/PurpleButton";
 import { ChatFlow } from "@/types/chatbot";
 import { getChatFlowTestList } from "@/api/evaluation"
 import { useQuery } from '@tanstack/react-query';
+import Loading from "@/components/common/Loading";
 
 export default function Page() {
   const router = useRouter();
@@ -25,8 +26,9 @@ export default function Page() {
 
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
-  const { isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
+  const [itemsToLoad, setItemsToLoad] = useState(10);
+  const [isCategoryFixed, setIsCategoryFixed] = useState(false);
+  const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
     queryKey: ['chatFlows'],
     queryFn: () => getChatFlowTestList(true),
     
@@ -37,6 +39,26 @@ export default function Page() {
       alert("테스트 완료한 챗플로우 목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 100
+      ) {
+        setItemsToLoad((prev) => prev + 16);
+      }
+
+      if (window.scrollY >= 57) {
+        setIsCategoryFixed(true);
+      } else {
+        setIsCategoryFixed(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
@@ -60,6 +82,8 @@ export default function Page() {
     router.push(`/evaluation/${id}/result`);
   };
 
+  if(isLoading) return <Loading/>;
+
   return (
     <div className="px-4 md:px-12 py-10">
       <div className="flex items-center mb-2">
@@ -73,7 +97,9 @@ export default function Page() {
       </div>
 
       {/* 카테고리 선택 */}
-      <div className="flex justify-between items-center mb-6">
+      <div className={`flex justify-between items-center mb-6 ${
+            isCategoryFixed ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2" : ""
+          }`}>
         <div className="hidden md:flex">
           {categories.map((label) => (
             <button
@@ -102,7 +128,7 @@ export default function Page() {
       </div>
 
       <div className="hidden md:flex flex-col gap-1">
-        {filteredChatFlows.map((bot) => (
+        {filteredChatFlows.reverse().slice(0, itemsToLoad).map((bot) => (
           <ChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}
@@ -110,14 +136,14 @@ export default function Page() {
             description={bot.description}
             iconId={bot.thumbnail}
             category={bot.categories.map((cat) => cat.name)}
-            onCardClick={() => handleResultClick(String(bot.chatFlowId))}
+            onCardClick={() => handleResultClick(bot.chatFlowId)}
             type="eval"
           />
         ))}
       </div>
 
       <div className="md:hidden flex flex-col gap-4">
-        {filteredChatFlows.map((bot) => (
+        {filteredChatFlows.reverse().slice(0, itemsToLoad).map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}
@@ -126,7 +152,7 @@ export default function Page() {
             iconId={bot.thumbnail}
             category={bot.categories.map((cat) => cat.name)}
             type="eval"
-            onCardClick={() => handleResultClick(String(bot.chatFlowId))}/>
+            onCardClick={() => handleResultClick(bot.chatFlowId)}/>
         ))}
       </div>
     </div>

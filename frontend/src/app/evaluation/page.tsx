@@ -37,7 +37,7 @@ export default function Page() {
   return (
     <div className="flex h-full">
     {/* 왼쪽 사이드바 */}
-    <div className="w-1/6 p-4 border-r bg-gray-50 pl-12 pt-12">
+    <div className="w-[270px] p-4 border-r bg-gray-50 pl-12 pt-12 h-[calc(100vh-57px)] fixed top-[57px] left-0">
       <h2 className="text-[18px] mb-4">챗봇 평가 단계</h2>
       <ul className="space-y-3">
         {tabNames.map((tab, index) => (
@@ -64,7 +64,7 @@ export default function Page() {
 
   
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 p-12">
+      <div className="flex-1 p-12 ml-[270px]">
         <div className="flex justify-between mb-8">
           <p className="text-[22px]">{selectedTab}</p>
         </div>
