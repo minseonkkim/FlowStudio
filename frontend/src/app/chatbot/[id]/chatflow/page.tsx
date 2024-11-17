@@ -19,7 +19,7 @@ import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
 import StartNodeDetail from "@/components/chatbot/chatflow/nodedetail/StartNodeDetail";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
-import { getChatFlow } from "@/api/chatbot";
+import { getChatFlow, publishChatFlow } from "@/api/chatbot";
 import { NodeData } from "@/types/chatbot";
 import { EdgeData } from "@/types/chatbot";
 import { deleteEdge, getNodeDetail, postEdge, putNode } from "@/api/workflow";
@@ -35,6 +35,7 @@ import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetai
 import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedetail/QuestionClassifierNodeDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
+import PreviewChat from "@/components/chat/PreviewChat";
 
 interface ChatflowPageProps {
   params: {
@@ -399,18 +400,28 @@ export default function Page({ params }: ChatflowPageProps) {
   const handleChatbotCreationClick = useCallback(() => {
     setShowChatbotCreationModal((prev) => !prev);
   }, []);
+  const handlePublishButtonClick = () => {
+    publishChatFlow(params.id)
+      .then((success) => {
+        if (success) alert("발행 성공");
+      })
+  }
   const renderChatbotCreationModal = () => {
     if (!showChatbotCreationModal) return null;
 
     return (
       <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
-        <button className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer">
+        <button
+          onClick={handlePublishButtonClick}
+          className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer">
           업데이트
         </button>
         <div className="flex flex-col gap-3">
-          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+          <a
+            href={`${process.env.NEXT_PUBLIC_FRONT_URL}/chat/${params.id}`}
+            className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
             앱 실행<BsArrowUpRight />
-          </button>
+          </a>
           <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
             사이트에 삽입<BsArrowUpRight />
           </button>
@@ -478,6 +489,15 @@ export default function Page({ params }: ChatflowPageProps) {
     );
   };
 
+  /**
+   * 미리보기 메뉴
+   */
+  const [showPreviewChat, setShowPreviewChat] = useState<boolean>(false);
+  const handlePreviewChatButtonClick = useCallback(() => {
+    setShowPreviewChat((prev) => !prev);
+  }, []);
+
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
@@ -486,6 +506,12 @@ export default function Page({ params }: ChatflowPageProps) {
           onClick={handleVariableButtonClick}
         >
           변수
+        </button>
+        <button
+          className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+          onClick={handlePreviewChatButtonClick}
+        >
+          미리보기
         </button>
         <button
           className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
@@ -497,6 +523,7 @@ export default function Page({ params }: ChatflowPageProps) {
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail}
         {renderVariableDetail()}
+        {showPreviewChat && <PreviewChat chatFlowId={String(params.id)} />}
       </div>
       {renderChatbotCreationModal()}
       <ReactFlowProvider>
