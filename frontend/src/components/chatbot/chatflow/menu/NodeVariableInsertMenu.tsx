@@ -1,50 +1,3 @@
-// import React, { useRef } from "react";
-// import { Node } from "reactflow";
-// import { NodeData } from "@/types/chatbot";
-// import { createMonospaceBlock } from "@/utils/node";
-
-// export const NodeVariableInsertMenu = ({
-//     connectedNodes,
-//     editorRef,
-//     onContentChange,
-// }: {
-//     connectedNodes: Node<NodeData, string>[];
-//     editorRef: React.RefObject<HTMLDivElement>;
-//     onContentChange: (newContent: string) => void;
-// }) => {
-//     const insertMonospaceBlock = (selectedNode: Node<NodeData, string>) => {
-//         const selection = window.getSelection();
-//         if (!selection || !editorRef.current) return;
-
-//         const range = selection.getRangeAt(0);
-//         const block = createMonospaceBlock(selectedNode);
-
-//         range.deleteContents();
-//         range.insertNode(block);
-
-//         range.setStartAfter(block);
-//         range.setEndAfter(block);
-//         selection.removeAllRanges();
-//         selection.addRange(range);
-
-//         const newContent = editorRef.current.innerText;
-//         onContentChange(newContent);
-//     };
-
-//     return (
-//         <div className="flex flex-wrap gap-2">
-//             {connectedNodes.map((node) => (
-//                 <button
-//                     key={node.id}
-//                     onClick={() => insertMonospaceBlock(node.data.outputMessage || "Unnamed Node")}
-//                     className="p-2 bg-green-500 text-white rounded"
-//                 >
-//                     {node.data.outputMessage || "Unnamed Node"}
-//                 </button>
-//             ))}
-//         </div>
-//     );
-// };
 import React, { useState } from "react";
 import { Node } from "reactflow";
 import { NodeData } from "@/types/chatbot";
@@ -60,26 +13,6 @@ export const NodeVariableInsertMenu = ({
   onContentChange: (newContent: string) => void;
 }) => {
   const [selectedNode, setSelectedNode] = useState<Node<NodeData, string> | null>(null);
-
-//   const insertMonospaceBlock = (node: Node<NodeData, string>) => {
-//     const selection = window.getSelection();
-//     if (!selection || !editorRef.current) return;
-
-//     const range = selection.getRangeAt(0);
-//     const block = createMonospaceBlock(node);
-
-//     range.deleteContents();
-//     range.insertNode(block);
-
-//     range.setStartAfter(block);
-//     range.setEndAfter(block);
-//     selection.removeAllRanges();
-//     selection.addRange(range);
-
-//     const newContent = editorRef.current.innerText;
-//     onContentChange(newContent);
-//     setSelectedNode(null); // 드롭다운 닫기
-//   };
 
 const insertMonospaceBlock = (node: Node<NodeData, string>) => {
     const selection = window.getSelection();
@@ -113,7 +46,6 @@ const insertMonospaceBlock = (node: Node<NodeData, string>) => {
     setSelectedNode(null); // Close dropdown
   };
 
-  
   return (
     <div className="relative inline-block">
       <button
