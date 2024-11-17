@@ -7,10 +7,11 @@ import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
-import NodeAddMenu from "./NodeAddMenu";
+import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 // import { getAllKnowledges } from "@/api/knowledge";
-import { debounce } from "@/utils/node";
+import { debounce, extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
 import { EdgeData, NodeData } from "@/types/chatbot";
+import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 
 
 // interface Model {
@@ -48,9 +49,8 @@ export default function LlmNodeDetail({
   // const [isOpen, setIsOpen] = useState(false);
   // const [modalOpen, setModalOpen] = useState(false);
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>(initialConnectedNodes);
-  const [localPromptSystem, setLocalPromptSystem] = useState(node.data.promptSystem);
-  const [localPromptUser, setLocalPromptUser] = useState(node.data.promptUser);
-  const debouncedSaveRef = useRef<(key: string, value: string) => void>();
+  const [localPromptSystem] = useState(node.data.promptSystem);
+  const [localPromptUser] = useState(node.data.promptUser);
 
   const [maxTokens, setMaxTokens] = useState(node.data.maxTokens);
   const [temperature, setTemperature] = useState(node.data.temperature);
@@ -60,37 +60,60 @@ export default function LlmNodeDetail({
 
   const maxTokensTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const temperatureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const promptSystemTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const promptUserTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // const openModal = () => {
-  //   getAllKnowledges()
-  //     .then((data) => {
-  //     });
-  //   setModalOpen(true);
-  // };
+  const promptSystemTextareaRef = useRef<(HTMLDivElement | null)>(null);
+  const promptUserTextareaRef = useRef<(HTMLDivElement | null)>(null);
 
-  // const closeModal = () => {
-  //   setModalOpen(false);
-  // };
 
-  useEffect(() => {
-    // debounce를 useRef에 저장
-    debouncedSaveRef.current = debounce((key: string, value: string) => {
-      const updatedData = {
-        ...node.data,
-        [key]: value,
-      };
-      console.log("CALL NODE UPDATE:", updatedData);
-      putNode(node.data.nodeId, updatedData);
-    }, 500);
-  }, [node.data]);
+   /**
+   * redering 할 수있는 형태로 가공
+   */
+   useEffect(() => {
+    const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
 
-  const handlePromptChange = (key: "promptSystem" | "promptUser", value: string) => {
-    // Local state 업데이트
-    if (key === "promptSystem") {
-      setLocalPromptSystem(value);
-    } else if (key === "promptUser") {
-      setLocalPromptUser(value);
+    const renderPromptSystem = restoreMonospaceBlocks(updateParentNodes, node.data.promptSystem);
+    const renderPromptUser = restoreMonospaceBlocks(updateParentNodes, node.data.promptUser);
+
+    if (promptSystemTextareaRef.current) {
+      promptSystemTextareaRef.current.innerHTML = renderPromptSystem;
     }
+
+    if (promptUserTextareaRef.current) {
+      promptUserTextareaRef.current.innerHTML = renderPromptUser;
+    }
+  }, [node.id]);
+
+  /**
+   * 높이 재설정
+   */
+  useEffect(() => {
+    const adjustHeight = () => {
+      if (promptSystemTextareaRef.current) {
+        promptSystemTextareaRef.current.style.height = "auto";
+        promptSystemTextareaRef.current.style.height = `${promptSystemTextareaRef.current.scrollHeight}px`;
+      }
+
+      if (promptUserTextareaRef.current) {
+        promptUserTextareaRef.current.style.height = "auto";
+        promptUserTextareaRef.current.style.height = `${promptUserTextareaRef.current.scrollHeight}px`;
+      }
+    };
+
+    adjustHeight();
+
+    setTimeout(adjustHeight, 0);
+  }, [node.data.promptSystem, node.data.promptUser, node.data.renderPromptSystem, node.data.renderPromptUser]);
+
+  /**
+   * 시스템 프롬프트 수정 함수
+   * @returns 
+   */
+  const handlePromptSystemChange = () => {
+    if (!promptSystemTextareaRef.current) return;
+
+    const actualValue = extractActualValues(promptSystemTextareaRef.current);
 
     // Node 상태 업데이트
     setNodes((prevNodes) =>
@@ -100,7 +123,8 @@ export default function LlmNodeDetail({
             ...n,
             data: {
               ...n.data,
-              [key]: value,
+              promptSystem: actualValue,
+              renderPromptSystem: { __html: promptSystemTextareaRef.current.innerHTML },
             },
           }
           : n
@@ -108,22 +132,64 @@ export default function LlmNodeDetail({
     );
 
     // Debounced API call
-    if (debouncedSaveRef.current) {
-      debouncedSaveRef.current(key, value);
+    if (promptSystemTimerRef.current) {
+      clearTimeout(promptSystemTimerRef.current);
     }
+
+    promptSystemTimerRef.current = setTimeout(() => {
+      const updatedData = {
+        ...node.data,
+        promptSystem: actualValue,
+      };
+      console.log("CALL NODE UPDATE:", updatedData);
+      putNode(node.data.nodeId, updatedData);
+    }, 500);
   };
 
-  useEffect(() => {
-    // node.data가 변경되면 로컬 상태 업데이트
-    setLocalPromptSystem(node.data.promptSystem);
-    setLocalPromptUser(node.data.promptUser);
-  }, [node.data]);
+  /**
+   * 시스템 프롬프트 수정 함수
+   * @returns 
+   */
+  const handlePromptUserChange = () => {
+    if (!promptUserTextareaRef.current) return;
 
-  const debouncedUpdateNode = (updatedData: NodeData) => {
-    console.log("CALL NODE UPDATE:", updatedData);
-    putNode(node.data.nodeId, updatedData);
+    const actualValue = extractActualValues(promptUserTextareaRef.current);
+
+    // Node 상태 업데이트
+    setNodes((prevNodes) =>
+      prevNodes.map((n) =>
+        n.id === node.id
+          ? {
+            ...n,
+            data: {
+              ...n.data,
+              promptUser: actualValue,
+              renderPromptUser: { __html: promptUserTextareaRef.current.innerHTML },
+            },
+          }
+          : n
+      )
+    );
+
+    // Debounced API call
+    if (promptUserTimerRef.current) {
+      clearTimeout(promptUserTimerRef.current);
+    }
+
+    promptUserTimerRef.current = setTimeout(() => {
+      const updatedData = {
+        ...node.data,
+        promptUser: actualValue,
+      };
+      console.log("CALL NODE UPDATE:", updatedData);
+      putNode(node.data.nodeId, updatedData);
+    }, 500);
   };
 
+  /**
+   * maxToken 수정 함수
+   * @param value 
+   */
   const handleMaxTokensChange = (value: number) => {
     setMaxTokens(value);
     maxTokensRef.current = value;
@@ -146,10 +212,14 @@ export default function LlmNodeDetail({
         prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
       );
 
-      debouncedUpdateNode(updatedNode.data);
+      putNode(node.data.nodeId, updatedNode.data);
     }, 500); // Wait for 500ms of inactivity
   };
 
+  /**
+   * Temperature 수정 함수
+   * @param value 
+   */
   const handleTemperatureChange = (value: number) => {
     setTemperature(value);
     temperatureRef.current = value;
@@ -172,16 +242,36 @@ export default function LlmNodeDetail({
         prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
       );
 
-      debouncedUpdateNode(updatedNode.data);
+      putNode(node.data.nodeId, updatedNode.data);
     }, 500); // Wait for 500ms of inactivity
   };
 
+  /**
+   * 연결된 부모 노드 정보
+   */
+  const [parentNodes, setParentNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
+  useEffect(() => {
+    if (!node || !node.id || edges.length <= 0) return;
 
+    const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
+    setParentNodes(updateParentNodes);
+    console.log("parent Nodes:", updateParentNodes);
+    // setVariables(parentNodes);
+  }, [node.id, nodes.length, edges.length]);
 
+  /**
+   * 연결된 자식 노드 정보
+   */
   useEffect(() => {
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes]);
 
+
+  /**
+   * 자식 노드 엣지 삭제 함수
+   * @param targetNode 
+   * @returns 
+   */
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString());
     if (!findDeleteEdge) return;
@@ -285,20 +375,29 @@ export default function LlmNodeDetail({
               <div
                 className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
               >system
+                <NodeVariableInsertMenu
+                  parentNodes={parentNodes}
+                  editorRef={promptSystemTextareaRef}
+                  onContentChange={handlePromptSystemChange}
+                />
               </div>
             </div>
-            <textarea
+            <div
+              ref={promptSystemTextareaRef}
+              contentEditable
+              suppressContentEditableWarning
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
                 target.style.height = `${target.scrollHeight}px`;
+                handlePromptSystemChange();
               }}
-              value={localPromptSystem}
-              onChange={(e) => handlePromptChange("promptSystem", e.target.value)}
-              placeholder="프롬프트를 입력하세요."
+              // placeholder="프롬프트를 입력하세요."
               className="bg-white rounded-[5px] w-full resize-none overflow-hidden px-2 py-1 mt-2 focus:outline-none shadow-none border-none"
-              style={{ minHeight: "90px" }}
-            />
+              style={{ minHeight: "90px", whiteSpace: "pre-wrap" }}
+            >
+              {localPromptSystem}
+            </div>
           </div>
 
           <div className="flex flex-col gap-2 rounded-[10px] bg-white">
@@ -306,20 +405,30 @@ export default function LlmNodeDetail({
               <div
                 className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
               >user
+              <NodeVariableInsertMenu
+                  parentNodes={parentNodes}
+                  editorRef={promptUserTextareaRef}
+                  onContentChange={handlePromptUserChange}
+                />
               </div>
             </div>
-            <textarea
+            <div
+              ref={promptUserTextareaRef}
+              contentEditable
+              suppressContentEditableWarning
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
                 target.style.height = "auto";
                 target.style.height = `${target.scrollHeight}px`;
+                handlePromptUserChange();
               }}
-              value={localPromptUser}
-              onChange={(e) => handlePromptChange("promptUser", e.target.value)}
-              placeholder="프롬프트를 입력하세요."
+              // onChange={(e) => handlePromptUserChange("promptUser", e.target.value)}
+              // placeholder="프롬프트를 입력하세요."
               className="bg-white rounded-[5px] w-full resize-none overflow-hidden px-2 py-1 mt-2 focus:outline-none shadow-none border-none"
               style={{ minHeight: "90px" }}
-            />
+            >
+              {localPromptUser}
+            </div>
           </div>
           {/* <div onClick={addPrompt} className="bg-[#E0E0E0] hover:bg-[#DADADA] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]">
           + 프롬프트 추가

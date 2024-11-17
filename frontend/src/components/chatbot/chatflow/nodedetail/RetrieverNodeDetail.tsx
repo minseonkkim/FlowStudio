@@ -7,7 +7,7 @@ import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
-import NodeAddMenu from "./NodeAddMenu";
+import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import { getAllKnowledges } from "@/api/knowledge";
 import { EdgeData, Knowledge, NodeData } from "@/types/chatbot";
 
