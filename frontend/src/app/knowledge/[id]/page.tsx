@@ -19,7 +19,7 @@ interface KnowledgePageProps {
 }
 
 const Page = ({ params }: KnowledgePageProps) => {
-  const knowledgeId = String(params.id);
+  const knowledgeId = params.id;
   const [searchTerm, setSearchTerm] = useState(''); 
   const [isModalOpen, setModalOpen] = useState(false); 
   const [selectedContentId, setSelectedContentId] = useState(''); 
@@ -32,16 +32,16 @@ const Page = ({ params }: KnowledgePageProps) => {
   const { isLoading, isError, error, data: chunklist } = useQuery<ChunkData>({
     queryKey: ['chunklist', knowledgeId],
     queryFn: () => {
-      if (knowledgeId !== "undefined") {
-        return getAllChunks(String(knowledgeId));
+      if (knowledgeId !== undefined) {
+        return getAllChunks(knowledgeId);
       }
       return Promise.reject("Invalid knowledge ID");
     },
-    enabled: knowledgeId !== "undefined"
+    enabled: knowledgeId !== undefined
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (chunkId: string) => deleteChunkDetail(knowledgeId as string, chunkId),
+    mutationFn: (chunkId: string) => deleteChunkDetail(knowledgeId, chunkId),
     onSuccess: (_, variables) => {
       queryClient.setQueryData(['chunklist', knowledgeId], (oldData: ChunkData | undefined) => {
         if (!oldData) return oldData;
@@ -104,7 +104,7 @@ const Page = ({ params }: KnowledgePageProps) => {
       
       {isModalOpen && (
         <ChunkDetailModal
-          knowledgeId={knowledgeId ?? ""}
+          knowledgeId={knowledgeId ?? 0}
           chunkId={selectedContentId}
           onClose={handleCloseModal}
         />

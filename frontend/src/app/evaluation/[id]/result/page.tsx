@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
 import ModalTestResult from "@/components/evaluation/ModalTestResult";
-import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 import { getChatTestList, getChatTestDetail } from '@/api/evaluation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ChatFlowTestResult, ChatFlowTestCase } from '@/types/evaluation';

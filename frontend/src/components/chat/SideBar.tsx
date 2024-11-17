@@ -59,14 +59,13 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
     onSelectChat(chatId);
   };
 
-  // Ensure StaticImageData or default to an image
   const thumbnailImages: { [key: number]: string } = {
-    1: one,
-    2: two,
-    3: three,
-    4: four,
-    5: five,
-    6: six,
+    1: one.src,
+    2: two.src,
+    3: three.src,
+    4: four.src,
+    5: five.src,
+    6: six.src,
   };
 
   return (
@@ -94,7 +93,7 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
       
       <div className="flex-grow overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 space-y-4">
         {chatlist?.chats
-      ?.filter((chat) => chat.title !== null) // title이 null인 항목 제외
+      ?.filter((chat) => chat.title !== null) 
       .map((chat) => (
         <div 
           key={chat.id} 

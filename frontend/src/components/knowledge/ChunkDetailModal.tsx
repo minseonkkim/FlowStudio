@@ -9,7 +9,7 @@ import { BsTextareaT } from '@react-icons/all-files/bs/BsTextareaT';
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 
 interface ChunkDetailModalProps {
-  knowledgeId: string;
+  knowledgeId: number;
   chunkId: string;
   onClose: () => void;
 }
@@ -63,10 +63,9 @@ export default function ChunkDetailModal({
   const formattedContentId = chunkId.padStart(3, '0'); 
 
   const updateMutation = useMutation({
-    mutationFn: ({ knowledgeId, chunkId, data }: { knowledgeId: string, chunkId: string; data: { content: string } }) =>
+    mutationFn: ({ knowledgeId, chunkId, data }: { knowledgeId: number, chunkId: string; data: { content: string } }) =>
       postChunkDetail(knowledgeId, chunkId, data),
     onSuccess: (_, variables) => {
-      // Update specific chunk detail data
       queryClient.setQueryData(['chunkdetail', knowledgeId, chunkId], (oldData: ChunkList | undefined) => {
         if (oldData) {
           return { ...oldData, content: variables.data.content };
@@ -74,7 +73,6 @@ export default function ChunkDetailModal({
         return { chunkId: parseInt(chunkId), content: variables.data.content }; 
       });
 
-      // Update chunk list data
       queryClient.setQueryData(['chunklist', knowledgeId], (oldList: ChunkData | undefined) => {
         if (oldList) {
           return {

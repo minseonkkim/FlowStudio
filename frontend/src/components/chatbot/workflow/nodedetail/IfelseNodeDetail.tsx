@@ -58,7 +58,7 @@ export default function IfelseNodeDetail({
   addNode: (type: string, condition: "ifsource" | "elifsource" | "elsesource") => void;
   onClose: () => void;
   connectedNodes?: { ifNodes: ConnectedNode[]; elifNodes: ConnectedNode[]; elseNodes: ConnectedNode[] };
-  setConnectedNodes: (targetNodeId: string) => void;
+  setConnectedNodes: (targetNodeId: number) => void;
 }) {
   const [ifConditions, setIfConditions] = useState<Array<object>>([{}]);
   const [elifConditions, setElifConditions] = useState<Array<object>>([{}]);
@@ -183,7 +183,7 @@ export default function IfelseNodeDetail({
                       style={{
                         color: deleteIconColors[node.name] || "gray",
                       }}
-                      onClick={() => setConnectedNodes(node.id)}
+                      onClick={() => setConnectedNodes(node.nodeId)}
                     />
                   </div>
                 ))}
@@ -247,7 +247,7 @@ export default function IfelseNodeDetail({
                       style={{
                         color: deleteIconColors[node.name] || "gray",
                       }}
-                      onClick={() => setConnectedNodes(node.id)}
+                      onClick={() => setConnectedNodes(node.nodeId)}
                     />
                   </div>
                 ))}
@@ -311,7 +311,7 @@ export default function IfelseNodeDetail({
                       style={{
                         color: deleteIconColors[node.name] || "gray",
                       }}
-                      onClick={() => setConnectedNodes(node.id)}
+                      onClick={() => setConnectedNodes(node.nodeId)}
                     />
                   </div>
                 ))}

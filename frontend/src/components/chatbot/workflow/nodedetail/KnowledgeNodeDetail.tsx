@@ -39,7 +39,7 @@ export default function KnowledgeNodeDetail({
   updateKnowledgeFile: (fileName: string) => void; 
   onClose: () => void;
   connectedNodes: ConnectedNode[];
-  setConnectedNodes: (targetNodeId: string) => void;
+  setConnectedNodes: (targetNodeId: number) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -114,7 +114,7 @@ export default function KnowledgeNodeDetail({
                     style={{
                       color: deleteIconColors[node.name] || "gray",
                     }}
-                    onClick={() => setConnectedNodes(node.id)}
+                    onClick={() => setConnectedNodes(node.nodeId)}
                   />
                 </div>
               ))}

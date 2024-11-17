@@ -1,6 +1,5 @@
 "use client";
 
-import { EventSourcePolyfill } from "event-source-polyfill";
 import { useState, useEffect } from "react";
 import WhiteButton from "../common/whiteButton";
 import PurpleButton from "../common/PurpleButton";
@@ -24,11 +23,11 @@ export default function TestCaseInput({
   onNext,
   onPrevious,
 }: TestCaseInputProps) {
-  const [isLoading, setIsLoading] = useState(false); // 로딩 상태 추가
+  const [isLoading, setIsLoading] = useState(false);
 
   const chatbotId = useRecoilValue(chatbotIdState);
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-  const accessToken = localStorage.getItem("accessToken");
+  // const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  // const accessToken = localStorage.getItem("accessToken");
   const setParsedTestData = useSetRecoilState(parsedTestDataState);
 
   useEffect(() => {
