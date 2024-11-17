@@ -6,7 +6,7 @@ import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
-import NodeAddMenu from "./NodeAddMenu";
+import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import { EdgeData, NodeData } from "@/types/chatbot";
 
 export default function StartNodeDetail({

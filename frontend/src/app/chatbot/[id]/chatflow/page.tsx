@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, MouseEvent, useMemo } from "react";
+import { useCallback, useEffect, useState, MouseEvent, useMemo, useRef } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -26,7 +26,7 @@ import { deleteEdge, getNodeDetail, postEdge, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
 import { createNodeData } from "@/utils/node";
-import NodeAddMenu from "@/components/chatbot/chatflow/nodedetail/NodeAddMenu";
+import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
 import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
 import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/QuestionClassifierNode";
@@ -34,8 +34,10 @@ import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/Retrie
 import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetail";
 import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedetail/QuestionClassifierNodeDetail";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
-import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
+import VariableDetail from "@/components/chatbot/chatflow/menu/VariableDetail";
 import PreviewChat from "@/components/chat/PreviewChat";
+import { VariableMenu } from "@/components/chatbot/chatflow/menu/VariableMenu";
+import { ChatFlowPublishMenu } from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
 
 interface ChatflowPageProps {
   params: {
@@ -43,28 +45,11 @@ interface ChatflowPageProps {
   };
 }
 
-// interface Model {
-//   nodeId: string;
-//   name: string;
-// }
-
-// const models: Model[] = [
-//   { nodeId: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-//   { nodeId: "gpt-4", name: "GPT-4" },
-//   { nodeId: "gpt-4-32k", name: "GPT-4 (32k)" },
-// ];
-
 interface ConnectedNode {
   nodeId: number;
   name: string;
 }
 
-// interface Variable {
-//   name: string;
-//   value: string;
-//   type: string;
-//   isEditing: boolean;
-// }
 const nodeTypes = {
   START: StartNode,
   ANSWER: AnswerNode,
@@ -88,11 +73,6 @@ export default function Page({ params }: ChatflowPageProps) {
 
       // 초기 노드 데이터 가져오기
       const initNodes: NodeData[] = data.nodes;
-
-      // Question Classifier 노드 필터링
-      // const qcNodes: NodeData[] = initNodes.filter(
-      //   (node: NodeData) => node.type === "QUESTION_CLASSIFIER"
-      // );
 
       // 비동기 작업 처리
       const newNodes = await Promise.all(
@@ -396,97 +376,21 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 챗봇 발행 메뉴
    */
-  const [showChatbotCreationModal, setShowChatbotCreationModal] = useState(false);
-  const handleChatbotCreationClick = useCallback(() => {
-    setShowChatbotCreationModal((prev) => !prev);
-  }, []);
-  const handlePublishButtonClick = () => {
-    publishChatFlow(params.id)
-      .then((success) => {
-        if (success) alert("발행 성공");
-      })
-  }
-  const renderChatbotCreationModal = () => {
-    if (!showChatbotCreationModal) return null;
-
-    return (
-      <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
-        <button
-          onClick={handlePublishButtonClick}
-          className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer">
-          업데이트
-        </button>
-        <div className="flex flex-col gap-3">
-          <a
-            href={`${process.env.NEXT_PUBLIC_FRONT_URL}/chat/${params.id}`}
-            className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
-            앱 실행<BsArrowUpRight />
-          </a>
-          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
-            사이트에 삽입<BsArrowUpRight />
-          </button>
-        </div>
-      </div>
-    );
+  const publishMenuRef = useRef<{ toggleChatFlowPublishModal: () => void } | null>(null);
+  const handleChatFlowPublishModal = () => {
+    if (publishMenuRef.current) {
+      publishMenuRef.current.toggleChatFlowPublishModal();
+    }
   };
-
 
   /**
    * 변수 메뉴
    */
-  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
-  const handleVariableButtonClick = useCallback(() => {
-    setShowVariableDetail((prev) => !prev);
-  }, []);
-  const [variables, setVariables] = useState<
-    { name: string; value: string; type: string; isEditing: boolean }[]
-  >([
-    { name: "변수1", value: "", type: "string", isEditing: false },
-    { name: "변수2", value: "", type: "string", isEditing: false },
-  ]);
-  const renderVariableDetail = () => {
-    if (!showVariableDetail) return null;
-
-    return (
-      <VariableDetail
-        variables={variables}
-        handleVariableChange={handleVariableChange}
-        handleAddVariable={handleAddVariable}
-        handleRemoveVariable={handleRemoveVariable}
-        handleEditToggle={handleEditToggle}
-        onClose={() => setShowVariableDetail(false)}
-      />
-    );
-  };
-  const handleVariableChange = (
-    index: number,
-    key: "name" | "value" | "type",
-    newValue: string
-  ) => {
-    setVariables((prev) =>
-      prev.map((variable, i) =>
-        i === index ? { ...variable, [key]: newValue } : variable
-      )
-    );
-  };
-
-  const handleAddVariable = () => {
-    setVariables((prev) => [
-      ...prev,
-      { name: "", value: "", type: "string", isEditing: true },
-    ]);
-  };
-
-  const handleRemoveVariable = (index: number) => {
-    setVariables((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleEditToggle = (index: number) => {
-    setVariables((prev) =>
-      prev.map((variable, i) =>
-        i === index ? { ...variable, isEditing: !variable.isEditing } : variable
-      )
-    );
+  const variableMenuRef = useRef<{ toggleVariableDetail: () => void } | null>(null);
+  const handleVariableMenuModal = () => {
+    if (variableMenuRef.current) {
+      variableMenuRef.current.toggleVariableDetail();
+    }
   };
 
   /**
@@ -503,7 +407,7 @@ export default function Page({ params }: ChatflowPageProps) {
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
         <button
           className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-          onClick={handleVariableButtonClick}
+          onClick={handleVariableMenuModal}
         >
           변수
         </button>
@@ -515,17 +419,17 @@ export default function Page({ params }: ChatflowPageProps) {
         </button>
         <button
           className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-          onClick={handleChatbotCreationClick}
+          onClick={handleChatFlowPublishModal}
         >
           챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
       </div>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail}
-        {renderVariableDetail()}
+        <VariableMenu ref={variableMenuRef} />
         {showPreviewChat && <PreviewChat chatFlowId={String(params.id)} />}
       </div>
-      {renderChatbotCreationModal()}
+      <ChatFlowPublishMenu chatFlowId={params.id} ref={publishMenuRef} />
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
 
