@@ -11,6 +11,8 @@ import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.util.MilvusUtils;
 import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import com.ssafy.flowstudio.domain.knowledge.entity.KnowledgeRepository;
+import com.ssafy.flowstudio.domain.node.entity.Retriever;
+import com.ssafy.flowstudio.domain.node.repository.RetrieverRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KnowledgeService {
     private final KnowledgeRepository knowledgeRepository;
+    private final RetrieverRepository retrieverRepository;
     private final VectorStoreService vectorStoreService;
     private final MilvusUtils milvusUtils;
 
@@ -83,8 +86,10 @@ public class KnowledgeService {
         Knowledge knowledge = knowledgeRepository.findByUserIdAndId(user.getId(), knowledgeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND));
 
-        knowledgeRepository.delete(knowledge);
+        List<Retriever> retrievers =  retrieverRepository.findByKnowledgeId(knowledgeId);
+        retrievers.forEach(retriever -> retriever.updateKnowledge(null));
 
+        knowledgeRepository.delete(knowledge);
         return true;
     }
 }
