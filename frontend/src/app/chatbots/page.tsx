@@ -218,7 +218,7 @@ export default function Page() {
             type={isViewingShared ? "shared" : "my"}
             category={bot.categories.map((cat) => cat.name)}
             onCardClick={() => {
-              router.push(`/chatbot/${bot.chatFlowId}/workflow`);
+              router.push(`/chatbot/${bot.chatFlowId}/chatflow`);
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId, bot.title)}
