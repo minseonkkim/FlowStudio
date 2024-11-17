@@ -15,11 +15,16 @@ export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
-  const [isLogin, ] = useState<boolean>(false);
+  const [isLogin, setIsLogin] = useState<boolean>(false);
 
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+  
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLogin(!!token); 
+  }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     if (isLogin) {
       router.push('/explore/chatbots');
     }
