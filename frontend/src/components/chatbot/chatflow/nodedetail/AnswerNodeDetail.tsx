@@ -20,7 +20,7 @@ export default function AnswerNodeDetail({
   setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
   onClose: () => void
 }) {
-  const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
+  const [localAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
   const [parentNodes, setParentNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));

@@ -32,13 +32,19 @@ export default function LlmNode ({
             {data.promptSystem && data.promptSystem.length > 0 &&
               <div className="flex flex-col gap-0.5">
                 <div>시스템 프롬프트</div>
-                <div className="rounded-[5px] p-0.5 bg-white">{data.promptSystem}</div>
+                <div 
+                  dangerouslySetInnerHTML={data.renderText}
+                  style={{ whiteSpace: "pre-wrap" }}
+                  className="rounded-[5px] p-0.5 bg-white"></div>
               </div>
             }
             {data.promptUser && data.promptUser.length > 0 &&
               <div className="flex flex-col gap-0.5">
                 <div>유저 프롬프트</div>
-                <div className="rounded-[5px] p-0.5 bg-white">{data.promptUser}</div>
+                <div 
+                  dangerouslySetInnerHTML={data.renderText2}
+                  style={{ whiteSpace: "pre-wrap" }}
+                  className="rounded-[5px] p-0.5 bg-white"></div>
               </div>
             }
           </div>
