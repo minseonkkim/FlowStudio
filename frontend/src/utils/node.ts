@@ -115,3 +115,44 @@ export function debounce<T extends (...args: any[]) => void>(func: T, delay: num
 }
 
 
+export const findAllParentNodes = (
+  currentNodeId: string,
+  nodes: Node<any, string | undefined>[],
+  edges: Edge<any>[]
+): Node<any, string | undefined>[] => {
+  const visited = new Set<string>(); // 방문한 노드 ID를 추적
+  const parentNodes: Node<any, string | undefined>[] = [];
+
+  const queue: string[] = [currentNodeId]; // BFS 탐색을 위한 큐
+
+  while (queue.length > 0) {
+    const nodeId = queue.shift(); // 큐에서 노드 ID를 하나 가져옴
+
+    if (nodeId && !visited.has(nodeId)) {
+      visited.add(nodeId); // 현재 노드 ID를 방문으로 처리
+
+      // 현재 노드로 들어오는 간선 탐색
+      const incomingEdges = edges.filter((edge) => edge.target === nodeId);
+
+      // 부모 노드 추출
+      incomingEdges.forEach((edge) => {
+        if (!visited.has(edge.source)) {
+          const parentNode = nodes.find((n) => n.id === edge.source);
+          if (parentNode) {
+            parentNodes.push(parentNode); // 부모 노드를 결과에 추가
+            queue.push(parentNode.id); // 부모 노드도 큐에 추가
+          }
+        }
+      });
+    }
+  }
+
+  // 최종적으로 부모 노드 배열을 ID 기준으로 중복 제거
+  const uniqueParentNodes = Array.from(
+    new Map(parentNodes.map((node) => [node.id, node])).values()
+  );
+
+  // 본인도 제거
+  return uniqueParentNodes.filter((value) => value.id != currentNodeId);
+};
+

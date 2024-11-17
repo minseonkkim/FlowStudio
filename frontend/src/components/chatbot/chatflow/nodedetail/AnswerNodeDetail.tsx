@@ -28,15 +28,7 @@ export default function AnswerNodeDetail({
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    // node.data가 변경되면 로컬 상태 업데이트
-    setLocalAnswer(node.data.outputMessage);
-  }, [node.data.outputMessage]);
-
   const handleAnswerChange = (value: string) => {
-    // Local state 업데이트
-    setLocalAnswer(value);
-
     // Node 상태 업데이트
     setNodes((prevNodes) =>
       prevNodes.map((n) =>
@@ -67,6 +59,13 @@ export default function AnswerNodeDetail({
     }, 500); // 500ms 대기 후 호출
   };
 
+  useEffect(() => {
+    if (!node || !node.id || edges.length <= 0) return;
+
+    const connectedNodes = findAllParentNodes(node.id, nodes, edges);
+    console.log("Connected Nodes:", connectedNodes);
+  }, [nodes.length, edges.length]);
+
   return <>
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex flex-row justify-between items-center mb-2">
@@ -79,12 +78,20 @@ export default function AnswerNodeDetail({
 
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">답변을 입력하세요.</div>
-        <textarea
-          value={localAnswer}
-          onChange={(e) => handleAnswerChange(e.target.value)}
+        <div
+          contentEditable={true}
+          suppressContentEditableWarning
+          onInput={(e) => {
+            const target = e.target as HTMLTextAreaElement;
+            target.style.height = "auto";
+            target.style.height = `${target.scrollHeight}px`;
+            handleAnswerChange(target.innerText);
+          }}
           className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
-          style={{ minHeight: "50px" }}
-        />
+          style={{ minHeight: "50px", whiteSpace: "pre-wrap" }}
+        >
+          {localAnswer}
+        </div>
       </div>
     </div>
   </>

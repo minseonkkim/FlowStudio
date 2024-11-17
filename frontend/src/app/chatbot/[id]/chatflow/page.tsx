@@ -365,8 +365,12 @@ export default function Page({ params }: ChatflowPageProps) {
     if (selectedNode.data.type == "ANSWER") {
       return (
         <AnswerNodeDetail
+          chatFlowId={params.id}
           node={selectedNode}
+          nodes={nodes}
+          edges={edges}
           setNodes={setNodes}
+          setSelectedNode={setSelectedNode}
           onClose={handleNodeDetailClose}
         />
       );
