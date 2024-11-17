@@ -14,6 +14,7 @@ import PurpleButton from "@/components/common/PurpleButton";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import { ChatFlow } from "@/types/chatbot";
 import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
+import Loading from "@/components/common/Loading";
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -72,7 +73,8 @@ export default function Page() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isLoading) return <div>is Loading...</div>;
+  if (isLoading) 
+  return <Loading/>;
 
   const categories = [
     "모든 챗봇",
