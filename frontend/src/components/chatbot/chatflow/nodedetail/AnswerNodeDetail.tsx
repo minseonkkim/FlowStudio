@@ -3,30 +3,68 @@ import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
 import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { CgClose } from "@react-icons/all-files/cg/CgClose"
-import { Dispatch, SetStateAction, useState } from "react";
-import { Node } from "reactflow";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Node, Edge  } from "reactflow";
+import { debounce, findAllParentNodes } from "@/utils/node"
+import { putNode } from "@/api/workflow"
 
 export default function AnswerNodeDetail({
+  chatFlowId,
   node,
+  nodes,
+  edges,
   setNodes,
+  setSelectedNode,
   onClose,
 }: {
+  chatFlowId: number
   node: Node<any, string | undefined>,
+  nodes: Node<any, string | undefined>[],
+  edges: Edge<any | undefined>[],
   setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>
+  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
   onClose: () => void
 }) {
-  const handleAnswerChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    var value: string = event.target.value;
+  const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
+  const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // node의 데이터 수정
-    node.data.outputMessage = value;
+  useEffect(() => {
+    // node.data가 변경되면 로컬 상태 업데이트
+    setLocalAnswer(node.data.outputMessage);
+  }, [node.data.outputMessage]);
 
-    // 상태 업데이트
-    setNodes((prevNodes: Node[]) =>
+  const handleAnswerChange = (value: string) => {
+    // Local state 업데이트
+    setLocalAnswer(value);
+
+    // Node 상태 업데이트
+    setNodes((prevNodes) =>
       prevNodes.map((n) =>
-        n.id === node.id ? node : n
+        n.id === node.id
+          ? {
+              ...n,
+              data: {
+                ...n.data,
+                outputMessage: value,
+              },
+            }
+          : n
       )
     );
+
+    if (answerTimerRef.current) {
+      clearTimeout(answerTimerRef.current); // 기존 타이머 초기화
+    }
+
+    answerTimerRef.current = setTimeout(() => {
+      // API 호출
+      const updatedData = {
+        ...node.data,
+        outputMessage: value,
+      };
+      console.log("CALL NODE UPDATE:", updatedData);
+      putNode(node.data.nodeId, updatedData);
+    }, 500); // 500ms 대기 후 호출
   };
 
   return <>
@@ -42,8 +80,8 @@ export default function AnswerNodeDetail({
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">답변을 입력하세요.</div>
         <textarea
-          value={node.data.outputMessage || ""}
-          onChange={handleAnswerChange}
+          value={localAnswer}
+          onChange={(e) => handleAnswerChange(e.target.value)}
           className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
           style={{ minHeight: "50px" }}
         />
