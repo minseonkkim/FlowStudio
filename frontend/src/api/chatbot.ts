@@ -85,3 +85,20 @@ export async function getChatFlow(chatFlowId: number){
     throw error
   }
 }
+
+// 챗플로우 발행
+export async function publishChatFlow(chatFlowId: number) {
+  try {
+    console.log(chatFlowId);
+    const response = await axiosInstance.post(`chat-flows/${chatFlowId}/publish`)
+    console.log('챗플로우 발행', response);
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to publish chat-flow');
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
