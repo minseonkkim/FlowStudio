@@ -15,8 +15,15 @@ export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
+  const [isLogin, setIsLogin] = useState<boolean>(false);
 
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+
+    useEffect(() => {
+    if (isLogin) {
+      router.push('/explore/chatbots');
+    }
+  }, [isLogin, router]);
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
@@ -49,7 +56,7 @@ export default function Header() {
         )}
       </div>
       <Link
-        href="/"
+        href={isLogin ? "/explore/chatbots" : "/"}
         onClick={handleLinkClick}
         className="flex items-center gap-3 absolute left-1/2 transform -translate-x-1/2"
       >
@@ -134,7 +141,7 @@ export default function Header() {
 
   const DesktopHeader = () => (
     <header className="z-10 fixed inset-0 w-full h-[57px] px-12 flex justify-between items-center border-b-[1px] bg-white">
-      <Link href="/" className="flex items-center gap-3">
+      <Link href={isLogin ? "/explore/chatbots" : "/"} className="flex items-center gap-3">
         <Image src={Logo} alt="logo" className="w-[22px] h-[22px]" />
         <div className="text-[22px] font-bold text-[#5D2973]">Flow Studio</div>
       </Link>
