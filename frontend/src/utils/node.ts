@@ -38,7 +38,6 @@ export const createNodeData = (
 
     outputMessage: params.outputMessage || "",
 
-    // questionClasses: params.questionClasses || [],
     promptSystem: params.promptSystem || "",
     promptUser: params.promptUser || "",
     context: params.context || "",
@@ -159,3 +158,62 @@ export const findAllParentNodes = (
   return result;
 };
 
+
+/**
+ * 모노스페이스 블럭을 만드는 팩토리 함수
+ * @param content 
+ * @returns 
+ */
+export const createMonospaceBlock = (node: Node<NodeData, string>): HTMLSpanElement => {
+  const span = document.createElement("span");
+  span.textContent = `${node.type}|${node.data.name}`;
+  span.setAttribute("contenteditable", "false");
+  if (node.type === 'START') {
+    span.setAttribute("data-value", "{{INPUT_MESSAGE}}");
+  } else {
+    span.setAttribute("data-value", `{{${node.id}}}`);
+  }
+  span.style.fontFamily = "monospace";
+  span.style.backgroundColor = "#f0f0f0";
+  span.style.padding = "2px 4px";
+  span.style.borderRadius = "3px";
+  span.style.display = "inline-block";
+  span.style.marginRight = "2px";
+  return span;
+};
+
+
+/**
+ * 모노스페이스 복구 함수
+ * @param text 
+ * @returns 
+ */
+export const restoreMonospaceBlocks = (nodes: Node<NodeData, string>[], text: string): string => {
+  return text.replace(/{{(.*?)}}/g, (_, nodeId) => {
+    const node = nodes.find((n) => n.id === nodeId.trim() || n.type === "START");
+    if (node) {
+      const block = createMonospaceBlock(node); // 노드 데이터 전달
+      return block.outerHTML;
+    }
+    return `{{${nodeId}}}`; // 노드가 없는 경우 원본 텍스트 유지
+  });
+};
+
+/**
+ * 모노스페이스 원본 텍스트 추출 함수
+ * @param container 
+ * @returns 
+ */
+export const extractActualValues = (container: HTMLDivElement): string => {
+  const spans = container.querySelectorAll("span[data-value]");
+  let result = container.innerText;
+
+  spans.forEach((span) => {
+    const actualValue = span.getAttribute("data-value");
+    if (actualValue) {
+      result = result.replace(span.textContent || "", actualValue);
+    }
+  });
+
+  return result;
+};

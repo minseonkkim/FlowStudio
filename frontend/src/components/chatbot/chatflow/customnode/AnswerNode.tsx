@@ -1,4 +1,4 @@
-import { Handle, Position, NodeProps} from "reactflow"
+import { Handle, Position, NodeProps } from "reactflow"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";
 import { NodeData } from "@/types/chatbot";
@@ -26,9 +26,15 @@ export default function AnswerNode({
               />
             )}
           </div>
-          <div className="rounded-[5px] p-0.5 bg-white text-[8px] flex flex-col gap-0.5" style={{ whiteSpace: "pre-wrap" }}>
+          <div
+            className="rounded-[5px] p-0.5 bg-white text-[8px] flex flex-col gap-0.5" >
             <div className="text-[6px] font-bold">답변</div>
-            {data.outputMessage}
+            <div
+              dangerouslySetInnerHTML={data.renderOutputMessage}
+              // className="data"
+              style={{ whiteSpace: "pre-wrap" }}
+            >
+            </div>
           </div>
         </div>
         {/* <Handle type="source" position={Position.Right} /> */}

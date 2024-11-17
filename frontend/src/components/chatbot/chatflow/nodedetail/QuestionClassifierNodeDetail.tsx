@@ -7,7 +7,7 @@ import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode, putQuestionClassNode } from "@/api/workflow";
-import NodeAddMenu from "./NodeAddMenu";
+import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import { EdgeData, NodeData, QuestionClass } from "@/types/chatbot";
 import { debounce } from "@/utils/node";
 

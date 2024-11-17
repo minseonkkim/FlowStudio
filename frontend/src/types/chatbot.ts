@@ -84,10 +84,14 @@ export interface NodeData{
   knowledgeId?: number;
   topK?: number;
   intervalTime?: number;
-  scoreThreshold?: number,
-  query?: string
+  scoreThreshold?: number;
+  query?: string;
 
   questionClasses?: QuestionClass[];
+
+  renderOutputMessage?: { __html: string | TrustedHTML; };
+  renderPromptSystem?: { __html: string | TrustedHTML; };
+  renderPromptUser?: { __html: string | TrustedHTML; };
 }
 
 export interface ChatFlowDetail{
