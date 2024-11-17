@@ -28,10 +28,12 @@ export default function TestResult() {
 
   return (
     <div className="container">
-      {items.map((item) => (
-        <div key={item.chatId} className="border-2 rounded-xl mb-4">
-          <details className="py-4 px-6">
-            <summary className="font-semibold">테스트 케이스 {item.chatId}</summary>
+      {items.map((item,index) => (
+        <div key={index+1} className="border-2 rounded-xl mb-4">
+          <details
+           className="py-4 px-6"
+           open={index === 0}>
+            <summary className="font-semibold">테스트 케이스 {index+1}</summary>
             <div className="mt-4">
               <label className="block mb-2">평가 결과</label>
               <div>Embedding Distance: {item.embeddingDistance}</div>
@@ -63,6 +65,19 @@ export default function TestResult() {
                 className="w-full p-2 border rounded-md focus:outline-none"
               />
             </div>
+
+            <div className="text-[14px] text-[#757575] my-4">
+              <p>
+                ROUGE Metric과 Embedding Distance는 텍스트 유사도를 측정하는 데 사용되었으며,
+                Cross Encoder는 문장 간 의미적 일치도를 평가하기 위한 지표로 활용되었습니다.
+              </p>
+              <ul className="list-disc list-inside ml-5">
+                <li>Embedding Distance: 텍스트를 벡터공간에 매핑하고 거리를 측정하여 유사도를 평가</li>
+                <li>Cross-Encoder: 두 테스트를 동시에 입력받아 직접적인 관련성 점수를 출력</li>
+                <li>Rouge Metric: 생성된 텍스트와 참조 텍스트 간의 겹치는 n-gram을 기반으로 평가</li>
+              </ul>
+            </div>
+
           </details>
         </div>
       ))}

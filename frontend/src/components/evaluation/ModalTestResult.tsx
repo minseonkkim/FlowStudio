@@ -1,24 +1,26 @@
 import { ChatFlowTestCase } from '@/types/evaluation';
 
 interface ModalTestResultProps {
-  testResultDetail: ChatFlowTestCase[]; 
+  testResultDetail: ChatFlowTestCase[];
 }
 
 export default function ModalTestResult({ testResultDetail }: ModalTestResultProps) {
-
   return (
     <div className="container">
       <div
         className="bg-white rounded-lg max-h-[80vh] w-full max-w-3xl overflow-y-auto p-6"
         style={{
-          maxHeight: "80vh", 
-          overflowY: "auto", 
+          maxHeight: "80vh",
+          overflowY: "auto",
         }}
       >
-        {testResultDetail.map((item) => (
-          <div key={item.id} className="border-2 rounded-xl mb-4">
-            <details className="py-4 px-6">
-              <summary className="font-semibold">테스트 케이스 {item.id}</summary>
+        {testResultDetail.map((item, index) => (
+          <div key={index + 1} className="border-2 rounded-xl mb-4">
+            <details
+              className="py-4 px-6"
+              open={index === 0} // 첫 번째 항목만 항상 열려 있도록 설정
+            >
+              <summary className="font-semibold">테스트 케이스 {index + 1}</summary>
               <div className="mt-4">
                 <label className="block mb-2">평가 결과</label>
                 <div>Embedding Distance: {item.embeddingDistance}</div>

@@ -81,9 +81,11 @@ export default function Page() {
       borderWidth: 2,
     }],
   };
-
-  const yearLabel = viewMode === 'daily' ? getDailyData()[0]?.date.slice(0, 4) : getWeeklyData()[0]?.Date.slice(0, 4);
-
+  
+  const yearLabel = viewMode === 'daily' 
+    ? getDailyData()[0]?.date.slice(0, 4) || '0' 
+    : getWeeklyData()[0]?.Date.slice(0, 4) || '0';
+  
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -100,6 +102,7 @@ export default function Page() {
       y: { title: { display: false, text: '사용량' }, beginAtZero: true },
     },
   };
+  
 
   if (isLoading) 
   return <Loading/>;

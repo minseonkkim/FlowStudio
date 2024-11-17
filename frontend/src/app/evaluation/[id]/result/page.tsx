@@ -86,7 +86,7 @@ export default function Page({ params }: EvaluationPageProps) {
                 <th className="border px-6 py-2">ROUGE Metric 분산</th>
                 <th className="border px-6 py-2">Cross Encoder 평균</th>
                 <th className="border px-6 py-2">Cross Encoder 분산</th>
-                <th className="border px-6 py-2">테스트 횟수</th>
+                <th className="border px-8 py-2">테스트 케이스 횟수</th>
               </tr>
             </thead>
             <tbody>
@@ -120,21 +120,6 @@ export default function Page({ params }: EvaluationPageProps) {
             <li>Embedding Distance: 텍스트를 벡터공간에 매핑하고 거리를 측정하여 유사도를 평가</li>
             <li>Cross-Encoder: 두 테스트를 동시에 입력받아 직접적인 관련성 점수를 출력</li>
             <li>Rouge Metric: 생성된 텍스트와 참조 텍스트 간의 겹치는 n-gram을 기반으로 평가</li>
-          </ul>
-        </div>
-
-        {/* 구분선 */}
-        <hr className="border-t-2 border-gray-300 my-8" />
-
-        {/* 기타 사항 */}
-        <div>
-          <h3 className="font-semibold text-[14px] mb-2">챗봇 관련 기타사항</h3>
-          <ul className="list-decimal list-inside text-[14px] text-[#333] ml-5 space-y-2">
-            <li>텍스트 분석 및 다중 언어 지원 기능을 포함</li>
-            <li>자연어 처리 개선 후 비정형 질문에 대한 챗봇 응답의 정확성 테스트.</li>
-            <li>긴 문장을 처리하는 로직을 추가 후 응답 정확성 테스트.</li>
-            <li>다중 질문 처리 로직 추가 후, 다중 질문 응답 정확성 테스트.</li>
-            <li>중복된 질문 응답 필터링 로직 추가 후 성능 테스트.</li>
           </ul>
         </div>
       </div>
