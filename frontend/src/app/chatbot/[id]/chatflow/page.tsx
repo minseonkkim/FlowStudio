@@ -32,6 +32,8 @@ import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/Que
 import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/RetrieverNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetail";
 import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedetail/QuestionClassifierNodeDetail";
+import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
+import VariableDetail from "@/components/chatbot/workflow/VariableDetail";
 
 interface ChatflowPageProps {
   params: {
@@ -388,27 +390,114 @@ export default function Page({ params }: ChatflowPageProps) {
     putNode(node.data.nodeId, node.data);
   }
 
+
+  /**
+   * 챗봇 발행 메뉴
+   */
+  const [showChatbotCreationModal, setShowChatbotCreationModal] = useState(false);
+  const handleChatbotCreationClick = useCallback(() => {
+    setShowChatbotCreationModal((prev) => !prev);
+  }, []);
+  const renderChatbotCreationModal = () => {
+    if (!showChatbotCreationModal) return null;
+
+    return (
+      <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
+        <button className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer">
+          업데이트
+        </button>
+        <div className="flex flex-col gap-3">
+          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+            앱 실행<BsArrowUpRight />
+          </button>
+          <button className="p-2 bg-[#F2F2F2] hover:bg-[#ECECEC] rounded-[8px] cursor-pointer text-start flex flex-row items-center gap-1">
+            사이트에 삽입<BsArrowUpRight />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
+  /**
+   * 변수 메뉴
+   */
+  const [showVariableDetail, setShowVariableDetail] = useState<boolean>(false);
+  const handleVariableButtonClick = useCallback(() => {
+    setShowVariableDetail((prev) => !prev);
+  }, []);
+  const [variables, setVariables] = useState<
+    { name: string; value: string; type: string; isEditing: boolean }[]
+  >([
+    { name: "변수1", value: "", type: "string", isEditing: false },
+    { name: "변수2", value: "", type: "string", isEditing: false },
+  ]);
+  const renderVariableDetail = () => {
+    if (!showVariableDetail) return null;
+
+    return (
+      <VariableDetail
+        variables={variables}
+        handleVariableChange={handleVariableChange}
+        handleAddVariable={handleAddVariable}
+        handleRemoveVariable={handleRemoveVariable}
+        handleEditToggle={handleEditToggle}
+        onClose={() => setShowVariableDetail(false)}
+      />
+    );
+  };
+  const handleVariableChange = (
+    index: number,
+    key: "name" | "value" | "type",
+    newValue: string
+  ) => {
+    setVariables((prev) =>
+      prev.map((variable, i) =>
+        i === index ? { ...variable, [key]: newValue } : variable
+      )
+    );
+  };
+
+  const handleAddVariable = () => {
+    setVariables((prev) => [
+      ...prev,
+      { name: "", value: "", type: "string", isEditing: true },
+    ]);
+  };
+
+  const handleRemoveVariable = (index: number) => {
+    setVariables((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditToggle = (index: number) => {
+    setVariables((prev) =>
+      prev.map((variable, i) =>
+        i === index ? { ...variable, isEditing: !variable.isEditing } : variable
+      )
+    );
+  };
+
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
         <button
           className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-        // onClick={handleVariableButtonClick}
+          onClick={handleVariableButtonClick}
         >
           변수
         </button>
         <button
           className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-        // onClick={handleChatbotCreationClick}
+          onClick={handleChatbotCreationClick}
         >
           챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
       </div>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail}
-        {/* {renderVariableDetail()} */}
+        {renderVariableDetail()}
       </div>
-      {/* {renderChatbotCreationModal()} */}
+      {renderChatbotCreationModal()}
       <ReactFlowProvider>
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
 
