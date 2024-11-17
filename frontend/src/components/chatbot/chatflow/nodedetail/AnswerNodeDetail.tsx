@@ -27,7 +27,7 @@ export default function AnswerNodeDetail({
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
-  const [connectedNodes, setConnectedNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
+  const [parentNodes, setParentNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
   // const [variables, setVariables] = useState<Node[]>([]);
   /**
    * 연결된 노드 수정사항 바로 반영하기
@@ -35,10 +35,10 @@ export default function AnswerNodeDetail({
   useEffect(() => {
     if (!node || !node.id || edges.length <= 0) return;
 
-    const updateConnectedNodes = findAllParentNodes(node.id, nodes, edges);
-    setConnectedNodes(updateConnectedNodes);
-    console.log("Connected Nodes:", updateConnectedNodes);
-    // setVariables(connectedNodes);
+    const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
+    setParentNodes(updateParentNodes);
+    console.log("parent Nodes:", updateParentNodes);
+    // setVariables(parentNodes);
   }, [node.id, nodes.length, edges.length]);
 
   useEffect(() => {
@@ -55,9 +55,9 @@ export default function AnswerNodeDetail({
   }, [node.data.outputMessage, node.data.renderText]);
 
   useEffect(() => {
-    const updateConnectedNodes = findAllParentNodes(node.id, nodes, edges);
+    const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
 
-    const renderText = restoreMonospaceBlocks(updateConnectedNodes, node.data.outputMessage);
+    const renderText = restoreMonospaceBlocks(updateParentNodes, node.data.outputMessage);
 
     if (textareaRef.current) {
       textareaRef.current.innerHTML = renderText;
@@ -115,7 +115,7 @@ export default function AnswerNodeDetail({
         <div className="text-[16px]">
           답변을 입력하세요. 
           <NodeVariableInsertMenu 
-            connectedNodes={connectedNodes} 
+            parentNodes={parentNodes} 
             editorRef={textareaRef}
             onContentChange={handleAnswerChange}
           /> 

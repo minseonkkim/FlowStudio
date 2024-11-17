@@ -4,11 +4,11 @@ import { NodeData } from "@/types/chatbot";
 import { createMonospaceBlock } from "@/utils/node";
 
 export const NodeVariableInsertMenu = ({
-  connectedNodes,
+  parentNodes,
   editorRef,
   onContentChange,
 }: {
-  connectedNodes: Node<NodeData, string>[];
+  parentNodes: Node<NodeData, string>[];
   editorRef: React.RefObject<HTMLDivElement>;
   onContentChange: (newContent: string) => void;
 }) => {
@@ -50,14 +50,14 @@ const insertMonospaceBlock = (node: Node<NodeData, string>) => {
     <div className="relative inline-block">
       <button
         className="p-2 bg-blue-500 text-white rounded"
-        onClick={() => setSelectedNode((prev) => (prev ? null : connectedNodes[0]))}
+        onClick={() => setSelectedNode((prev) => (prev ? null : parentNodes[0]))}
       >
         연결된 노드 삽입
       </button>
 
       {selectedNode && (
         <div className="absolute z-10 bg-white border rounded mt-2 w-full shadow-lg">
-          {connectedNodes.map((node) => (
+          {parentNodes.map((node) => (
             <button
               key={node.id}
               onClick={() => insertMonospaceBlock(node)}
