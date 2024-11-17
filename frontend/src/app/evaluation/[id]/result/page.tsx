@@ -135,7 +135,7 @@ export default function Page({ params }: EvaluationPageProps) {
             onClick={(e) => e.stopPropagation()} 
           >
             <ModalTestResult testResultDetail={testResultDetail} />
-            <TiDeleteOutline onClick={closeModal} className="absolute top-4 right-4 w-6 h-6" />
+            {/* <TiDeleteOutline onClick={closeModal} className="absolute top-4 right-4 w-6 h-6" /> */}
           </div>
         </div>
       )}
