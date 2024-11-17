@@ -32,15 +32,16 @@ export interface SharedChatFlow extends ChatFlow {
 }
  
 
-interface Coordinate{
+export interface Coordinate{
   x: number;
   y: number;
 }
 
-interface EdgeData{
+export interface EdgeData{
   edgeId: number;
   sourceNodeId: number;
   targetNodeId: number;
+  sourceConditionId: number;
 }
 
 export interface Knowledge{
@@ -51,18 +52,42 @@ export interface Knowledge{
   totalToken: number;
 }
 
+export interface QuestionClass {
+  id: number;
+  content?: string;
+  questionClassifierId: number;
+}
+
 export interface NodeData{
+  chatFlowId: number;
   nodeId: number;
   name: string;
   type: string;
   coordinate: Coordinate;
   outputEdges: EdgeData[];
   inputEdges: EdgeData[];
+  onDelete: (nodeId : string) => void;
+
   maxLength?: number;
+
   outputMessage?: string;
+
   promptSystem?: string;
   promptUser?: string;
+  context?: string;
+  temperature?: number;
+  maxTokens?: number;
+  modelProvider?: string;
+  modelName?: string;
+
   knowledge?: Knowledge;
+  knowledgeId?: number;
+  topK?: number;
+  intervalTime?: number;
+  scoreThreshold?: number,
+  query?: string
+
+  questionClasses?: QuestionClass[];
 }
 
 export interface ChatFlowDetail{
