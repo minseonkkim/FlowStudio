@@ -30,7 +30,7 @@ export default function AnswerNode({
             className="rounded-[5px] p-0.5 bg-white text-[8px] flex flex-col gap-0.5" >
             <div className="text-[6px] font-bold">답변</div>
             <div
-              dangerouslySetInnerHTML={data.renderText}
+              dangerouslySetInnerHTML={data.renderOutputMessage}
               // className="data"
               style={{ whiteSpace: "pre-wrap" }}
             >

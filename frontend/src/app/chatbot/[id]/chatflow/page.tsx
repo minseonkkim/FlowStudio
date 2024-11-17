@@ -25,7 +25,7 @@ import { EdgeData } from "@/types/chatbot";
 import { deleteEdge, getNodeDetail, postEdge, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
-import { createNodeData } from "@/utils/node";
+import { createNodeData, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
 import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import RetrieverNode from "@/components/chatbot/chatflow/customnode/RetrieverNode";
 import LlmNode from "@/components/chatbot/chatflow/customnode/LlmNode";
@@ -75,7 +75,7 @@ export default function Page({ params }: ChatflowPageProps) {
       const initNodes: NodeData[] = data.nodes;
 
       // 비동기 작업 처리
-      const newNodes = await Promise.all(
+      const newNodes: NodeData[] = await Promise.all(
         initNodes.map(async (node) => {
           const nodeDetail = await getNodeDetail(node.nodeId); // getNodeDetail 호출
           return createNodeData(
@@ -96,8 +96,6 @@ export default function Page({ params }: ChatflowPageProps) {
         data: node, // 팩토리 함수로 생성된 NodeData 객체 전달
       }));
 
-      setNodes(reactFlowNodes); // 노드 상태 설정
-
       // 초기 엣지 데이터 가져오기
       const initEdges: EdgeData[] = data.edges;
 
@@ -110,8 +108,87 @@ export default function Page({ params }: ChatflowPageProps) {
         data: { ...edge },
       }));
 
-      console.log(reactFlowEdges);
+      // reactFlowNodes.map(async (newNode) => {
+      //   if (newNode.type === "ANSWER") {
+      //     // 부모 노드 찾기
+      //     const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
 
+      //     // 부모 노드에서 renderText에 사용할 값 생성
+      //     const renderText = restoreMonospaceBlocks(parentNodes, newNode.data.outputMessage);
+
+      //     // 새로운 노드 데이터 업데이트
+      //     return {
+      //       ...newNode,
+      //       data: {
+      //         ...newNode.data,
+      //         renderOutputMessage: renderText
+      //       },
+      //     };
+      //   }
+      //   if (newNode.type === "LLM") {
+      //     // 부모 노드 찾기
+      //     const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
+
+      //     // 부모 노드에서 renderText에 사용할 값 생성
+      //     const renderPromptSystem = restoreMonospaceBlocks(parentNodes, newNode.data.promptSystem);
+      //     const renderPromptUser = restoreMonospaceBlocks(parentNodes, newNode.data.promptUser);
+
+      //     // 새로운 노드 데이터 업데이트
+      //     return {
+      //       ...newNode,
+      //       data: {
+      //         ...newNode.data,
+      //         renderPromptSystem: renderPromptSystem,
+      //         renderPromptUser: renderPromptUser,
+      //       },
+      //     };
+      //   }
+
+      //   return newNode;
+      // })
+      const updatedNodes = await Promise.all(
+        reactFlowNodes.map(async (newNode) => {
+          if (newNode.type === "ANSWER") {
+            // 부모 노드 찾기
+            const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
+  
+            // 부모 노드에서 renderText에 사용할 값 생성
+            const renderOutputMessage = restoreMonospaceBlocks(parentNodes, newNode.data.outputMessage);
+  
+            // 새로운 노드 데이터 업데이트
+            return {
+              ...newNode,
+              data: {
+                ...newNode.data,
+                renderOutputMessage: {__html: renderOutputMessage},
+              },
+            };
+          }
+  
+          if (newNode.type === "LLM") {
+            // 부모 노드 찾기
+            const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
+  
+            // 부모 노드에서 renderText에 사용할 값 생성
+            const renderPromptSystem = restoreMonospaceBlocks(parentNodes, newNode.data.promptSystem);
+            const renderPromptUser = restoreMonospaceBlocks(parentNodes, newNode.data.promptUser);
+  
+            // 새로운 노드 데이터 업데이트
+            return {
+              ...newNode,
+              data: {
+                ...newNode.data,
+                renderPromptSystem: {__html: renderPromptSystem},
+                renderPromptUser: {__html: renderPromptUser},
+              },
+            };
+          }
+  
+          return newNode;
+        })
+      );
+
+      setNodes(updatedNodes); // 노드 상태 설정
       setEdges(reactFlowEdges); // 엣지 상태 설정
     } catch (error) {
       console.error("Flow 초기화 중 오류 발생:", error);

@@ -73,15 +73,15 @@ export default function LlmNodeDetail({
    useEffect(() => {
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
 
-    const renderText = restoreMonospaceBlocks(updateParentNodes, node.data.promptSystem);
-    const renderText2 = restoreMonospaceBlocks(updateParentNodes, node.data.promptUser);
+    const renderPromptSystem = restoreMonospaceBlocks(updateParentNodes, node.data.promptSystem);
+    const renderPromptUser = restoreMonospaceBlocks(updateParentNodes, node.data.promptUser);
 
     if (promptSystemTextareaRef.current) {
-      promptSystemTextareaRef.current.innerHTML = renderText;
+      promptSystemTextareaRef.current.innerHTML = renderPromptSystem;
     }
 
     if (promptUserTextareaRef.current) {
-      promptUserTextareaRef.current.innerHTML = renderText2;
+      promptUserTextareaRef.current.innerHTML = renderPromptUser;
     }
   }, [node.id]);
 
@@ -104,7 +104,7 @@ export default function LlmNodeDetail({
     adjustHeight();
 
     setTimeout(adjustHeight, 0);
-  }, [node.data.promptSystem, node.data.promptUser, node.data.renderText, node.data.renderText2]);
+  }, [node.data.promptSystem, node.data.promptUser, node.data.renderPromptSystem, node.data.renderPromptUser]);
 
   /**
    * 시스템 프롬프트 수정 함수
@@ -124,7 +124,7 @@ export default function LlmNodeDetail({
             data: {
               ...n.data,
               promptSystem: actualValue,
-              renderText: { __html: promptSystemTextareaRef.current.innerHTML },
+              renderPromptSystem: { __html: promptSystemTextareaRef.current.innerHTML },
             },
           }
           : n
@@ -164,7 +164,7 @@ export default function LlmNodeDetail({
             data: {
               ...n.data,
               promptUser: actualValue,
-              renderText2: { __html: promptUserTextareaRef.current.innerHTML },
+              renderPromptUser: { __html: promptUserTextareaRef.current.innerHTML },
             },
           }
           : n

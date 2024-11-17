@@ -50,7 +50,7 @@ export default function AnswerNodeDetail({
     adjustHeight();
 
     setTimeout(adjustHeight, 0);
-  }, [node.data.outputMessage, node.data.renderText]);
+  }, [node.data.outputMessage, node.data.renderOutputMessage]);
 
   /**
    * redering 할 수있는 형태로 가공
@@ -58,10 +58,10 @@ export default function AnswerNodeDetail({
   useEffect(() => {
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
 
-    const renderText = restoreMonospaceBlocks(updateParentNodes, node.data.outputMessage);
+    const renderOutputMessage = restoreMonospaceBlocks(updateParentNodes, node.data.outputMessage);
 
     if (textareaRef.current) {
-      textareaRef.current.innerHTML = renderText;
+      textareaRef.current.innerHTML = renderOutputMessage;
     }
   }, [node.id]);
 
@@ -83,7 +83,7 @@ export default function AnswerNodeDetail({
             data: {
               ...n.data,
               outputMessage: actualValue,
-              renderText: {__html : textareaRef.current.innerHTML},
+              renderOutputMessage: {__html : textareaRef.current.innerHTML},
             },
           }
           : n

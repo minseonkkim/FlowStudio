@@ -38,7 +38,6 @@ export const createNodeData = (
 
     outputMessage: params.outputMessage || "",
 
-    // questionClasses: params.questionClasses || [],
     promptSystem: params.promptSystem || "",
     promptUser: params.promptUser || "",
     context: params.context || "",
@@ -191,7 +190,7 @@ export const createMonospaceBlock = (node: Node<NodeData, string>): HTMLSpanElem
  */
 export const restoreMonospaceBlocks = (nodes: Node<NodeData, string>[], text: string): string => {
   return text.replace(/{{(.*?)}}/g, (_, nodeId) => {
-    const node = nodes.find((n) => n.id === nodeId.trim());
+    const node = nodes.find((n) => n.id === nodeId.trim() || n.type === "START");
     if (node) {
       const block = createMonospaceBlock(node); // 노드 데이터 전달
       return block.outerHTML;

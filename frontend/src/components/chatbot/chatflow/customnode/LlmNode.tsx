@@ -33,7 +33,7 @@ export default function LlmNode ({
               <div className="flex flex-col gap-0.5">
                 <div>시스템 프롬프트</div>
                 <div 
-                  dangerouslySetInnerHTML={data.renderText}
+                  dangerouslySetInnerHTML={data.renderPromptSystem}
                   style={{ whiteSpace: "pre-wrap" }}
                   className="rounded-[5px] p-0.5 bg-white"></div>
               </div>
@@ -42,7 +42,7 @@ export default function LlmNode ({
               <div className="flex flex-col gap-0.5">
                 <div>유저 프롬프트</div>
                 <div 
-                  dangerouslySetInnerHTML={data.renderText2}
+                  dangerouslySetInnerHTML={data.renderPromptUser}
                   style={{ whiteSpace: "pre-wrap" }}
                   className="rounded-[5px] p-0.5 bg-white"></div>
               </div>

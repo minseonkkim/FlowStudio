@@ -89,8 +89,9 @@ export interface NodeData{
 
   questionClasses?: QuestionClass[];
 
-  renderText?: { __html: string | TrustedHTML; };
-  renderText2?: { __html: string | TrustedHTML; };
+  renderOutputMessage?: { __html: string | TrustedHTML; };
+  renderPromptSystem?: { __html: string | TrustedHTML; };
+  renderPromptUser?: { __html: string | TrustedHTML; };
 }
 
 export interface ChatFlowDetail{
