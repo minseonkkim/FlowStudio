@@ -24,12 +24,6 @@ export default function Header() {
     setIsLogin(!!token); 
   }, []);
 
-  useEffect(() => {
-    if (isLogin) {
-      router.push('/explore/chatbots');
-    }
-  }, [isLogin, router]);
-
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     setToken(null); 

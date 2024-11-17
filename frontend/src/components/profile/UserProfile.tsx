@@ -9,6 +9,7 @@ import { getUserInfo, getCheckNickName, patchNickName, patchProfileImage, getApi
 import { UserInfo, ApiKeys } from '@/types/profile'
 import { AxiosError } from 'axios';
 import WhiteButton from '../common/whiteButton';
+import Loading from '../common/Loading';
 
 export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
@@ -112,7 +113,7 @@ export default function UserProfile() {
   }, [isUserInfoError, userInfoError, isApiKeysError, apiKeysError]);
 
 
-  if (isUserInfoLoading || isApiKeysLoading) return <div>is Loading...</div>;
+  if (isUserInfoLoading || isApiKeysLoading) return <Loading/>;
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickName(e.target.value);

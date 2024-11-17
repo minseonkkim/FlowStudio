@@ -5,6 +5,7 @@ import {ChatFlowDetail, NodeData } from '@/types/chatbot';
 import { KnowledgeData } from '@/types/knowledge';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import Loading from '../common/Loading';
 
 interface ShareChatbotModalProps {
   chatFlowId: number;
@@ -79,7 +80,8 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
     onClose();
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) 
+  return <Loading/>;
   if (isError && error) return <div>Error: {error.message}</div>;
 
   return (

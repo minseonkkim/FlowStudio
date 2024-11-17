@@ -18,6 +18,7 @@ import {
   Legend,
   ChartOptions,
 } from 'chart.js';
+import Loading from '../common/Loading';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -100,7 +101,9 @@ export default function Page() {
     },
   };
 
-  if (isLoading) return <div></div>;
+  if (isLoading) 
+  return <Loading/>;
+  
   return (
     <div className="w-full max-w-[900px] border-2 rounded-lg py-8 px-10">
       <div className="flex justify-between items-center mb-6">
