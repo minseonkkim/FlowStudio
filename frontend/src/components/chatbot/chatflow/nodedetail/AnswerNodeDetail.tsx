@@ -8,27 +8,22 @@ import { EdgeData, NodeData } from "@/types/chatbot";
 import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 
 export default function AnswerNodeDetail({
-  // chatFlowId,
   node,
   nodes,
   edges,
   setNodes,
-  // setSelectedNode,
   onClose,
 }: {
-  // chatFlowId: number
   node: Node<NodeData, string | undefined>,
   nodes: Node<NodeData, string | undefined>[],
   edges: Edge<EdgeData | undefined>[],
   setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
-  // setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
   onClose: () => void
 }) {
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
   const [parentNodes, setParentNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
-  // const [variables, setVariables] = useState<Node[]>([]);
   /**
    * 연결된 노드 수정사항 바로 반영하기
    */
@@ -41,6 +36,9 @@ export default function AnswerNodeDetail({
     // setVariables(parentNodes);
   }, [node.id, nodes.length, edges.length]);
 
+  /**
+   * 높이 재설정
+   */
   useEffect(() => {
     const adjustHeight = () => {
       if (textareaRef.current) {
@@ -54,6 +52,9 @@ export default function AnswerNodeDetail({
     setTimeout(adjustHeight, 0);
   }, [node.data.outputMessage, node.data.renderText]);
 
+  /**
+   * redering 할 수있는 형태로 가공
+   */
   useEffect(() => {
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
 
@@ -64,6 +65,10 @@ export default function AnswerNodeDetail({
     }
   }, [node.id]);
 
+  /**
+   * 입력값 처리
+   * @returns 
+   */
   const handleAnswerChange = () => {
     if (!textareaRef.current) return;
 
