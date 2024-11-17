@@ -1,25 +1,10 @@
-export default function ModalTestResult() {
-  const items = [
-    {
-      chatId: 1,
-      testQuestion: "What is the capital of France?",
-      groundTruth: "Paris",
-      prediction: "Paris",
-      embeddingDistance: 0.95,
-      rougeMetric: 0.95,
-      crossEncoder: 0.95,
-    },
-    {
-      chatId: 2,
-      testQuestion: "What is 2 + 2?",
-      groundTruth: "4",
-      prediction: "4",
-      embeddingDistance: 0.9,
-      rougeMetric: 0.9,
-      crossEncoder: 0.9,
-    },
-    // 더 많은 아이템 추가
-  ];
+import { ChatFlowTestCase } from '@/types/evaluation';
+
+interface ModalTestResultProps {
+  testResultDetail: ChatFlowTestCase[]; 
+}
+
+export default function ModalTestResult({ testResultDetail }: ModalTestResultProps) {
 
   return (
     <div className="container">
@@ -30,10 +15,10 @@ export default function ModalTestResult() {
           overflowY: "auto", 
         }}
       >
-        {items.map((item) => (
-          <div key={item.chatId} className="border-2 rounded-xl mb-4">
+        {testResultDetail.map((item) => (
+          <div key={item.id} className="border-2 rounded-xl mb-4">
             <details className="py-4 px-6">
-              <summary className="font-semibold">테스트 케이스 {item.chatId}</summary>
+              <summary className="font-semibold">테스트 케이스 {item.id}</summary>
               <div className="mt-4">
                 <label className="block mb-2">평가 결과</label>
                 <div>Embedding Distance: {item.embeddingDistance}</div>
