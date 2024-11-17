@@ -20,6 +20,7 @@ import three from '../../../public/chatbot-icon/3.jpg';
 import four from '../../../public/chatbot-icon/4.jpg';
 import five from '../../../public/chatbot-icon/5.jpg';
 import six from '../../../public/chatbot-icon/6.jpg';
+import { StaticImageData } from 'next/image';
 
 type DefaultChatProps = {
   chatFlowId: string;
@@ -37,7 +38,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const profileImage = useRecoilValue(profileImageAtom);
   const [isLogin, setIsLogin] = useState<boolean>(false)
 
-  const thumbnailImages: { [key: number]: string } = {
+  const thumbnailImages: Record<number, StaticImageData> = {
     1: one,
     2: two,
     3: three,
@@ -45,7 +46,6 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     5: five,
     6: six,
   };
-
   const chatlistThumbnail = 1; 
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -276,15 +276,16 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             <FiX size={24} />
           </button>
         </div>
-        {isLogin && 
-        <SideBar
-          onNewChat={onNewChat}
-          chatFlowId={chatFlowId}
-          onSelectChat={handleSelectChat}
-          onDeleteNewChat={onDeleteNewChat}
-          selectedChatId={defaultChatId}
-        />
-        }
+        {isLogin && (
+          <SideBar
+            onNewChat={onNewChat}
+            chatFlowId={chatFlowId}
+            onSelectChat={handleSelectChat}
+            onDeleteNewChat={onDeleteNewChat}
+            selectedChatId={defaultChatId}
+          />
+        )}
+
       </div>
 
       <div className="flex flex-col flex-grow bg-gray-50">
@@ -317,10 +318,13 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
                 )}
               </div>
               {msg.sender === "user" && (
-                profileImage ? 
-                <img src={profileImage} className="w-8 h-8 md:w-10 md:h-10 rounded-full"/>:
-                <div className="rounded-full w-8 h-8 md:w-10 md:h-10 bg-gray-300"></div>
+                profileImage ? (
+                  <img src={profileImage} className="w-8 h-8 md:w-10 md:h-10 rounded-full" />
+                ) : (
+                  <div className="rounded-full w-8 h-8 md:w-10 md:h-10 bg-gray-300"></div>
+                )
               )}
+
             </div>
           ))}
           <div ref={chatEndRef} />
