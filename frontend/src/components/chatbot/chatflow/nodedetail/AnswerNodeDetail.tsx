@@ -1,10 +1,11 @@
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
 import { CgClose } from "@react-icons/all-files/cg/CgClose"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { Node, Edge  } from "reactflow";
-import { findAllParentNodes } from "@/utils/node"
+import { Node, Edge } from "reactflow";
+import { findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node"
 import { putNode } from "@/api/workflow"
 import { EdgeData, NodeData } from "@/types/chatbot";
+import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 
 export default function AnswerNodeDetail({
   // chatFlowId,
@@ -32,17 +33,18 @@ export default function AnswerNodeDetail({
     setLocalAnswer(node.data.outputMessage);
 
     // 초기 화면 진입 시 height 조정
-  const adjustHeight = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
+    const adjustHeight = () => {
+      if (textareaRef.current) {
+        // textareaRef.current.innerHTML = restoreMonospaceBlocks(node.data.outputMessage);
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    };
 
-  adjustHeight();
+    adjustHeight();
 
-  // DOM이 준비된 이후에도 높이를 재조정
-  setTimeout(adjustHeight, 0);
+    // DOM이 준비된 이후에도 높이를 재조정
+    setTimeout(adjustHeight, 0);
   }, [node.id]);
 
   const handleAnswerChange = (value: string) => {
@@ -51,12 +53,12 @@ export default function AnswerNodeDetail({
       prevNodes.map((n) =>
         n.id === node.id
           ? {
-              ...n,
-              data: {
-                ...n.data,
-                outputMessage: value,
-              },
-            }
+            ...n,
+            data: {
+              ...n.data,
+              outputMessage: value,
+            },
+          }
           : n
       )
     );
@@ -76,11 +78,16 @@ export default function AnswerNodeDetail({
     }, 500); // 500ms 대기 후 호출
   };
 
+  /**
+   * 연결된 노드 수정사항 바로 반영하기
+   */
+  const [connectedNodes, setConnectedNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
   useEffect(() => {
     if (!node || !node.id || edges.length <= 0) return;
 
-    const connectedNodes = findAllParentNodes(node.id, nodes, edges);
-    console.log("Connected Nodes:", connectedNodes);
+    const updateConnectedNodes = findAllParentNodes(node.id, nodes, edges);
+    setConnectedNodes(updateConnectedNodes);
+    console.log("Connected Nodes:", updateConnectedNodes);
     // setVariables(connectedNodes);
   }, [node.id, nodes.length, edges.length]);
 
@@ -95,13 +102,20 @@ export default function AnswerNodeDetail({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-[16px]">답변을 입력하세요.</div>
+        <div className="text-[16px]">
+          답변을 입력하세요. 
+          <NodeVariableInsertMenu 
+            connectedNodes={connectedNodes} 
+            editorRef={textareaRef}
+            onContentChange={handleAnswerChange}
+          /> 
+        </div>
         <div
           ref={textareaRef}
-          contentEditable={true}
+          contentEditable
           suppressContentEditableWarning
           onInput={(e) => {
-            const target = e.target as HTMLTextAreaElement;
+            const target = e.target as HTMLDivElement;
             target.style.height = "auto";
             target.style.height = `${target.scrollHeight}px`;
             handleAnswerChange(target.innerText);
