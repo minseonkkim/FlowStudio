@@ -256,7 +256,10 @@ export default function UserProfile() {
                       className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                     />
                   ) : (
-                    <p className="mt-2 mb-2 text-base text-gray-700">{apiKeys?.[key] || ''}</p>  // apiKeys 값 또는 빈 문자열
+                    <p className="mt-2 mb-2 text-base text-gray-700 font-bold">
+                    {apiKeys?.[key] ? '****************************************' : ''}
+                  </p>
+                  
                   )}
                 </div>
               ))}
