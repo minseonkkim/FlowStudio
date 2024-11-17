@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRecoilState } from 'recoil';
 import { profileImageAtom } from '@/store/profileAtoms';
 import { UserInfo } from '@/types/profile';
+import Loading from '@/components/common/Loading';
 
 function CallbackContent() {
   const router = useRouter();
@@ -40,7 +41,7 @@ function CallbackContent() {
 
 export default function CallbackPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<Loading/>}>
       <CallbackContent />
     </Suspense>
   );

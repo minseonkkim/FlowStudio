@@ -9,6 +9,7 @@ import "swiper/css";
 import { SharedChatFlow } from "@/types/chatbot";
 import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/common/Loading";
 
 export default function Page() {
   const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
@@ -80,7 +81,8 @@ export default function Page() {
     setSelectedCategory(label);
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) 
+  return <Loading/>;
 
   return (
     <div className="px-4 md:px-12 py-10">

@@ -11,7 +11,7 @@ import PurpleButton from '@/components/common/PurpleButton';
 import { useEffect } from 'react';
 
 export default function Page() {
-  const [currentStep,] = useRecoilState(currentStepState); // Recoil 상태 사용
+  const [currentStep,] = useRecoilState(currentStepState); 
   const router = useRouter(); 
   const [,setfile] = useRecoilState(fileState); 
 
