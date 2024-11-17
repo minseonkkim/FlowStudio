@@ -1,11 +1,11 @@
 import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { Edge, Node } from "reactflow";
-import { deleteEdge } from "@/api/workflow";
+import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
 import { EdgeData, NodeData } from "@/types/chatbot";
 
@@ -31,6 +31,9 @@ export default function StartNodeDetail({
   connectedNodes: ConnectedNode[];
 }) {
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>(initialConnectedNodes);
+  const [maxLength, setMaxLength] = useState(node.data.maxLength);
+  const maxLengthRef = useRef(node.data.maxLength);
+  const maxLengthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     console.log("여긴 시작 노드 상세화면 ", node);
@@ -41,26 +44,35 @@ export default function StartNodeDetail({
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes]);
 
-  const handleMaxCharsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let value: number = +event.target.value;
-    if (value > 2_147_483_647) {
-      value = 2_147_483_647;
-      return;
+  const debouncedUpdateNode = (updatedData: NodeData) => {
+    console.log("CALL NODE UPDATE:", updatedData);
+    putNode(node.data.nodeId, updatedData);
+  };
+
+  const handleMaxCharsChange = (value: number) => {
+    setMaxLength(value);
+    maxLengthRef.current = value;
+
+    if (maxLengthTimerRef.current) {
+      clearTimeout(maxLengthTimerRef.current); // Reset the timer on each input
     }
 
-    if (value < 0) {
-      value = 0;
-      return;
-    }
-    // node의 데이터 수정
-    node.data.maxLength = value;
+    maxLengthTimerRef.current = setTimeout(() => {
+      // Update the node data only after user stops typing
+      const updatedNode = {
+        ...node,
+        data: {
+          ...node.data,
+          maxLength: maxLengthRef.current,
+        },
+      };
 
-    // 상태 업데이트
-    setNodes((prevNodes: Node[]) =>
-      prevNodes.map((n) =>
-        n.id === node.id ? node : n
-      )
-    );
+      setNodes((prevNodes) =>
+        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
+      );
+
+      debouncedUpdateNode(updatedNode.data);
+    }, 500); // Wait for 500ms of inactivity
   };
 
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
@@ -86,8 +98,8 @@ export default function StartNodeDetail({
         <input
           className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
           type="number"
-          value={node.data.maxLength}
-          onChange={handleMaxCharsChange}
+          value={maxLength}
+              onChange={(e) => handleMaxCharsChange(Number(e.target.value))}
         />
       </div>
 
