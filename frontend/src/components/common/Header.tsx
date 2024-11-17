@@ -17,6 +17,8 @@ export default function Header() {
   const [token, setToken] = useState<string | null>(null); 
   const [isLogin, setIsLogin] = useState<boolean>(false);
 
+  console.log('dddddddd', pathname);
+
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   
   useEffect(() => {
@@ -90,7 +92,7 @@ export default function Header() {
           </Link>
           <Link
             className={`cursor-pointer ${
-              pathname === "/chatbots"
+              pathname === "/chatbots" || (pathname.startsWith('/chatbot') && pathname.endsWith('chatflow'))
                 ? "text-[#9A75BF] font-semibold"
                 : "hover:font-semibold"
             } w-full py-2 border-b`}
@@ -159,7 +161,7 @@ export default function Header() {
             </Link>
             <Link
               className={`cursor-pointer ${
-                pathname === "/chatbots"
+                pathname === "/chatbots" || (pathname.startsWith('/chatbot') && pathname.endsWith('chatflow'))
                   ? "text-[#9A75BF] font-semibold"
                   : "hover:font-semibold"
               }`}
