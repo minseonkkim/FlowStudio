@@ -1,6 +1,6 @@
-import { NodeData } from "@/types/workflow";
+// import { NodeData } from "@/types/workflow";
 import axiosInstance from "./token/axiosInstance";
-import { EdgeData } from "@/types/chatbot";
+import { EdgeData, NodeData } from "@/types/chatbot";
 
 // 노드 생성
 export async function postNode(data: NodeData){
@@ -50,7 +50,7 @@ export async function deleteNode(nodeId: number){
 }
 
 // 노드 수정
-export async function putNode(nodeId: number, data: any){
+export async function putNode(nodeId: number, data: NodeData){
   try {
     console.log("CALL NODE UPDATE : "+ {...data});
     const response = await axiosInstance.put(`chat-flows/nodes/${nodeId}/${data.type.toLowerCase()}`, data)

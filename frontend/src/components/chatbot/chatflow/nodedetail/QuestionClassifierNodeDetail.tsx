@@ -8,7 +8,7 @@ import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode, putQuestionClassNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
-import { QuestionClass } from "@/types/chatbot";
+import { EdgeData, NodeData, QuestionClass } from "@/types/chatbot";
 import { debounce } from "@/utils/node";
 
 
@@ -24,12 +24,12 @@ export default function QuestionClassifierNodeDetail({
   connectedNodes: initialConnectedNodes, // 초기 connectedNodes를 받음
 }: {
   chatFlowId: number
-  node: Node<any, string | undefined>,
-  nodes: Node<any, string | undefined>[],
-  edges: Edge<any | undefined>[],
-  setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>
-  setEdges: Dispatch<SetStateAction<Edge<any>[]>>
-  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
+  node: Node<NodeData, string | undefined>,
+  nodes: Node<NodeData, string | undefined>[],
+  edges: Edge<EdgeData | undefined>[],
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
+  setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>
+  setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
   onClose: () => void
   connectedNodes: ConnectedNode[];
 }) {

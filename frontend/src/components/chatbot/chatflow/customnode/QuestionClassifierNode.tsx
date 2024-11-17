@@ -1,4 +1,4 @@
-import { Handle, Position, NodeProps, useEdges} from "reactflow"
+import { Handle, Position, NodeProps} from "reactflow"
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
 import { useRef, useEffect, useState } from "react";
 import { MdDelete } from "@react-icons/all-files/md/MdDelete";

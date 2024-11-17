@@ -8,20 +8,21 @@ import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
-import { getAllKnowledges } from "@/api/knowledge";
+// import { getAllKnowledges } from "@/api/knowledge";
 import { debounce } from "@/utils/node";
+import { EdgeData, NodeData } from "@/types/chatbot";
 
 
-interface Model {
-  id: string;
-  name: string;
-}
+// interface Model {
+//   id: string;
+//   name: string;
+// }
 
-const models: Model[] = [
-  { id: "gpt-4o", name: "GPT-4o" },
-  { id: "gpt-4o-mini", name: "GPT-4o mini" },
-  { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-];
+// const models: Model[] = [
+//   { id: "gpt-4o", name: "GPT-4o" },
+//   { id: "gpt-4o-mini", name: "GPT-4o mini" },
+//   { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+// ];
 
 export default function LlmNodeDetail({
   chatFlowId,
@@ -35,17 +36,17 @@ export default function LlmNodeDetail({
   connectedNodes: initialConnectedNodes, // 초기 connectedNodes를 받음
 }: {
   chatFlowId: number
-  node: Node<any, string | undefined>,
-  nodes: Node<any, string | undefined>[],
-  edges: Edge<any | undefined>[],
-  setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>
-  setEdges: Dispatch<SetStateAction<Edge<any>[]>>
-  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
+  node: Node<NodeData, string | undefined>,
+  nodes: Node<NodeData, string | undefined>[],
+  edges: Edge<EdgeData | undefined>[],
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
+  setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>
+  setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
   onClose: () => void
   connectedNodes: ConnectedNode[];
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>(initialConnectedNodes);
   const [localPromptSystem, setLocalPromptSystem] = useState(node.data.promptSystem);
   const [localPromptUser, setLocalPromptUser] = useState(node.data.promptUser);
@@ -60,16 +61,16 @@ export default function LlmNodeDetail({
   const maxTokensTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const temperatureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openModal = () => {
-    getAllKnowledges()
-      .then((data) => {
-      });
-    setModalOpen(true);
-  };
+  // const openModal = () => {
+  //   getAllKnowledges()
+  //     .then((data) => {
+  //     });
+  //   setModalOpen(true);
+  // };
 
-  const closeModal = () => {
-    setModalOpen(false);
-  };
+  // const closeModal = () => {
+  //   setModalOpen(false);
+  // };
 
   useEffect(() => {
     // debounce를 useRef에 저장
@@ -118,7 +119,7 @@ export default function LlmNodeDetail({
     setLocalPromptUser(node.data.promptUser);
   }, [node.data]);
 
-  const debouncedUpdateNode = (updatedData: any) => {
+  const debouncedUpdateNode = (updatedData: NodeData) => {
     console.log("CALL NODE UPDATE:", updatedData);
     putNode(node.data.nodeId, updatedData);
   };

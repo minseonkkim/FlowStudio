@@ -9,7 +9,7 @@ import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "./NodeAddMenu";
 import { getAllKnowledges } from "@/api/knowledge";
-import { Knowledge } from "@/types/chatbot";
+import { EdgeData, Knowledge, NodeData } from "@/types/chatbot";
 
 
 export default function RetrieverNodeDetail({
@@ -24,12 +24,12 @@ export default function RetrieverNodeDetail({
   connectedNodes: initialConnectedNodes, // 초기 connectedNodes를 받음
 }: {
   chatFlowId: number
-  node: Node<any, string | undefined>,
-  nodes: Node<any, string | undefined>[],
-  edges: Edge<any | undefined>[],
-  setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>
-  setEdges: Dispatch<SetStateAction<Edge<any>[]>>
-  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
+  node: Node<NodeData, string | undefined>,
+  nodes: Node<NodeData, string | undefined>[],
+  edges: Edge<EdgeData | undefined>[],
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
+  setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>
+  setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
   onClose: () => void
   connectedNodes: ConnectedNode[];
 }) {
@@ -76,7 +76,7 @@ export default function RetrieverNodeDetail({
     setConnectedNodes(initialConnectedNodes);
   }, [node, initialConnectedNodes]);
 
-  const debouncedUpdateNode = (updatedData: any) => {
+  const debouncedUpdateNode = (updatedData: NodeData) => {
     console.log("CALL NODE UPDATE:", updatedData);
     putNode(node.data.nodeId, updatedData);
   };

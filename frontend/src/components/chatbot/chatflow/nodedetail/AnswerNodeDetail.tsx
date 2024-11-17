@@ -1,34 +1,32 @@
-import { FaRobot } from "@react-icons/all-files/fa/FaRobot"
-import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen"
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
-import { GrTree } from "@react-icons/all-files/gr/GrTree"
 import { CgClose } from "@react-icons/all-files/cg/CgClose"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Node, Edge  } from "reactflow";
-import { debounce, findAllParentNodes } from "@/utils/node"
+import { findAllParentNodes } from "@/utils/node"
 import { putNode } from "@/api/workflow"
+import { EdgeData, NodeData } from "@/types/chatbot";
 
 export default function AnswerNodeDetail({
-  chatFlowId,
+  // chatFlowId,
   node,
   nodes,
   edges,
   setNodes,
-  setSelectedNode,
+  // setSelectedNode,
   onClose,
 }: {
-  chatFlowId: number
-  node: Node<any, string | undefined>,
-  nodes: Node<any, string | undefined>[],
-  edges: Edge<any | undefined>[],
-  setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>
-  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
+  // chatFlowId: number
+  node: Node<NodeData, string | undefined>,
+  nodes: Node<NodeData, string | undefined>[],
+  edges: Edge<EdgeData | undefined>[],
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
+  // setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
   onClose: () => void
 }) {
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
-  const [variables, setVariables] = useState<Node[]>([]);
+  // const [variables, setVariables] = useState<Node[]>([]);
 
   useEffect(() => {
     setLocalAnswer(node.data.outputMessage);
@@ -83,7 +81,7 @@ export default function AnswerNodeDetail({
 
     const connectedNodes = findAllParentNodes(node.id, nodes, edges);
     console.log("Connected Nodes:", connectedNodes);
-    setVariables(connectedNodes);
+    // setVariables(connectedNodes);
   }, [node.id, nodes.length, edges.length]);
 
   return <>

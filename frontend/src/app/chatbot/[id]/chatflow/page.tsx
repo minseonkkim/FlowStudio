@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, MouseEvent, useMemo } from "react";
+import { useCallback, useEffect, useState, MouseEvent, useMemo } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -13,6 +13,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  Connection,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
@@ -41,16 +42,16 @@ interface ChatflowPageProps {
   };
 }
 
-interface Model {
-  nodeId: string;
-  name: string;
-}
+// interface Model {
+//   nodeId: string;
+//   name: string;
+// }
 
-const models: Model[] = [
-  { nodeId: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-  { nodeId: "gpt-4", name: "GPT-4" },
-  { nodeId: "gpt-4-32k", name: "GPT-4 (32k)" },
-];
+// const models: Model[] = [
+//   { nodeId: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+//   { nodeId: "gpt-4", name: "GPT-4" },
+//   { nodeId: "gpt-4-32k", name: "GPT-4 (32k)" },
+// ];
 
 interface ConnectedNode {
   nodeId: number;
@@ -75,9 +76,9 @@ const nodeTypes = {
 export default function Page({ params }: ChatflowPageProps) {
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [selectedNode, setSelectedNode] = useState<Node<any, string | undefined> | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node<NodeData, string | undefined> | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
@@ -88,9 +89,9 @@ export default function Page({ params }: ChatflowPageProps) {
       const initNodes: NodeData[] = data.nodes;
 
       // Question Classifier 노드 필터링
-      const qcNodes: NodeData[] = initNodes.filter(
-        (node: NodeData) => node.type === "QUESTION_CLASSIFIER"
-      );
+      // const qcNodes: NodeData[] = initNodes.filter(
+      //   (node: NodeData) => node.type === "QUESTION_CLASSIFIER"
+      // );
 
       // 비동기 작업 처리
       const newNodes = await Promise.all(
@@ -193,13 +194,13 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 간선 연결
    */
-  const onConnect = useCallback((connection: any) => {
+  const onConnect = useCallback((connection: Connection) => {
     console.log("간선 연결할때 정보", connection);
     const edgeData: EdgeData = {
       edgeId: 0,
-      sourceNodeId: connection.source,
-      targetNodeId: connection.target,
-      sourceConditionId: connection.sourceHandle,
+      sourceNodeId: +connection.source,
+      targetNodeId: +connection.target,
+      sourceConditionId: +connection.sourceHandle,
     };
     postEdge(params.id, edgeData)
       .then((data) => {
@@ -277,7 +278,7 @@ export default function Page({ params }: ChatflowPageProps) {
    * @param sourceNode 
    * @returns 
    */
-  const getConnectedNodes = (sourceNode: Node<any, string | undefined> | null): ConnectedNode[] => {
+  const getConnectedNodes = (sourceNode: Node<NodeData, string | undefined> | null): ConnectedNode[] => {
     return edges
       .filter((edge) => edge.source === sourceNode?.id) // 연결된 엣지 찾기
       .map((edge) => {
@@ -367,12 +368,12 @@ export default function Page({ params }: ChatflowPageProps) {
     if (selectedNode.data.type == "ANSWER") {
       return (
         <AnswerNodeDetail
-          chatFlowId={params.id}
+          // chatFlowId={params.id}
           node={selectedNode}
           nodes={nodes}
           edges={edges}
           setNodes={setNodes}
-          setSelectedNode={setSelectedNode}
+          // setSelectedNode={setSelectedNode}
           onClose={handleNodeDetailClose}
         />
       );
@@ -386,7 +387,7 @@ export default function Page({ params }: ChatflowPageProps) {
    * @param event 
    * @param node 드래그가 된 노드
    */
-  function handleNodeDragStop(event: React.MouseEvent<Element>, node: Node<any, string | undefined>): void {
+  function handleNodeDragStop(event: React.MouseEvent<Element>, node: Node<NodeData, string | undefined>): void {
     putNode(node.data.nodeId, node.data);
   }
 
@@ -544,7 +545,7 @@ export default function Page({ params }: ChatflowPageProps) {
                   node={{
                     position: { x: menuPosition.x, y: menuPosition.y },
                     data: { chatFlowId: params.id }
-                  } as Node<any, string | undefined>
+                  } as Node<NodeData, string | undefined>
                   }
                   nodes={nodes}
                   setNodes={setNodes}

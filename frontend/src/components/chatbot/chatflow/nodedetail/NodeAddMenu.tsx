@@ -6,7 +6,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "reac
 import { addEdge, Edge, Node } from "reactflow";
 import { getNodeDetail, postEdge } from "@/api/workflow";
 import { addNode, createNodeData } from "@/utils/node";
-import { EdgeData } from "@/types/chatbot";
+import { EdgeData, NodeData } from "@/types/chatbot";
 
 export default function NodeAddMenu({
     node,
@@ -17,12 +17,12 @@ export default function NodeAddMenu({
     isDetail,
     questionClass,
 }: {
-    node: Node<any, string | undefined>,
-    nodes: Node<any, string | undefined>[],
-    setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>,
-    setEdges: Dispatch<SetStateAction<Edge<any>[]>>,
-    setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>,
-    isDetail: Boolean,
+    node: Node<NodeData, string | undefined>,
+    nodes: Node<NodeData, string | undefined>[],
+    setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>,
+    setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>,
+    setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>,
+    isDetail: boolean,
     questionClass: number | null | undefined,
 }) {
     const [isOpen, setIsOpen] = useState(false);

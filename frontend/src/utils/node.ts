@@ -1,5 +1,5 @@
 import { deleteNode, postNode } from "@/api/workflow";
-import { NodeData, Knowledge } from "@/types/chatbot";
+import { NodeData, Knowledge, EdgeData } from "@/types/chatbot";
 import { Dispatch, SetStateAction } from "react";
 import { Edge, Node } from "reactflow"
 
@@ -7,9 +7,9 @@ import { Edge, Node } from "reactflow"
 export const createNodeData = (
   params: Omit<NodeData, "onDelete" | "chatFlowId">, // onDelete와 chatFlowId를 제외
   chatFlowId: number, // chatFlowId를 외부에서 전달받음
-  setNodes: Dispatch<SetStateAction<Node<any, string | undefined>[]>>, // 노드 상태 업데이트 함수
-  setEdges: Dispatch<SetStateAction<Edge<any>[]>>, // 엣지 상태 업데이트 함수
-  setSelectedNode: Dispatch<SetStateAction<Node<any, string | undefined> | null>>
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>, // 노드 상태 업데이트 함수
+  setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>, // 엣지 상태 업데이트 함수
+  setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
 ): NodeData => {
   return {
     chatFlowId,
@@ -58,7 +58,7 @@ export const createNodeData = (
 };
 
 // 노드 추가
-export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetail: Boolean) => {
+export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetail: boolean) => {
 
   const isPositionOccupied = (x: number, y: number) => {
     return nodes.some(
@@ -77,13 +77,14 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
     }
   }
 
-  const newNode = {
+  const newNode : NodeData = {
+    ...currentNode.data,
     chatFlowId: currentNode.data.chatFlowId,
-    coordinate: {
+    coordinate:  {
       x: newX,
       y: newY,
     },
-    nodeType: type,
+    type: type,
   };
 
   console.log(currentNode);
@@ -100,7 +101,7 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
  * @param func 실행할 함수
  * @param delay 지연 시간 (ms)
  */
-export function debounce<T extends (...args: any[]) => void>(func: T, delay: number) {
+export function debounce<T extends (...args: Parameters<T>) => void>(func: T, delay: number) {
   let timer: NodeJS.Timeout;
 
   return (...args: Parameters<T>) => {
@@ -117,11 +118,11 @@ export function debounce<T extends (...args: any[]) => void>(func: T, delay: num
 
 export const findAllParentNodes = (
   currentNodeId: string,
-  nodes: Node<any, string | undefined>[],
-  edges: Edge<any>[]
-): Node<any, string | undefined>[] => {
+  nodes: Node<NodeData, string | undefined>[],
+  edges: Edge<EdgeData>[]
+): Node<NodeData, string | undefined>[] => {
   const visited = new Set<string>(); // 방문한 노드 ID를 추적
-  const parentNodes: Node<any, string | undefined>[] = [];
+  const parentNodes: Node<NodeData, string | undefined>[] = [];
 
   const queue: string[] = [currentNodeId]; // BFS 탐색을 위한 큐
 
