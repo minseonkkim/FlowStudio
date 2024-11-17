@@ -19,4 +19,7 @@ public interface EdgeRepository extends JpaRepository<Edge, Long> {
     );
 
     Optional<Edge> findBySourceConditionId(Long sourceConditionId);
+
+    @Query("select e from Edge e where e.sourceConditionId = :sourceConditionId")
+    List<Edge> findAllSourceConditionId(Long sourceConditionId);
 }

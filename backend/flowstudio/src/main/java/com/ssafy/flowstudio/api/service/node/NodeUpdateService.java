@@ -119,7 +119,7 @@ public class NodeUpdateService {
         retriever.update(
                 request.getName(),
                 coordinate,
-                knowledgeRepository.findById(request.getKnowledgeId()).orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND)),
+                request.getKnowledgeId() == null ? null : knowledgeRepository.findById(request.getKnowledgeId()).orElseThrow(() -> new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND)),
                 request.getIntervalTime(),
                 request.getScoreThreshold(),
                 request.getTopK(),

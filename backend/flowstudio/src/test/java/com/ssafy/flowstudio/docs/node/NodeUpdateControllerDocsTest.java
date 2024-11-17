@@ -160,7 +160,7 @@ public class NodeUpdateControllerDocsTest extends RestDocsSupport {
 
         // when
         ResultActions perform = mockMvc.perform(
-                put("/api/v1/chat-flows/nodes/{nodeId}/question-classifier", 1L)
+                put("/api/v1/chat-flows/nodes/{nodeId}/question_classifier", 1L)
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON));
 

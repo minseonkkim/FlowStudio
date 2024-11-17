@@ -59,7 +59,7 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                         .x(1)
                         .y(1)
                         .build())
-                .nodeType(NodeType.START)
+                .type(NodeType.START)
                 .build();
 
         AnswerDetailResponse answerNodeDetailResponse = AnswerDetailResponse.builder()
@@ -96,7 +96,7 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                                                 .description("x좌표"),
                                         fieldWithPath("coordinate.y").type(JsonFieldType.NUMBER)
                                                 .description("y좌표"),
-                                        fieldWithPath("nodeType").type(JsonFieldType.STRING)
+                                        fieldWithPath("type").type(JsonFieldType.STRING)
                                                 .description("노드 타입")
                                 )
                                 .responseFields(
