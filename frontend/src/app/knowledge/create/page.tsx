@@ -35,11 +35,11 @@ export default function Page() {
   return (
     <>
       <div className="flex relative">
-        <div className="w-60" style={{ height: 'calc(100vh - 57px)' }}>
+        <div className="w-[270px] fixed top-[57px]" style={{ height: 'calc(100vh - 57px)' }}>
           <CreateStep />
         </div>
 
-        <div className="flex-grow">
+        <div className="mx-[270px]">
           {currentStep === 1 ? <CreateFirst /> : <CreateSecond />}
         </div>
 
