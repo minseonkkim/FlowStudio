@@ -15,7 +15,7 @@ export default function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [isLogin, ] = useState<boolean>(false);
 
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
 
