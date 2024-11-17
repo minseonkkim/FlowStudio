@@ -36,7 +36,7 @@ function CallbackContent() {
     }
   }, [router, searchParams, userInfo]);
 
-  return <p>로그인 중입니다...</p>;
+  return <Loading/>;
 }
 
 export default function CallbackPage() {
