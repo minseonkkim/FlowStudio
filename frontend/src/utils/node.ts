@@ -159,3 +159,34 @@ export const findAllParentNodes = (
   return result;
 };
 
+
+/**
+ * 모노스페이스 블럭을 만드는 팩토리 함수
+ * @param content 
+ * @returns 
+ */
+export const createMonospaceBlock = (node: Node<NodeData, string>): HTMLSpanElement => {
+  const span = document.createElement("span");
+  span.textContent = `${node.type}|${node.data.name}`;
+  span.setAttribute("contenteditable", "false");
+  span.style.fontFamily = "monospace";
+  span.style.backgroundColor = "#f0f0f0";
+  span.style.padding = "2px 4px";
+  span.style.borderRadius = "3px";
+  span.style.display = "inline-block";
+  span.style.marginRight = "2px";
+  return span;
+};
+
+
+/**
+ * 모노스페이스 복구 함수
+ * @param text 
+ * @returns 
+ */
+export const restoreMonospaceBlocks = (text: string): string => {
+  return text.replace(/{{(.*?)}}/g, (_, content) => {
+    const block = createMonospaceBlock(content);
+    return block.outerHTML;
+  });
+};
