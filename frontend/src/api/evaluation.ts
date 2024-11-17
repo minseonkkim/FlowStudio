@@ -40,7 +40,7 @@ export async function getChatTestDetail(chatFlowId: string, chatFlowTestId: stri
   try {
     const response = await axiosInstance.get(`/chat-flows/${chatFlowId}/tests/${chatFlowTestId}`);
     if (response.status === 200) {
-      return response.data.data 
+      return response.data.data.chatFlowTestCases 
     } else {
       throw new Error('Failed to get knowledges');
     }
