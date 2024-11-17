@@ -14,16 +14,15 @@ public class RetrieverUpdateRequest {
     private String name;
     @NotNull(message = "좌표를 입력해주세요.")
     private CoordinateRequest coordinate;
-    @NotNull(message = "knowledgeId를 입력해주세요.")
     private Long knowledgeId;
     @NotNull(message = "intervalTime을 입력해주세요.")
-    private Integer intervalTime;
+    private Integer intervalTime = 1;
     @NotNull(message = "topK를 입력해주세요.")
-    private Integer topK;
+    private Integer topK = 3;
     @NotNull(message = "scoreThreshold을 입력해주세요.")
-    private Float scoreThreshold;
+    private Float scoreThreshold = 0f;
     @NotNull(message = "query를 입력해주세요.")
-    private String query;
+    private String query = "";
 
     @Builder
     private RetrieverUpdateRequest(String name, CoordinateRequest coordinate, Long knowledgeId, Integer intervalTime, Integer topK, Float scoreThreshold, String query) {

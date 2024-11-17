@@ -55,7 +55,7 @@ class NodeControllerTest extends ControllerTestSupport {
         NodeCreateRequest request = NodeCreateRequest.builder()
                 .chatFlowId(1L)
                 .coordinate(coordinateRequest)
-                .nodeType(NodeType.START)
+                .type(NodeType.START)
                 .build();
 
         AnswerDetailResponse answerNodeDetailResponse = AnswerDetailResponse.builder()

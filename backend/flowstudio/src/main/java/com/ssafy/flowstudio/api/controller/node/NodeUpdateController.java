@@ -46,7 +46,7 @@ public class NodeUpdateController {
      * @param request
      * @return
      */
-    @PutMapping(value = "/api/v1/chat-flows/nodes/{nodeId}/question-classifier")
+    @PutMapping(value = "/api/v1/chat-flows/nodes/{nodeId}/question_classifier")
     public ApiResponse<QuestionClassifierResponse> updateQuestionClassifier(
             @CurrentUser User user,
             @PathVariable Long nodeId,
@@ -80,7 +80,7 @@ public class NodeUpdateController {
     public ApiResponse<RetrieverResponse> updateRetriever(
             @CurrentUser User user,
             @PathVariable Long nodeId,
-            @Valid @RequestBody RetrieverUpdateRequest request
+            @RequestBody RetrieverUpdateRequest request
     ) {
         return ApiResponse.ok(nodeUpdateService.updateRetriever(user, nodeId, request.toServiceRequest()));
     }

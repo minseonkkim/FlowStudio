@@ -19,20 +19,20 @@ public class NodeCreateRequest {
     private CoordinateRequest coordinate;
 
     @NotNull(message = "노드 타입은 필수입니다.")
-    private NodeType nodeType;
+    private NodeType type;
 
     @Builder
-    private NodeCreateRequest(Long chatFlowId, CoordinateRequest coordinate, NodeType nodeType) {
+    private NodeCreateRequest(Long chatFlowId, CoordinateRequest coordinate, NodeType type) {
         this.chatFlowId = chatFlowId;
         this.coordinate = coordinate;
-        this.nodeType = nodeType;
+        this.type = type;
     }
 
     public NodeCreateServiceRequest toServiceRequest() {
         return NodeCreateServiceRequest.builder()
                 .chatFlowId(chatFlowId)
                 .coordinate(coordinate.toServiceRequest())
-                .type(nodeType)
+                .type(type)
                 .build();
     }
 
