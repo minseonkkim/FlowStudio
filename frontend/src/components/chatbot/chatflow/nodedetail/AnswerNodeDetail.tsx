@@ -28,6 +28,7 @@ export default function AnswerNodeDetail({
   const [localAnswer, setLocalAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
+  const [variables, setVariables] = useState<Node[]>([]);
 
   useEffect(() => {
     setLocalAnswer(node.data.outputMessage);
@@ -82,7 +83,8 @@ export default function AnswerNodeDetail({
 
     const connectedNodes = findAllParentNodes(node.id, nodes, edges);
     console.log("Connected Nodes:", connectedNodes);
-  }, [nodes.length, edges.length]);
+    setVariables(connectedNodes);
+  }, [node.id, nodes.length, edges.length]);
 
   return <>
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">

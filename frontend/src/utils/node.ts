@@ -153,6 +153,8 @@ export const findAllParentNodes = (
   );
 
   // 본인도 제거
-  return uniqueParentNodes.filter((value) => value.id != currentNodeId);
+  const result = (uniqueParentNodes || [])
+  .filter((value) => value.id != currentNodeId);
+  return result;
 };
 
