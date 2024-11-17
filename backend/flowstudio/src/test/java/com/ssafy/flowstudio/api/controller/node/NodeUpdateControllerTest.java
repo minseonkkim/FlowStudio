@@ -113,7 +113,7 @@ class NodeUpdateControllerTest extends ControllerTestSupport {
 
         // when
         ResultActions perform = mockMvc.perform(
-                put("/api/v1/chat-flows/nodes/{nodeId}/question-classifier", 1L)
+                put("/api/v1/chat-flows/nodes/{nodeId}/question_classifier", 1L)
                         .with(csrf())
                         .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON));

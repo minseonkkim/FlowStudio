@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional(readOnly = true)
@@ -57,8 +58,8 @@ public class QuestionClassService {
                 () -> new BaseException(ErrorCode.QUESTION_CLASS_NOT_FOUND)
         );
 
-        Optional<Edge> edge = edgeRepository.findBySourceConditionId(questionClassId);
-        edge.ifPresent(edgeRepository::delete);
+        List<Edge> edge = edgeRepository.findAllSourceConditionId(questionClassId);
+        edgeRepository.deleteAll(edge);
 
         questionClassRepository.delete(questionClass);
         return true;

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class QuestionClassUpdateRequest {
 
-    @NotBlank(message = "질문 분류의 내용은 필수입니다.")
+    @NotNull(message = "질문 분류의 내용은 필수입니다.")
     private String content;
 
     @Builder
