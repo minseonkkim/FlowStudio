@@ -90,19 +90,22 @@ export default function PopularChatbotCard({
       }`}
     >
       <div className="flex flex-row justify-between items-center mb-3">
-        <div className="flex items-center gap-4">
+        <div className={`${type === "all" ? "w-[64%]": "w-auto"} flex items-center gap-3`}>
           <Image
             src={`/chatbot-icon/${iconId}.jpg`}
             alt="Selected Icon"
-            width={40}
-            height={40}
+            width={42}
+            height={42}
             className="rounded-lg border border-gray-300"
           />
           <p className="text-[16px] line-clamp-1 overflow-hidden">{title}</p>
+          
+          
         </div>
         {type === "all" && 
-          <p className="text-[12px] text-gray-400 flex flex-row items-center">
-              made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{shareNum}</span>번 공유됨
+          <p className="text-[12px] text-gray-400 flex flex-col items-end gap-1">
+              <div className="flex flex-row items-center whitespace-nowrap">made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span></div>
+              <div className="whitespace-nowrap"><span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨</div>
           </p>
         }
         
