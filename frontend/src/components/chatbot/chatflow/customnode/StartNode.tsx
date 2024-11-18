@@ -18,7 +18,7 @@ export default function StartNode({
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row items-center gap-1">
               <IoPlay className="text-[#95C447] size-3" />
-              <div className="text-[11px] font-semibold">{data.name}</div>
+              <div className="text-[11px] font-semibold w-[90px]">{data.name}</div>
             </div>
           </div>
           {typeof data.maxLength === "number" && !isNaN(data.maxLength) && (

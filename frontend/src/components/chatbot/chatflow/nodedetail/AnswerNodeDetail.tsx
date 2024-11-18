@@ -1,9 +1,9 @@
-import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill"
-import { CgClose } from "@react-icons/all-files/cg/CgClose"
+import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Node, Edge } from "reactflow";
-import { extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node"
-import { putNode } from "@/api/workflow"
+import { extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
+import { putNode } from "@/api/workflow";
 import { EdgeData, NodeData } from "@/types/chatbot";
 import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
@@ -19,47 +19,43 @@ export default function AnswerNodeDetail({
   node: Node<NodeData, string | undefined>,
   nodes: Node<NodeData, string | undefined>[],
   edges: Edge<EdgeData | undefined>[],
-  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>
+  setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>,
   onClose: () => void
 }) {
   const [localAnswer] = useState<string>(node.data.outputMessage || "");
   const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const textareaRef = useRef<(HTMLDivElement | null)>(null);
   const [parentNodes, setParentNodes] = useState<Node<NodeData, string>[]>(findAllParentNodes(node.id, nodes, edges));
-  /**
-   * 연결된 노드 수정사항 바로 반영하기
-   */
+
+  // Update parent nodes whenever the node or edges change
   useEffect(() => {
     if (!node || !node.id || edges.length <= 0) return;
 
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
     setParentNodes(updateParentNodes);
     console.log("parent Nodes:", updateParentNodes);
-    // setVariables(parentNodes);
   }, [node.id, nodes.length, edges.length]);
 
-  /**
-   * 높이 재설정
-   */
+  // Adjust height of textarea dynamically
   useEffect(() => {
     const adjustHeight = () => {
       if (textareaRef.current) {
+        // Reset height to auto to shrink when content is deleted
         textareaRef.current.style.height = "auto";
+        // Adjust height based on scrollHeight (content height)
         textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
       }
     };
 
-    adjustHeight();
+    adjustHeight(); // Initial adjustment
 
+    // Optionally, you could use a delay to ensure the content is fully rendered before adjusting
     setTimeout(adjustHeight, 0);
-  }, [node.data.outputMessage, node.data.renderOutputMessage]);
+  }, [node.data.outputMessage, node.data.renderOutputMessage]); // Trigger when content changes
 
-  /**
-   * redering 할 수있는 형태로 가공
-   */
+  // Process and render content dynamically
   useEffect(() => {
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
-
     const renderOutputMessage = restoreMonospaceBlocks(updateParentNodes, node.data.outputMessage);
 
     if (textareaRef.current) {
@@ -67,16 +63,13 @@ export default function AnswerNodeDetail({
     }
   }, [node.id]);
 
-  /**
-   * 입력값 처리
-   * @returns 
-   */
+  // Handle content change and update nodes
   const handleAnswerChange = () => {
     if (!textareaRef.current) return;
 
-    const actualValue = extractActualValues(textareaRef.current); // 실제 데이터 추출
+    const actualValue = extractActualValues(textareaRef.current); // Extract actual value
 
-    // Node 상태 업데이트
+    // Update node state
     setNodes((prevNodes) =>
       prevNodes.map((n) =>
         n.id === node.id
@@ -92,47 +85,56 @@ export default function AnswerNodeDetail({
       )
     );
 
+    // Adjust height dynamically when content changes
+    const adjustHeight = () => {
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "auto";
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+      }
+    };
+    adjustHeight();
+
     if (answerTimerRef.current) {
-      clearTimeout(answerTimerRef.current); // 기존 타이머 초기화
+      clearTimeout(answerTimerRef.current); // Clear previous timer
     }
 
     answerTimerRef.current = setTimeout(() => {
-      // API 호출
+      // API call after 500ms
       const updatedData = {
         ...node.data,
         outputMessage: actualValue,
       };
       console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
-    }, 500); // 500ms 대기 후 호출
+    }, 500);
   };
 
+  // Node name editing state and refs
   const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
   const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
-  /**
-   * 노드 이름 수정
-   */
+
+  // Toggle edit state for node name
   const handleEditToggle = () => {
     setIsNodeNameEdit((prev) => {
       if (!prev) {
-        // 상태가 false -> true로 변경될 때
+        // Enter edit mode, focus on node name
         setTimeout(() => {
           if (nodeNameRef.current) {
-            nodeNameRef.current.focus(); // 포커스 설정
+            nodeNameRef.current.focus(); // Set focus on node name input
 
             const selection = window.getSelection();
             const range = document.createRange();
 
             if (selection) {
-              range.selectNodeContents(nodeNameRef.current); // 텍스트 전체 선택
-              range.collapse(false); // 텍스트 끝에 커서 배치
+              range.selectNodeContents(nodeNameRef.current); // Select the text inside
+              range.collapse(false); // Place cursor at the end of the text
               selection.removeAllRanges();
               selection.addRange(range);
             }
           }
-        }, 0); // DOM 업데이트 후 실행
+        }, 0); // Ensure DOM updates before executing this
       } else {
-        // 상태가 true -> false로 변경될 때
+        // Save the edited node name
         if (nodeNameRef.current) {
           const updatedName = nodeNameRef.current.innerText.trim();
           const updatedNodeData: Node = {
@@ -153,14 +155,15 @@ export default function AnswerNodeDetail({
               )
             );
           }, 0);
-          putNode(node.data.nodeId, updatedNodeData.data); // API 호출
+          putNode(node.data.nodeId, updatedNodeData.data); // API call
         }
       }
 
-      return !prev; // 상태 토글
+      return !prev; // Toggle the state
     });
   };
-  return <>
+
+  return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex flex-row justify-between items-center mb-2">
         <div className="flex flex-row items-center gap-1">
@@ -170,8 +173,8 @@ export default function AnswerNodeDetail({
             contentEditable={isNodeNameEdit}
             suppressContentEditableWarning
             className={isNodeNameEdit
-              ? "text-[25px] font-semibold bg-white"
-              : "text-[25px] font-semibold"
+              ? "text-[25px] w-[180px] font-semibold bg-white"
+              : "text-[25px] w-[180px] font-semibold"
             }
           >
             {node.data.name}
@@ -189,7 +192,7 @@ export default function AnswerNodeDetail({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-[16px]">
+        <div className="text-[16px] flex flex-row justify-between items-center">
           답변을 입력하세요.
           <NodeVariableInsertMenu
             parentNodes={parentNodes}
@@ -209,5 +212,5 @@ export default function AnswerNodeDetail({
         </div>
       </div>
     </div>
-  </>
+  );
 }

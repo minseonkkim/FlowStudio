@@ -2,12 +2,13 @@ import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { RiQuestionAnswerFill } from "@react-icons/all-files/ri/RiQuestionAnswerFill";
 import { GrTree } from "@react-icons/all-files/gr/GrTree";
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
-import { addEdge, Edge, Node } from "reactflow";
+import { Dispatch, SetStateAction, useCallback, useEffect, useState, useRef } from "react";
+import { addEdge, Edge, Node as ReactFlowNode } from "reactflow"; // Import ReactFlowNode from reactflow
 import { getNodeDetail, postEdge } from "@/api/workflow";
 import { addNode, createNodeData } from "@/utils/node";
 import { EdgeData, NodeData } from "@/types/chatbot";
 
+// Make sure to import and use Node from React Flow correctly
 export default function NodeAddMenu({
     node,
     nodes,
@@ -17,75 +18,94 @@ export default function NodeAddMenu({
     isDetail,
     questionClass,
 }: {
-    node: Node<NodeData, string | undefined>,
-    nodes: Node<NodeData, string | undefined>[],
-    setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>,
+    node: ReactFlowNode<NodeData>, // Specify Node<NodeData> here for consistency
+    nodes: ReactFlowNode<NodeData>[], // Specify Node<NodeData> here
+    setNodes: Dispatch<SetStateAction<ReactFlowNode<NodeData>[]>>,
     setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>,
-    setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>,
+    setSelectedNode: Dispatch<SetStateAction<ReactFlowNode<NodeData> | null>>,
     isDetail: boolean,
     questionClass: number | null | undefined,
 }) {
     const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement | null>(null); // Create a ref for the dropdown
+
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
     useEffect(() => {
-        if (isDetail === false) { // pane에서 클릭하면 바로 열린형태로 보이기
+        if (!isDetail) {
             setIsOpen(true);
         }
-    }, [])
+    }, [isDetail]);
+
+    // Close the dropdown when clicking outside of it
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement; // Safely cast to HTMLElement
+            if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+                setIsOpen(false);
+            }
+        };
+
+        // Add event listener
+        document.addEventListener("mousedown", handleClickOutside);
+
+        // Cleanup event listener
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const handleNodeTypeClick = useCallback((type: string) => {
         setIsOpen((prev) => !prev);
-        addNode(type, node, nodes, isDetail)
-            .then((data) => {
-                getNodeDetail(data.nodeId)
-                    .then((nodeDetail) => {
-                        const newNode = createNodeData(
-                            nodeDetail,
-                            node.data.chatFlowId, // 현재 노드가 가진 chatFlowId 전달
-                            setNodes,
-                            setEdges,
-                            setSelectedNode
-                        );
 
-                        const reactFlowNodes = {
-                            id: newNode.nodeId.toString(),
-                            type: newNode.type,
-                            position: newNode.coordinate,
-                            data: newNode, // 팩토리 함수로 생성된 NodeData 객체 전달
+        // Add a new node
+        addNode(type, node, nodes, isDetail).then((data) => {
+            getNodeDetail(data.nodeId).then((nodeDetail) => {
+                const newNode = createNodeData(
+                    nodeDetail,
+                    node.data.chatFlowId,
+                    setNodes,
+                    setEdges,
+                    setSelectedNode
+                );
+
+                const reactFlowNode: ReactFlowNode<NodeData> = {
+                    id: newNode.nodeId.toString(),
+                    type: newNode.type,
+                    position: newNode.coordinate,
+                    data: newNode,
+                };
+
+                // Update nodes state
+                setNodes((prevNodes) => [...prevNodes, reactFlowNode]);
+
+                // If the node is added in detail mode, also add an edge
+                if (isDetail) {
+                    const edgeData: EdgeData = {
+                        edgeId: 0,
+                        sourceNodeId: node.data.nodeId,
+                        targetNodeId: newNode.nodeId,
+                        sourceConditionId: questionClass || 0,
+                    };
+
+                    postEdge(node.data.chatFlowId, edgeData).then((edgeResponse) => {
+                        const newEdge: Edge<EdgeData> = {
+                            id: edgeResponse.edgeId.toString(),
+                            source: edgeResponse.sourceNodeId.toString(),
+                            target: edgeResponse.targetNodeId.toString(),
+                            sourceHandle: edgeResponse.sourceConditionId.toString(),
+                            data: { ...edgeResponse },
                         };
 
-                        setNodes((prevNodes) => [...prevNodes, reactFlowNodes]);
-
-
-                        if (isDetail === true) {
-                            const edgeData: EdgeData = {
-                                edgeId: 0,
-                                sourceNodeId: node.data.nodeId,
-                                targetNodeId: newNode.nodeId,
-                                sourceConditionId: questionClass || 0,
-                            };
-                            // 노드 상세보기에서 추가한 경우 엣지를 추가
-                            postEdge(node.data.chatFlowId, edgeData)
-                                .then((data) => {
-                                    console.log(data);
-                                    const newReactEdge: Edge = {
-                                        id: data.edgeId.toString(),
-                                        source: data.sourceNodeId.toString(),
-                                        target: data.targetNodeId.toString(),
-                                        sourceHandle: data.sourceConditionId.toString(),
-                                        data: { ...data }
-                                    }
-                                    setEdges((els) => {
-                                        return addEdge(newReactEdge, els);
-                                    })
-                                })
-                        }
+                        // Update edges state
+                        setEdges((prevEdges) => addEdge(newEdge, prevEdges));
                     });
+                }
             });
-    }, []);
+        });
+    }, [node, nodes, isDetail, questionClass, setNodes, setEdges, setSelectedNode]);
 
     return (
         <div className="relative inline-block text-left">
@@ -93,7 +113,7 @@ export default function NodeAddMenu({
                 <div>
                     <button
                         type="button"
-                        className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
+                        className="inline-flex justify-center w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
                         onClick={toggleDropdown}
                     >
                         다음 블록 선택
@@ -115,7 +135,8 @@ export default function NodeAddMenu({
             )}
             {isOpen && (
                 <div
-                    className="origin-top-right absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                    ref={dropdownRef} // Attach the ref here
+                    className="z-[100] origin-top-right absolute right-0 mt-2 w-[160px] rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="menu-button"
@@ -149,23 +170,9 @@ export default function NodeAddMenu({
                             <GrTree className="text-[18px]" />
                             <div>질문 분류기</div>
                         </div>
-                        {/* <div
-                      onClick={() => handleNodeTypeClick("CONDITIONAL")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <IoGitBranchOutline className="text-[18px]" />
-                      <div>IF/ELSE</div>
-                    </div>
-                    <div
-                      onClick={() => handleNodeTypeClick("VARIABLE_ASSIGNER")}
-                      className="hover:bg-[#f4f4f4] px-4 py-1.5 cursor-pointer flex flex-row items-center gap-2"
-                    >
-                      <VscSymbolVariable className="text-[18px]" />
-                      <div>변수 할당자</div>
-                    </div> */}
                     </div>
                 </div>
             )}
         </div>
-    )
+    );
 }

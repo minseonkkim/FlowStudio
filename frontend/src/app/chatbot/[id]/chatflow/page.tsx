@@ -36,6 +36,7 @@ import PreviewChat from "@/components/chat/PreviewChat";
 import VariableMenu from "@/components/chatbot/chatflow/menu/VariableMenu";
 import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
 import { ConnectedNode } from "@/types/workflow";
+import { RiPlayMiniLine } from "@react-icons/all-files/ri/RiPlayMiniLine";
 
 interface ChatflowPageProps {
   params: {
@@ -406,11 +407,11 @@ export default function Page({ params }: ChatflowPageProps) {
    * 변수 메뉴
    */
   const variableMenuRef = useRef<{ toggleVariableDetail: () => void } | null>(null);
-  const handleVariableMenuModal = () => {
-    if (variableMenuRef.current) {
-      variableMenuRef.current.toggleVariableDetail();
-    }
-  };
+  // const handleVariableMenuModal = () => {
+  //   if (variableMenuRef.current) {
+  //     variableMenuRef.current.toggleVariableDetail();
+  //   }
+  // };
 
   /**
    * 미리보기 메뉴
@@ -420,20 +421,25 @@ export default function Page({ params }: ChatflowPageProps) {
     setShowPreviewChat((prev) => !prev);
   }, []);
 
+  const handlePreviewClose = () => {
+    setShowPreviewChat(false);
+  }
+
 
   return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
-        <button
+        {/* <button
           className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
           onClick={handleVariableMenuModal}
         >
           변수
-        </button>
+        </button> */}
         <button
-          className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+          className="flex flex-row items-center gap-1 px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
           onClick={handlePreviewChatButtonClick}
         >
+          <RiPlayMiniLine className="w-6 h-6"/>
           미리보기
         </button>
         <button
@@ -446,7 +452,7 @@ export default function Page({ params }: ChatflowPageProps) {
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail}
         <VariableMenu ref={variableMenuRef} />
-        {showPreviewChat && <PreviewChat chatFlowId={String(params.id)} />}
+        {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} />}
       </div>
       <ChatFlowPublishMenu chatFlowId={params.id} ref={publishMenuRef} />
       <ReactFlowProvider>
