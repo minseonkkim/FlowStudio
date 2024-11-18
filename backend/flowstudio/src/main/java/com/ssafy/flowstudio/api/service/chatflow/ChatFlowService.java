@@ -197,8 +197,8 @@ public class ChatFlowService {
         llm1.updatePrompt("존댓말을 사용해서 친절하게 답변해줘!", "{{INPUT_MESSAGE}}");
         llm2.updatePrompt("반말을 사용해서 친근하게 답변해줘!", "{{INPUT_MESSAGE}}");
 
-        answer1.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm1.getId() + "}}");
-        answer2.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm2.getId() + "}}");
+        answer1.updateOutputMessage("{{" + llm1.getId() + "}}");
+        answer2.updateOutputMessage("{{" + llm2.getId() + "}}");
 
         // 노드 연결
         Edge edge1 = Edge.create(start, questionClassifier);
