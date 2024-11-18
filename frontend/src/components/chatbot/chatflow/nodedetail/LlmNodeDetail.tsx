@@ -365,11 +365,12 @@ export default function LlmNodeDetail({
         </div>
 
         <div className="flex flex-col gap-2">
-          <div className="text-[16px]">모델을 선택하세요.</div>
+          {/* <div className="text-[16px]">모델을 선택하세요.</div> */}
+          <div className="text-[16px]">모델</div>
           <div
             className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6] sm:text-sm"
           >
-            GPT-4o mini
+            gpt-4o-mini
           </div>
           {/* <select
             id="model"

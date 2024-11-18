@@ -256,7 +256,7 @@ export default function QuestionClassifierNodeDetail({
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
-      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">gpt-4o-mini</div>
+      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">gpt-4o</div>
 
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">클래스를 추가하세요.</div>

@@ -51,7 +51,7 @@ export default function QuestionClassifierNode({
             )}
         </div>
         <div className="flex flex-col gap-1 text-[8px]">
-          <div className="rounded-[5px] p-0.5 bg-white">gpt-4o-mini</div>
+          <div className="rounded-[5px] p-0.5 bg-white">gpt-4o</div>
           <div className="flex flex-col gap-0.5">
             <div>클래스</div>
             {data.questionClasses && data.questionClasses.length > 0 &&
