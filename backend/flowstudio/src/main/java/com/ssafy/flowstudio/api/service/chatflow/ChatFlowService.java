@@ -163,41 +163,52 @@ public class ChatFlowService {
     @Transactional
     public ChatFlowResponse createExampleChatFlow(User user) {
         // 노드 생성
-        ChatFlow chatFlow = ChatFlow.create(user, user, "example title", "example description", "1");
+        ChatFlow chatFlow = ChatFlow.create(user, user, "너만의 챗봇을 만들어봐!", "동물, 식물 질문에 따라 말투가 바뀌는 챗봇", "1");
         Start start = Start.create(chatFlow, Coordinate.create(870, 80));
-        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, Coordinate.create(970, 80));
-        Retriever retriever = Retriever.create(chatFlow, Coordinate.create(970, 80), 1, 3, 0);
-        LLM llm = LLM.create(chatFlow, Coordinate.create(970, 80));
-        Answer answer = Answer.create(chatFlow, Coordinate.create(970, 80));
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, Coordinate.create(1071, 45));
+        LLM llm1 = LLM.create(chatFlow, Coordinate.create(1295, -78));
+        LLM llm2 = LLM.create(chatFlow, Coordinate.create(1295, 90));
+        Answer answer1 = Answer.create(chatFlow, Coordinate.create(1500, -78));
+        Answer answer2 = Answer.create(chatFlow, Coordinate.create(1500, 90));
 
         // 챗플로우에 노드 추가
         chatFlow.addNode(start);
         chatFlow.addNode(questionClassifier);
-        chatFlow.addNode(retriever);
-        chatFlow.addNode(llm);
-        chatFlow.addNode(answer);
+        chatFlow.addNode(llm1);
+        chatFlow.addNode(llm2);
+        chatFlow.addNode(answer1);
+        chatFlow.addNode(answer2);
 
         // 질문분류기에 질문 분류 추가
-        QuestionClass questionClass = QuestionClass.empty();
-        questionClass.update("질문 분류");
-        questionClass.updateQuestionClassifier(questionClassifier);
-        questionClassifier.addQuestionClass(questionClass);
+        QuestionClass questionClass1 = QuestionClass.empty();
+        questionClass1.update("동물");
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClassifier.addQuestionClass(questionClass1);
+
+        QuestionClass questionClass2 = QuestionClass.empty();
+        questionClass2.update("식물");
+        questionClass2.updateQuestionClassifier(questionClassifier);
+        questionClassifier.addQuestionClass(questionClass2);
 
         // 챗플로우 저장
         ChatFlow savedChatflow = chatFlowRepository.save(chatFlow);
 
         // 노드 업데이트
-        Long retrieverId = retriever.getId();
-        Long llmId = llm.getId();
+        Long llm1Id = llm1.getId();
+        Long llm2Id = llm1.getId();
 
-        llm.updatePrompt("아래 글에 기반해서 대답해줘\n \\n\\n{{" + retrieverId + "}}", "{{INPUT_MESSAGE}}");
-        answer.updateOutputMessage("{{" + llmId + "}}");
+        llm1.updatePrompt("존댓말을 사용해서 친절하게 답변해줘!", "{{INPUT_MESSAGE}}");
+        llm2.updatePrompt("반말을 사용해서 친근하게 답변해줘!", "{{INPUT_MESSAGE}}");
+
+        answer1.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm1Id + "}}");
+        answer2.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm2Id + "}}");
 
         // 노드 연결
         Edge edge1 = Edge.create(start, questionClassifier);
-        Edge edge2 = Edge.create(questionClassifier, retriever, questionClass.getId());
-        Edge edge3 = Edge.create(retriever, llm);
-        Edge edge4 = Edge.create(llm, answer);
+        Edge edge2 = Edge.create(questionClassifier, llm1, questionClass1.getId());
+        Edge edge3 = Edge.create(questionClassifier, llm2, questionClass2.getId());
+        Edge edge4 = Edge.create(llm1, answer1);
+        Edge edge5 = Edge.create(llm2, answer2);
 
         // 간선 저장
         List<Edge> edges = edgeRepository.saveAll(List.of(edge1, edge2, edge3, edge4));
