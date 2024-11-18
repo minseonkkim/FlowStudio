@@ -13,6 +13,9 @@ interface PopularChatbotCardProps {
   category: string[];
   iconId: string;
   type?: "my" | "all" | "eval" | "shared";
+  authorNickName?: string;
+  authorProfile?: string;
+  shareNum?: number;
   onCardClick?: () => void;
   onButtonUpdateClick?: () => void;
   onButtonDeleteClick?: () => void;
@@ -26,6 +29,9 @@ export default function PopularChatbotCard({
   category,
   iconId,
   type,
+  authorNickName,
+  authorProfile,
+  shareNum,
   onCardClick,
   onButtonUpdateClick,
   onButtonDeleteClick,
@@ -83,17 +89,24 @@ export default function PopularChatbotCard({
         type === "all" ? "group" : ""
       }`}
     >
-      <div className="mb-3 flex items-center gap-4">
-        <Image
-          src={`/chatbot-icon/${iconId}.jpg`}
-          alt="Selected Icon"
-          width={40}
-          height={40}
-          className="rounded-lg border border-gray-300"
-        />
-        <p className="text-[16px] line-clamp-1 overflow-hidden">{title}</p>
+      <div className="flex flex-row justify-between items-center mb-3">
+        <div className="flex items-center gap-4">
+          <Image
+            src={`/chatbot-icon/${iconId}.jpg`}
+            alt="Selected Icon"
+            width={40}
+            height={40}
+            className="rounded-lg border border-gray-300"
+          />
+          <p className="text-[16px] line-clamp-1 overflow-hidden">{title}</p>
+        </div>
+        {type === "all" && 
+          <p className="text-[12px] text-gray-400 flex flex-row items-center">
+              made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{shareNum}</span>번 공유됨
+          </p>
+        }
+        
       </div>
-
       <div className="flex flex-col h-[108px] justify-between">
         <p className="text-[14px] text-[#667085] line-clamp-3 overflow-hidden">{description}</p>
 
