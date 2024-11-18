@@ -194,14 +194,11 @@ public class ChatFlowService {
         ChatFlow savedChatflow = chatFlowRepository.save(chatFlow);
 
         // 노드 업데이트
-        Long llm1Id = llm1.getId();
-        Long llm2Id = llm1.getId();
-
         llm1.updatePrompt("존댓말을 사용해서 친절하게 답변해줘!", "{{INPUT_MESSAGE}}");
         llm2.updatePrompt("반말을 사용해서 친근하게 답변해줘!", "{{INPUT_MESSAGE}}");
 
-        answer1.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm1Id + "}}");
-        answer2.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm2Id + "}}");
+        answer1.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm1.getId() + "}}");
+        answer2.updateOutputMessage("입력 : {{INPUT_MESSAGE}}\n\n 답변 : {{" + llm2.getId() + "}}");
 
         // 노드 연결
         Edge edge1 = Edge.create(start, questionClassifier);
@@ -211,7 +208,7 @@ public class ChatFlowService {
         Edge edge5 = Edge.create(llm2, answer2);
 
         // 간선 저장
-        List<Edge> edges = edgeRepository.saveAll(List.of(edge1, edge2, edge3, edge4));
+        List<Edge> edges = edgeRepository.saveAll(List.of(edge1, edge2, edge3, edge4, edge5));
 
         List<EdgeResponse> edgeResponses = edges.stream().map(EdgeResponse::from).toList();
         return ChatFlowResponse.from(savedChatflow, edgeResponses);
