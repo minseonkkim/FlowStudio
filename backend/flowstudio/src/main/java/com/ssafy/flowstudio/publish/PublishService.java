@@ -14,6 +14,7 @@ import com.ssafy.flowstudio.domain.knowledge.entity.Knowledge;
 import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
@@ -42,6 +43,7 @@ public class PublishService {
     private final EdgeRepository edgeRepository;
     private final NodeRepository nodeRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     @Transactional(transactionManager = "multiTransactionManager")
     public List<ChatFlowListResponse> getPublishChatFlows(User user) {
@@ -82,10 +84,14 @@ public class PublishService {
 
     @Transactional(transactionManager = "multiTransactionManager")
     public String publishChatFlow(User user, Long chatFlowId) {
-        ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
+        User findUser = userRepository.findByIdWithApiKey(user.getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
+
+        ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, findUser.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        if (user.getApiKey().getOpenAiKey() == null) {
+        // TODO: 챗플로우에 필요한 모델에 따라 다른 키 확인
+        if (findUser.getApiKey().getOpenAiKey() == null) {
             throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
         }
 
