@@ -37,6 +37,7 @@ export default function NodeAddMenu({
     }, [])
 
     const handleNodeTypeClick = useCallback((type: string) => {
+        setIsOpen((prev) => !prev);
         addNode(type, node, nodes, isDetail)
             .then((data) => {
                 getNodeDetail(data.nodeId)
