@@ -124,6 +124,7 @@ export default function TestResult({ selectedTab }: TestResulttProps) {
           </tr>
         </tbody>
       </table>
+      <div className="h-16"></div>
     </div>
     </>
   );

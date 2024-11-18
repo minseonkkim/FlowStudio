@@ -30,7 +30,7 @@ export default function CreateFirst() {
   // 파일 유효성 검사 함수
   const validateFile = (selectedFile: File): boolean => {
     if (!allowedFileTypes.includes(selectedFile.type)) {
-      setErrorMessage("지원하지 않는 파일 형식입니다. (pdf, txt, docs, md)");
+      setErrorMessage("지원하지 않는 파일 형식입니다. (pdf, txt, docx, md)");
       return false;
     }
     if (selectedFile.size > maxFileSize) {
@@ -99,7 +99,7 @@ export default function CreateFirst() {
                 <input id="file-upload" type="file" className="hidden" onChange={handleFileSelect} />
               </div>
               <div className="text-center">
-                <p className="opacity-50 text-base">지원 파일 형식: pdf, txt, docs, md</p>
+                <p className="opacity-50 text-base">지원 파일 형식: pdf, txt, docx, md</p>
                 <p className="opacity-50 text-sm">파일당 최대 크기 15MB</p>
               </div>
             </div>
