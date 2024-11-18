@@ -17,29 +17,29 @@ export default function SectionOne() {
   }, [inView, flowChartAnimation, personalizedChatbotAnimation]);
 
   return (
-    <section className="h-[calc(100vh-54px)] relative min-w-[400px] bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
-      <div className="h-[calc(100vh-54px)] content-container flex flex-col justify-between" ref={ref}>
-        <div className="mt-[50px] text-[23px] md:text-[26px] text-center font-semibold leading-relaxed">
+    <section className="h-[580px] md:h-[calc(100vh-54px)] relative min-w-[400px] bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
+      <div className="h-full content-container flex flex-col justify-start" ref={ref}>
+        <div className="mt-[5vh] text-[22px] md:text-[28px] text-center font-semibold leading-relaxed">
           <motion.p initial={{ opacity: 0, y: 20 }} animate={flowChartAnimation} className="object-cover">
-            누구나 손쉽게 만드는
+            당신의 챗봇 아이디어가
           </motion.p>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={flowChartAnimation} className="object-cover">
-            챗봇 제작 플랫폼
+            실현되는 곳
           </motion.p>
         </div>
-        <div className="text-[56px] md:text-[63px] text-center font-bold text-[#5D2973] mt-4">Flow Studio</div>
+        <div className="text-[53px] md:text-[57px] text-center font-bold text-[#5D2973] mt-[1vh]">Flow Studio</div>
         <div className="flex items-center justify-center flex-grow">
             <motion.img
               src={speechBubbleImg.src}
               alt="speech bubble img"
-              className="hidden md:block w-[50%] md:w-[40%] lg:w-[33%] absolute md:top-[25vh] left-[0vw] md:left-[3vw] lg:left-[12vw]"
+              className="hidden md:block w-[50vw] md:w-[40vw] lg:w-[32vw] absolute md:top-[32vh] left-[0vw] md:left-[3vw] lg:left-[14vw]"
               initial={{ opacity: 0, y: 50 }}
               animate={flowChartAnimation}
             />
             <motion.img
               src={robotImg.src}
               alt="robot img"
-              className="w-[80%] md:w-[58%] lg:w-[42%] absolute bottom-[0vh] left-[10vw] md:left-[22vw] lg:left-[29vw] object-cover"
+              className="w-[72vw] md:w-[53vw] lg:w-[38vw] absolute bottom-[0vh] left-[10vw] md:left-[25vw] lg:left-[31vw] object-cover"
               initial={{ opacity: 0, y: 50 }}
               animate={personalizedChatbotAnimation}
               style={{ willChange: "opacity, transform" }}
