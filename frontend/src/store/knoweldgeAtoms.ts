@@ -25,3 +25,8 @@ export const chunkFileNameState = atom<string>({
   default: '',  
 });
 
+// 지식 생성 로딩 상태
+export const isLoadingState = atom<boolean>({
+  key: 'isLoadingState',  
+  default: false,  
+});
