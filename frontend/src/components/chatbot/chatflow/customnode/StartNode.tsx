@@ -3,9 +3,9 @@ import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { NodeData } from "@/types/chatbot";
 
 export default function StartNode({
-  selected
+  data, selected
 }:
-  NodeProps<Node<NodeData, string | undefined>>
+  NodeProps<NodeData>
 ) {
 
   return (
@@ -21,6 +21,12 @@ export default function StartNode({
               <div className="text-[11px] font-semibold">시작</div>
             </div>
           </div>
+          {typeof data.maxLength === "number" && !isNaN(data.maxLength) && (
+            <div className="flex flex-col gap-0.5 text-[8px]">
+              <div className="text-[8px]">최대 입력 글자수</div>
+              <div className="rounded-[5px] p-0.5 bg-white">{data.maxLength}</div>
+            </div>
+          )}
         </div>
         <Handle type="source" position={Position.Right} />
       </div>

@@ -36,11 +36,6 @@ export default function StartNodeDetail({
   const maxLengthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    console.log("여긴 시작 노드 상세화면 ", node);
-
-  }, []);
-
-  useEffect(() => {
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes]);
 
@@ -57,6 +52,16 @@ export default function StartNodeDetail({
       clearTimeout(maxLengthTimerRef.current); // Reset the timer on each input
     }
 
+    setNodes((prevNodes) =>
+      prevNodes.map((n) => (n.id === node.id ? {
+        ...n,
+        data: {
+          ...n.data,
+          maxLength: value,
+        }
+      } : n))
+    );
+
     maxLengthTimerRef.current = setTimeout(() => {
       // Update the node data only after user stops typing
       const updatedNode = {
@@ -67,9 +72,7 @@ export default function StartNodeDetail({
         },
       };
 
-      setNodes((prevNodes) =>
-        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
-      );
+
 
       debouncedUpdateNode(updatedNode.data);
     }, 500); // Wait for 500ms of inactivity
@@ -99,7 +102,7 @@ export default function StartNodeDetail({
           className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
           type="number"
           value={maxLength}
-              onChange={(e) => handleMaxCharsChange(Number(e.target.value))}
+          onChange={(e) => handleMaxCharsChange(Number(e.target.value))}
         />
       </div>
 
