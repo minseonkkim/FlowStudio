@@ -339,7 +339,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .edges(List.of(edge1, edge2, edge3, edge4))
                 .build();
 
-        given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
+        given(chatFlowService.getChatFlow(any(User.class), any(Long.class), anyBoolean()))
                 .willReturn(response);
 
         // when
