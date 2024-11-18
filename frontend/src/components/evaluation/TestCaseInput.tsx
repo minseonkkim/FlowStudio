@@ -20,7 +20,6 @@ interface TestCaseInputProps {
   selectedTab: string
 }
 
-
 export default function TestCaseInput({
   onNext,
   onPrevious,
