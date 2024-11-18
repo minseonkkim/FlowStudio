@@ -16,6 +16,7 @@ const icons = {
 };
 
 export const nodeConfig: Record<string, NodeConfig> = {
+  START: { label: "START", icon: icons.FaRobot, color: "ECF3E0" },
   LLM: { label: "LLM", icon: icons.FaRobot, color: "EAF2FF" },
   RETRIEVER: { label: "지식 검색", icon: icons.FiBookOpen, color: "FFF3EB" },
   IFELSE: { label: "IF/ELSE", icon: icons.IoGitBranchOutline, color: "FAE4E4" },
