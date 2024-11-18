@@ -36,17 +36,14 @@ public class LlmExecutor extends NodeExecutor {
 
     private final RedisService redisService;
     private final TokenUsageLogRepository tokenUsageLogRepository;
-    private final ChatRepository chatRepository;
     private final ChatModelFactory chatModelFactory;
     private final MessageParseUtil messageParseUtil;
     private final ChatTitleMaker chatTitleMaker;
-    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final Logger log = LoggerFactory.getLogger(LlmExecutor.class);
 
     public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters, ChatTitleMaker chatTitleMaker) {
         super(redisService, eventPublisher, sseEmitters);
         this.tokenUsageLogRepository = tokenUsageLogRepository;
-        this.chatRepository = chatRepository;
         this.redisService = redisService;
         this.chatModelFactory = chatModelFactory;
         this.messageParseUtil = messageParseUtil;
@@ -90,10 +87,6 @@ public class LlmExecutor extends NodeExecutor {
                 tokenUsageLogRepository.save(TokenUsageLog.create(chat.getUser(), tokenUsage));
             }
 
-            // 챗 히스토리 업데이트
-            updateChatHistory(chat, promptUser, llmOutputMessage);
-
-            // TODO 테스트일 떄 레디스에 출력 저장 + 테스트 식별용 SSE
             if (chat.isTest()) {
                 redisService.saveTestValue(chat.getId(), llmOutputMessage);
                 sseEmitters.sendChatFlowTestLlm(chat, llmOutputMessage);
@@ -111,32 +104,7 @@ public class LlmExecutor extends NodeExecutor {
         }
     }
 
-    private void updateChatHistory(Chat chat, String promptUser, String LlmOutputMessage) {
-        try {
-            String chatHistory = chat.getMessageList();
-            // 문자열을 JSON 객체로 변환
-            ArrayNode arrayNode = (ArrayNode) objectMapper.readTree(chatHistory);
 
-            // 새 JSON 객체 생성
-            ObjectNode newObject = objectMapper.createObjectNode();
-            newObject.put("question", promptUser);
-            newObject.put("answer", LlmOutputMessage);
-
-            // 새 객체를 JSON 배열에 추가
-            arrayNode.add(newObject);
-
-            // JSON 배열을 문자열로 변환
-            String updatedChatHistory = objectMapper.writeValueAsString(arrayNode);
-
-            // 채팅 기록 업데이트
-            chat.updateHistory(updatedChatHistory);
-            chatRepository.save(chat);
-
-        } catch (Exception e) {
-            log.error("Chat history update failed: ", e);
-            throw new IllegalArgumentException("Chat history update failed");
-        }
-    }
 
     @Override
     public NodeType getNodeType() {
