@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postDownloadChatFlow } from "@/api/share";
 import { useRouter } from 'next/navigation';
-import { Author } from "next/dist/lib/metadata/types/metadata-types";
 
 interface ChatbotCardProps {
   chatbotId: number;
@@ -12,9 +11,9 @@ interface ChatbotCardProps {
   description: string;
   category: string[];
   iconId: string;
-  authorNickName: string;
-  authorProfile: string;
-  shareNum: number;
+  authorNickName?: string;
+  authorProfile?: string;
+  shareNum?: number;
   onCardClick?: () => void;
   type: "all" | "eval";
 }
@@ -75,11 +74,12 @@ export default function ChatbotCard({
         <div className="flex-1 flex-col">
           <div className="flex flex-row justify-between items-center mb-1">
             <p className="mb-1 text-[17px] text-[#1D2939]">{title}&nbsp;&nbsp;&nbsp;</p>
-
+            { type === "all" &&
               <p className="text-[12px] text-gray-400 flex flex-row items-center">
                 made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{shareNum}</span>번 공유됨
               </p>
-
+            }
+            
             
           </div>
 
