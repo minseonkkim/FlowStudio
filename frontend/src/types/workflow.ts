@@ -1,6 +1,7 @@
 export interface ConnectedNode {
   nodeId: number;
   name: string;
+  type: string;
   sourceConditionId?: number;
 }
 

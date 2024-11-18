@@ -6,6 +6,8 @@ import { extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from 
 import { putNode } from "@/api/workflow"
 import { EdgeData, NodeData } from "@/types/chatbot";
 import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
+import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
+import { IoCheckmark } from "@react-icons/all-files/io5/IoCheckmark";
 
 export default function AnswerNodeDetail({
   node,
@@ -83,7 +85,7 @@ export default function AnswerNodeDetail({
             data: {
               ...n.data,
               outputMessage: actualValue,
-              renderOutputMessage: {__html : textareaRef.current.innerHTML},
+              renderOutputMessage: { __html: textareaRef.current.innerHTML },
             },
           }
           : n
@@ -105,25 +107,95 @@ export default function AnswerNodeDetail({
     }, 500); // 500ms 대기 후 호출
   };
 
+  const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
+  const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
+  /**
+   * 노드 이름 수정
+   */
+  const handleEditToggle = () => {
+    setIsNodeNameEdit((prev) => {
+      if (!prev) {
+        // 상태가 false -> true로 변경될 때
+        setTimeout(() => {
+          if (nodeNameRef.current) {
+            nodeNameRef.current.focus(); // 포커스 설정
 
+            const selection = window.getSelection();
+            const range = document.createRange();
+
+            if (selection) {
+              range.selectNodeContents(nodeNameRef.current); // 텍스트 전체 선택
+              range.collapse(false); // 텍스트 끝에 커서 배치
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        }, 0); // DOM 업데이트 후 실행
+      } else {
+        // 상태가 true -> false로 변경될 때
+        if (nodeNameRef.current) {
+          const updatedName = nodeNameRef.current.innerText.trim();
+          const updatedNodeData: Node = {
+            ...node,
+            data: {
+              ...node.data,
+              name: updatedName,
+            },
+          };
+          console.log(updatedNodeData);
+
+          setTimeout(() => {
+            setNodes((prevNodes) =>
+              prevNodes.map((n) =>
+                n.id === node.id
+                  ? updatedNodeData
+                  : n
+              )
+            );
+          }, 0);
+          putNode(node.data.nodeId, updatedNodeData.data); // API 호출
+        }
+      }
+
+      return !prev; // 상태 토글
+    });
+  };
   return <>
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex flex-row justify-between items-center mb-2">
         <div className="flex flex-row items-center gap-1">
           <RiQuestionAnswerFill className="text-[#34D399] size-8" />
-          <div className="text-[25px] font-semibold">답변</div>
+          <div
+            ref={nodeNameRef}
+            contentEditable={isNodeNameEdit}
+            suppressContentEditableWarning
+            className={isNodeNameEdit
+              ? "text-[25px] font-semibold bg-white"
+              : "text-[25px] font-semibold"
+            }
+          >
+            {node.data.name}
+          </div>
+          {!isNodeNameEdit && <IoPencil
+            className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+            onClick={handleEditToggle}
+          />}
+          {isNodeNameEdit && <IoCheckmark
+            className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+            onClick={handleEditToggle}
+          />}
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
 
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">
-          답변을 입력하세요. 
-          <NodeVariableInsertMenu 
-            parentNodes={parentNodes} 
+          답변을 입력하세요.
+          <NodeVariableInsertMenu
+            parentNodes={parentNodes}
             editorRef={textareaRef}
             onContentChange={handleAnswerChange}
-          /> 
+          />
         </div>
         <div
           ref={textareaRef}

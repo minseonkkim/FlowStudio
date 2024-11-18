@@ -2,6 +2,7 @@ import { deleteNode, postNode } from "@/api/workflow";
 import { NodeData, Knowledge, EdgeData } from "@/types/chatbot";
 import { Dispatch, SetStateAction } from "react";
 import { Edge, Node } from "reactflow"
+import { deleteIconColors, nodeConfig } from "./nodeConfig";
 
 // 노드 생성 팩토리 함수
 export const createNodeData = (
@@ -59,22 +60,22 @@ export const createNodeData = (
 // 노드 추가
 export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetail: boolean) => {
 
-  const isPositionOccupied = (x: number, y: number) => {
-    return nodes.some(
-      (node) =>
-        Math.abs(node.position.x - x) < 200 &&
-        Math.abs(node.position.y - y) < 160
-    );
-  };
+  // const isPositionOccupied = (x: number, y: number) => {
+  //   return nodes.some(
+  //     (node) =>
+  //       Math.abs(node.position.x - x) < 200 &&
+  //       Math.abs(node.position.y - y) < 160
+  //   );
+  // };
 
   const newX = currentNode.position.x + (isDetail ? 200 : 0);
-  let newY = currentNode.position.y;
+  const newY = currentNode.position.y;
 
-  if (isDetail) {
-    while (isPositionOccupied(newX, newY)) {
-      newY += 160;
-    }
-  }
+  // if (isDetail) {
+  //   while (isPositionOccupied(newX, newY)) {
+  //     newY += 160;
+  //   }
+  // }
 
   const newNode : NodeData = {
     ...currentNode.data,
@@ -165,21 +166,26 @@ export const findAllParentNodes = (
  * @returns 
  */
 export const createMonospaceBlock = (node: Node<NodeData, string>): HTMLSpanElement => {
-  const span = document.createElement("span");
-  span.textContent = `${node.type}|${node.data.name}`;
-  span.setAttribute("contenteditable", "false");
+  const monoBlock = document.createElement("span");
+  monoBlock.innerHTML = `${node.data.name}`;
+  monoBlock.setAttribute("contenteditable", "false");
   if (node.type === 'START') {
-    span.setAttribute("data-value", "{{INPUT_MESSAGE}}");
+    monoBlock.setAttribute("data-value", "{{INPUT_MESSAGE}}");
   } else {
-    span.setAttribute("data-value", `{{${node.id}}}`);
+    monoBlock.setAttribute("data-value", `{{${node.id}}}`);
   }
-  span.style.fontFamily = "monospace";
-  span.style.backgroundColor = "#f0f0f0";
-  span.style.padding = "2px 4px";
-  span.style.borderRadius = "3px";
-  span.style.display = "inline-block";
-  span.style.marginRight = "2px";
-  return span;
+  const nodeData = nodeConfig[node.type] || { label: "Unknown", color: "D8D8D8", icon: null };
+  const borderColor = deleteIconColors[node.type] || "#000000"; // 기본값 설정
+
+  monoBlock.style.fontFamily = "monospace";
+  monoBlock.style.backgroundColor = `#${nodeData.color}`;
+  monoBlock.style.padding = "2px 4px";
+  monoBlock.style.borderRadius = "3px";
+  monoBlock.style.boxShadow = `0 0 0 0.25px ${borderColor}`; // 테두리를 얇게 표현
+  monoBlock.style.display = "inline-block";
+  monoBlock.style.marginRight = "2px";
+
+  return monoBlock;
 };
 
 

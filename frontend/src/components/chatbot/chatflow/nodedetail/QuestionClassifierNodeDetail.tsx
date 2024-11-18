@@ -6,10 +6,12 @@ import { IoMdTrash } from "@react-icons/all-files/io/IoMdTrash";
 import { ConnectedNode } from "@/types/workflow";
 import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
-import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode, putQuestionClassNode } from "@/api/workflow";
+import { deleteEdge, deleteQuestionClassNode, postQuestionClassNode, putNode, putQuestionClassNode } from "@/api/workflow";
 import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import { EdgeData, NodeData, QuestionClass } from "@/types/chatbot";
 import { debounce } from "@/utils/node";
+import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
+import { IoCheckmark } from "@react-icons/all-files/io5/IoCheckmark";
 
 
 export default function QuestionClassifierNodeDetail({
@@ -37,12 +39,16 @@ export default function QuestionClassifierNodeDetail({
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>([]);
   const [localClasses, setLocalClasses] = useState<QuestionClass[]>([]);
 
+  /**
+   * 질문 클래스 관리
+   */
   useEffect(() => {
-    console.log("이것이 현재 클래스들이다 ", node.data.questionClasses);
-
     setLocalClasses(node.data.questionClasses);
   }, [node.data.questionClasses]);
 
+  /**
+   * 각 클래스별 높이 자동 수정
+   */
   useEffect(() => {
     textareaRefs.current.forEach((textarea) => {
       if (textarea) {
@@ -52,6 +58,9 @@ export default function QuestionClassifierNodeDetail({
     });
   }, [localClasses]);
 
+  /**
+   * 클래스 추가 함수
+   */
   const handleAddClass = () => {
     if (localClasses.length < 5) {
       postQuestionClassNode(node.data.nodeId, { content: "" }).then((data: QuestionClass) => {
@@ -66,6 +75,10 @@ export default function QuestionClassifierNodeDetail({
     }
   };
 
+  /**
+   * 클래스 삭제 함수
+   * @param currentClass 
+   */
   const handleDeleteClass = (currentClass: QuestionClass) => {
     deleteQuestionClassNode(currentClass.id).then((data) => {
       if (data) {
@@ -82,6 +95,9 @@ export default function QuestionClassifierNodeDetail({
     });
   };
 
+  /**
+   * 클래스 관리 ref
+   */
   const debouncedSaveRef = useRef<(id: number, content: string) => void>();
 
   useEffect(() => {
@@ -91,6 +107,11 @@ export default function QuestionClassifierNodeDetail({
     }, 500);
   }, []); // debounce는 한 번만 생성
 
+  /**
+   * 클래스 수정
+   * @param currentClass 
+   * @param newValue 
+   */
   const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
     const updatedLocalClasses = localClasses.map((cls) =>
       cls.id === currentClass.id ? { ...cls, content: newValue } : cls
@@ -133,14 +154,19 @@ export default function QuestionClassifierNodeDetail({
   };
 
 
+  /**
+   * 연결된 노드 간선 관리
+   */
   useEffect(() => {
     // 상태 업데이트
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes, localClasses]); // 의존성 배열에 필요한 값 추가
 
-
-
-
+  /**
+   * 연결된 엣지 제거
+   * @param targetNode 
+   * @returns 
+   */
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString() && edge.sourceHandle == targetNode.sourceConditionId?.toString());
     if (!findDeleteEdge) return;
@@ -149,13 +175,84 @@ export default function QuestionClassifierNodeDetail({
     setConnectedNodes((prev) => prev.filter((n) => n.nodeId !== targetNode.nodeId)); // 연결된 노드 상태 업데이트
   }
 
+  const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
+  const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
+  /**
+   * 노드 이름 수정
+   */
+  const handleEditToggle = () => {
+    setIsNodeNameEdit((prev) => {
+      if (!prev) {
+        // 상태가 false -> true로 변경될 때
+        setTimeout(() => {
+          if (nodeNameRef.current) {
+            nodeNameRef.current.focus(); // 포커스 설정
 
+            const selection = window.getSelection();
+            const range = document.createRange();
+
+            if (selection) {
+              range.selectNodeContents(nodeNameRef.current); // 텍스트 전체 선택
+              range.collapse(false); // 텍스트 끝에 커서 배치
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        }, 0); // DOM 업데이트 후 실행
+      } else {
+        // 상태가 true -> false로 변경될 때
+        if (nodeNameRef.current) {
+          const updatedName = nodeNameRef.current.innerText.trim();
+          const updatedNodeData: Node = {
+            ...node,
+            data: {
+              ...node.data,
+              name: updatedName,
+            },
+          };
+          console.log(updatedNodeData);
+
+          setTimeout(() => {
+            setNodes((prevNodes) =>
+              prevNodes.map((n) =>
+                n.id === node.id
+                  ? updatedNodeData
+                  : n
+              )
+            );
+          }, 0);
+          putNode(node.data.nodeId, updatedNodeData.data); // API 호출
+        }
+      }
+
+      return !prev; // 상태 토글
+    });
+  };
+  
   return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex flex-row justify-between items-center mb-2">
         <div className="flex flex-row items-center gap-1">
           <GrTree className="text-[#1E3A8A] size-7" />
-          <div className="text-[25px] font-semibold">질문 분류기</div>
+          <div
+              ref={nodeNameRef}
+              contentEditable={isNodeNameEdit}
+              suppressContentEditableWarning
+              className={isNodeNameEdit
+                ? "text-[25px] font-semibold bg-white"
+                : "text-[25px] font-semibold"
+              }
+            >
+              {node.data.name}
+            </div>
+            {!isNodeNameEdit && <IoPencil
+              className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+              onClick={handleEditToggle}
+            />}
+            {isNodeNameEdit && <IoCheckmark
+              className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+              onClick={handleEditToggle}
+            />}
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
@@ -203,7 +300,7 @@ export default function QuestionClassifierNodeDetail({
       </div>
 
       <div className="flex flex-col gap-2 mt-4">
-        <div className="text-[16px]">다음 블록을 추가하세요.</div>
+        <div className="text-[16px]">다음 노드를 추가하세요.</div>
         <div className="flex flex-row justify-between w-full items-start">
           <div className="aspect-square bg-[#95A4CD] rounded-full w-[50px] h-[50px] flex justify-center items-center z-[10]">
             <GrTree className="text-[#1E3A8A] size-8" />
@@ -220,13 +317,13 @@ export default function QuestionClassifierNodeDetail({
                       node.sourceConditionId == cls.id ? (
                         <div
                           key={edgeIndex}
-                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
                         >
-                          {nodeConfig[node.name]?.icon}
-                          <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
+                          {nodeConfig[node.type]?.icon}
+                          <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
                           <AiOutlineClose
                             className="cursor-pointer ml-auto"
-                            style={{ color: deleteIconColors[node.name] || "gray" }}
+                            style={{ color: deleteIconColors[node.type] || "gray" }}
                             onClick={() => deleteConnectEdge(node)}
                           />
                         </div>
