@@ -4,7 +4,7 @@ import Logo from "../../assets/common/logo.png";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FiMenu } from "@react-icons/all-files/fi/FiMenu";
 import { FiX } from "@react-icons/all-files/fi/FiX";
 import { FiLogOut } from "@react-icons/all-files/fi/FiLogOut";
@@ -16,8 +16,6 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
   const [isLogin, setIsLogin] = useState<boolean>(false);
-
-  console.log('dddddddd', pathname);
 
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
   
@@ -40,9 +38,9 @@ export default function Header() {
     return null;
   }
 
-  const handleLinkClick = () => {
+  const handleLinkClick = useCallback(() => {
     setIsMenuOpen(false);
-  };
+  }, []);
 
   const MobileHeader = () => (
     <header className="z-20 fixed inset-0 w-full h-[57px] px-6 flex justify-between items-center border border-1 bg-white">
@@ -61,7 +59,7 @@ export default function Header() {
         onClick={handleLinkClick}
         className="flex items-center gap-3 absolute left-1/2 transform -translate-x-1/2"
       >
-        <Image src={Logo} alt="logo" className="w-[22px] h-[22px]" />
+        <Image src={Logo} alt="logo" width={22} height={22} />
         <div className="text-[22px] font-bold text-[#5D2973]">Flow Studio</div>
       </Link>
       <button className="text-2xl">
@@ -143,7 +141,7 @@ export default function Header() {
   const DesktopHeader = () => (
     <header className="z-10 fixed inset-0 w-full h-[57px] px-12 flex justify-between items-center border-b-[1px] bg-white">
       <Link href={isLogin ? "/explore/chatbots" : "/"} className="flex items-center gap-3">
-        <Image src={Logo} alt="logo" className="w-[22px] h-[22px]" />
+        <Image src={Logo} alt="logo" width={22} height={22} />
         <div className="text-[22px] font-bold text-[#5D2973]">Flow Studio</div>
       </Link>
       <nav className="flex flex-row gap-10 text-[16px] font-medium">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,8 @@ import { ChatFlow } from "@/types/chatbot";
 import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
 import Loading from "@/components/common/Loading";
 import { chatbotThumbnailState } from "@/store/chatbotAtoms";
+import { debounce } from "@/utils/node";
+import { categories } from "@/constants/chatbotCategories";
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -57,7 +59,7 @@ export default function Page() {
   });
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => {
       if (
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100
@@ -70,7 +72,7 @@ export default function Page() {
       } else {
         setIsCategoryFixed(false);
       }
-    };
+    }, 100);
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -79,20 +81,9 @@ export default function Page() {
   if (isLoading) 
   return <Loading/>;
 
-  const categories = [
-    "모든 챗봇",
-    "금융",
-    "헬스케어",
-    "전자상거래",
-    "여행",
-    "교육",
-    "엔터테인먼트",
-    "기타",
-  ];
-
-  const handleCategoryClick = (label: string) => {
+  const handleCategoryClick = useCallback((label: string) => {
     setSelectedCategory(label);
-  };
+  }, []);
 
   const handleCreateClick = () => {
     setSelectedChatbot(null);
@@ -127,7 +118,8 @@ export default function Page() {
 
 
 
-  const filteredChatFlows = chatFlows
+  const filteredChatFlows = useMemo(() => {
+  return chatFlows
     ? chatFlows.filter((bot) => {
         const matchesCategory =
           selectedCategory === "모든 챗봇" ||
@@ -136,6 +128,7 @@ export default function Page() {
         return matchesCategory && matchesSearch;
       })
     : [];
+}, [chatFlows, selectedCategory, searchTerm]);
 
   const ConfirmDeleteModal = ({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) => (
     <div
