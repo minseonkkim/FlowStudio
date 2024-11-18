@@ -73,10 +73,10 @@ export default function ChatbotCard({
         />
         <div className="flex-1 flex-col">
           <div className="flex flex-row justify-between items-center mb-1">
-            <p className="mb-1 text-[17px] text-[#1D2939]">{title}&nbsp;&nbsp;&nbsp;</p>
+            <p className="mb-1 text-[16px] text-[#1D2939]">{title}</p>
             { type === "all" &&
               <p className="text-[12px] text-gray-400 flex flex-row items-center">
-                made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{shareNum}</span>번 공유됨
+                made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨
               </p>
             }
             
@@ -84,8 +84,8 @@ export default function ChatbotCard({
           </div>
 
           <div className="flex justify-between items-center">
-            <p className="w-[70%] text-[14px] text-[#667085] line-clamp-1 overflow-hidden">{description}</p>
-            <div className="w-[30%] flex gap-1 flex-row">
+            <p className="flex-grow text-[14px] text-[#667085] line-clamp-1 overflow-hidden">{description}</p>
+            <div className="w-[46%] flex gap-1 flex-row">
               <div className="w-[98%] line-clamp-1 overflow-hidden text-end">
                 {category.map((cat) => (
                   <span key={cat} className="text-[13px] p-2 py-1 text-[#667085]">
