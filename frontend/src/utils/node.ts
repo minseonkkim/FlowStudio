@@ -2,8 +2,6 @@ import { deleteNode, postNode } from "@/api/workflow";
 import { NodeData, Knowledge, EdgeData } from "@/types/chatbot";
 import { Dispatch, SetStateAction } from "react";
 import { Edge, Node } from "reactflow"
-import { createRoot } from "react-dom/client";
-import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
 import { deleteIconColors, nodeConfig } from "./nodeConfig";
 
 // 노드 생성 팩토리 함수
@@ -71,7 +69,7 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
   // };
 
   const newX = currentNode.position.x + (isDetail ? 200 : 0);
-  let newY = currentNode.position.y;
+  const newY = currentNode.position.y;
 
   // if (isDetail) {
   //   while (isPositionOccupied(newX, newY)) {
