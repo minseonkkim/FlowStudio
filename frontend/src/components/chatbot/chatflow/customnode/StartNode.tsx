@@ -1,4 +1,4 @@
-import { Handle, Position, type NodeProps, type Node } from "reactflow";
+import { Handle, Position, type NodeProps } from "reactflow";
 import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { NodeData } from "@/types/chatbot";
 
