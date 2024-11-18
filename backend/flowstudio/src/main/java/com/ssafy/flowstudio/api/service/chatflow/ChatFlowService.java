@@ -95,11 +95,11 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public ChatFlowResponse getChatFlow(User user, Long chatFlowId) {
+    public ChatFlowResponse getChatFlow(User user, Long chatFlowId, boolean isShared) {
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(
                 () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        if (!chatFlow.getOwner().equals(user)) {
+        if (!isShared && !chatFlow.getOwner().equals(user)) {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
