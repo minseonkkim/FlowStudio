@@ -19,9 +19,8 @@ import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
 import StartNodeDetail from "@/components/chatbot/chatflow/nodedetail/StartNodeDetail";
 import { MdKeyboardArrowDown } from "@react-icons/all-files/md/MdKeyboardArrowDown";
-import { getChatFlow, publishChatFlow } from "@/api/chatbot";
-import { NodeData } from "@/types/chatbot";
-import { EdgeData } from "@/types/chatbot";
+import { getChatFlow } from "@/api/chatbot";
+import { NodeData, EdgeData } from "@/types/chatbot";
 import { deleteEdge, getNodeDetail, postEdge, putNode } from "@/api/workflow";
 import AnswerNode from "@/components/chatbot/chatflow/customnode/AnswerNode";
 import AnswerNodeDetail from "@/components/chatbot/chatflow/nodedetail/AnswerNodeDetail";
@@ -33,11 +32,9 @@ import QuestionClassifierNode from "@/components/chatbot/chatflow/customnode/Que
 import RetrieverNodeDetail from "@/components/chatbot/chatflow/nodedetail/RetrieverNodeDetail";
 import LlmNodeDetail from "@/components/chatbot/chatflow/nodedetail/LlmNodeDetail";
 import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedetail/QuestionClassifierNodeDetail";
-import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
-import VariableDetail from "@/components/chatbot/chatflow/menu/VariableDetail";
 import PreviewChat from "@/components/chat/PreviewChat";
-import { VariableMenu } from "@/components/chatbot/chatflow/menu/VariableMenu";
-import { ChatFlowPublishMenu } from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
+import VariableMenu from "@/components/chatbot/chatflow/menu/VariableMenu";
+import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
 
 interface ChatflowPageProps {
   params: {

@@ -1,7 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import VariableDetail from "./VariableDetail";
 
-export const VariableMenu = forwardRef((_, ref) => {
+const VariableMenu = forwardRef((_, ref) => {
   const [showVariableDetail, setShowVariableDetail] = useState(false);
   const [variables, setVariables] = useState<
     { name: string; value: string; type: string; isEditing: boolean }[]
@@ -60,3 +60,7 @@ export const VariableMenu = forwardRef((_, ref) => {
     </>
   );
 });
+
+VariableMenu.displayName = "VariableMenu";
+
+export default VariableMenu;
