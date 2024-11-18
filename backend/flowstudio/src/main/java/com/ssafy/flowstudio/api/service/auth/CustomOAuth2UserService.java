@@ -39,9 +39,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nickname = oauth2Response.getNickname();
 
         User user = userRepository.findByUsername(username)
-                .orElseGet(() -> userRepository.save(User.create(username, nickname, profileImage, providerType)));
-
-        chatFlowService.createExampleChatFlow(user);
+                .orElseGet(() -> {
+                            User savedUser = userRepository.save(User.create(username, nickname, profileImage, providerType));
+                            chatFlowService.createExampleChatFlow(savedUser);
+                            return savedUser;
+                        });
 
         return new CustomOAuth2User(user);
     }
