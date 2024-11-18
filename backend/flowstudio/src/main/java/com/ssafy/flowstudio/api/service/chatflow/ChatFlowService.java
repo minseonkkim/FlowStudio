@@ -166,10 +166,10 @@ public class ChatFlowService {
         ChatFlow chatFlow = ChatFlow.create(user, user, "너만의 챗봇을 만들어봐!", "동물, 식물 질문에 따라 말투가 바뀌는 챗봇", "1");
         Start start = Start.create(chatFlow, Coordinate.create(870, 80));
         QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, Coordinate.create(1071, 45));
-        LLM llm1 = LLM.create(chatFlow, Coordinate.create(1295, -78));
-        LLM llm2 = LLM.create(chatFlow, Coordinate.create(1295, 90));
-        Answer answer1 = Answer.create(chatFlow, Coordinate.create(1500, -78));
-        Answer answer2 = Answer.create(chatFlow, Coordinate.create(1500, 90));
+        LLM llm1 = LLM.create(chatFlow, "LLM 1", Coordinate.create(1295, -78));
+        LLM llm2 = LLM.create(chatFlow, "LLM 2", Coordinate.create(1295, 90));
+        Answer answer1 = Answer.create(chatFlow, "답변 1", Coordinate.create(1500, -78));
+        Answer answer2 = Answer.create(chatFlow, "답변 2", Coordinate.create(1500, 90));
 
         // 챗플로우에 노드 추가
         chatFlow.addNode(start);

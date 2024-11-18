@@ -63,6 +63,21 @@ public class LLM extends Node {
                 .build();
     }
 
+    public static LLM create(ChatFlow chatFlow, String name, Coordinate coordinate) {
+        return LLM.builder()
+                .chatFlow(chatFlow)
+                .name(name)
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .temperature(0.7)
+                .maxTokens(512)
+                .promptSystem("")
+                .promptUser("")
+                .modelProvider(ModelProvider.OPENAI)
+                .modelName(ModelName.GPT_4_O_MINI)
+                .build();
+    }
+
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
