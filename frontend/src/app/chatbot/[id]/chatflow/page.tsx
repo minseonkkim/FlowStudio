@@ -37,6 +37,7 @@ import VariableMenu from "@/components/chatbot/chatflow/menu/VariableMenu";
 import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
 import { ConnectedNode } from "@/types/workflow";
 import { RiPlayMiniLine } from "@react-icons/all-files/ri/RiPlayMiniLine";
+import Loading from "@/components/common/Loading";
 
 interface ChatflowPageProps {
   params: {
@@ -58,11 +59,14 @@ export default function Page({ params }: ChatflowPageProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData, string | undefined> | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
+    setLoading(true);
     try {
+      setLoading(true);
       const data = await getChatFlow(params.id);
 
       // 초기 노드 데이터 가져오기
@@ -148,6 +152,8 @@ export default function Page({ params }: ChatflowPageProps) {
       setEdges(reactFlowEdges); // 엣지 상태 설정
     } catch (error) {
       console.error("Flow 초기화 중 오류 발생:", error);
+    } finally {
+      setLoading(false); 
     }
   };
 
@@ -425,8 +431,9 @@ export default function Page({ params }: ChatflowPageProps) {
     setShowPreviewChat(false);
   }
 
+  if(loading) return <Loading/>;
 
-  return (
+  else return (
     <>
       <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
         {/* <button
