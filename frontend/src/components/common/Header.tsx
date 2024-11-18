@@ -11,14 +11,14 @@ import { FiLogOut } from "@react-icons/all-files/fi/FiLogOut";
 import { FiLogIn } from "@react-icons/all-files/fi/FiLogIn";
 
 export default function Header() {
-  const router = useRouter();
+ const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null); 
   const [isLogin, setIsLogin] = useState<boolean>(false);
 
   const savedToken = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
-  
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setIsLogin(!!token); 
@@ -34,13 +34,13 @@ export default function Header() {
     setToken(savedToken); 
   }, [savedToken]);
 
-  if (pathname.startsWith("/chat/")) {
-    return null;
-  }
-
   const handleLinkClick = useCallback(() => {
     setIsMenuOpen(false);
   }, []);
+
+  if (pathname.startsWith("/chat/")) {
+    return null;
+  }
 
   const MobileHeader = () => (
     <header className="z-20 fixed inset-0 w-full h-[57px] px-6 flex justify-between items-center border border-1 bg-white">
