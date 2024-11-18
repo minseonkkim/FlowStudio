@@ -249,7 +249,6 @@ public class VectorStoreService {
     }
 
     public List<String> searchVector(KnowledgeSearchServiceRequest request) {
-        if (!request.getKnowledge().getIsPublic()) throw new BaseException(ErrorCode.KNOWLEDGE_NOT_FOUND);
         if (request.getScoreThreshold() < 0.0f || request.getScoreThreshold() > 1.0f)
             throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
         if (request.getTopK() < 0 || request.getTopK() > 10) throw new BaseException(ErrorCode.SEARCH_INVALID_INPUT);
