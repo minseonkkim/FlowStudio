@@ -307,6 +307,12 @@ public class ChatFlowService {
                 String clonedSystemPrompt = messageParseUtil.replace(originalSystemPrompt, nodeMap);
                 String clonedUserPrompt = messageParseUtil.replace(originalUserPrompt, nodeMap);
                 clonedNode = factory.copyNode(originalNode, clonedChatFlow, clonedSystemPrompt, clonedUserPrompt);
+            } else if (originalNode.getType() == NodeType.ANSWER) {
+                // Answer 노드라면 Output Message 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
+                Answer originalAnswer = (Answer) originalNode;
+                String originalOutputMessage = originalAnswer.getOutputMessage();
+                String clonedOutputMessage = messageParseUtil.replace(originalOutputMessage, nodeMap);
+                clonedNode = factory.copyNode(originalNode, clonedChatFlow, clonedOutputMessage);
             } else {
                 clonedNode = factory.copyNode(originalNode, clonedChatFlow);
             }
