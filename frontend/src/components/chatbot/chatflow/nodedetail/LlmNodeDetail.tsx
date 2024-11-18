@@ -9,7 +9,7 @@ import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 // import { getAllKnowledges } from "@/api/knowledge";
-import { debounce, extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
+import { extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
 import { EdgeData, NodeData } from "@/types/chatbot";
 import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 

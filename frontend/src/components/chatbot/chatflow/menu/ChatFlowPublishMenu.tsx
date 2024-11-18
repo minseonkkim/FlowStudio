@@ -2,7 +2,7 @@ import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
 import { publishChatFlow } from "@/api/chatbot";
 
-export const ChatFlowPublishMenu = forwardRef(
+const ChatFlowPublishMenu = forwardRef(
     (
         { chatFlowId }: { chatFlowId: number },
         ref: React.Ref<{ toggleChatFlowPublishModal: () => void }>
@@ -51,3 +51,7 @@ export const ChatFlowPublishMenu = forwardRef(
             )}</>);
 
     });
+
+    ChatFlowPublishMenu.displayName = "ChatFlowPublishMenu";
+
+    export default ChatFlowPublishMenu;
