@@ -46,7 +46,7 @@ export default function TestCaseInput({
       onSuccess: (res) => {
       setParsedTestData((prev) => {
         const updatedData = [...prev];
-        res.forEach((item: any) => {
+        res.forEach((item) => {
           const existingItemIndex = updatedData.findIndex((data) => data.chatId === item.chatId);
 
           if (existingItemIndex !== -1) {
