@@ -283,16 +283,16 @@ public class ChatFlowService {
         // 원본 노드 ID와 복제된 노드를 매핑시켜 줄 Map을 생성한다.
         Map<Long, Node> nodeMap = new HashMap<>();
 
-        // 해당 ChatFlow에서 사용하는 노드들을 불러온 후 타입에 맞춰 복제한다.
+        // 해당 ChatFlow에서 사용하는 노드들을 불러온다.
         List<Node> nodeList = chatFlow.getNodes();
 
+        // 노드들을 타입에 맞춰 복제한다.
         for (Node originalNode : nodeList) {
             NodeCopyFactory factory = nodeCopyFactoryProvider.getCopyFactory(originalNode.getType());
-
             Node clonedNode;
-            // TODO : 메시지 업데이트는 전부 복제한 후 다시 순회하면서
+
             if (originalNode.getType() == NodeType.RETRIEVER) {
-                // Retriever 노드라면 복제된 knowledge를 새로 매핑한다.
+                // Retriever 노드라면 복제된 knowledge를 새로 매핑해서 복제한다.
                 Retriever originalRetriever = (Retriever) originalNode;
                 Knowledge knowledge = originalRetriever.getKnowledge();
                 if (knowledge != null && knowledge.isPublic()) {
@@ -300,20 +300,6 @@ public class ChatFlowService {
                 } else {
                     clonedNode = factory.copyNode(originalNode, clonedChatFlow);
                 }
-            } else if (originalNode.getType() == NodeType.LLM) {
-                // Llm 노드라면 프롬프트 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
-                LLM originalLLM = (LLM) originalNode;
-                String originalSystemPrompt = originalLLM.getPromptSystem();
-                String originalUserPrompt = originalLLM.getPromptUser();
-                String clonedSystemPrompt = messageParseUtil.replace(originalSystemPrompt, nodeMap);
-                String clonedUserPrompt = messageParseUtil.replace(originalUserPrompt, nodeMap);
-                clonedNode = factory.copyNode(originalNode, clonedChatFlow, clonedSystemPrompt, clonedUserPrompt);
-            } else if (originalNode.getType() == NodeType.ANSWER) {
-                // Answer 노드라면 Output Message 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
-                Answer originalAnswer = (Answer) originalNode;
-                String originalOutputMessage = originalAnswer.getOutputMessage();
-                String clonedOutputMessage = messageParseUtil.replace(originalOutputMessage, nodeMap);
-                clonedNode = factory.copyNode(originalNode, clonedChatFlow, clonedOutputMessage);
             } else {
                 clonedNode = factory.copyNode(originalNode, clonedChatFlow);
             }
@@ -321,6 +307,24 @@ public class ChatFlowService {
             // 복제된 노드를 DB에 저장 후 맵에 추가한다.
             nodeRepository.save(clonedNode);
             nodeMap.put(originalNode.getId(), clonedNode);
+        }
+
+        // 복제된 노드들 중 Node ID를 포함한 텍스트를 속성으로 가진 노드가 있다면 전부 교체해준다.
+        for (Node clonedNode : nodeMap.values()) {
+            if (clonedNode.getType() == NodeType.LLM) {
+                // Llm 노드라면 프롬프트 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
+                LLM clonedLLM = (LLM) clonedNode;
+                clonedLLM.updatePrompt(
+                        messageParseUtil.replace(clonedLLM.getPromptSystem(), nodeMap),
+                        messageParseUtil.replace(clonedLLM.getPromptUser(), nodeMap)
+                );
+            } else if (clonedNode.getType() == NodeType.ANSWER) {
+                // Answer 노드라면 Output Message 내의 변수에 복제된 노드의 ID를 새로 매핑한다.
+                Answer clonedAnswer = (Answer) clonedNode;
+                clonedAnswer.updateOutputMessage(
+                        messageParseUtil.replace(clonedAnswer.getOutputMessage(), nodeMap)
+                );
+            }
         }
 
         // 원본 질문 분류 ID와 복제된 질문 분류를 매핑시켜 줄 Map을 생성한다.
