@@ -16,6 +16,7 @@ export default function Page() {
     switch (selectedTab) {
       case "챗봇 선택":
         return <EvaluationFirst
+        selectedTab={selectedTab}
         onNext={() => {
           setSelectedTab("테스트케이스 입력");
         }}
@@ -23,12 +24,15 @@ export default function Page() {
       case "테스트케이스 입력":
         return (
           <EvaluationSecond
+            selectedTab={selectedTab}
             onNext={() => setSelectedTab("테스트 결과")}
             onPrevious={() => setSelectedTab("챗봇 선택")}
           />
         );
       case "테스트 결과":
-        return <EvaluationThird />;
+        return <EvaluationThird
+        selectedTab={selectedTab}
+         />;
       default:
         return null;
     }
@@ -64,10 +68,7 @@ export default function Page() {
 
   
       {/* 메인 콘텐츠 */}
-      <div className="flex-1 p-12 ml-[270px]">
-        <div className="flex justify-between mb-8">
-          <p className="text-[22px]">{selectedTab}</p>
-        </div>
+      <div className="flex-1 p-[38px] ml-[270px]">
         {renderContent()}
       </div>
     </div>
