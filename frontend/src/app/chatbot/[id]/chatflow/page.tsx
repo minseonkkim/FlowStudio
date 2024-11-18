@@ -407,11 +407,11 @@ export default function Page({ params }: ChatflowPageProps) {
    * 변수 메뉴
    */
   const variableMenuRef = useRef<{ toggleVariableDetail: () => void } | null>(null);
-  const handleVariableMenuModal = () => {
-    if (variableMenuRef.current) {
-      variableMenuRef.current.toggleVariableDetail();
-    }
-  };
+  // const handleVariableMenuModal = () => {
+  //   if (variableMenuRef.current) {
+  //     variableMenuRef.current.toggleVariableDetail();
+  //   }
+  // };
 
   /**
    * 미리보기 메뉴

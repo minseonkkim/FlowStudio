@@ -1,4 +1,3 @@
-import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { FiBookOpen } from "@react-icons/all-files/fi/FiBookOpen";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";

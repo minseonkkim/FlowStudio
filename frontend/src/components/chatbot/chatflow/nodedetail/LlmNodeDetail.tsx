@@ -1,6 +1,5 @@
 import { FaRobot } from "@react-icons/all-files/fa/FaRobot";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import { IoPlay } from "@react-icons/all-files/io5/IoPlay";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { AiOutlineClose } from "@react-icons/all-files/ai/AiOutlineClose";
 import { ConnectedNode } from "@/types/workflow";
