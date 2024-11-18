@@ -74,8 +74,9 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
         {chatlist?.thumbnail && thumbnailImages[Number(chatlist.thumbnail)] && (
           <Image 
             src={thumbnailImages[Number(chatlist.thumbnail)]} 
+            width={50} height={50}
             alt={`Thumbnail ${chatlist.thumbnail}`} 
-            className="rounded-lg w-10 h-10 mr-4" 
+            className="rounded-lg mr-4" 
           />
         )}
         <div className="text-lg font-semibold break-words max-w-[150px]">{chatlist?.title}</div>
