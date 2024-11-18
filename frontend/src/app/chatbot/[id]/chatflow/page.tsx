@@ -35,16 +35,12 @@ import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedeta
 import PreviewChat from "@/components/chat/PreviewChat";
 import VariableMenu from "@/components/chatbot/chatflow/menu/VariableMenu";
 import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
+import { ConnectedNode } from "@/types/workflow";
 
 interface ChatflowPageProps {
   params: {
     id: number;
   };
-}
-
-interface ConnectedNode {
-  nodeId: number;
-  name: string;
 }
 
 const nodeTypes = {
@@ -290,8 +286,9 @@ export default function Page({ params }: ChatflowPageProps) {
         const targetNode = nodes.find((node) => node.id === edge.target); // Map을 사용하여 노드 찾기
         return {
           nodeId: +(targetNode?.id || "0"), // 기본값 설정
-          name: targetNode?.type || "Unknown", // 기본값 설정
-          sourceConditionId: edge.sourceHandle || 0
+          type: targetNode?.type || "Unknown", // 기본값 설정
+          name: targetNode?.data.name || "", // 기본값 설정
+          sourceConditionId: Number(edge.sourceHandle || 0)
         };
       }, [nodes, edges]);
   };

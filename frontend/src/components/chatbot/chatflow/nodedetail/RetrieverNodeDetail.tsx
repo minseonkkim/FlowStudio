@@ -318,7 +318,7 @@ export default function RetrieverNodeDetail({
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <div className="text-[16px]">다음 블록을 추가하세요.</div>
+          <div className="text-[16px]">다음 노드를 추가하세요.</div>
           <div className="flex flex-row justify-between w-full">
             <div className="aspect-square bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
               <IoPlay className="text-[#95C447] size-8" />
@@ -329,14 +329,14 @@ export default function RetrieverNodeDetail({
               {connectedNodes.map((node, index) => (
                 <div
                   key={index}
-                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
                 >
-                  {nodeConfig[node.name]?.icon}
-                  <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
+                  {nodeConfig[node.type]?.icon}
+                  <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
                   <AiOutlineClose
                     className="cursor-pointer ml-auto"
                     style={{
-                      color: deleteIconColors[node.name] || "gray",
+                      color: deleteIconColors[node.type] || "gray",
                     }}
                     onClick={() => deleteConnectEdge(node)}
                   />

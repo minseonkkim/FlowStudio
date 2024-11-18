@@ -300,7 +300,7 @@ export default function QuestionClassifierNodeDetail({
       </div>
 
       <div className="flex flex-col gap-2 mt-4">
-        <div className="text-[16px]">다음 블록을 추가하세요.</div>
+        <div className="text-[16px]">다음 노드를 추가하세요.</div>
         <div className="flex flex-row justify-between w-full items-start">
           <div className="aspect-square bg-[#95A4CD] rounded-full w-[50px] h-[50px] flex justify-center items-center z-[10]">
             <GrTree className="text-[#1E3A8A] size-8" />
@@ -317,13 +317,13 @@ export default function QuestionClassifierNodeDetail({
                       node.sourceConditionId == cls.id ? (
                         <div
                           key={edgeIndex}
-                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
                         >
-                          {nodeConfig[node.name]?.icon}
-                          <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
+                          {nodeConfig[node.type]?.icon}
+                          <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
                           <AiOutlineClose
                             className="cursor-pointer ml-auto"
-                            style={{ color: deleteIconColors[node.name] || "gray" }}
+                            style={{ color: deleteIconColors[node.type] || "gray" }}
                             onClick={() => deleteConnectEdge(node)}
                           />
                         </div>
