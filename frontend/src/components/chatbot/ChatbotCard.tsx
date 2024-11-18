@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postDownloadChatFlow } from "@/api/share";
 import { useRouter } from 'next/navigation';
+import { Author } from "next/dist/lib/metadata/types/metadata-types";
 
 interface ChatbotCardProps {
   chatbotId: number;
@@ -11,6 +12,9 @@ interface ChatbotCardProps {
   description: string;
   category: string[];
   iconId: string;
+  authorNickName: string;
+  authorProfile: string;
+  shareNum: number;
   onCardClick?: () => void;
   type: "all" | "eval";
 }
@@ -21,6 +25,9 @@ export default function ChatbotCard({
   description,
   category,
   iconId,
+  authorNickName,
+  authorProfile,
+  shareNum,
   onCardClick,
   type,
 }: ChatbotCardProps) {
@@ -55,18 +62,26 @@ export default function ChatbotCard({
   return (
     <div
       onClick={onCardClick}
-      className="mb-4 flex items-center justify-between w-full py-4 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 cursor-pointer"
+      className="mb-4 flex items-center justify-between w-full py-3.5 px-6 rounded-xl border-2 group hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 cursor-pointer"
     >
       <div className="flex items-center w-full">
         <Image
           src={`/chatbot-icon/${iconId}.jpg`}
           alt="Selected Icon"
-          width={48}
-          height={48}
+          width={51}
+          height={51}
           className="mr-6 rounded-lg border border-gray-300"
         />
         <div className="flex-1 flex-col">
-          <p className="mb-1 text-[16px] text-[#1D2939]">{title}</p>
+          <div className="flex flex-row justify-between items-center mb-1">
+            <p className="mb-1 text-[17px] text-[#1D2939]">{title}&nbsp;&nbsp;&nbsp;</p>
+
+              <p className="text-[12px] text-gray-400 flex flex-row items-center">
+                made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[14px]">{shareNum}</span>번 공유됨
+              </p>
+
+            
+          </div>
 
           <div className="flex justify-between items-center">
             <p className="w-[70%] text-[14px] text-[#667085] line-clamp-1 overflow-hidden">{description}</p>

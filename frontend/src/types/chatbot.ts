@@ -28,7 +28,7 @@ export interface ChatFlow {
 }
 
 export interface SharedChatFlow extends ChatFlow {
-  shareNum: number;
+  shareCount: number;
 }
  
 
