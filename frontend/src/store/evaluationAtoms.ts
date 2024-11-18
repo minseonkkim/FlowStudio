@@ -22,3 +22,8 @@ export const parsedTestDataState = atom<
   default: [],
 });
 
+// 테스트 결과 로딩 상태
+export const isLoadingState = atom<boolean>({
+  key: 'isLoadingState',  
+  default: false,  
+});
