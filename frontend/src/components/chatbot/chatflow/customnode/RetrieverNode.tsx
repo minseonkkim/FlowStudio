@@ -17,7 +17,7 @@ export default function RetrieverNode({
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row items-center gap-1">
             <FiBookOpen className="text-[#F97316] size-3"/>
-            <div className="text-[11px] font-semibold">지식 검색</div>
+            <div className="text-[11px] font-semibold">{data.name}</div>
           </div>
           {selected && (
               <MdDelete
