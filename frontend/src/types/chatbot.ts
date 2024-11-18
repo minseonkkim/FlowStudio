@@ -92,6 +92,9 @@ export interface NodeData{
   renderOutputMessage?: { __html: string | TrustedHTML; };
   renderPromptSystem?: { __html: string | TrustedHTML; };
   renderPromptUser?: { __html: string | TrustedHTML; };
+
+  isComplete?: boolean;
+  isError?: boolean;
 }
 
 export interface ChatFlowDetail{

@@ -54,6 +54,9 @@ export const createNodeData = (
     scoreThreshold: params.scoreThreshold || 0.1,
 
     questionClasses: params.questionClasses || [],
+
+    isComplete: false,
+    isError: false,
   };
 };
 
@@ -223,3 +226,27 @@ export const extractActualValues = (container: HTMLDivElement): string => {
 
   return result;
 };
+
+/**
+ * 날짜 계산 함수
+ * @param dateString 
+ * @returns 
+ */
+export function timeDifferenceFromNow(dateString: string): string {
+  if (dateString === "") return null;
+
+  const inputDate = new Date(dateString.replace(" ", "T")); // 입력된 날짜 변환
+  const now = new Date();
+  const diffInMs = now.getTime() - inputDate.getTime();
+  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInMinutes < 60) {
+      return `${diffInMinutes}분 전`;
+  } else if (diffInHours < 24) {
+      return `${diffInHours}시간 전`;
+  } else {
+      return `${diffInDays}일 전`;
+  }
+}

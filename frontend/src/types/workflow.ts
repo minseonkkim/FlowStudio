@@ -19,3 +19,9 @@ export interface NodeData {
   },
   "nodeType": string;
 }
+
+export interface PublishChatFlowData {
+  chatFlowId: number;
+  publishUrl?: string;
+  publishedAt?: string;
+}

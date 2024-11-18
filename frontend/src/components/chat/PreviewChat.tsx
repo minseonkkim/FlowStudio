@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, Dispatch, SetStateAction } from "react";
 import { AiOutlineSend } from "@react-icons/all-files/ai/AiOutlineSend";
 import { useMutation } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
@@ -11,28 +11,33 @@ import remarkGfm from "remark-gfm";
 import { CgClose } from "@react-icons/all-files/cg/CgClose";
 import { useRecoilValue } from "recoil";
 import { profileImageAtom } from "@/store/profileAtoms";
-import { chatbotThumbnailState } from "@/store/chatbotAtoms";import one from '../../../public/chatbot-icon/1.jpg';
+import { chatbotThumbnailState } from "@/store/chatbotAtoms"; import one from '../../../public/chatbot-icon/1.jpg';
 import two from '../../../public/chatbot-icon/2.jpg';
 import three from '../../../public/chatbot-icon/3.jpg';
 import four from '../../../public/chatbot-icon/4.jpg';
 import five from '../../../public/chatbot-icon/5.jpg';
 import six from '../../../public/chatbot-icon/6.jpg';
+import { Bounce, toast } from "react-toastify";
+import { Node, useReactFlow } from "reactflow";
+import { NodeData } from "@/types/chatbot";
 
 type PreviewChatProps = {
   chatFlowId: string;
   onClose: () => void;
+  nodes?: Node<NodeData, string>[];
+  setNodes?: Dispatch<SetStateAction<Node<NodeData, string>[]>>;
 };
 
 const thumbnailImages: { [key: number]: string } = {
-    1: one.src,
-    2: two.src,
-    3: three.src,
-    4: four.src,
-    5: five.src,
-    6: six.src,
-  };
+  1: one.src,
+  2: two.src,
+  3: three.src,
+  4: four.src,
+  5: five.src,
+  6: six.src,
+};
 
-export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
+export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: PreviewChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [previewChatId, setPreviewChatId] = useState<number>();
@@ -42,6 +47,9 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
   const profileImage = useRecoilValue(profileImageAtom);
   const thumbnail = useRecoilValue(chatbotThumbnailState);
+  const [currentEventNodeId, setCurrentEventNodeId] = useState<string>();
+  const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { getViewport, setCenter } = useReactFlow();
 
 
   // SSE 연결 초기화 함수
@@ -65,9 +73,38 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       console.log("Node Event Received:", data);
+      setCurrentEventNodeId(data.nodeId);
+      console.log(data.nodeId);
+
+      setNodes((prevNodes) => {
+        return prevNodes.map((n) =>
+          n.id == data.nodeId ? { ...n, data: { ...n.data, isComplete: true }, } : n
+        )}
+      );
+      
+       // React Flow instance가 초기화된 상태인지 확인 후 실행
+       const currentEventNode = nodes.find((n) => n.id == data.nodeId);
+       if (currentEventNode) {
+        const viewport = getViewport();
+        setCenter(currentEventNode.position.x, currentEventNode.position.y, {zoom: viewport.zoom, duration: 500});
+      }
+
       if (data.type === "ANSWER") {
         setMessages((prev) => [...prev.slice(0, -1), { text: data.message, sender: "server" }]);
       }
+
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current); // 이전 타이머 초기화
+      }
+    
+      resetTimeoutRef.current = setTimeout(() => {
+        setNodes((prevNodes) =>
+          prevNodes.map((n) => ({
+            ...n,
+            data: { ...n.data, isComplete: false, isError: false },
+          }))
+        );
+      }, 5000);
     });
 
     sse.onerror = (error) => {
@@ -95,7 +132,17 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
       }
     },
     onError: () => {
-      alert("채팅 생성에 실패했습니다. 다시 시도해 주세요.");
+      toast.error(`채팅 생성에 실패했습니다. 다시 시도해 주세요.`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     },
   });
 
@@ -104,14 +151,60 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
     if (!sseRef.current && !previewChatId) {
       createChatMutation.mutate({ isPreview: true });
     }
-  }, [previewChatId]); 
+  }, [previewChatId]);
 
   useEffect(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), [messages]);
 
   const sendMessageMutation = useMutation({
-    mutationFn: (data: { chatId: string; message: string }) => postMessage(data.chatId, { message: data.message }),
+    mutationFn: (data: { chatId: string; message: string }) => {
+      setNodes((prevNodes) =>
+        prevNodes.map((n) => ({
+          ...n,
+          data: { ...n.data, isComplete: false, isError: false },
+        }))
+      );
+      return postMessage(data.chatId, { message: data.message });
+    },
     onError: () => {
-      alert("메시지 전송에 실패했습니다. 다시 시도해 주세요.");
+      const prevEventNode = nodes.find((n) => n.id == currentEventNodeId);
+      const errorEventNodeId = prevEventNode.data?.outputEdges[0]?.targetNodeId.toString(); // 연결 노드가 1개라는 가정
+      
+      setNodes((prevNodes) => {
+        return prevNodes.map((n) =>
+          n.id == errorEventNodeId ? { ...n, data: { ...n.data, isError: true }, } : n
+        )}
+      );
+
+      const currentEventNode = nodes.find((n) => n.id == errorEventNodeId);
+       if (currentEventNode) {
+        const viewport = getViewport();
+        setCenter(currentEventNode.position.x, currentEventNode.position.y, {zoom: viewport.zoom, duration: 500});
+      }
+
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current); // 이전 타이머 초기화
+      }
+    
+      resetTimeoutRef.current = setTimeout(() => {
+        setNodes((prevNodes) =>
+          prevNodes.map((n) => ({
+            ...n,
+            data: { ...n.data, isComplete: false, isError: false },
+          }))
+        );
+      }, 5000);
+
+      toast.error(`메시지 전송에 실패했습니다. 다시 시도해 주세요.`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
     },
   });
 
@@ -153,9 +246,8 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
           <div key={index} className={`flex items-start text-[12px] ${msg.sender === "user" ? "justify-end" : "justify-start"} space-x-4`}>
             {msg.sender === "server" && (thumbnail ? <img src={thumbnailImages[thumbnail]} className="w-6 h-6 rounded-full" /> : <div className="rounded-full w-6 h-6 bg-gray-500"></div>)}
             <div
-              className={`rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm ${
-                msg.sender === "server" ? "bg-[#f9f9f9] border border-gray-300 max-w-[80%]" : "bg-[#f3f3f3] max-w-[60%]"
-              }`}
+              className={`rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm ${msg.sender === "server" ? "bg-[#f9f9f9] border border-gray-300 max-w-[80%]" : "bg-[#f3f3f3] max-w-[60%]"
+                }`}
             >
               {msg.sender === "server" ? (
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
@@ -164,9 +256,9 @@ export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
               )}
             </div>
             {msg.sender === "user" &&
-                (profileImage ?
-            <img src={profileImage} className="w-6 h-6 rounded-full" />:
-            <div className="rounded-full w-6 h-6 bg-gray-300"></div>)
+              (profileImage ?
+                <img src={profileImage} className="w-6 h-6 rounded-full" /> :
+                <div className="rounded-full w-6 h-6 bg-gray-300"></div>)
             }
           </div>
         ))}

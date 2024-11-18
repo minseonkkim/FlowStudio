@@ -9,9 +9,11 @@ export default function RetrieverNode({
   NodeProps<NodeData>) {
   
   return <>
-  <div className={`p-2 bg-[#FFF3EB] rounded-[16px] ${
-        selected ? "border-[2px]" : "border-[1px]"
-      } border-[#F97316] text-[10px] w-[145px]`}>
+  <div className={`p-2 bg-[#FFF3EB] rounded-[16px] border-[#F97316] text-[10px] w-[145px]
+    ${selected ? "border-[2px]" : "border-[1px]"}
+    ${data.isComplete ? "border-[5px]" : ""}
+    ${data.isError ? "border-[5px] border-[#ff0000]" : "border-[#F97316]"}`}
+  >
       <Handle type="target" position={Position.Left} />
       <div className="flex flex-col gap-1.5">
         <div className="flex flex-row justify-between items-center">

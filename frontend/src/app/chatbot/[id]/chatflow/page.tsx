@@ -35,7 +35,7 @@ import QuestionClassifierNodeDetail from "@/components/chatbot/chatflow/nodedeta
 import PreviewChat from "@/components/chat/PreviewChat";
 import VariableMenu from "@/components/chatbot/chatflow/menu/VariableMenu";
 import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPublishMenu";
-import { ConnectedNode } from "@/types/workflow";
+import { ConnectedNode, PublishChatFlowData } from "@/types/workflow";
 import { RiPlayMiniLine } from "@react-icons/all-files/ri/RiPlayMiniLine";
 import Loading from "@/components/common/Loading";
 
@@ -59,6 +59,7 @@ export default function Page({ params }: ChatflowPageProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData, string | undefined> | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
+  const [publishedChatFlowData, setPublishedChatFlowData] = useState<PublishChatFlowData>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -68,6 +69,12 @@ export default function Page({ params }: ChatflowPageProps) {
     try {
       setLoading(true);
       const data = await getChatFlow(params.id);
+
+      setPublishedChatFlowData({
+        chatFlowId: params.id,
+        publishUrl: data.publishUrl || "",
+        publishedAt: data.publishedAt || "",
+      })
 
       // 초기 노드 데이터 가져오기
       const initNodes: NodeData[] = data.nodes;
@@ -424,6 +431,12 @@ export default function Page({ params }: ChatflowPageProps) {
    */
   const [showPreviewChat, setShowPreviewChat] = useState<boolean>(false);
   const handlePreviewChatButtonClick = useCallback(() => {
+    setNodes((prevNodes) =>
+      prevNodes.map((n) => ({
+        ...n,
+        data: { ...n.data, isComplete: false, isError: false },
+      }))
+    );
     setShowPreviewChat((prev) => !prev);
   }, []);
 
@@ -456,13 +469,13 @@ export default function Page({ params }: ChatflowPageProps) {
           챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
       </div>
+      <ReactFlowProvider>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
         {renderNodeDetail}
         <VariableMenu ref={variableMenuRef} />
-        {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} />}
+        {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} nodes={nodes} setNodes={setNodes} />}
       </div>
-      <ChatFlowPublishMenu chatFlowId={params.id} ref={publishMenuRef} />
-      <ReactFlowProvider>
+      <ChatFlowPublishMenu publishedChatFlowData={publishedChatFlowData} setPublishedChatFlowData={setPublishedChatFlowData} ref={publishMenuRef} />
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
 
           <ReactFlow

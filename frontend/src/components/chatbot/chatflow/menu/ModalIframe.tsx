@@ -1,24 +1,36 @@
 'use client';
 
-import { useState } from 'react';
 import { FaRegCopy } from '@react-icons/all-files/fa/FaRegCopy';
 import { FiX } from '@react-icons/all-files/fi/FiX';
+import { Bounce, toast } from 'react-toastify';
 
 interface ModalIframeProps {
   chatFlowId: number;
+  handleModalOpen: () => void;
 }
 
-export default function ModalIframe({ chatFlowId }: ModalIframeProps) {
-  const [, setIsModalOpen] = useState(false); // 부모 컴포넌트에서 사용해야 해요!
-
+export default function ModalIframe({ 
+  chatFlowId,
+  handleModalOpen, 
+}: ModalIframeProps) {
   const handleCopy = () => {
     navigator.clipboard.writeText(iframeCode);
-    alert('아이프레임 코드가 복사되었습니다.'); // 이거 대신 토스트 하면 좋을 것 같아요 !
+    toast.success(`iframe 코드가 복사되었습니다.`, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: false,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      transition: Bounce,
+    });
   };
 
   const iframeCode = `
     <iframe
-      src="https://k11c201.p.ssafy.io/${chatFlowId}"
+      src="${process.env.NEXT_PUBLIC_FRONT_URL}/chat/${chatFlowId}"
       style="width: 100%; height: 100%; min-height: 700px"
       frameborder="0"
       allow="microphone">
@@ -33,7 +45,7 @@ export default function ModalIframe({ chatFlowId }: ModalIframeProps) {
         <div className="bg-white p-6 rounded-lg shadow-lg w-[640px] flex flex-col items-center">
           {/* 닫기 아이콘 */}
           <div className="ml-auto">
-            <FiX onClick={() => setIsModalOpen(false)} className="cursor-pointer" />
+            <FiX onClick={handleModalOpen} className="cursor-pointer" />
           </div>
 
           {/* 모달 헤더 */}
