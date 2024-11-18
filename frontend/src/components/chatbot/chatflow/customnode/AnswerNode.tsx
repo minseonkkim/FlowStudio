@@ -17,7 +17,7 @@ export default function AnswerNode({
           <div className="flex flex-row justify-between items-center">
             <div className="flex flex-row items-center gap-1">
               <RiQuestionAnswerFill className="text-[#34D399] size-3" />
-              <div className="text-[11px] font-semibold">답변</div>
+              <div className="text-[11px] font-semibold">{data.name}</div>
             </div>
             {selected && (
               <MdDelete
