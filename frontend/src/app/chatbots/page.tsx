@@ -78,12 +78,24 @@ export default function Page() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (isLoading) 
-  return <Loading/>;
-
+  // Move useCallback and useMemo hooks here
   const handleCategoryClick = useCallback((label: string) => {
     setSelectedCategory(label);
   }, []);
+
+  const filteredChatFlows = useMemo(() => {
+    return chatFlows
+      ? chatFlows.filter((bot) => {
+          const matchesCategory =
+            selectedCategory === "모든 챗봇" ||
+            bot.categories.some((category) => category.name === selectedCategory);
+          const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+          return matchesCategory && matchesSearch;
+        })
+      : [];
+  }, [chatFlows, selectedCategory, searchTerm]);
+
+  if (isLoading) return <Loading />;
 
   const handleCreateClick = () => {
     setSelectedChatbot(null);
@@ -116,37 +128,30 @@ export default function Page() {
     setIsViewingShared(!isViewingShared);
   };
 
-
-
-  const filteredChatFlows = useMemo(() => {
-  return chatFlows
-    ? chatFlows.filter((bot) => {
-        const matchesCategory =
-          selectedCategory === "모든 챗봇" ||
-          bot.categories.some((category) => category.name === selectedCategory);
-        const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
-      })
-    : [];
-}, [chatFlows, selectedCategory, searchTerm]);
-
-  const ConfirmDeleteModal = ({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) => (
+  const ConfirmDeleteModal = ({
+    onConfirm,
+    onCancel,
+  }: {
+    onConfirm: () => void;
+    onCancel: () => void;
+  }) => (
     <div
       className="z-30 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
       onClick={onCancel}
     >
-      <div
-        className="bg-white p-6 rounded-lg shadow-md w-96"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="bg-white p-6 rounded-lg shadow-md w-96" onClick={(e) => e.stopPropagation()}>
         <p className="mb-6">
-          <b>{chatFlowTitleToDelete}</b>을(를) 삭제하시겠습니까? <br/>이 작업은 되돌릴 수 없습니다.
+          <b>{chatFlowTitleToDelete}</b>을(를) 삭제하시겠습니까? <br />
+          이 작업은 되돌릴 수 없습니다.
         </p>
         <div className="flex justify-end gap-4">
           <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300" onClick={onCancel}>
             취소
           </button>
-          <button className="px-4 py-2 bg-red-500 text-white bg-[#874aa5] rounded hover:bg-[#6e3a85]" onClick={onConfirm}>
+          <button
+            className="px-4 py-2 bg-red-500 text-white bg-[#874aa5] rounded hover:bg-[#6e3a85]"
+            onClick={onConfirm}
+          >
             삭제
           </button>
         </div>
@@ -218,7 +223,6 @@ export default function Page() {
             onCardClick={() => {
               setChatbotThumbnail(bot.thumbnail);
               router.push(`/chatbot/${bot.chatFlowId}/chatflow`);
-
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId, bot.title)}
