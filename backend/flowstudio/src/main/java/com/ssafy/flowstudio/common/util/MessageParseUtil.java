@@ -26,7 +26,12 @@ public class MessageParseUtil {
         while (matcher.find()) {
             String key =  chatId + ":" + matcher.group(1);
             result.append(message, lastEnd, matcher.start()); // 이전 문자 추가
-            result.append(redisService.get(key)); // {{}} 대신 키값 추가
+            String newValue = redisService.get(key);
+            if (newValue != null) {
+                result.append(newValue); // {{}} 대신 키값 추가
+            } else {
+                result.append(matcher.group(0)); // Redis에서 해당 키와 매칭되는 값이 없으면 그대로 다시 넣어준다.
+            }
             lastEnd = matcher.end(); // 현재 매칭 끝 지점 업데이트
         }
         result.append(message.substring(lastEnd)); // 남은 부분 추가
@@ -46,10 +51,10 @@ public class MessageParseUtil {
         while (matcher.find()) {
             String originalVariable =  matcher.group(1);
             result.append(message, lastEnd, matcher.start()); // Matcher 이전의 문자를 추가한다.
-            if (originalVariable.matches("\\d+")) {
-                // TODO : get 했는데 없으면 문자열 그대로 넣고
-                // 원본 프롬프트 내의 변수가 숫자값일때는 노드의 ID이므로 복제된 노드의 ID로 새로 매핑한다.
-                result.append("{{" + String.valueOf(nodeMap.get(Long.parseLong(originalVariable)).getId()) + "}}");
+            // 원본 프롬프트 내의 변수가 숫자값일때는 노드의 ID이므로 복제된 노드의 ID로 새로 매핑한다.
+            if (originalVariable.matches("\\d+") && nodeMap.get(Long.parseLong(originalVariable)) != null) {
+                Node clonedNode = nodeMap.get(Long.parseLong(originalVariable));
+                result.append("{{" + clonedNode.getId() + "}}");
             } else {
                 // ChatEnvVariable일 경우, 그리고 그 외의 모든 경우에는 교체 없이 그대로 다시 넣어준다.
                 result.append(matcher.group(0));
