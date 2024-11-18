@@ -10,12 +10,4 @@ public abstract class NodeCopyFactory {
     public Node copyNode(Node node, ChatFlow clonedChatFlow, Knowledge knowledge) {
         return copyNode(node, clonedChatFlow);
     }
-
-    public Node copyNode(Node node, ChatFlow clonedChatFlow, String clonedOutputMessage) {
-        return copyNode(node, clonedChatFlow);
-    }
-
-    public Node copyNode(Node node, ChatFlow clonedChatFlow, String clonedPromptSystem, String clonedPromptUser) {
-        return copyNode(node, clonedChatFlow);
-    }
 }
