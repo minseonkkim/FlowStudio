@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllChatFlows } from "@/api/chatbot";
 import { useSetRecoilState } from "recoil";
 import { chatbotIdState } from "@/store/evaluationAtoms";
+import { categories } from "@/constants/chatbotCategories";
 
 interface SelectChatbotProps {
   onNext: () => void; 
@@ -48,17 +49,6 @@ export default function SelectChatbot({ onNext, selectedTab }: SelectChatbotProp
     onNext(); // 다음 단계로 이동
   };
 
-
-  const categories = [
-    "모든 챗봇",
-    "금융",
-    "헬스케어",
-    "전자 상거래",
-    "여행",
-    "교육",
-    "엔터테인먼트",
-    "기타",
-  ];
 
   return (
     <div>
