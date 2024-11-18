@@ -202,50 +202,52 @@ export default function Page() {
           `}
         </style>
 
-        <section className="min-h-screen relative bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
-        <div className="content-container" ref={ref1}>
-          <div className="mt-[50px] text-[26px] text-center font-semibold leading-relaxed">
+        <section className="min-h-[570px] md:min-h-[650px] xl:min-h-[900px] relative min-w-[400px] bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
+        <div className="content-container flex flex-col justify-between" ref={ref1}>
+          <div className="mt-[50px] text-[23px] md:text-[26px] text-center font-semibold leading-relaxed">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={flowChartAnimation}
+              className="object-cover"
             >
               누구나 손쉽게 만드는
             </motion.p>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={flowChartAnimation}
+              className="object-cover"
             >
               챗봇 제작 플랫폼
             </motion.p>
           </div>
 
-          <div className="text-[63px] text-center font-bold text-[#5D2973] mt-4">Flow Studio</div>
-          <div className="relative flex flex-col md:flex-row items-center h-full">
-            <motion.img
-              src={speechBubbleImg.src}
-              alt="speech bubble img"
-              className="w-[33%] mb-10 absolute top-[25px] left-[245px]"
-              initial={{ opacity: 0, y: 50 }}
-              animate={flowChartAnimation}
+          <div className="text-[56px] md:text-[63px] text-center font-bold text-[#5D2973] mt-4">Flow Studio</div>
+          <div className="flex items-center justify-center h-full">
+            <div className="relative w-[98%] md:w-[60%] h-full mr-5">
+              <motion.img
+                src={speechBubbleImg.src}
+                alt="speech bubble img"
+                className="w-[48%] absolute top-[87px] left-[0px]"
+                initial={{ opacity: 0, y: 50 }}
+                animate={flowChartAnimation}
+              />
+              <motion.img 
+                src={robotImg.src}
+                alt="robot img"
+                className="w-[90%] absolute top-[50px] left-[87px]"
+                initial={{ opacity: 0, y: 50 }}
+                animate={personalizedChatbotAnimation}
             />
-          </div>
-          <div className="relative flex flex-col md:flex-row items-center h-full">
-            <motion.img 
-              src={robotImg.src}
-              alt="robot img"
-              className="w-[53%] mb-10 absolute top-[30px] left-[410px]"
-              initial={{ opacity: 0, y: 50 }}
-              animate={personalizedChatbotAnimation}
-            />
+            </div>
           </div>
         </div>
       </section>
 
 
-      <section className="h-[700px] flex items-center justify-center bg-[#9A75BF] pt-[100px]">
+      <section className="h-[600px] md:h-[700px] flex items-center justify-center bg-[#9A75BF] md:pt-[100px]">
         <div className="content-container flex justify-center items-center" ref={ref2}>
-          <div className="flex flex-row gap-16 w-[82%] rounded-[30px]">
-            <div className="w-[70%] text-white">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-16 w-[82%] rounded-[30px]">
+            <div className="w-full md:w-[70%] text-white">
               <motion.img
                 src={screenWorkflowImg.src}
                 alt="workflow screen img"
@@ -254,16 +256,16 @@ export default function Page() {
                 animate={workflowAnimation}
               />
             </div>
-            <div className="flex flex-col items-start text-white w-[50%]">
+            <div className="flex flex-col items-start text-white w-full md:w-[50%] mt-[30px] md:mt-[120px]">
               <motion.div
-                className="font-semibold text-[34px] mt-[120px] mb-5"
+                className="font-semibold text-[28px] md:text-[34px] mb-5"
                 initial={{ opacity: 0, y: 50 }}
                 animate={workflowAnimation}
               >
                 챗봇 만들기
               </motion.div>
               <motion.div
-                className="text-[20px] text-[#CCBADF]"
+                className="text-[15px] md:text-[20px] text-[#CCBADF]"
                 initial={{ opacity: 0, y: 50 }}
                 animate={workflowAnimation}
               >
@@ -277,19 +279,19 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="h-[700px] flex items-center justify-center bg-[#9A75BF]">
+      <section className="h-[600px] md:h-[700px] flex items-center justify-center bg-[#9A75BF]">
         <div className="content-container flex justify-center items-center" ref={ref3}>
-          <div className="flex flex-row gap-16 w-[82%] rounded-[30px]">
-            <div className="w-[50%] text-white mt-[120px]">
+          <div className="flex flex-col-reverse md:flex-row gap-0 md:gap-16 w-[82%] rounded-[30px]">
+            <div className="w-full md:w-[50%] text-white mt-[30px] md:mt-[120px]">
               <motion.div
-                className="font-semibold text-[34px] mb-5 text-end"
+                className="font-semibold text-[28px] md:text-[34px] mb-5 text-end"
                 initial={{ opacity: 0, y: 50 }}
                 animate={templateAnimation}
               >
                 챗봇 공유
               </motion.div>
               <motion.div
-                className="text-[19px] text-end text-[#CCBADF]"
+                className="text-[15px] md:text-[20px] text-end text-[#CCBADF]"
                 initial={{ opacity: 0, y: 50 }}
                 animate={templateAnimation}
               >
@@ -298,7 +300,7 @@ export default function Page() {
               </motion.div>
              
             </div>
-            <div className="flex flex-col items-start text-white w-[70%]">
+            <div className="flex flex-col items-start text-white w-full md:w-[70%]">
               <motion.img
                 src={screenTemplateImg.src}
                 alt="template screen img"
@@ -311,10 +313,10 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="h-[700px] flex items-center justify-center bg-[#9A75BF] pb-[100px]">
+      <section className="h-[600px] md:h-[700px] flex items-center justify-center bg-[#9A75BF] md:pb-[100px]">
         <div className="content-container flex justify-center items-center" ref={ref4}>
-          <div className="flex flex-row gap-16 w-[82%] rounded-[30px]">
-            <div className="w-[70%] text-white">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-16 w-[82%] rounded-[30px]">
+            <div className="w-full md:w-[70%] text-white">
               <motion.img
                 src={screenEvaluationImg.src}
                 alt="evaluation screen img"
@@ -323,16 +325,16 @@ export default function Page() {
                 animate={evaluationAnimation}
               />
             </div>
-            <div className="flex flex-col items-start text-white w-[50%]">
+            <div className="flex flex-col items-start text-white w-full md:w-[50%] mt-[30px] md:mt-[120px]">
               <motion.div
-                className="font-semibold text-[34px] mt-[120px] mb-5"
+                className="font-semibold text-[28px] md:text-[34px] mb-5"
                 initial={{ opacity: 0, y: 50 }}
                 animate={evaluationAnimation}
               >
                 챗봇 평가
               </motion.div>
               <motion.div
-                className="text-[20px] mb-[120px] text-[#CCBADF]"
+                className="text-[15px] md:text-[20px] mb-[120px] text-[#CCBADF]"
                 initial={{ opacity: 0, y: 50 }}
                 animate={evaluationAnimation}
               >
@@ -346,16 +348,16 @@ export default function Page() {
 
       <section className="infinite-scrolling-section h-[500px] flex items-center justify-center bg-gray-100 overflow-hidden">
       <div className="content-container overflow-hidden">
-        <div className="text-center mb-14 text-[26px] font-semibold">금융, 교육, 헬스케어 등 <span className="text-[#9A75BF]">원하는 분야에 최적화된 AI 챗봇</span>을 몇 분 안에 구축해 보세요.</div>
+        <div className="text-center mb-14 text-[22px] md:text-[26px] font-semibold">금융, 교육, 헬스케어 등 <span className="text-[#9A75BF]">원하는 분야에 최적화된 AI 챗봇</span>을 몇 분 안에 구축해 보세요.</div>
         <div className="scrolling-cards-container w-full relative">
           <div className="banner_list flex">
             {[...features].map((feature, index) => (
               <div
                 key={`banner-${index}`}
-                className="banner bg-white p-8 shadow-lg rounded-full m-4 min-w-[200px] flex flex-col items-center justify-center"
+                className="banner bg-white p-2 md:p-8 shadow-lg rounded-full m-4 min-w-[200px] flex flex-col items-center justify-center"
               >
-                <img src={featureImages[index % features.length]?.src} className="w-[100px] h-[100px]"/>
-                <p className="text-center text-gray-600 text-[20px] mt-4 font-semibold">
+                <img src={featureImages[index % features.length]?.src} className="w-[75px] h-[75px] md:w-[100px] md:h-[100px]"/>
+                <p className="text-center text-gray-600 text-[18px] md:text-[20px] mt-4 font-semibold">
                   {feature}
                 </p>
               </div>
@@ -381,15 +383,15 @@ export default function Page() {
   
 
   
-      <section className="fourth-section h-[650px] flex items-center justify-center bg-white">
+      <section className="fourth-section h-[380px] md:h-[650px] flex items-center justify-center bg-white">
           <motion.div
             className="content-container text-center"
             ref={ref5}
             initial={{ opacity: 0, y: 50 }}
             animate={finalSectionAnimation}
           >
-            <h2 className="text-4xl font-bold text-gray-800 mb-8">나에게 딱 맞는 커스텀 챗봇이 필요하다면?</h2>
-            <button onClick={() => router.push('/login')} className="text-[19px] bg-[#9A75BF] hover:bg-[#583768] text-white font-bold py-4 px-9 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-200">
+            <h2 className="text-[24px] md:text-[33px] font-bold text-gray-800 mb-8">나에게 딱 맞는 커스텀 챗봇이 필요하다면?</h2>
+            <button onClick={() => router.push('/login')} className="text-[17px] md:text-[19px] bg-[#9A75BF] hover:bg-[#583768] text-white font-bold py-4 px-9 rounded-lg shadow-md transform hover:scale-105 transition-transform duration-200">
               Flow Studio 시작하기
             </button>
           </motion.div>
