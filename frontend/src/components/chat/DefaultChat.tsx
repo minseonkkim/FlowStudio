@@ -250,13 +250,15 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   return (
     <div className="flex h-screen flex-col md:flex-row">
       <div className="md:hidden p-4 bg-white border-b flex justify-between items-center">
-        <button onClick={()=>toggleSidebar()} className="text-gray-600">
+        {isLogin ? <button onClick={()=>toggleSidebar()} className="text-gray-600">
           <FiMenu size={24} />
-        </button>
+        </button> : <div></div>}
+        
         <div className="text-lg font-semibold">{title}</div>
+        {isLogin ?
         <button onClick={()=>onNewChat()} className="text-[#9A75BF] font-medium">
           새 채팅
-        </button>
+        </button>: <div></div>}
       </div>
 
       {isSidebarOpen && (
@@ -266,6 +268,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
         />
       )}
 
+      {isLogin && (
       <div
         className={`fixed top-0 left-0 h-full bg-white shadow-lg transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -276,7 +279,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             <FiX size={24} />
           </button>
         </div>
-        {isLogin && (
+        
           <SideBar
             onNewChat={onNewChat}
             chatFlowId={chatFlowId}
@@ -284,11 +287,11 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             onDeleteNewChat={onDeleteNewChat}
             selectedChatId={defaultChatId}
           />
-        )}
+        
 
-      </div>
+      </div>)}
 
-      <div className="flex flex-col flex-grow bg-gray-50">
+      <div className={`flex flex-col flex-grow ${!isLogin && "w-full"} bg-gray-50`}>
         <div className="hidden md:block border-b p-4 bg-white text-[18px]">{title}</div>
         <div className="flex-grow h-0 px-4 md:px-14 pt-6 space-y-4 md:space-y-8 overflow-y-auto">
           {messages.map((msg, index) => (
@@ -329,7 +332,7 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
           ))}
           <div ref={chatEndRef} />
         </div>
-        <div className="border-t p-4 md:p-6 flex items-center bg-white">
+        <div className="border-t p-6 flex items-center bg-white">
           <textarea
             ref={inputRef}
             placeholder="메시지를 입력하세요..."

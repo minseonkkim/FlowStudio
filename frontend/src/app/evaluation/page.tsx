@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EvaluationFirst from "@/components/evaluation/SelectChatbot";
 import EvaluationSecond from "@/components/evaluation/TestCaseInput";
 import EvaluationThird from "@/components/evaluation/TestResult";
-import { useRecoilValue } from "recoil";
+import { useSetRecoilState, useRecoilValue } from "recoil";
 import { isLoadingState } from "@/store/evaluationAtoms";
 import Loading from "@/components/common/Loading";
 
@@ -13,6 +13,11 @@ const tabNames = ["챗봇 선택", "테스트케이스 입력", "테스트 결�
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState<string>("챗봇 선택");
   const isLoading = useRecoilValue(isLoadingState);
+  const setisLoadingState = useSetRecoilState(isLoadingState);
+
+  useEffect(()=>{
+    setisLoadingState(false)
+  },[])
 
   const renderContent = () => {
     switch (selectedTab) {
@@ -80,7 +85,7 @@ export default function Page() {
       {isLoading && (
         <>
           {/* 오버레이 */}
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-20"></div>
+          <div className="fixed inset-0 bg-black bg-opacity-20 z-20"></div>
 
           {/* 로딩 모달 */}
           <div className="fixed inset-0 z-30 flex items-center justify-center">

@@ -235,13 +235,13 @@ const onChange3Step = () => {
         </div>
 
         {isPreviewOpen && (
-          <div className="w-[520px] h-full bg-white shadow-lg absolute top-0 right-0 p-4 overflow-hidden">
+          <div className="w-[520px] bg-white shadow-lg absolute top-0 right-0 p-4 overflow-hidden">
             <div className="p-4 flex justify-between items-center">
               <p className="font-bold">미리보기</p>
               <TiDeleteOutline className='w-6 h-6' onClick={() => setIsPreviewOpen(false)}/>
             </div>
 
-            <div className='overflow-y-auto max-h-[calc(100vh-150px)] pt-4'> 
+            <div className='overflow-y-auto max-h-[calc(100vh-150px)] pt-4 pl-5'> 
               {chunks.map((chunk) => (
                 <div key={chunk.chunkId} className="mb-4 p-4 w-[420px] min-h-[180px] h-auto rounded-lg bg-[rgba(217,217,217,0.2)] shadow-md">
                   <div className='border border-gray-400 w-[60px] h-[24px] rounded-lg text-center'>
