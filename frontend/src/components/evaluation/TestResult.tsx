@@ -3,7 +3,10 @@ import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { parsedTestDataState,  } from "@/store/evaluationAtoms";
 
-export default function TestResult() {
+interface TestResulttProps {
+  selectedTab: string
+}
+export default function TestResult({ selectedTab }: TestResulttProps) {
 
   
   const items = useRecoilValue(parsedTestDataState)
@@ -27,6 +30,10 @@ export default function TestResult() {
   const crossEncoder = calculateMeanAndVariance("crossEncoder");
 
   return (
+    <>
+    <div className="flex justify-between mb-10 h-[15px]">
+      <p className="text-[22px]">{selectedTab}</p>
+    </div>
     <div className="container">
       {items.map((item,index) => (
         <div key={index+1} className="border-2 rounded-xl mb-4">
@@ -118,5 +125,6 @@ export default function TestResult() {
         </tbody>
       </table>
     </div>
+    </>
   );
 }
