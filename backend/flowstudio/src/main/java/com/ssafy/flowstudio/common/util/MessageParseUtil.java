@@ -50,7 +50,7 @@ public class MessageParseUtil {
                 // 원본 프롬프트 내의 변수가 숫자값일때는 노드의 ID이므로 복제된 노드의 ID로 새로 매핑한다.
                 result.append("{{" + String.valueOf(nodeMap.get(Long.parseLong(originalVariable)).getId()) + "}}");
             } else {
-                // ChatEnvVariable일 경우, 그 외의 모든 경우에는 교체 없이 그대로 다시 넣어준다.
+                // ChatEnvVariable일 경우, 그리고 그 외의 모든 경우에는 교체 없이 그대로 다시 넣어준다.
                 result.append(matcher.group(0));
             }
             lastEnd = matcher.end(); // 현재 매칭 끝 지점을 업데이트한다.
