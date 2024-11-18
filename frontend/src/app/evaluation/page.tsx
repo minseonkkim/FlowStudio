@@ -89,7 +89,7 @@ export default function Page() {
 
           {/* 로딩 모달 */}
           <div className="fixed inset-0 z-30 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[350px] h-[250px] flex flex-col items-center justify-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] h-[256px] flex flex-col items-center justify-center">
               <Loading />
               <p className="text-[20px] font-bold mb-2 text-center">
                 테스트 케이스를 평가하는 중입니다

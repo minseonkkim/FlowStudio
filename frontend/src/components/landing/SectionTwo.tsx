@@ -24,10 +24,10 @@ export default function SectionTwo() {
   }, [inView, workflowAnimation]);
 
   return (
-    <section className="h-[600px] md:h-[730px] flex items-center justify-center bg-[#9A75BF] md:pt-[100px]">
+    <section className="h-[440px] md:h-[580px] flex items-center justify-center bg-[#9A75BF] md:pt-[100px]">
       <div className="content-container flex justify-center items-center" ref={ref}>
         <div className="flex flex-col md:flex-row gap-0 md:gap-16 w-[78%] rounded-[30px]">
-          <div className="w-full md:w-[60%] text-white">
+          <div className="w-full md:w-[63%] text-white">
             <motion.img
               src={screenWorkflowImg.src}
               alt="workflow screen img"
