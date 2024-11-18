@@ -53,7 +53,7 @@ export default function Page() {
         {currentStep === 2 && isLoading && (
           <>
             {/* 오버레이 */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-20"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-20 z-20"></div>
 
             {/* 로딩 모달 */}
             <div className="fixed inset-0 z-30 flex items-center justify-center">
@@ -70,7 +70,7 @@ export default function Page() {
         {currentStep === 3 && (
           <>
             {/* 오버레이 */}
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-20"></div>
+            <div className="fixed inset-0 bg-black bg-opacity-20 z-20"></div>
 
             {/* 완료 모달 */}
             <div className="fixed inset-0 z-30 flex items-center justify-center">
