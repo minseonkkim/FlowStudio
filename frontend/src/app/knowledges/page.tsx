@@ -138,9 +138,9 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {filteredData?.reverse().map((file) => (
+            {filteredData?.reverse().map((file, index) => (
               <tr key={file.knowledgeId} className="border-b cursor-pointer hover:bg-gray-100">
-                <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{file.knowledgeId}</td>
+                <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{index+1}</td>
                 <td
                   className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
                   onClick={() => goToKnowledgeDetail(String(file.knowledgeId), file.title)}

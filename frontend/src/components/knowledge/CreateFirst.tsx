@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRecoilState } from "recoil";
-import { currentStepState, fileNameState, fileState } from "@/store/knoweldgeAtoms";
+import { currentStepState, fileNameState, fileState, isLoadingState } from "@/store/knoweldgeAtoms";
 import PurpleButton from "../common/PurpleButton";
 import { IoCloudDownloadOutline } from "@react-icons/all-files/io5/IoCloudDownloadOutline";
 import { CgTrash } from "@react-icons/all-files/cg/CgTrash";
@@ -12,6 +12,11 @@ export default function CreateFirst() {
   const [file, setFile] = useRecoilState(fileState);
   const [fileName, setFileName] = useRecoilState(fileNameState);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [, setIsLoadingState] = useRecoilState(isLoadingState);
+
+  useEffect(()=>{
+    setIsLoadingState(false)
+  },[])
 
   const allowedFileTypes = [
     "application/pdf",
