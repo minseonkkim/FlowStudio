@@ -15,6 +15,7 @@ import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import com.ssafy.flowstudio.publish.response.PublishChatFlowResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnit;
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,7 +85,7 @@ public class PublishService {
     }
 
     @Transactional(transactionManager = "multiTransactionManager")
-    public String publishChatFlow(User user, Long chatFlowId) {
+    public PublishChatFlowResponse publishChatFlow(User user, Long chatFlowId) {
         User findUser = userRepository.findByIdWithApiKey(user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
 
@@ -95,13 +97,17 @@ public class PublishService {
             throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
         }
 
+        // 발행 url 업데이트
         String publishUrl = chatFlow.getPublishUrl();
-        if (publishUrl.isBlank()) {
+        if (publishUrl == null || publishUrl.isBlank()) {
             publishUrl = UUID.randomUUID().toString();
             chatFlow.updatePublishUrl(publishUrl);
-            chatFlowRepository.save(chatFlow);
-            chatFlowRepository.flush();
         }
+
+        // 발행 날짜 업데이트
+        chatFlow.updatePublishDate(LocalDateTime.now());
+        chatFlowRepository.save(chatFlow);
+        chatFlowRepository.flush();
 
         List<Node> nodes = nodeRepository.findByChatFlowId(chatFlow.getId());
         List<Edge> edges = edgeRepository.findByChatFlowId(chatFlow.getId());
@@ -172,8 +178,8 @@ public class PublishService {
 
         // ChatFlow
         em.createNativeQuery(
-                        "INSERT INTO chat_flow (chat_flow_id, owner_id, author_id, title, description, thumbnail, is_public, share_count, publish_url, created_at, updated_at) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                        "INSERT INTO chat_flow (chat_flow_id, owner_id, author_id, title, description, thumbnail, is_public, share_count, publish_url, published_at, created_at, updated_at) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
                                 "ON DUPLICATE KEY UPDATE title = VALUES(title), description = VALUES(description), thumbnail = VALUES(thumbnail), is_public = VALUES(is_public), share_count = VALUES(share_count), publish_url = VALUES(publish_url), updated_at = VALUES(updated_at)"
                 )
                 .setParameter(1, chatFlow.getId())
@@ -185,8 +191,9 @@ public class PublishService {
                 .setParameter(7, chatFlow.isPublic())
                 .setParameter(8, chatFlow.getShareCount())
                 .setParameter(9, chatFlow.getPublishUrl())
-                .setParameter(10, chatFlow.getCreatedAt())
-                .setParameter(11, chatFlow.getUpdatedAt())
+                .setParameter(10, chatFlow.getPublishedAt())
+                .setParameter(11, chatFlow.getCreatedAt())
+                .setParameter(12, chatFlow.getUpdatedAt())
                 .executeUpdate();
         log.info("uuid : {}", chatFlow.getPublishUrl());
 
@@ -330,6 +337,11 @@ public class PublishService {
         em.getTransaction().commit();
         em.close();
 
-        return publishUrl;
+
+        return PublishChatFlowResponse.builder()
+                .chatFlowId(chatFlow.getId())
+                .publishUrl(chatFlow.getPublishUrl())
+                .publishedAt(chatFlow.getPublishedAt())
+                .build();
     }
 }

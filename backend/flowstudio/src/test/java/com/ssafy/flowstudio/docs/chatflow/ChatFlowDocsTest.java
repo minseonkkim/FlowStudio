@@ -337,6 +337,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .title("title")
                 .nodes(List.of(node1, node2, node3, node4, node5))
                 .edges(List.of(edge1, edge2, edge3, edge4))
+                .publishUrl("uuid")
+                .publishedAt(LocalDateTime.now())
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
@@ -367,6 +369,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING)
                                                 .description("챗플로우 제목"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.STRING)
+                                                .description("챗플로우 주소"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.STRING)
+                                                .description("챗플로우 발행날짜"),
                                         fieldWithPath("data.nodes[].nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)
@@ -469,6 +475,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .title("title")
                 .nodes(List.of(node1))
                 .edges(null)
+                .publishUrl(null)
+                .publishedAt(null)
                 .build();
 
         given(chatFlowService.createChatFlow(any(User.class), any(ChatFlowServiceRequest.class)))
@@ -500,6 +508,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING)
                                                 .description("챗플로우 제목"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.NULL)
+                                                .description("챗플로우 주소"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.NULL)
+                                                .description("챗플로우 발행날짜"),
                                         fieldWithPath("data.nodes[].nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)
@@ -738,6 +750,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .title("title")
                 .nodes(List.of(node1, node2, node3, node4, node5))
                 .edges(List.of(edge1, edge2, edge3, edge4))
+                .publishUrl(null)
+                .publishedAt(null)
                 .build();
 
         given(chatFlowService.createExampleChatFlow(any(User.class)))
@@ -768,6 +782,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING)
                                                 .description("챗플로우 제목"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.NULL)
+                                                .description("챗플로우 주소"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.NULL)
+                                                .description("챗플로우 발행날짜"),
                                         fieldWithPath("data.nodes[].nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)
@@ -972,6 +990,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING)
                                                 .description("챗플로우 제목"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.NULL)
+                                                .description("챗플로우 주소"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.NULL)
+                                                .description("챗플로우 발행날짜"),
                                         fieldWithPath("data.nodes[].nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)
@@ -1175,6 +1197,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 아이디"),
                                         fieldWithPath("data.title").type(JsonFieldType.STRING)
                                                 .description("챗플로우 제목"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.NULL)
+                                                .description("챗플로우 주소"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.NULL)
+                                                .description("챗플로우 발행날짜"),
                                         fieldWithPath("data.nodes[].nodeId").type(JsonFieldType.NUMBER)
                                                 .description("노드 아이디"),
                                         fieldWithPath("data.nodes[].name").type(JsonFieldType.STRING)

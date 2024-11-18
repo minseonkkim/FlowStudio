@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -50,6 +51,9 @@ public class ChatFlow extends BaseEntity {
 
     @Column
     private String publishUrl;
+
+    @Column
+    private LocalDateTime publishedAt = null;
 
     @OneToMany(mappedBy = "chatFlow", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChatFlowCategory> categories = new ArrayList<>();
@@ -119,6 +123,10 @@ public class ChatFlow extends BaseEntity {
 
     public void updatePublishUrl(String publishUrl) {
         this.publishUrl = publishUrl;
+    }
+
+    public void updatePublishDate(LocalDateTime publishedAt) {
+        this.publishedAt = publishedAt;
     }
 
     public void addNode(Node node) {

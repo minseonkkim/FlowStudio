@@ -26,7 +26,7 @@ public class Start extends Node {
     public static Start create(ChatFlow chatFlow, Coordinate coordinate) {
         return Start.builder()
                 .chatFlow(chatFlow)
-                .name("Start")
+                .name("시작")
                 .type(NodeType.START)
                 .coordinate(coordinate)
                 .maxLength(500)

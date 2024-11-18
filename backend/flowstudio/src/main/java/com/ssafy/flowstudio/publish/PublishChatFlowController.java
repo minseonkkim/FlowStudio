@@ -4,6 +4,7 @@ import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import com.ssafy.flowstudio.publish.response.PublishChatFlowResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +24,11 @@ public class PublishChatFlowController {
     }
 
     @PostMapping(value = "/api/v1/chat-flows/{chatFlowId}/publish")
-    public ApiResponse<String> publishChatFlow(
+    public ApiResponse<PublishChatFlowResponse> publishChatFlow(
             @CurrentUser User user,
             @PathVariable Long chatFlowId
     ) {
-        String publishUrl = publishService.publishChatFlow(user, chatFlowId);
-        return ApiResponse.ok(publishUrl);
+        return ApiResponse.ok(publishService.publishChatFlow(user, chatFlowId));
     }
 
     @DeleteMapping(value = "/api/v1/chat-flows/{chatFlowId}/publish")

@@ -14,6 +14,7 @@ import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.publish.PublishChatFlowController;
 import com.ssafy.flowstudio.publish.PublishService;
+import com.ssafy.flowstudio.publish.response.PublishChatFlowResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -138,8 +139,14 @@ public class PublishChatFlowDocsTest extends RestDocsSupport {
     @DisplayName("챗플로우를 발행한다")
     @Test
     void publishChatFlow() throws Exception {
+        PublishChatFlowResponse publishChatFlowResponse = PublishChatFlowResponse.builder()
+                .chatFlowId(1L)
+                .publishUrl("UUID")
+                .publishedAt(LocalDateTime.now())
+                .build();
+
         given(publishService.publishChatFlow(any(User.class), any(Long.class)))
-                .willReturn("UUID");
+                .willReturn(publishChatFlowResponse);
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -164,8 +171,12 @@ public class PublishChatFlowDocsTest extends RestDocsSupport {
                                                 .description("상태"),
                                         fieldWithPath("message").type(JsonFieldType.STRING)
                                                 .description("메시지"),
-                                        fieldWithPath("data").type(JsonFieldType.STRING)
-                                                .description("data")
+                                        fieldWithPath("data.chatFlowId").type(JsonFieldType.NUMBER)
+                                                .description("챗플로우 ID"),
+                                        fieldWithPath("data.publishUrl").type(JsonFieldType.STRING)
+                                                .description("챗플로우 URL"),
+                                        fieldWithPath("data.publishedAt").type(JsonFieldType.STRING)
+                                                .description("챗플로우 발행 날짜")
                                 )
                                 .build())));
     }
