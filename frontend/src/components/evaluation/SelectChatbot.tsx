@@ -10,9 +10,10 @@ import { chatbotIdState } from "@/store/evaluationAtoms";
 
 interface SelectChatbotProps {
   onNext: () => void; 
+  selectedTab: string
 }
 
-export default function SelectChatbot({ onNext }: SelectChatbotProps) {
+export default function SelectChatbot({ onNext, selectedTab }: SelectChatbotProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const setChatbotId = useSetRecoilState(chatbotIdState);
@@ -61,6 +62,9 @@ export default function SelectChatbot({ onNext }: SelectChatbotProps) {
 
   return (
     <div>
+      <div className="flex justify-between mb-8 h-[15px]">
+        <p className="text-[22px]">{selectedTab}</p>
+      </div>
       <div className="flex justify-between items-center mb-6">
         <div>
           {categories.map((label) => (

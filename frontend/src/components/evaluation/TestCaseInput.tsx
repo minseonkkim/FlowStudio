@@ -7,7 +7,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { chatbotIdState, parsedTestDataState } from "@/store/evaluationAtoms";
 import { postChatFlowTest } from "@/api/evaluation";
 import { useMutation } from "@tanstack/react-query";
-import Loading from "@/components/common/Loading"; // Loading 컴포넌트 임포트
+import SpinnerImg from "@/assets/common/loadingSpinner.gif";
 
 interface TestCase {
   testQuestion: string;
@@ -17,11 +17,13 @@ interface TestCase {
 interface TestCaseInputProps {
   onNext: () => void;
   onPrevious: () => void;
+  selectedTab: string
 }
 
 export default function TestCaseInput({
   onNext,
   onPrevious,
+  selectedTab
 }: TestCaseInputProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -112,64 +114,75 @@ export default function TestCaseInput({
   };
 
   return (
-    <div className="relative">
-      {isLoading && (
-        
-          <Loading />
-     
+    <>
+      {isLoading ? (
+        <div className="relative">
+          <div className="w-full h-[530px] flex justify-center items-center">
+            <img src={SpinnerImg.src} className="w-[160px] h-[160px] object-cover" />
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="flex justify-between mb-10 h-[15px] ">
+            <p className="text-[22px]">{selectedTab}</p>
+          </div>
+          <div className="relative">
+            <>
+              {items.map((item, index) => (
+                <div key={index} className="border-2 rounded-xl mb-4">
+                  <details open className="py-4 px-6">
+                    <summary className="font-semibold">테스트 케이스 {index + 1}</summary>
+                    <div className="mt-4">
+                      <label className="block mb-2">테스트 질문 (Test Question)</label>
+                      <input
+                        type="text"
+                        value={item.testQuestion}
+                        onChange={(e) =>
+                          updateItem(index, "testQuestion", e.target.value)
+                        }
+                        className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                        placeholder="Enter test question"
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <label className="block mb-2">정답 (Ground Truth)</label>
+                      <textarea
+                        value={item.groundTruth}
+                        onChange={(e) =>
+                          updateItem(index, "groundTruth", e.target.value)
+                        }
+                        className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                        placeholder="Enter ground truth"
+                      />
+                    </div>
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={() => deleteItem(index)}
+                        className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </details>
+                </div>
+              ))}
+  
+              <div className="flex justify-between items-center mt-4">
+                <button
+                  onClick={addItem}
+                  className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
+                >
+                  추가
+                </button>
+                <div className="flex gap-4">
+                  <WhiteButton text="이전" onHandelButton={() => onPrevious()} />
+                  <PurpleButton text="테스트 시작" onHandelButton={handleSubmit} />
+                </div>
+              </div>
+            </>
+          </div>
+        </>
       )}
-
-      {items.map((item, index) => (
-        <div key={index} className="border-2 rounded-xl mb-4">
-          <details open className="py-4 px-6">
-            <summary className="font-semibold">테스트 케이스 {index + 1}</summary>
-            <div className="mt-4">
-              <label className="block mb-2">테스트 질문 (Test Question)</label>
-              <input
-                type="text"
-                value={item.testQuestion}
-                onChange={(e) =>
-                  updateItem(index, "testQuestion", e.target.value)
-                }
-                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
-                placeholder="Enter test question"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">정답 (Ground Truth)</label>
-              <textarea
-                value={item.groundTruth}
-                onChange={(e) =>
-                  updateItem(index, "groundTruth", e.target.value)
-                }
-                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
-                placeholder="Enter ground truth"
-              />
-            </div>
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => deleteItem(index)}
-                className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
-              >
-                삭제
-              </button>
-            </div>
-          </details>
-        </div>
-      ))}
-
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={addItem}
-          className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
-        >
-          추가
-        </button>
-        <div className="flex gap-4">
-          <WhiteButton text="이전" onHandelButton={() => onPrevious()} />
-          <PurpleButton text="테스트 시작" onHandelButton={handleSubmit} />
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
