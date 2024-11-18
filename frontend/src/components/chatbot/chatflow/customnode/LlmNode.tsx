@@ -17,7 +17,7 @@ export default function LlmNode ({
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row items-center gap-1">
             <FaRobot className="text-[#3B82F6] size-3"/>
-            <div className="text-[11px] font-semibold">LLM</div>
+            <div className="text-[11px] font-semibold">{data.name}</div>
           </div>
           {selected && (
               <MdDelete
