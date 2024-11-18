@@ -230,8 +230,8 @@ export default function RetrieverNodeDetail({
               contentEditable={isNodeNameEdit}
               suppressContentEditableWarning
               className={isNodeNameEdit
-                ? "text-[25px] font-semibold bg-white"
-                : "text-[25px] font-semibold"
+                ? "text-[25px] w-[180px] font-semibold bg-white"
+                : "text-[25px] w-[180px] font-semibold"
               }
             >
               {node.data.name}
@@ -255,7 +255,7 @@ export default function RetrieverNodeDetail({
             </div>
           </div>
 
-          <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">
+          <div className="h-auto rounded-[5px] p-2 bg-white flex items-center">
             {selectedKnowledge.title}
           </div>
         </div>
@@ -320,8 +320,8 @@ export default function RetrieverNodeDetail({
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">다음 노드를 추가하세요.</div>
           <div className="flex flex-row justify-between w-full">
-            <div className="aspect-square bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-              <IoPlay className="text-[#95C447] size-8" />
+            <div className="aspect-square bg-[#FFD3B5] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+              <FiBookOpen className="text-[#F97316] size-8" />
             </div>
             <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
@@ -359,9 +359,9 @@ export default function RetrieverNodeDetail({
       {/* 지식 선택 모달 */}
       {modalOpen && (
         <div className="modal-overlay fixed inset-0 bg-black bg-opacity-25 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-[300px] p-5">
+          <div className="bg-white rounded-lg shadow-lg w-[420px] h-[600px] p-3">
             <div className="text-lg font-semibold mb-4">지식 선택</div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 overflow-y-auto h-[calc(100%-100px)] p-2">
               {knowledges.map((knowledge) => (
                 <div
                   key={knowledge.knowledgeId}
@@ -382,6 +382,7 @@ export default function RetrieverNodeDetail({
           </div>
         </div>
       )}
+
 
     </>
 

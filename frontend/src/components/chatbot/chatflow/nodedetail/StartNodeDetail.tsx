@@ -159,8 +159,8 @@ export default function StartNodeDetail({
             contentEditable={isNodeNameEdit}
             suppressContentEditableWarning
             className={isNodeNameEdit
-              ? "text-[25px] font-semibold bg-white"
-              : "text-[25px] font-semibold"
+              ? "text-[25px] w-[180px] font-semibold bg-white"
+              : "text-[25px] w-[180px] font-semibold"
             }
           >
             {node.data.name}

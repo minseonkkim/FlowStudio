@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { CgArrowsExchangeAltV } from "@react-icons/all-files/cg/CgArrowsExchangeAltV";
@@ -15,6 +15,7 @@ import { selectedChatbotState } from "@/store/chatbotAtoms";
 import { ChatFlow } from "@/types/chatbot";
 import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
 import Loading from "@/components/common/Loading";
+import { chatbotThumbnailState } from "@/store/chatbotAtoms";
 
 export default function Page() {
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
@@ -31,6 +32,8 @@ export default function Page() {
 
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const setChatbotThumbnail = useSetRecoilState(chatbotThumbnailState);
 
   const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
     queryKey: ["chatFlows", isViewingShared],
@@ -220,7 +223,9 @@ export default function Page() {
             type={isViewingShared ? "shared" : "my"}
             category={bot.categories.map((cat) => cat.name)}
             onCardClick={() => {
+              setChatbotThumbnail(bot.thumbnail);
               router.push(`/chatbot/${bot.chatFlowId}/chatflow`);
+
             }}
             onButtonUpdateClick={() => handleUpdateClick(bot)}
             onButtonDeleteClick={() => handleDeleteClick(bot.chatFlowId, bot.title)}

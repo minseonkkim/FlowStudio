@@ -347,8 +347,8 @@ export default function LlmNodeDetail({
               contentEditable={isNodeNameEdit}
               suppressContentEditableWarning
               className={isNodeNameEdit
-                ? "text-[25px] font-semibold bg-white"
-                : "text-[25px] font-semibold"
+                ? "text-[25px] w-[180px] font-semibold bg-white"
+                : "text-[25px] w-[180px] font-semibold"
               }
             >
               {node.data.name}
@@ -394,7 +394,7 @@ export default function LlmNodeDetail({
             <input
               type="number"
               value={maxTokens}
-              max={512}
+              max={16384}
               min={1}
               step={1}
               onChange={(e) => handleMaxTokensChange(Number(e.target.value))}
@@ -404,7 +404,7 @@ export default function LlmNodeDetail({
             <input
               id="top-k-range"
               type="range"
-              max={512}
+              max={16384}
               min={1}
               step={1}
               value={maxTokens}
@@ -444,11 +444,11 @@ export default function LlmNodeDetail({
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">프롬프트를 입력하세요.</div>
-          <div className="flex flex-col gap-2 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
             <div className="flex flex-row justify-between items-center">
               <div
-                className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
-              >system
+                className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
+              ><span>system</span>
                 <NodeVariableInsertMenu
                   parentNodes={parentNodes}
                   editorRef={promptSystemTextareaRef}
@@ -474,11 +474,11 @@ export default function LlmNodeDetail({
             </div>
           </div>
 
-          <div className="flex flex-col gap-2 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
             <div className="flex flex-row justify-between items-center">
               <div
-                className="mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
-              >user
+                className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
+              ><span>user</span>
                 <NodeVariableInsertMenu
                   parentNodes={parentNodes}
                   editorRef={promptUserTextareaRef}
@@ -512,8 +512,8 @@ export default function LlmNodeDetail({
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">다음 노드를 추가하세요.</div>
           <div className="flex flex-row justify-between w-full">
-            <div className="aspect-square bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-              <IoPlay className="text-[#95C447] size-8" />
+            <div className="aspect-square bg-[#A4C6FD] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+              <FaRobot className="text-[#3B82F6] size-8" />
             </div>
             <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
@@ -521,7 +521,7 @@ export default function LlmNodeDetail({
               {connectedNodes.map((node, index) => (
                 <div
                   key={index}
-                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#3B82F6]`}
                 >
                   {nodeConfig[node.type]?.icon}
                   <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>

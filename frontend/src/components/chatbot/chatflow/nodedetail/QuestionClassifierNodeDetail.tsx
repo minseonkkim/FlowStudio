@@ -239,8 +239,8 @@ export default function QuestionClassifierNodeDetail({
               contentEditable={isNodeNameEdit}
               suppressContentEditableWarning
               className={isNodeNameEdit
-                ? "text-[25px] font-semibold bg-white"
-                : "text-[25px] font-semibold"
+                ? "text-[25px] w-[180px] font-semibold bg-white"
+                : "text-[25px] w-[180px] font-semibold"
               }
             >
               {node.data.name}
@@ -307,11 +307,11 @@ export default function QuestionClassifierNodeDetail({
           </div>
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-          <div className="flex flex-col gap-2 z-[10] w-[210px]">
+          <div className="flex flex-col gap-2 z-[10] w-[218px]">
             {localClasses.map((cls, index) => (
               <div key={index} className="flex flex-col gap-2 mb-4">
                 <div className="flex flex-row items-start">
-                  <div className="text-[14px] w-[65px]">클래스 {index + 1}</div>
+                  <div className="text-[14px] w-[74px]">클래스 {index + 1}</div>
                   <div className="flex flex-col w-[185px] mt-[6px]">
                     {connectedNodes?.map((node, edgeIndex) =>
                       node.sourceConditionId == cls.id ? (
