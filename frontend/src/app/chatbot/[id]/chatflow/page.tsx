@@ -38,6 +38,7 @@ import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPubl
 import { ConnectedNode, PublishChatFlowData } from "@/types/workflow";
 import { RiPlayMiniLine } from "@react-icons/all-files/ri/RiPlayMiniLine";
 import Loading from "@/components/common/Loading";
+import { useSearchParams } from 'next/navigation';
 
 interface ChatflowPageProps {
   params: {
@@ -62,9 +63,13 @@ export default function Page({ params }: ChatflowPageProps) {
   const [publishedChatFlowData, setPublishedChatFlowData] = useState<PublishChatFlowData>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const searchParams = useSearchParams();
+  const isEditable = searchParams.get('isEditable') == 'false' ? false : true;
 
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
+    console.log("수정 가능하니? ", isEditable);
+    
     setLoading(true);
     try {
       setLoading(true);
@@ -86,6 +91,7 @@ export default function Page({ params }: ChatflowPageProps) {
           return createNodeData(
             nodeDetail,
             params.id, // chatFlowId 전달
+            isEditable,
             setNodes,
             setEdges,
             setSelectedNode
@@ -314,6 +320,7 @@ export default function Page({ params }: ChatflowPageProps) {
    */
   const renderNodeDetail = useMemo(() => {
     if (selectedNode == null) return null;
+    if (isEditable == false) return null;
 
     if (selectedNode.data.type == "START") {
       return (
@@ -462,12 +469,13 @@ export default function Page({ params }: ChatflowPageProps) {
           <RiPlayMiniLine className="w-6 h-6"/>
           미리보기
         </button>
-        <button
+        {isEditable && <button
           className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
           onClick={handleChatFlowPublishModal}
         >
           챗봇 생성 <MdKeyboardArrowDown className="size-4" />
         </button>
+        }
       </div>
       <ReactFlowProvider>
       <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
@@ -481,14 +489,14 @@ export default function Page({ params }: ChatflowPageProps) {
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onNodesChange={isEditable ? onNodesChange : undefined}
+            onEdgesChange={isEditable ? onEdgesChange : undefined}
             // onNodeClick={onNodeClick}
-            onEdgeDoubleClick={onEdgeDoubleClick}
-            onConnect={onConnect}
+            onEdgeDoubleClick={isEditable ? onEdgeDoubleClick : undefined}
+            onConnect={isEditable ? onConnect : undefined}
             onPaneContextMenu={handlePaneContextMenu}
             onPaneClick={() => setMenuPosition(null)}
-            onNodeDragStop={handleNodeDragStop}
+            onNodeDragStop={isEditable ? handleNodeDragStop : undefined}
             zoomOnScroll={true}
             zoomOnPinch={true}
             panOnScroll={true}
@@ -517,6 +525,7 @@ export default function Page({ params }: ChatflowPageProps) {
                 }}
                 onClick={closeMenu} // 메뉴 클릭 시 닫기
               >
+                {isEditable && 
                 <NodeAddMenu
                   node={{
                     position: { x: menuPosition.x, y: menuPosition.y },
@@ -529,7 +538,7 @@ export default function Page({ params }: ChatflowPageProps) {
                   setSelectedNode={setSelectedNode}
                   isDetail={false} // 세부 메뉴인지 여부
                   questionClass={0}
-                />
+                />}
               </div>
             )}
           </ReactFlow>
