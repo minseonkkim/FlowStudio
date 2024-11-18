@@ -105,44 +105,6 @@ export default function Page({ params }: ChatflowPageProps) {
         data: { ...edge },
       }));
 
-      // reactFlowNodes.map(async (newNode) => {
-      //   if (newNode.type === "ANSWER") {
-      //     // 부모 노드 찾기
-      //     const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
-
-      //     // 부모 노드에서 renderText에 사용할 값 생성
-      //     const renderText = restoreMonospaceBlocks(parentNodes, newNode.data.outputMessage);
-
-      //     // 새로운 노드 데이터 업데이트
-      //     return {
-      //       ...newNode,
-      //       data: {
-      //         ...newNode.data,
-      //         renderOutputMessage: renderText
-      //       },
-      //     };
-      //   }
-      //   if (newNode.type === "LLM") {
-      //     // 부모 노드 찾기
-      //     const parentNodes = findAllParentNodes(newNode.id, reactFlowNodes, reactFlowEdges);
-
-      //     // 부모 노드에서 renderText에 사용할 값 생성
-      //     const renderPromptSystem = restoreMonospaceBlocks(parentNodes, newNode.data.promptSystem);
-      //     const renderPromptUser = restoreMonospaceBlocks(parentNodes, newNode.data.promptUser);
-
-      //     // 새로운 노드 데이터 업데이트
-      //     return {
-      //       ...newNode,
-      //       data: {
-      //         ...newNode.data,
-      //         renderPromptSystem: renderPromptSystem,
-      //         renderPromptUser: renderPromptUser,
-      //       },
-      //     };
-      //   }
-
-      //   return newNode;
-      // })
       const updatedNodes = await Promise.all(
         reactFlowNodes.map(async (newNode) => {
           if (newNode.type === "ANSWER") {
@@ -202,11 +164,6 @@ export default function Page({ params }: ChatflowPageProps) {
 
   }, [params.id, setNodes, setEdges, setSelectedNode]);
 
-  useEffect(() => {
-    console.log("EDGES", edges);
-
-  }, [edges]);
-
   /**
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
@@ -214,8 +171,6 @@ export default function Page({ params }: ChatflowPageProps) {
   const onNodesChange: OnNodesChange = useCallback(
     (changes) =>
       setNodes((nds) => {
-        console.log(nds);
-
         nds = nds.map((node) => ({
           ...node,
           data: {
@@ -250,7 +205,6 @@ export default function Page({ params }: ChatflowPageProps) {
    * 간선 연결
    */
   const onConnect = useCallback((connection: Connection) => {
-    console.log("간선 연결할때 정보", connection);
     const edgeData: EdgeData = {
       edgeId: 0,
       sourceNodeId: +connection.source,
@@ -259,7 +213,6 @@ export default function Page({ params }: ChatflowPageProps) {
     };
     postEdge(params.id, edgeData)
       .then((data) => {
-        console.log(data);
         const newReactEdge: Edge = {
           id: data.edgeId.toString(),
           source: data.sourceNodeId.toString(),
@@ -268,11 +221,8 @@ export default function Page({ params }: ChatflowPageProps) {
           data: { ...data }
         }
         setEdges((els) => {
-          console.log(els);
-
           return addEdge(newReactEdge, els);
         })
-        console.log(edges);
       });
   }, []);
 
@@ -353,8 +303,6 @@ export default function Page({ params }: ChatflowPageProps) {
    */
   const renderNodeDetail = useMemo(() => {
     if (selectedNode == null) return null;
-
-    console.log(selectedNode);
 
     if (selectedNode.data.type == "START") {
       return (
