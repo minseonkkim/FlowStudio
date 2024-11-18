@@ -21,11 +21,4 @@ public class AnswerCopyFactory extends NodeCopyFactory {
                 .outputMessage(originalAnswer.getOutputMessage())
                 .build();
     }
-
-    @Override
-    public Answer copyNode(Node node, ChatFlow clonedChatFlow, String clonedOutputMessage) {
-        Answer clonedAnswer = (Answer) copyNode(node, clonedChatFlow);
-        clonedAnswer.updateOutputMessage(clonedOutputMessage);
-        return clonedAnswer;
-    }
 }

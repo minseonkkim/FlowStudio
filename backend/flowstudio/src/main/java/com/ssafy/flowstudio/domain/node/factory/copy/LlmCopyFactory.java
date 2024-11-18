@@ -24,13 +24,8 @@ public class LlmCopyFactory extends NodeCopyFactory {
                 .maxTokens(originalLlm.getMaxTokens())
                 .modelProvider(originalLlm.getModelProvider())
                 .modelName(originalLlm.getModelName())
+                .promptSystem(originalLlm.getPromptSystem())
+                .promptUser(originalLlm.getPromptUser())
                 .build();
-    }
-
-    @Override
-    public Node copyNode(Node node, ChatFlow clonedChatFlow, String clonedPromptSystem, String clonedPromptUser) {
-        LLM clonedLlm = (LLM) copyNode(node, clonedChatFlow);
-        clonedLlm.updatePrompt(clonedPromptSystem, clonedPromptUser);
-        return clonedLlm;
     }
 }

@@ -860,6 +860,101 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .isEqualTo("{{" + clonedStart.getId() + "}}");
     }
 
+
+    @DisplayName("OutputMessage, 프롬프트를 등 텍스트 파싱이 필요한 노드들을 여러개 보유한 챗플로우를 복제한다.")
+    @Test
+    void uploadChatFlowsWithMultipleParsingEvents() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        Node startNode = Start.create(chatFlow, coordinate);
+        nodeRepository.save(startNode);
+
+        LLM llmNode = LLM.builder()
+                .promptSystem("{{" + startNode.getId() + "}}")
+                .promptUser("{{INPUT_MESSAGE}}")
+                .temperature(3.0)
+                .maxTokens(100)
+                .modelProvider(ModelProvider.OPENAI)
+                .modelName(ModelName.GPT_4_O)
+                .chatFlow(chatFlow)
+                .name("llm")
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .build();
+        nodeRepository.save(llmNode);
+
+        Answer answerNode = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("{{" + llmNode.getId() + "}}")
+                .build();
+        nodeRepository.save(answerNode);
+
+        em.clear();
+
+        // when
+        ChatFlowResponse chatFlowResponse = chatFlowService.uploadChatFlow(user, chatFlow.getId());
+
+        // then
+
+        // 복제된 Start 노드를 불러온다.
+        NodeResponse clonedStartResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.START.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        Start clonedStart = (Start) nodeRepository.findById(clonedStartResponse.getNodeId()).orElse(null);
+        em.refresh(clonedStart);
+
+        // 복제된 LLM 노드를 불러온다.
+        NodeResponse clonedLLMResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.LLM.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        LLM clonedLLM = (LLM) nodeRepository.findById(clonedLLMResponse.getNodeId()).orElse(null);
+        em.refresh(clonedLLM);
+
+        // 복제된 Answer 노드를 불러온다.
+        NodeResponse clonedAnswerResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.ANSWER.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        Answer clonedAnswer = (Answer) nodeRepository.findById(clonedAnswerResponse.getNodeId()).orElse(null);
+        em.refresh(clonedAnswer);
+
+        // 복제된 LLM 노드는 원본 LLM 노드와 다른 프롬프트를 가진다.
+        assertThat(clonedLLM.getPromptSystem())
+                .isNotEqualTo(llmNode.getPromptSystem())
+                .isEqualTo("{{" + clonedStart.getId() + "}}");
+        assertThat(clonedLLM.getPromptUser())
+                .isEqualTo("{{INPUT_MESSAGE}}");
+
+        // 복제된 Output 노드는 원본 Output 노드와 다른 Output Message를 가진다.
+        assertThat(clonedAnswer.getOutputMessage())
+                .isNotEqualTo(answerNode.getOutputMessage())
+                .isEqualTo("{{" + clonedLLM.getId() + "}}");
+    }
+
     @DisplayName("이미 게시된 상태의 챗플로우를 업로드하면 예외가 발생한다.")
     @Test
     void throwExeptionWhenUploadPublicChatFlow() {
