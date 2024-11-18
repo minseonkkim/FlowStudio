@@ -8,12 +8,31 @@ import { postMessage, postChatting } from "@/api/chat";
 import { Message } from "@/types/chat";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { CgClose } from "@react-icons/all-files/cg/CgClose";
+import { useRecoilValue } from "recoil";
+import { profileImageAtom } from "@/store/profileAtoms";
+import { chatbotThumbnailState } from "@/store/chatbotAtoms";import one from '../../../public/chatbot-icon/1.jpg';
+import two from '../../../public/chatbot-icon/2.jpg';
+import three from '../../../public/chatbot-icon/3.jpg';
+import four from '../../../public/chatbot-icon/4.jpg';
+import five from '../../../public/chatbot-icon/5.jpg';
+import six from '../../../public/chatbot-icon/6.jpg';
 
 type PreviewChatProps = {
   chatFlowId: string;
+  onClose: () => void;
 };
 
-export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
+const thumbnailImages: { [key: number]: string } = {
+    1: one.src,
+    2: two.src,
+    3: three.src,
+    4: four.src,
+    5: five.src,
+    6: six.src,
+  };
+
+export default function PreviewChat({ chatFlowId, onClose }: PreviewChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [previewChatId, setPreviewChatId] = useState<number>();
@@ -21,6 +40,9 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const sseRef = useRef<EventSourcePolyfill | null>(null); // SSE 인스턴스 추적
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  const profileImage = useRecoilValue(profileImageAtom);
+  const thumbnail = useRecoilValue(chatbotThumbnailState);
+
 
   // SSE 연결 초기화 함수
   const initializeSSE = (token: string) => {
@@ -120,12 +142,16 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
   };
 
   return (
-    <div className="ml-[20px] flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
-      <div className="border-b p-4 bg-white text-[14px]">미리보기</div>
-      <div className="flex-grow h-0 p-6 space-y-4 overflow-y-auto scrollbar-hide">
+    <div className="ml-[20px] flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[10px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
+      <div className="flex flex-row justify-between items-center mb-2 p-4">
+        <div className="border-b text-[18px] font-semibold">미리보기</div>
+        <CgClose className="size-6 cursor-pointer" onClick={onClose} />
+
+      </div>
+      <div className="flex-grow h-0 p-5 space-y-4 overflow-y-auto scrollbar-hide">
         {messages.map((msg, index) => (
           <div key={index} className={`flex items-start text-[12px] ${msg.sender === "user" ? "justify-end" : "justify-start"} space-x-4`}>
-            {msg.sender === "server" && <div className="rounded-full w-5 h-5 bg-gray-500"></div>}
+            {msg.sender === "server" && (thumbnail ? <img src={thumbnailImages[thumbnail]} className="w-6 h-6 rounded-full" /> : <div className="rounded-full w-6 h-6 bg-gray-500"></div>)}
             <div
               className={`rounded-lg px-4 py-2 whitespace-pre-wrap text-gray-800 shadow-sm ${
                 msg.sender === "server" ? "bg-[#f9f9f9] border border-gray-300 max-w-[80%]" : "bg-[#f3f3f3] max-w-[60%]"
@@ -137,12 +163,16 @@ export default function PreviewChat({ chatFlowId }: PreviewChatProps) {
                 msg.text
               )}
             </div>
-            {msg.sender === "user" && <div className="rounded-full w-5 h-5 bg-gray-300"></div>}
+            {msg.sender === "user" &&
+                (profileImage ?
+            <img src={profileImage} className="w-6 h-6 rounded-full" />:
+            <div className="rounded-full w-6 h-6 bg-gray-300"></div>)
+            }
           </div>
         ))}
         <div ref={chatEndRef} />
       </div>
-      <div className="border-t p-6 flex items-center bg-white">
+      <div className="border-t p-5 flex items-center">
         <textarea
           ref={inputRef}
           placeholder="메시지를 입력하세요..."
