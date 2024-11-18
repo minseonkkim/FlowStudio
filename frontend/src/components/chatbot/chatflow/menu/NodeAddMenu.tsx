@@ -37,9 +37,9 @@ export default function NodeAddMenu({
     }, [])
 
     const handleNodeTypeClick = useCallback((type: string) => {
+        setIsOpen((prev) => !prev);
         addNode(type, node, nodes, isDetail)
             .then((data) => {
-                console.log("전달받은 데이터야 ", data);
                 getNodeDetail(data.nodeId)
                     .then((nodeDetail) => {
                         const newNode = createNodeData(
@@ -49,7 +49,6 @@ export default function NodeAddMenu({
                             setEdges,
                             setSelectedNode
                         );
-                        console.log("지금 노드를 만들었어 ", newNode);
 
                         const reactFlowNodes = {
                             id: newNode.nodeId.toString(),
@@ -80,8 +79,6 @@ export default function NodeAddMenu({
                                         data: { ...data }
                                     }
                                     setEdges((els) => {
-                                        console.log(els);
-
                                         return addEdge(newReactEdge, els);
                                     })
                                 })

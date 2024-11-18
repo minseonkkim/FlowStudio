@@ -8,6 +8,8 @@ import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
 import { EdgeData, NodeData } from "@/types/chatbot";
+import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
+import { IoCheckmark } from "@react-icons/all-files/io5/IoCheckmark";
 
 export default function StartNodeDetail({
   chatFlowId,
@@ -35,20 +37,17 @@ export default function StartNodeDetail({
   const maxLengthRef = useRef(node.data.maxLength);
   const maxLengthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    console.log("여긴 시작 노드 상세화면 ", node);
-
-  }, []);
-
+  /**
+   * 연결된 노드 관리
+   */
   useEffect(() => {
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes]);
 
-  const debouncedUpdateNode = (updatedData: NodeData) => {
-    console.log("CALL NODE UPDATE:", updatedData);
-    putNode(node.data.nodeId, updatedData);
-  };
-
+  /**
+   * 최대 길이 수정
+   * @param value 
+   */
   const handleMaxCharsChange = (value: number) => {
     setMaxLength(value);
     maxLengthRef.current = value;
@@ -56,6 +55,16 @@ export default function StartNodeDetail({
     if (maxLengthTimerRef.current) {
       clearTimeout(maxLengthTimerRef.current); // Reset the timer on each input
     }
+
+    setNodes((prevNodes) =>
+      prevNodes.map((n) => (n.id === node.id ? {
+        ...n,
+        data: {
+          ...n.data,
+          maxLength: value,
+        }
+      } : n))
+    );
 
     maxLengthTimerRef.current = setTimeout(() => {
       // Update the node data only after user stops typing
@@ -67,14 +76,15 @@ export default function StartNodeDetail({
         },
       };
 
-      setNodes((prevNodes) =>
-        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
-      );
-
-      debouncedUpdateNode(updatedNode.data);
+      putNode(node.data.nodeId, updatedNode.data);
     }, 500); // Wait for 500ms of inactivity
   };
 
+  /**
+   * 연결된 노드 엣지 삭제
+   * @param targetNode 
+   * @returns 
+   */
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString());
     if (!findDeleteEdge) return;
@@ -83,12 +93,86 @@ export default function StartNodeDetail({
     setConnectedNodes((prev) => prev.filter((n) => n.nodeId !== targetNode.nodeId)); // 연결된 노드 상태 업데이트
   }
 
+  
+  const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
+  const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
+  /**
+   * 노드 이름 수정
+   */
+  const handleEditToggle = () => {
+    setIsNodeNameEdit((prev) => {
+      if (!prev) {
+        // 상태가 false -> true로 변경될 때
+        setTimeout(() => {
+          if (nodeNameRef.current) {
+            nodeNameRef.current.focus(); // 포커스 설정
+
+            const selection = window.getSelection();
+            const range = document.createRange();
+
+            if (selection) {
+              range.selectNodeContents(nodeNameRef.current); // 텍스트 전체 선택
+              range.collapse(false); // 텍스트 끝에 커서 배치
+              selection.removeAllRanges();
+              selection.addRange(range);
+            }
+          }
+        }, 0); // DOM 업데이트 후 실행
+      } else {
+        // 상태가 true -> false로 변경될 때
+        if (nodeNameRef.current) {
+          const updatedName = nodeNameRef.current.innerText.trim();
+          const updatedNodeData : Node = {
+            ...node,
+            data: {
+              ...node.data,
+              name: updatedName,
+            },
+          };
+          console.log(updatedNodeData);
+
+          setTimeout(() => {
+            setNodes((prevNodes) =>
+              prevNodes.map((n) =>
+                n.id === node.id
+                  ? updatedNodeData
+                  : n
+              )
+            );
+          }, 0);
+          putNode(node.data.nodeId, updatedNodeData.data); // API 호출
+        }
+      }
+
+      return !prev; // 상태 토글
+    });
+  };
+
+
   return (
     <div className="flex flex-col gap-4 w-[320px] h-[calc(100vh-170px)] rounded-[20px] p-[20px] bg-white bg-opacity-40 backdrop-blur-[15px] shadow-[0px_2px_8px_rgba(0,0,0,0.25)] overflow-y-auto">
       <div className="flex flex-row justify-between items-center mb-2">
         <div className="flex flex-row items-center gap-1">
           <IoPlay className="text-[#95C447] size-8" />
-          <div className="text-[25px] font-semibold">시작</div>
+          <div
+            ref={nodeNameRef}
+            contentEditable={isNodeNameEdit}
+            suppressContentEditableWarning
+            className={isNodeNameEdit
+              ? "text-[25px] font-semibold bg-white"
+              : "text-[25px] font-semibold"
+            }
+          >
+            {node.data.name}
+          </div>
+          {!isNodeNameEdit && <IoPencil
+            className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+            onClick={handleEditToggle}
+          />}
+          {isNodeNameEdit && <IoCheckmark
+            className="ml-2 cursor-pointer text-[#5C5C5C] size-4"
+            onClick={handleEditToggle}
+          />}
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
@@ -99,12 +183,12 @@ export default function StartNodeDetail({
           className="h-[36px] rounded-[5px] p-3 border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#95C447]"
           type="number"
           value={maxLength}
-              onChange={(e) => handleMaxCharsChange(Number(e.target.value))}
+          onChange={(e) => handleMaxCharsChange(Number(e.target.value))}
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-[16px]">다음 블록을 추가하세요.</div>
+        <div className="text-[16px]">다음 노드를 추가하세요.</div>
         <div className="flex flex-row justify-between w-full">
           <div className="aspect-square bg-[#CEE8A3] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
             <IoPlay className="text-[#95C447] size-8" />
@@ -115,14 +199,14 @@ export default function StartNodeDetail({
             {connectedNodes.map((node, index) => (
               <div
                 key={index}
-                className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.name]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
               >
-                {nodeConfig[node.name]?.icon}
-                <span>{nodeConfig[node.name]?.label + node.nodeId || node.name}</span>
+                {nodeConfig[node.type]?.icon}
+                <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
                 <AiOutlineClose
                   className="cursor-pointer ml-auto"
                   style={{
-                    color: deleteIconColors[node.name] || "gray",
+                    color: deleteIconColors[node.type] || "gray",
                   }}
                   onClick={() => deleteConnectEdge(node)}
                 />
