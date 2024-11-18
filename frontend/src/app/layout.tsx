@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import RecoilRootWrapper from "./RecoilWrapper";
 import "@/styles/globals.css";
 import ClientWrapper from "./ClientWrapper";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   title: "Flow Studio",
@@ -20,6 +22,9 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <ClientWrapper>
+          <ToastContainer
+            pauseOnFocusLoss={false}
+          />
           <RecoilRootWrapper>{children}</RecoilRootWrapper>
         </ClientWrapper>
       </body>

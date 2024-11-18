@@ -10,9 +10,10 @@ export default function StartNode({
 
   return (
     <>
-      <div
-        className={`p-2 bg-[#ECF3E0] rounded-[16px] border-[#95C447] ${selected ? "border-[2px]" : "border-[1px]"
-          } text-[10px] w-[145px]`}
+      <div className={`p-2 bg-[#ECF3E0] rounded-[16px] border-[#95C447] text-[10px] w-[145px]
+        ${selected ? "border-[2px]" : "border-[1px]"}
+        ${data.isComplete ? "border-[5px]" : ""}
+        ${data.isError ? "border-[5px] border-[#ff0000]" : "border-[#95C447]"}`}
       >
         <div className="flex flex-col gap-1.5 relative">
           <div className="flex flex-row justify-between items-center">
