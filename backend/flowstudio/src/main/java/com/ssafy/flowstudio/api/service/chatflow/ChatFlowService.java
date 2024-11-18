@@ -95,11 +95,12 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public ChatFlowResponse getChatFlow(User user, Long chatFlowId, boolean isShared) {
+    public ChatFlowResponse getChatFlow(User user, Long chatFlowId) {
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(
                 () -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        if (!isShared && !chatFlow.getOwner().equals(user)) {
+        // Private 상태의 다른 Owner의 Chatflow는 조회할 수 없다.
+        if (!chatFlow.isPublic() && !chatFlow.getOwner().equals(user)) {
             throw new BaseException(ErrorCode.FORBIDDEN);
         }
 
@@ -289,7 +290,7 @@ public class ChatFlowService {
             NodeCopyFactory factory = nodeCopyFactoryProvider.getCopyFactory(originalNode.getType());
 
             Node clonedNode;
-
+            // TODO : 메시지 업데이트는 전부 복제한 후 다시 순회하면서
             if (originalNode.getType() == NodeType.RETRIEVER) {
                 // Retriever 노드라면 복제된 knowledge를 새로 매핑한다.
                 Retriever originalRetriever = (Retriever) originalNode;
