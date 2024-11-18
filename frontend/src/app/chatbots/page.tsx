@@ -80,7 +80,7 @@ export default function Page() {
     "모든 챗봇",
     "금융",
     "헬스케어",
-    "전자 상거래",
+    "전자상거래",
     "여행",
     "교육",
     "엔터테인먼트",
@@ -121,6 +121,8 @@ export default function Page() {
   const handleSharedClick = () => {
     setIsViewingShared(!isViewingShared);
   };
+
+
 
   const filteredChatFlows = chatFlows
     ? chatFlows.filter((bot) => {
