@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.*;
 
 @Slf4j
 @Component
@@ -55,7 +55,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
         // GPT 모델을 빌드한다.
         ChatLanguageModel model = OpenAiChatModel.builder()
                 .apiKey(secretKeyProperties.getOpenAi())
-                .modelName(GPT_3_5_TURBO)
+                .modelName(GPT_4_O)
                 .build();
 
         // Redis로부터 해당 chat의 유저 입력 메시지를 가져온다.

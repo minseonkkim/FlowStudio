@@ -47,6 +47,7 @@ public class MessageParseUtil {
             String originalVariable =  matcher.group(1);
             result.append(message, lastEnd, matcher.start()); // Matcher 이전의 문자를 추가한다.
             if (originalVariable.matches("\\d+")) {
+                // TODO : get 했는데 없으면 문자열 그대로 넣고
                 // 원본 프롬프트 내의 변수가 숫자값일때는 노드의 ID이므로 복제된 노드의 ID로 새로 매핑한다.
                 result.append("{{" + String.valueOf(nodeMap.get(Long.parseLong(originalVariable)).getId()) + "}}");
             } else {
