@@ -45,6 +45,7 @@ public class ChatService {
     private final JWTService jwtService;
     private final PublishService publishService;
 
+    @Async
     @Transactional
     public void sendMessage(Long chatId, ChatMessageServiceRequest request) {
         Chat chat = chatRepository.findById(chatId)
@@ -55,6 +56,14 @@ public class ChatService {
             chat.updateChatFlow(publishChatFlow);
         }
 
+        String message = request.getMessage();
+
+        visitor.start(message, chat);
+    }
+
+    @Async
+    @Transactional
+    public void sendTestMessage(Chat chat, ChatMessageServiceRequest request) {
         String message = request.getMessage();
 
         visitor.start(message, chat);

@@ -4,6 +4,7 @@ import com.ssafy.flowstudio.api.service.chat.ChatService;
 import com.ssafy.flowstudio.api.service.chat.request.ChatMessageServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflowtest.request.ChatFlowTestServiceRequest;
 import com.ssafy.flowstudio.api.service.node.RedisService;
+import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -19,8 +20,8 @@ public class TestExecutor {
 
     private final ChatService chatService;
 
-    public void execute(Long chatId, ChatFlowTestServiceRequest request) {
-        chatService.sendMessage(chatId, ChatMessageServiceRequest.from(request.getTestQuestion()));
+    public void execute(Chat chat, ChatFlowTestServiceRequest request) {
+        chatService.sendTestMessage(chat, ChatMessageServiceRequest.from(request.getTestQuestion()));
     }
 
 }

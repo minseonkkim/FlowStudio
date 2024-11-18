@@ -11,7 +11,10 @@ public interface NodeRepository extends JpaRepository<Node, Long> {
     @Query(
             "select n from Node n where n.chatFlow.id = :chatFlowId"
     )
-    List<Node> findByChatFlowId(
-            @Param("chatFlowId") Long chatFlowId
-    );
+    List<Node> findByChatFlowId(@Param("chatFlowId") Long chatFlowId);
+
+    @Query("SELECT n FROM Node n " +
+            "LEFT JOIN FETCH n.outputEdges " +
+            "WHERE n.id IN :nodeIds")
+    List<Node> findNodesWithOutputEdges(List<Long> nodeIds);
 }

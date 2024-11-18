@@ -11,6 +11,8 @@ import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.chatflowtest.ChatFlowTestRepository;
 import com.ssafy.flowstudio.domain.chatflowtest.entity.ChatFlowTest;
+import com.ssafy.flowstudio.domain.node.entity.Node;
+import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class ChatFlowTestService {
     private final ChatFlowRepository chatFlowRepository;
     private final ChatFlowTestRepository chatFlowTestRepository;
     private final TestExecutor testExecutor;
+    private final NodeRepository nodeRepository;
 
     private final EntityManager em;
 
@@ -60,8 +63,19 @@ public class ChatFlowTestService {
 
     @Transactional
     public List<ChatFlowTestCreateResponse> createChatFlowTest(User user, Long chatFlowId, List<ChatFlowTestServiceRequest> request) {
-        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
+        ChatFlow chatFlow = chatFlowRepository.findByIdWithNodes(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+
+        // Node ID 리스트 추출
+        List<Long> nodeIds = chatFlow.getNodes()
+                .stream()
+                .map(Node::getId)
+                .toList();
+
+        // Step 2: Node의 outputEdges 로드
+        if (!nodeIds.isEmpty()) {
+            nodeRepository.findNodesWithOutputEdges(nodeIds);
+        }
 
         ChatFlowTest chatFlowTest = ChatFlowTest.create(user, chatFlow, request.size());
         chatFlowTestRepository.save(chatFlowTest);
@@ -78,7 +92,7 @@ public class ChatFlowTestService {
 
             chatIds.add(chat.getId());
 
-            testExecutor.execute(chat.getId(), chatFlowTestServiceRequest);
+            testExecutor.execute(chat, chatFlowTestServiceRequest);
         }
 
         List<ChatFlowTestCreateResponse> response = new ArrayList<>();

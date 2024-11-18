@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.chatflow.repository;
 
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,8 +27,8 @@ public interface ChatFlowRepository extends JpaRepository<ChatFlow, Long>, Custo
 
     @Query("SELECT c FROM ChatFlow c " +
             "LEFT JOIN FETCH c.nodes n " +
-            "WHERE c.id = :id ")
-    Optional<ChatFlow> findById(Long id);
+            "WHERE c.id = :id")
+    Optional<ChatFlow> findByIdWithNodes(Long id);
 
     @Query("SELECT c FROM ChatFlow c " +
             "JOIN FETCH c.tests t " +

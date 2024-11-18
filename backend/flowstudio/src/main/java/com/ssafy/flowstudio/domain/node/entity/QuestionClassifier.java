@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 public class QuestionClassifier extends Node {
 
-    @OneToMany(mappedBy = "questionClassifier", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "questionClassifier", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionClass> questionClasses = new ArrayList<>();
 
     @Builder
