@@ -795,6 +795,71 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .isEqualTo("{{INPUT_MESSAGE}}");
     }
 
+    @DisplayName("OutputMessage에 선행 노드 정보를 포함한 Answer 노드를 가진 챗플로우를 업로드한다.")
+    @Test
+    void uploadChatFlowsWithFormattedOutputMessage() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        chatFlowRepository.save(chatFlow);
+
+        Node startNode = Start.create(chatFlow, coordinate);
+        nodeRepository.save(startNode);
+
+        Answer answerNode = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("{{" + startNode.getId() + "}}")
+                .build();
+        nodeRepository.save(answerNode);
+
+        em.clear();
+
+        // when
+        ChatFlowResponse chatFlowResponse = chatFlowService.uploadChatFlow(user, chatFlow.getId());
+
+        // then
+
+        // 복제된 Start 노드를 불러온다.
+        NodeResponse clonedStartResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.START.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        Start clonedStart = (Start) nodeRepository.findById(clonedStartResponse.getNodeId()).orElse(null);
+        em.refresh(clonedStart);
+
+        // 복제된 Answer 노드를 불러온다.
+        NodeResponse clonedAnswerResponse = chatFlowResponse.getNodes().stream()
+                .filter(node -> NodeType.ANSWER.equals(node.getType()))
+                .findFirst()
+                .orElse(null);
+        Answer clonedAnswer = (Answer) nodeRepository.findById(clonedAnswerResponse.getNodeId()).orElse(null);
+        em.refresh(clonedAnswer);
+
+        // 복제된 Output 노드는 원본 Output 노드와 다른 Output Message를 가진다.
+        assertThat(clonedAnswer.getOutputMessage())
+                .isNotEqualTo(answerNode.getOutputMessage())
+                .isEqualTo("{{" + clonedStart.getId() + "}}");
+    }
+
     @DisplayName("이미 게시된 상태의 챗플로우를 업로드하면 예외가 발생한다.")
     @Test
     void throwExeptionWhenUploadPublicChatFlow() {

@@ -85,6 +85,10 @@ public class PublishService {
         ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
+        if (user.getApiKey().getOpenAiKey() == null) {
+            throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
+        }
+
         String publishUrl = chatFlow.getPublishUrl();
         if (publishUrl.isBlank()) {
             publishUrl = UUID.randomUUID().toString();

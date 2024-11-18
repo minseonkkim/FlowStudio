@@ -63,6 +63,7 @@ public enum ErrorCode {
     AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA(8000, HttpStatus.INTERNAL_SERVER_ERROR, "AI 답변이 양식에 맞지 않습니다."),
     AI_RESPONSE_NOT_MATCH_GIVEN_CONDITION(8001, HttpStatus.INTERNAL_SERVER_ERROR, "AI가 주어진 정보 외의 답변을 반환했습니다."),
     API_KEY_INVALID(8002, HttpStatus.BAD_REQUEST, "API 키가 유효하지 않습니다."),
+    API_KEY_NOT_REGISTERED(8003, HttpStatus.BAD_REQUEST, "API 키를 등록하세요."),
 
     // Redis
     REDIS_KEY_NOT_EXIST(10000, HttpStatus.BAD_REQUEST, "해당 키 값을 가진 산출물이 존재하지 않습니다."),
