@@ -7,14 +7,14 @@ import { FaFile } from '@react-icons/all-files/fa/FaFile';
 import { TiDeleteOutline } from '@react-icons/all-files/ti/TiDeleteOutline';
 import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosInformationCircleOutline';
 import { useRecoilState } from 'recoil';
-import { fileNameState, fileState } from '@/store/knoweldgeAtoms';
+import { fileNameState, fileState, isLoadingState } from '@/store/knoweldgeAtoms';
 import { currentStepState } from '@/store/knoweldgeAtoms';
 import WhiteButton from '../common/whiteButton';
 import { Tooltip } from 'react-tooltip';
 import PurpleButton from '../common/PurpleButton';
 import { postKnowledge, postKnowledgeChunk } from "@/api/knowledge";
 import { ChunkList, KnowledgeData } from '@/types/knowledge'
-import { useRouter } from 'next/navigation';
+
 
 
 export default function CreateSecond() {
@@ -26,9 +26,10 @@ export default function CreateSecond() {
   const [chunks, setChunks] = useState<ChunkList[]>([])
   const [fileName] = useRecoilState(fileNameState); 
   const [, setCurrentStep] = useRecoilState(currentStepState); 
+  const [, setIsLoadingState] = useRecoilState(isLoadingState); 
+
   const [isPreviewOpen, setIsPreviewOpen] = useState(false); 
 	const queryClient = useQueryClient();
-  const router = useRouter()
 
 
   useEffect(() => {
@@ -53,24 +54,34 @@ export default function CreateSecond() {
     });
   };
 
-  // 지식 등록 후 다음 단계로 이동
-  const onChange3Step = () => {
-    if (!file) {
-      alert("파일을 업로드해주세요.");
-      return;
-    }
+ // 지식 등록 후 다음 단계로 이동
+const onChange3Step = () => {
+  if (!file) {
+    alert("파일을 업로드해주세요.");
+    return;
+  }
 
-    createMutation.mutate({
+  setIsLoadingState(true); 
+  
+  createMutation.mutate(
+    {
       file,
       chunkSize: maxChunkLength.toString(),
       chunkOverlap: chunkOverlap.toString(),
       separator: segmentIdentifier,
-    });
-    queryClient.invalidateQueries({ queryKey: ["knowledgeList"] }).then(() => {
-      router.refresh();  
-    })
-    setCurrentStep(3);
-  };
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["knowledgeList"] }).then(() => {
+          setCurrentStep(3);
+        });
+      },
+      onError: () => {
+        alert("지식 등록 중 오류가 발생했습니다. 다시 시도해주세요.");
+      },
+    }
+  );
+};
 
   const onChangeBack = () => {
     setCurrentStep(1);
@@ -103,10 +114,11 @@ export default function CreateSecond() {
     },
   });
 
+
   return (
     <>
-      <div className="pl-10 flex relative">
-        <div className="flex-grow">
+      <div className="pl-10 flex">
+        <div>
           <p className="text-2xl font-medium pt-14 pb-8">텍스트 전처리 및 클리닝</p>
           <div className="border border-[#5D2973] w-[640px] h-[425px] rounded-xl">
             <div className="p-4 flex gap-1">
@@ -128,11 +140,12 @@ export default function CreateSecond() {
                   <p>세그먼트 식별자</p>
                   <IoIosInformationCircleOutline 
                     data-tooltip-id="info-tooltip" 
-                    className='w-4 h-4 mt-1 text-[#4F4F4F]' 
+                    className='w-4 h-4  text-[#4F4F4F]' 
                   />
                   <Tooltip 
                     id="info-tooltip" 
-                    content="구분 기호는 텍스트를 구분하는 데 사용되는 문자입니다." 
+                    content="텍스트를 구분하는 데 사용되는 문자입니다." 
+                    place="right"
                     style={{
                       backgroundColor: 'white',
                       color: 'black',
@@ -140,7 +153,7 @@ export default function CreateSecond() {
                       boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)', 
                       borderRadius: '0.375rem',  
                       padding: '0.5rem 0.75rem', 
-                      width: '15rem'            
+                      width: '22rem'            
                     }}
                   />
                 </div>
@@ -167,11 +180,12 @@ export default function CreateSecond() {
                   <p>청크 중첩</p>
                   <IoIosInformationCircleOutline 
                     data-tooltip-id="info-tooltip1" 
-                    className="w-4 h-4 mt-1 text-[#4F4F4F]" 
+                    className="w-4 h-4 text-[#4F4F4F]" 
                   />
                   <Tooltip 
                     id="info-tooltip1" 
-                    content="청크 중첩은 데이터 청크가 겹쳐지는 부분을 설정하여 텍스트 처리 및 검색결과의 일관성과 정확성을 높입니다." 
+                    content="데이터 청크가 겹쳐지는 부분을 설정하여 텍스트 처리 및 검색결과의 일관성과 정확성을 높입니다." 
+                    place="right"
                     style={{
                       backgroundColor: 'white',
                       color: 'black',
@@ -179,7 +193,8 @@ export default function CreateSecond() {
                       boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)', 
                       borderRadius: '0.375rem',  
                       padding: '0.5rem 0.75rem', 
-                      width: '13rem'            
+                      width: '22rem',
+                      zIndex: 50          
                     }}
                   />
                 </div>
@@ -220,7 +235,7 @@ export default function CreateSecond() {
         </div>
 
         {isPreviewOpen && (
-          <div className="w-[520px] h-full bg-white shadow-lg absolute right-0 top-0 p-4">
+          <div className="w-[520px] h-full bg-white shadow-lg absolute top-0 right-0 p-4 overflow-hidden">
             <div className="p-4 flex justify-between items-center">
               <p className="font-bold">미리보기</p>
               <TiDeleteOutline className='w-6 h-6' onClick={() => setIsPreviewOpen(false)}/>
@@ -234,7 +249,7 @@ export default function CreateSecond() {
                   </div>
                   <p className="mt-4">{chunk.content}</p>
                 </div>
-              ))}
+              ))} 
             </div>
           </div>
         )}
