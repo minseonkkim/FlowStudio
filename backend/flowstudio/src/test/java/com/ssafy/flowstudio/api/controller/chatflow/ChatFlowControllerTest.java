@@ -130,7 +130,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .edges(List.of(edge1, edge2))
                 .build();
 
-        given(chatFlowService.getChatFlow(any(User.class), any(Long.class), anyBoolean()))
+        given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
                 .willReturn(response);
 
         // when
