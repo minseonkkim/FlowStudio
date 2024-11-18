@@ -7,12 +7,13 @@ import { nodeConfig, deleteIconColors } from "@/utils/nodeConfig";
 import { Edge, Node } from "reactflow";
 import { deleteEdge, putNode } from "@/api/workflow";
 import NodeAddMenu from "@/components/chatbot/chatflow/menu/NodeAddMenu";
-// import { getAllKnowledges } from "@/api/knowledge";
 import { extractActualValues, findAllParentNodes, restoreMonospaceBlocks } from "@/utils/node";
 import { EdgeData, NodeData } from "@/types/chatbot";
 import { NodeVariableInsertMenu } from "../menu/NodeVariableInsertMenu";
 import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
 import { IoCheckmark } from "@react-icons/all-files/io5/IoCheckmark";
+import { Tooltip } from "react-tooltip";
+import { IoIosInformationCircleOutline } from "@react-icons/all-files/io/IoIosInformationCircleOutline";
 
 
 // interface Model {
@@ -415,9 +416,29 @@ export default function LlmNodeDetail({
         </div>
 
         <div className="flex flex-col items-start gap-2">
-          <label htmlFor="score-threshold-range" className="text-sm font-semibold text-gray-700">
-            Temperature
-          </label>
+          <div className="flex gap-2 items-center">
+            <label htmlFor="score-threshold-range" className="text-sm font-semibold text-gray-700">
+              Temperature
+            </label>
+            <IoIosInformationCircleOutline
+              data-tooltip-id="info-tooltip"
+              className='text-[#4F4F4F]'
+            />
+            <Tooltip
+              id="info-tooltip"
+              content="낮을수록 더 예측 가능하고 일관된 응답을 얻고, 높을수록 창의적인 응답을 얻습니다."
+              place="right"
+              style={{
+                backgroundColor: 'white',
+                color: 'black',
+                border: '1px solid #D1D5DB',
+                boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)',
+                borderRadius: '0.375rem',
+                padding: '0.5rem 0.75rem',
+                width: '90%'
+              }}
+            />
+          </div>
           <div className="flex items-center gap-4 w-full">
             {/* Number Input for direct input */}
             <input
