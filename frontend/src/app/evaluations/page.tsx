@@ -10,19 +10,10 @@ import { ChatFlow } from "@/types/chatbot";
 import { getChatFlowTestList } from "@/api/evaluation"
 import { useQuery } from '@tanstack/react-query';
 import Loading from "@/components/common/Loading";
+import { categories } from "@/constants/chatbotCategories";
 
 export default function Page() {
   const router = useRouter();
-  const categories = [
-    "모든 챗봇",
-    "금융",
-    "헬스케어",
-    "전자상거래",
-    "여행",
-    "교육",
-    "엔터테인먼트",
-    "기타",
-  ];
 
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");

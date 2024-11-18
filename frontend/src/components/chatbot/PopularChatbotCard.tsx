@@ -1,6 +1,6 @@
 import { BsDownload } from "@react-icons/all-files/bs/BsDownload";
 import { BsThreeDots } from "@react-icons/all-files/bs/BsThreeDots";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postDownloadChatFlow } from "@/api/share";
@@ -54,19 +54,20 @@ export default function PopularChatbotCard({
     },
   });
 
-  const handleDownloadClick = () => {
+  const handleDownloadClick = useCallback(() => {
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleConfirmDownload = () => {
+  const handleConfirmDownload = useCallback(() => {
     downloadChatFlowMutation.mutate(chatbotId);
     router.push('/chatbots');
     setIsModalOpen(false);
-  };
+  }, [chatbotId, downloadChatFlowMutation, router]);
 
-  const handleCloseModal = () => {
+  
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
-  };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

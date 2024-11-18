@@ -3,13 +3,14 @@
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
 import ChatbotCard from "@/components/chatbot/ChatbotCard";
 import Search from "@/components/common/Search";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { SharedChatFlow } from "@/types/chatbot";
 import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/common/Loading";
+import { categories } from "@/constants/chatbotCategories";
 
 export default function Page() {
   const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
@@ -23,32 +24,21 @@ export default function Page() {
   const [itemsToLoad, setItemsToLoad] = useState<number>(8);
   const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); 
 
-  const categories = [
-    "모든 챗봇",
-    "금융",
-    "헬스케어",
-    "전자 상거래",
-    "여행",
-    "교육",
-    "엔터테인먼트",
-    "기타",
-  ];
+  const popularChatbots = useMemo(() => {
+    return chatFlows ? [...chatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4) : [];
+  }, [chatFlows]);
 
-  const popularChatbots = chatFlows
-    ? [...chatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4)
-    : [];
-
-  const filteredChatFlows = chatFlows
-    ? chatFlows.filter((bot) => {
-        const matchesCategory =
-          selectedCategory === "모든 챗봇" ||
-          bot.categories.some((category) => category.name === selectedCategory);
-        const matchesSearch = bot.title
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
-        return matchesCategory && matchesSearch;
-      })
-    : [];
+  const filteredChatFlows = useMemo(() => {
+    return chatFlows
+      ? chatFlows.filter((bot) => {
+          const matchesCategory =
+            selectedCategory === "모든 챗봇" ||
+            bot.categories.some((category) => category.name === selectedCategory);
+          const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+          return matchesCategory && matchesSearch;
+        })
+      : [];
+  }, [chatFlows, selectedCategory, searchTerm]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,7 +84,7 @@ export default function Page() {
             slidesPerView={1}
             onSlideChange={(swiper) => setActiveSlide(swiper.activeIndex)}
           >
-            {popularChatbots?.slice().reverse().map((chatbot) => (
+            {popularChatbots?.slice().map((chatbot) => (
               <SwiperSlide key={chatbot.chatFlowId}>
                 <PopularChatbotCard
                   chatbotId={chatbot.chatFlowId}
@@ -111,7 +101,7 @@ export default function Page() {
             ))}
           </Swiper>
           <div className="flex justify-center mt-2">
-            {popularChatbots?.slice().reverse().map((_, index) => (
+            {popularChatbots?.slice().map((_, index) => (
               <span
                 key={index}
                 className={`h-2 w-2 rounded-full mx-1 ${
@@ -122,7 +112,7 @@ export default function Page() {
           </div>
         </div>
         <div className="hidden md:grid md:grid-cols-2 xl:grid-cols-4 w-full gap-4">
-          {popularChatbots?.slice().reverse().map((chatbot) => (
+          {popularChatbots?.slice().map((chatbot) => (
             <PopularChatbotCard
               key={chatbot.chatFlowId}
               chatbotId={chatbot.chatFlowId}
