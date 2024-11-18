@@ -23,7 +23,7 @@ export default function SectionThree() {
   }, [inView, templateAnimation]);
 
   return (
-    <section className="h-[600px] md:h-[730px] flex items-center justify-center bg-[#9A75BF]">
+    <section className="h-[440px] md:h-[580px] flex items-center justify-center bg-[#9A75BF]">
       <div className="content-container flex justify-center items-center" ref={ref}>
         <div className="flex flex-col-reverse md:flex-row gap-0 md:gap-16 w-[78%] rounded-[30px]">
           <div className="w-full md:w-[50%] text-white mt-[30px] md:mt-[120px]">
@@ -44,7 +44,7 @@ export default function SectionThree() {
               다운로드 하여 <span className="text-white">커스터마이징</span>할 수 있습니다.
             </motion.div>
           </div>
-          <div className="flex flex-col items-start text-white w-full md:w-[60%]">
+          <div className="flex flex-col items-start text-white w-full md:w-[63%]">
             <motion.img
               src={screenTemplateImg.src}
               alt="template screen img"
