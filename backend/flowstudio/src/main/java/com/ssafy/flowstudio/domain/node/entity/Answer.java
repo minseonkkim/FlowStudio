@@ -26,7 +26,7 @@ public class Answer extends Node {
     public static Answer create(ChatFlow chatFlow, Coordinate coordinate) {
         return Answer.builder()
             .chatFlow(chatFlow)
-            .name("Answer")
+            .name("답변")
             .type(NodeType.ANSWER)
             .coordinate(coordinate)
             .build();
