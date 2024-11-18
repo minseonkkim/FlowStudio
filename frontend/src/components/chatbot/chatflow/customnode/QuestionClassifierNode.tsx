@@ -32,9 +32,10 @@ export default function QuestionClassifierNode({
   return (
     <div
       ref={containerRef}
-      className={`p-2 bg-[#E1E6F3] rounded-[16px] ${
-        selected ? "border-[2px]" : "border-[1px]"
-      } border-[#1E3A8A] text-[10px] w-[145px]`}
+      className={`p-2 bg-[#E1E6F3] rounded-[16px] border-[#1E3A8A] text-[10px] w-[145px]
+        ${ selected ? "border-[2px]" : "border-[1px]"} 
+        ${data.isComplete ? "border-[5px]" : ""}
+        ${data.isError ? "border-[5px] border-[#ff0000]" : "border-[#1E3A8A]"}`}
     >
       <Handle type="target" position={Position.Left} />
       <div className="flex flex-col gap-1.5">

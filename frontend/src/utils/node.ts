@@ -54,6 +54,9 @@ export const createNodeData = (
     scoreThreshold: params.scoreThreshold || 0.1,
 
     questionClasses: params.questionClasses || [],
+
+    isComplete: false,
+    isError: false,
   };
 };
 

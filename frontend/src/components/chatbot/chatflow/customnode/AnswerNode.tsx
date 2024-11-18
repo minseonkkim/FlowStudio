@@ -10,8 +10,11 @@ export default function AnswerNode({
 
   return (
     <>
-      <div className={`p-2 bg-[#E6F6F0] rounded-[16px] ${selected ? "border-[2px]" : "border-[1px]"
-        } border-[#34D399] text-[10px] w-[145px]`}>
+      <div className={`p-2 bg-[#E6F6F0] rounded-[16px] border-[#34D399] text-[10px] w-[145px]
+        ${selected ? "border-[2px]" : "border-[1px]"} 
+        ${data.isComplete ? "border-[5px]" : ""}
+        ${data.isError ? "border-[5px] border-[#ff0000]" : "border-[#34D399]"}`}
+      >
         <Handle type="target" position={Position.Left} />
         <div className="flex flex-col gap-1.5">
           <div className="flex flex-row justify-between items-center">
