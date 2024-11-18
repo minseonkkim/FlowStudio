@@ -32,6 +32,15 @@ public class Answer extends Node {
             .build();
     }
 
+    public static Answer create(ChatFlow chatFlow, String name, Coordinate coordinate) {
+        return Answer.builder()
+            .chatFlow(chatFlow)
+            .name(name)
+            .type(NodeType.ANSWER)
+            .coordinate(coordinate)
+            .build();
+    }
+
     @Override
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
