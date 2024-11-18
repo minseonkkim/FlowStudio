@@ -21,7 +21,7 @@ export default function Page() {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeSlide, setActiveSlide] = useState<number>(0);
   const [itemsToLoad, setItemsToLoad] = useState<number>(8);
-  const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); // New state
+  const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); 
 
   const categories = [
     "모든 챗봇",
@@ -35,7 +35,7 @@ export default function Page() {
   ];
 
   const popularChatbots = chatFlows
-    ? [...chatFlows].sort((a, b) => b.shareNum - a.shareNum).slice(0, 4)
+    ? [...chatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4)
     : [];
 
   const filteredChatFlows = chatFlows
@@ -102,6 +102,9 @@ export default function Page() {
                   description={chatbot.description}
                   iconId={chatbot.thumbnail}
                   type="all"
+                  authorNickName={chatbot.author.nickname}
+                  authorProfile={chatbot.author.profileImage}
+                  shareNum={chatbot.shareCount}
                   category={chatbot.categories.map((cat) => cat.name)}
                 />
               </SwiperSlide>
@@ -127,6 +130,9 @@ export default function Page() {
               description={chatbot.description}
               iconId={chatbot.thumbnail}
               type="all"
+              authorNickName={chatbot.author.nickname}
+              authorProfile={chatbot.author.profileImage}
+              shareNum={chatbot.shareCount}
               category={chatbot.categories.map((cat) => cat.name)}
             />
           ))}
@@ -180,6 +186,9 @@ export default function Page() {
               title={bot.title}
               description={bot.description}
               iconId={bot.thumbnail}
+              authorNickName={bot.author.nickname}
+              authorProfile={bot.author.profileImage}
+              shareNum={bot.shareCount}
               category={bot.categories.map((cat) => cat.name)}
               type="all"
             />
@@ -194,6 +203,9 @@ export default function Page() {
               title={bot.title}
               description={bot.description}
               iconId={bot.thumbnail}
+              authorNickName={bot.author.nickname}
+              authorProfile={bot.author.profileImage}
+              shareNum={bot.shareCount}
               category={bot.categories.map((cat) => cat.name)}
               type="all"
             />
