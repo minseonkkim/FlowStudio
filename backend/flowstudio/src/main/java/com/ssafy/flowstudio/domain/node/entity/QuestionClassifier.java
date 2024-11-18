@@ -27,7 +27,7 @@ public class QuestionClassifier extends Node {
     public static QuestionClassifier create(ChatFlow chatFlow, Coordinate coordinate) {
         return QuestionClassifier.builder()
             .chatFlow(chatFlow)
-            .name("Question Classifier")
+            .name("질문 분류기")
             .type(NodeType.QUESTION_CLASSIFIER)
             .coordinate(coordinate)
             .build();

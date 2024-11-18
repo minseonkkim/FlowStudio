@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -128,6 +130,8 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .title("title")
                 .nodes(List.of(node1, node2, node3))
                 .edges(List.of(edge1, edge2))
+                .publishUrl("uuid")
+                .publishedAt(LocalDateTime.now())
                 .build();
 
         given(chatFlowService.getChatFlow(any(User.class), any(Long.class)))
@@ -203,6 +207,8 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1, node2, node3))
+                .publishUrl("uuid")
+                .publishedAt(LocalDateTime.now())
                 .build();
 
         given(chatFlowService.createChatFlow(any(User.class), any(ChatFlowServiceRequest.class)))
@@ -330,6 +336,8 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1, node2, node3))
+                .publishUrl("uuid")
+                .publishedAt(LocalDateTime.now())
                 .build();
 
         given(chatFlowService.uploadChatFlow(any(User.class), any()))
@@ -397,6 +405,8 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .chatFlowId(1L)
                 .title("title")
                 .nodes(List.of(node1, node2, node3))
+                .publishUrl("uuid")
+                .publishedAt(LocalDateTime.now())
                 .build();
 
         given(chatFlowService.downloadChatFlow(any(User.class), any()))

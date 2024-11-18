@@ -45,7 +45,7 @@ public class Retriever extends Node {
     public static Retriever create(ChatFlow chatFlow, Coordinate coordinate, int intervalTime, int topK, float scoreThreshold) {
         return Retriever.builder()
                 .chatFlow(chatFlow)
-                .name("Retriever")
+                .name("지식 검색")
                 .type(NodeType.RETRIEVER)
                 .coordinate(coordinate)
                 .intervalTime(intervalTime)
