@@ -1,5 +1,6 @@
 package com.ssafy.flowstudio.api.service.auth;
 
+import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.common.security.oauth2user.CustomOAuth2User;
 import com.ssafy.flowstudio.common.security.oauth2user.CustomOAuthUserFactory;
 import com.ssafy.flowstudio.common.security.oauth2user.response.OAuth2Response;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final UserRepository userRepository;
+    private final ChatFlowService chatFlowService;
 
     @Transactional
     @Override
@@ -38,6 +40,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User user = userRepository.findByUsername(username)
                 .orElseGet(() -> userRepository.save(User.create(username, nickname, profileImage, providerType)));
+
+        chatFlowService.createExampleChatFlow(user);
 
         return new CustomOAuth2User(user);
     }
