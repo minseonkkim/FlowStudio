@@ -36,14 +36,18 @@ export default function StartNodeDetail({
   const [maxLength, setMaxLength] = useState(node.data.maxLength);
   const maxLengthRef = useRef(node.data.maxLength);
   const maxLengthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
-  const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
 
+  /**
+   * 연결된 노드 관리
+   */
   useEffect(() => {
     setConnectedNodes(initialConnectedNodes);
   }, [initialConnectedNodes]);
 
-
+  /**
+   * 최대 길이 수정
+   * @param value 
+   */
   const handleMaxCharsChange = (value: number) => {
     setMaxLength(value);
     maxLengthRef.current = value;
@@ -76,6 +80,11 @@ export default function StartNodeDetail({
     }, 500); // Wait for 500ms of inactivity
   };
 
+  /**
+   * 연결된 노드 엣지 삭제
+   * @param targetNode 
+   * @returns 
+   */
   const deleteConnectEdge = (targetNode: ConnectedNode) => {
     const findDeleteEdge = edges.find((edge) => edge.source == node.id && edge.target == targetNode.nodeId.toString());
     if (!findDeleteEdge) return;
@@ -84,6 +93,12 @@ export default function StartNodeDetail({
     setConnectedNodes((prev) => prev.filter((n) => n.nodeId !== targetNode.nodeId)); // 연결된 노드 상태 업데이트
   }
 
+  
+  const [isNodeNameEdit, setIsNodeNameEdit] = useState<boolean>(false);
+  const nodeNameRef = useRef<(HTMLDivElement | null)>(null);
+  /**
+   * 노드 이름 수정
+   */
   const handleEditToggle = () => {
     setIsNodeNameEdit((prev) => {
       if (!prev) {
