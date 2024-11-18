@@ -1,3 +1,5 @@
+// components/InfiniteScrollingSection.tsx
+
 import { useEffect } from "react";
 import FinanceImg from "@/assets/landing/finance.png";
 import HealthImg from "@/assets/landing/health.png";
@@ -5,11 +7,10 @@ import ShoppingImg from "@/assets/landing/shopping.png";
 import TravelImg from "@/assets/landing/travel.png";
 import EducationImg from "@/assets/landing/education.png";
 import EntertainmentImg from "@/assets/landing/entertainment.png";
-import { useMemo } from "react";
 
-export default function SectionFive() {
-  const features = useMemo(() => ["금융", "헬스케어", "전자 상거래", "여행", "교육", "엔터테인먼트"], []);
-  const featureImages = useMemo(() => [FinanceImg, HealthImg, ShoppingImg, TravelImg, EducationImg, EntertainmentImg], []);
+export default function InfiniteScrollingSection() {
+  const features = ["금융", "헬스케어", "전자 상거래", "여행", "교육", "엔터테인먼트"];
+  const featureImages = [FinanceImg, HealthImg, ShoppingImg, TravelImg, EducationImg, EntertainmentImg];
 
   useEffect(() => {
     const bannerList = document.querySelector(".banner_list") as HTMLElement;
@@ -47,13 +48,13 @@ export default function SectionFive() {
   return (
     <section className="infinite-scrolling-section h-[500px] flex items-center justify-center bg-gray-100 overflow-hidden">
       <div className="content-container overflow-hidden">
-        <div className="text-center mb-14 text-[22px] md:text-[26px] font-semibold">
-          금융, 교육, 헬스케어 등 <span className="text-[#9A75BF]">원하는 분야에 최적화된 AI 챗봇</span>을 몇 분 안에 구축해 보세요.
+        <div className="text-center mb-14 text-[22px] md:text-[25px] font-semibold">
+          금융, 교육, 헬스케어 등 원하는 분야에 최적화된 AI 챗봇을 몇 분 안에 구축해 보세요.
         </div>
         <div className="scrolling-cards-container w-full relative">
           <div className="banner_list flex">
             {features.map((feature, index) => (
-              <div key={`banner-${index}`} className="banner bg-white p-2 md:p-8 shadow-lg rounded-full m-4 min-w-[200px] flex flex-col items-center justify-center">
+              <div key={`banner-${index}`} className="w-[200px] h-[200px] banner bg-white p-2 md:p-8 shadow-lg rounded-full m-4 min-w-[200px] flex flex-col items-center justify-center">
                 <img src={featureImages[index % features.length]?.src} className="w-[75px] h-[75px] md:w-[100px] md:h-[100px]" />
                 <p className="text-center text-gray-600 text-[18px] md:text-[20px] mt-4 font-semibold">{feature}</p>
               </div>
