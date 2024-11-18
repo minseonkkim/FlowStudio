@@ -56,10 +56,9 @@ public class ChatFlowController {
     @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}")
     public ApiResponse<ChatFlowResponse> getChatFlow(
             @CurrentUser User user,
-            @PathVariable Long chatFlowId,
-            @RequestParam(required = false, defaultValue = "false") boolean isShared
+            @PathVariable Long chatFlowId
     ) {
-        return ApiResponse.ok(chatFlowService.getChatFlow(user, chatFlowId, isShared));
+        return ApiResponse.ok(chatFlowService.getChatFlow(user, chatFlowId));
     }
 
     /**
