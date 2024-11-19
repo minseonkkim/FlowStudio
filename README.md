@@ -94,7 +94,7 @@ Flow Studio와 함께라면 챗봇 제작이 더 이상 어렵지 않습니다.<
 
 ## 💜 시연 영상
 
-![시연영상](/uploads/f195f57f11d631974fa99ad4704a8971/시연영상.mp4)
+https://github.com/user-attachments/assets/ccbc0f2d-6fc5-487a-9c10-8c7ac08b0f09
 
 
 
