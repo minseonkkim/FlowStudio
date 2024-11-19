@@ -169,7 +169,7 @@ export default function Page() {
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
-          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
+          {filteredChatFlows?.slice().reverse().slice(0, itemsToLoad).map((bot) => (
             <ChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
@@ -186,7 +186,7 @@ export default function Page() {
         </div>
 
         <div className="md:hidden flex flex-col gap-4">
-          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
+          {filteredChatFlows?.slice().reverse().slice(0, itemsToLoad).map((bot) => (
             <PopularChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
