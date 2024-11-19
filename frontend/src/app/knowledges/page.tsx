@@ -138,7 +138,7 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {filteredData?.reverse().map((file, index) => (
+            {filteredData?.slice().reverse().map((file, index) => (
               <tr key={file.knowledgeId} className="border-b cursor-pointer hover:bg-gray-100">
                 <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{index+1}</td>
                 <td

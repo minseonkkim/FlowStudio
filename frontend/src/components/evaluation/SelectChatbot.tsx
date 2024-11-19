@@ -71,7 +71,7 @@ export default function SelectChatbot({ onNext, selectedTab }: SelectChatbotProp
       </div>
 
       <div className="grid grid-cols-3 gap-6 mb-8">
-        {filteredChatFlows?.reverse().map((chatbot) => (
+        {filteredChatFlows?.slice().reverse().map((chatbot) => (
           <PopularChatbotCard
             key={chatbot.chatFlowId}
             chatbotId={chatbot.chatFlowId}
