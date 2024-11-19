@@ -40,6 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -184,11 +186,10 @@ public class VectorStoreService {
         List<String> splitterContent = langchainService.getSplitText(request.getChunkSize(), request.getChunkOverlap(), textContent);
         List<Document> splitterDocuments = milvusUtils.textsToDocuments(splitterContent);
 
-        long id = 0;
-        List<JsonObject> data = new ArrayList<>();
-        for (Document document : splitterDocuments) {
-            data.add(milvusUtils.documentToJson(id++, document.getContent()));
-        }
+        List<JsonObject> data = IntStream.range(0, splitterDocuments.size())
+                .parallel()
+                .mapToObj(i -> milvusUtils.documentToJson((long) i, splitterDocuments.get(i).getContent()))
+                .collect(Collectors.toList());
 
         UpsertReq upsertReq = UpsertReq.builder()
                 .collectionName(collectionName)
