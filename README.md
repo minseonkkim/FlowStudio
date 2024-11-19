@@ -5,11 +5,11 @@
 
 ## 💜 프로젝트 소개
 
-개인 사용자, 맞춤형 챗봇을 만들어보고 싶은데 너무 어려우셨나요?<br/>
+챗봇을 만들어보고 싶은데 너무 어려우셨나요?<br/>
 어디서부터 시작해야 할지 막막하고, 기업용 솔루션은 부담스러우셨죠?
 
 Flow Studio는 **누구나 쉽게 LLM 챗봇을 만들 수 있도록 돕는 플랫폼**입니다.<br/>
-복잡한 코딩 대신 직관적인 플로우 차트를 이용해, 마치 블록코딩을 하듯 챗봇의 흐름을 디자인해보세요!<br/>
+복잡한 코딩 대신 직관적인 플로우 차트를 이용해, 블록코딩을 하듯 챗봇의 흐름을 디자인해보세요!<br/>
 뿐만 아니라, RAG 기술로 여러분의 지식을 챗봇에 더해 개인화된 경험을 제공합니다. 
 
 Flow Studio와 함께라면 챗봇 제작이 더 이상 어렵지 않습니다.<br/>
@@ -47,7 +47,7 @@ Flow Studio와 함께라면 챗봇 제작이 더 이상 어렵지 않습니다.<
 
 ## 💜 기술 스택
 
-### **Backend - Spring**
+### **Backend**
 
 <img src="https://img.shields.io/badge/IntelliJ IDEA-000000?style=for-the-badge&logo=IntelliJ IDEA&logoColor=white"> <img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white"> <img src="https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=Spring Boot&logoColor=white"> <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white"> <br> <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=MySQL&logoColor=white"> <img src="https://img.shields.io/badge/Milvus-00A1EA?style=for-the-badge&logo=Milvus&logoColor=white"> <img src="https://img.shields.io/badge/QueryDSL-0085C9?style=for-the-badge&logo=QueryDSL&logoColor=white"> <img src="https://img.shields.io/badge/AWS S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white"> <br/>  <img src="https://img.shields.io/badge/Fast API-009688?style=for-the-badge&logo=fastapi&logoColor=white"> <img src="https://img.shields.io/badge/pycharm-000000?style=for-the-badge&logo=pycharm&logoColor=white"> <img src="https://img.shields.io/badge/Langchain4j-1C3C3C?style=for-the-badge&logo=Langchain&logoColor=white"> <img src="https://img.shields.io/badge/junit5-25A162?style=for-the-badge&logo=junit5&logoColor=white"> 
 
