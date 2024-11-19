@@ -1,0 +1,7 @@
+/langchain_venv
+
+/__pycache__
+
+.idea
+
+.env

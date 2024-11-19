@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+langchain
+langchain-community
+langchain_openai
+python_dotenv
+sentence_transformers
+korouge_score
