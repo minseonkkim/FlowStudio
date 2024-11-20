@@ -254,7 +254,7 @@ export default function RetrieverNodeDetail({
             </div>
           </div>
 
-          <div className="h-auto rounded-[5px] p-2 bg-white flex items-center">
+          <div className="h-auto rounded-[5px] p-2 bg-white flex items-center border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             {selectedKnowledge.title}
           </div>
         </div>

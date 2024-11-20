@@ -256,13 +256,13 @@ export default function QuestionClassifierNodeDetail({
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
-      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">gpt-4o</div>
+      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">gpt-4o</div>
 
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">클래스를 추가하세요.</div>
 
         {localClasses.map((cls, index) => (
-          <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white p-2">
+          <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white p-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between">
               <div className="text-[13px] font-bold">클래스 {index + 1}</div>
               {localClasses.length > 2 && (
