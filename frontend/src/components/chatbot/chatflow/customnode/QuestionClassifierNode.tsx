@@ -64,7 +64,7 @@ export default function QuestionClassifierNode({
                     className="rounded-[5px] p-0.5 bg-white flex flex-col gap-0.5"
                   >
                     <div className="font-bold text-[6px]">클래스 {index + 1}</div>
-                    {questionClass.content !== "" && <div>{questionClass.content}</div>}
+                    {questionClass.content !== "" && <div className="break-words">{questionClass.content}</div>}
                   </div>
                 )
               ))}
