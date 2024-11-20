@@ -44,7 +44,7 @@ export default function Page() {
           <CreateStep />
         </div>
 
-        <div className="mx-[270px]">
+        <div className="ml-[270px] w-full">
           {currentStep !== 1 ? <CreateSecond /> : <CreateFirst />}
         </div>
 

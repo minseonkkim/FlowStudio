@@ -36,6 +36,7 @@ export default function AnswerNode({
               dangerouslySetInnerHTML={data.renderOutputMessage}
               // className="data"
               style={{ whiteSpace: "pre-wrap" }}
+              className="break-words"
             >
             </div>
           </div>
