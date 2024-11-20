@@ -125,7 +125,12 @@ export default function PopularChatbotCard({
           </div>
 
           {type === "all" && (
-            <div className="flex items-center p-2" onClick={handleDownloadClick}>
+            <div className="flex items-center p-2 "
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadClick();
+              }}
+            >
               <button>
                 <BsDownload
                   size={18}

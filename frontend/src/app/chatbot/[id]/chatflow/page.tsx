@@ -451,6 +451,36 @@ export default function Page({ params }: ChatflowPageProps) {
     setShowPreviewChat(false);
   }
 
+  const [edgeContextMenu, setEdgeContextMenu] = useState<{
+    x: number;
+    y: number;
+    edge: Edge | null;
+  } | null>(null);
+
+  // Function to handle right-click on an edge
+  const onEdgeContextMenu = (event: MouseEvent, edge: Edge) => {
+    event.preventDefault(); // Prevent the default context menu
+    setEdgeContextMenu({
+      x: event.clientX - 40,
+      y: event.clientY - 40,
+      edge,
+    });
+  };
+
+  // Function to handle deleting an edge
+  const handleDeleteEdge = () => {
+    if (edgeContextMenu && edgeContextMenu.edge) {
+      deleteEdge(params.id, +edgeContextMenu.edge.id);
+      setEdges((eds) => eds.filter((e) => e.id !== edgeContextMenu.edge.id));
+    }
+    setEdgeContextMenu(null); // Hide the context menu
+  };
+
+  // Function to close the context menu
+  const closeEdgeContextMenu = () => {
+    setEdgeContextMenu(null);
+  };
+
   if(loading) return <Loading/>;
 
   else return (
@@ -478,12 +508,12 @@ export default function Page({ params }: ChatflowPageProps) {
         }
       </div>
       <ReactFlowProvider>
-      <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
-        {renderNodeDetail}
-        <VariableMenu ref={variableMenuRef} />
-        {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} nodes={nodes} setNodes={setNodes} />}
-      </div>
-      <ChatFlowPublishMenu publishedChatFlowData={publishedChatFlowData} setPublishedChatFlowData={setPublishedChatFlowData} ref={publishMenuRef} />
+        <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
+          {renderNodeDetail}
+          <VariableMenu ref={variableMenuRef} />
+          {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} nodes={nodes} setNodes={setNodes} />}
+        </div>
+        <ChatFlowPublishMenu publishedChatFlowData={publishedChatFlowData} setPublishedChatFlowData={setPublishedChatFlowData} ref={publishMenuRef} />
         <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
 
           <ReactFlow
@@ -491,12 +521,15 @@ export default function Page({ params }: ChatflowPageProps) {
             edges={edges}
             onNodesChange={isEditable ? onNodesChange : undefined}
             onEdgesChange={isEditable ? onEdgesChange : undefined}
-            // onNodeClick={onNodeClick}
-            onEdgeDoubleClick={isEditable ? onEdgeDoubleClick : undefined}
+            // onEdgeDoubleClick={isEditable ? onEdgeDoubleClick : undefined}
             onConnect={isEditable ? onConnect : undefined}
             onPaneContextMenu={handlePaneContextMenu}
-            onPaneClick={() => setMenuPosition(null)}
+            onPaneClick={() => {
+              setMenuPosition(null);
+              closeEdgeContextMenu();
+            }}
             onNodeDragStop={isEditable ? handleNodeDragStop : undefined}
+            onEdgeContextMenu={isEditable ? onEdgeContextMenu : undefined} // Right-click handler for edges
             zoomOnScroll={true}
             zoomOnPinch={true}
             panOnScroll={true}
@@ -521,24 +554,41 @@ export default function Page({ params }: ChatflowPageProps) {
                   position: "relative",
                   top: menuPosition.y,
                   left: menuPosition.x,
-                  zIndex: 1000
+                  zIndex: 1000,
                 }}
-                onClick={closeMenu} // 메뉴 클릭 시 닫기
+                onClick={closeMenu}
               >
                 {isEditable && 
                 <NodeAddMenu
                   node={{
                     position: { x: menuPosition.x, y: menuPosition.y },
-                    data: { chatFlowId: params.id }
-                  } as Node<NodeData, string | undefined>
-                  }
+                    data: { chatFlowId: params.id },
+                  } as Node<NodeData, string | undefined>}
                   nodes={nodes}
                   setNodes={setNodes}
                   setEdges={setEdges}
                   setSelectedNode={setSelectedNode}
-                  isDetail={false} // 세부 메뉴인지 여부
+                  isDetail={false}
                   questionClass={0}
                 />}
+              </div>
+            )}
+
+            {edgeContextMenu && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: edgeContextMenu.y,
+                  left: edgeContextMenu.x,
+                  backgroundColor: "white",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "5px",
+                  zIndex: 1000,
+                }}
+                onMouseLeave={closeEdgeContextMenu}
+              >
+                <button onClick={handleDeleteEdge}>간선 삭제</button>
               </div>
             )}
           </ReactFlow>
@@ -546,7 +596,7 @@ export default function Page({ params }: ChatflowPageProps) {
       </ReactFlowProvider>
       {/* {showConfirmationModal && (
         <ConfirmationModal
-          message={`${nodeTypeToDelete} 노드를 삭제하시겠습니까?`}
+          message={${nodeTypeToDelete} 노드를 삭제하시겠습니까?}
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
         />
