@@ -11,6 +11,7 @@ import { getSharedChatFlows } from "@/api/share";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/components/common/Loading";
 import { categories } from "@/constants/chatbotCategories";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
@@ -23,6 +24,7 @@ export default function Page() {
   const [activeSlide, setActiveSlide] = useState<number>(0);
   const [itemsToLoad, setItemsToLoad] = useState<number>(8);
   const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); 
+  const router = useRouter();
 
   const popularChatbots = useMemo(() => {
     return chatFlows ? [...chatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4) : [];
@@ -122,6 +124,10 @@ export default function Page() {
               type="all"
               authorNickName={chatbot.author.nickname}
               authorProfile={chatbot.author.profileImage}
+              onCardClick={() => {
+                router.push(`/chatbot/${chatbot.chatFlowId}/chatflow?isEditable=false`);
+  
+              }}
               shareNum={chatbot.shareCount}
               category={chatbot.categories.map((cat) => cat.name)}
             />
@@ -178,6 +184,10 @@ export default function Page() {
               iconId={bot.thumbnail}
               authorNickName={bot.author.nickname}
               authorProfile={bot.author.profileImage}
+              onCardClick={() => {
+                router.push(`/chatbot/${bot.chatFlowId}/chatflow?isEditable=false`);
+  
+              }}
               shareNum={bot.shareCount}
               category={bot.categories.map((cat) => cat.name)}
               type="all"
