@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -87,9 +89,16 @@ public class EdgeService {
     }
 
     public Edge getEdgeBySourceConditionId(Long sourceConditionId) {
-        return edgeRepository.findBySourceConditionId(sourceConditionId)
-                .orElseThrow(() -> new BaseException(ErrorCode.EDGE_NOT_FOUND));
-    }
+        List<Edge> edgeList = edgeRepository.findAllBySourceConditionId(sourceConditionId);
+        if (edgeList.isEmpty()) {
+            return null;
+        }
 
+        if (edgeList.size() > 1) {
+            throw new BaseException(ErrorCode.QUESTION_CLASS_HAS_MULTIPLE_EDGES);
+        }
+
+        return edgeList.get(0);
+    }
 
 }
