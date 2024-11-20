@@ -238,8 +238,12 @@ export default function Page({ params }: ChatflowPageProps) {
    //엣지 배열에서 이미 연결되어있는지 if 문 검사
    const targetFindEdge = edges.filter((edge) => edge.target === edgeData.targetNodeId.toString());
 
-   const sourceFindEdge = edges.filter((edge) => edge.source === edgeData.sourceNodeId.toString() || edge.sourceHandle == connection.sourceHandle);
-   if (targetFindEdge.length > 0 || sourceFindEdge.length > 0  ) return;
+   const sourceFindEdge = edges.filter((edge) => (edge.source === edgeData.sourceNodeId.toString() && edge.sourceHandle == connection.sourceHandle) 
+   || edge.source === edgeData.sourceNodeId.toString() && (!edge.sourceHandle || edge.sourceHandle == '0'));
+   console.log("넌 누구냐 ?", sourceFindEdge);
+   
+   if (sourceFindEdge.length > 0) return;
+   if (targetFindEdge.length > 0  ) return;
 
     postEdge(params.id, edgeData)
       .then((data) => {

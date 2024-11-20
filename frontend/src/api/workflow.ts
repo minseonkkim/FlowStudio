@@ -67,7 +67,7 @@ export async function putNode(nodeId: number, data: NodeData){
 
 // 질문 분류 클래스 수정
 export async function putQuestionClassNode(questionClassId: number, data: {"content" : string}){
-  console.log("질문 분류 클래스 수정", data);
+  console.log("질문 분류 클래스 수정",questionClassId, data);
   
   try {
     const response = await axiosInstance.put(`chat-flows/nodes/question-classes/${questionClassId}`, data)
