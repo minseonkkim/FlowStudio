@@ -110,11 +110,15 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
 
             // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
-            Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
+            List<Edge> edgeList = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
+
+            if (edgeList.size() > 1) {
+                throw new BaseException(ErrorCode.MULTIPLE_EDGE_FOUND);
+            }
 
             // 연결된 간선이 있을 시 다음 노드를 실행하는 Event를 발행한다.
-            if (edge != null) {
-                Node targetNode = edge.getTargetNode();
+            if (!edgeList.isEmpty()) {
+                Node targetNode = edgeList.get(0).getTargetNode();
 
                 // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
                 NodeEvent event = NodeEvent.of(this, targetNode, chat);
