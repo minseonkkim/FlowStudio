@@ -54,14 +54,23 @@ public class LlmExecutor extends NodeExecutor {
     public void execute(Node node, Chat chat) {
         LLM llmNode = (LLM) node;
 
-        // 프롬프트 완성
-        String promptSystem = messageParseUtil.replace(llmNode.getPromptSystem(), chat.getId());
+        // 유저 프롬프트가 비어있으면 예외 발생
+        if (llmNode.getPromptUser() == null || llmNode.getPromptUser().trim().isEmpty()) {
+            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
+        }
+
+        // 유저 프롬프트 파싱
         String promptUser = messageParseUtil.replace(llmNode.getPromptUser(), chat.getId());
 
         // 모델에게 보낼 메시지 생성
         List<ChatMessage> messageList = new ArrayList<>();
-        messageList.add(new SystemMessage(promptSystem));
         messageList.add(new UserMessage(promptUser));
+
+        // 시스템 프롬프트가 빈 값이 아닐때만 파싱 후 추가
+        if (llmNode.getPromptSystem() != null && !llmNode.getPromptSystem().trim().isEmpty()) {
+            String promptSystem = messageParseUtil.replace(llmNode.getPromptSystem(), chat.getId());
+            messageList.add(new SystemMessage(promptSystem));
+        }
 
         try {
             // 챗 모델 생성
@@ -103,7 +112,6 @@ public class LlmExecutor extends NodeExecutor {
             publishEvent(NodeEvent.of(this, targetNode, chat));
         }
     }
-
 
 
     @Override
