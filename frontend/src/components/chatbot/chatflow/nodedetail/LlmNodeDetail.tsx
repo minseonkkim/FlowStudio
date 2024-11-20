@@ -465,7 +465,7 @@ export default function LlmNodeDetail({
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">프롬프트를 입력하세요.</div>
-          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between items-center">
               <div
                 className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
@@ -495,7 +495,7 @@ export default function LlmNodeDetail({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between items-center">
               <div
                 className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
