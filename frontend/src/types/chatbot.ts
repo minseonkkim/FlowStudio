@@ -95,6 +95,7 @@ export interface NodeData{
 
   isComplete?: boolean;
   isError?: boolean;
+  isEditable?: boolean;
 }
 
 export interface ChatFlowDetail{

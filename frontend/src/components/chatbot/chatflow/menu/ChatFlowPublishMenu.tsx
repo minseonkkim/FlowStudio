@@ -5,6 +5,7 @@ import { PublishChatFlowData } from "@/types/workflow";
 import { timeDifferenceFromNow } from "@/utils/node";
 import { Bounce, toast } from 'react-toastify';
 import ModalIframe from "./ModalIframe";
+import { getApiKeys } from "@/api/profile";
 
 const ChatFlowPublishMenu = forwardRef(
     ({ publishedChatFlowData,
@@ -30,7 +31,28 @@ const ChatFlowPublishMenu = forwardRef(
         /**
          * 발행 버튼
          */
-        const handlePublishButtonClick = () => {
+        const handlePublishButtonClick = async () => {
+            let isPublishPossible = false;
+
+            await getApiKeys().then((data) => {
+                isPublishPossible = (data.openAiKey && data.openAiKey?.length != 0);                
+            });
+
+            if (!isPublishPossible) {
+                toast.error(`API 키를 등록해야 합니다.`, {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: false,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+                return;
+            }
+
             publishChatFlow(publishedChatFlowData.chatFlowId).then((data: PublishChatFlowData) => {
                 setPublishedChatFlowData(data);
                 setTimeDiff(timeDifferenceFromNow(data.publishedAt));
