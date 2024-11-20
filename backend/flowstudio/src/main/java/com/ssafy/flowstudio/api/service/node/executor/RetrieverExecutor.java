@@ -7,6 +7,8 @@ import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.request.KnowledgeSearchServiceRequest;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeSearchResponse;
 import com.ssafy.flowstudio.common.constant.ChatEnvVariable;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
@@ -29,6 +31,10 @@ public class RetrieverExecutor extends NodeExecutor {
     @Override
     public void execute(Node node, Chat chat) {
         Retriever retrieverNode = (Retriever) node;
+
+        if (retrieverNode.getKnowledge() == null) {
+            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
+        }
 
         String inputMessageValue = String.valueOf(redisService.get(chat.getId(), ChatEnvVariable.INPUT_MESSAGE));
 

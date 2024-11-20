@@ -18,7 +18,7 @@ public interface EdgeRepository extends JpaRepository<Edge, Long> {
             @Param("chatFlowId") Long chatFlowId
     );
 
-    Optional<Edge> findBySourceConditionId(Long sourceConditionId);
+    List<Edge> findAllBySourceConditionId(Long sourceConditionId);
 
     @Query("select e from Edge e where e.sourceConditionId = :sourceConditionId")
     List<Edge> findAllSourceConditionId(Long sourceConditionId);

@@ -52,6 +52,12 @@ public class QuestionClassifierExecutor extends NodeExecutor {
         QuestionClassifier questionClassifierNode = (QuestionClassifier) node;
         List<QuestionClass> questionClasses = questionClassifierNode.getQuestionClasses();
 
+        // 질문 분류 중 빈 값이 있는 질문 분류가 있다면 예외가 발생한다.
+        boolean hasBlankContent = questionClasses.stream().filter(questionClass -> questionClass.getContent() == null || questionClass.getContent().trim().isEmpty()).toList().isEmpty();
+        if (hasBlankContent) {
+            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
+        }
+
         // GPT 모델을 빌드한다.
         ChatLanguageModel model = OpenAiChatModel.builder()
                 .apiKey(secretKeyProperties.getOpenAi())
@@ -90,7 +96,6 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             log.info("AI response: {}, found ID: {}", responseText, foundId);
 
             // AI가 반환한 ID로 QuestionClass를 찾는다.
-            System.out.println(questionClasses);
             QuestionClass chosenQuestionClass = questionClasses.stream()
                     .filter(qc -> qc.getId().longValue() == foundId.longValue())
                     .findFirst()
@@ -104,13 +109,17 @@ public class QuestionClassifierExecutor extends NodeExecutor {
 
             // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
             Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
-            Node targetNode = edge.getTargetNode();
 
-            // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
-            NodeEvent event = NodeEvent.of(this, targetNode, chat);
+            // 연결된 간선이 있을 시 다음 노드를 실행하는 Event를 발행한다.
+            if (edge != null) {
+                Node targetNode = edge.getTargetNode();
 
-            // event를 발행한다.
-            publishEvent(event);
+                // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
+                NodeEvent event = NodeEvent.of(this, targetNode, chat);
+
+                // Event를 발행한다.
+                publishEvent(event);
+            }
         } catch (NumberFormatException e) {
             log.error("AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA: ", e);
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);

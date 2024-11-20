@@ -40,8 +40,8 @@ public class AnswerExecutor extends NodeExecutor {
         String outputMessage = answerNode.getOutputMessage();
 
         // Answer 노드는 Output Message를 필수로 필요로 한다.
-        if (outputMessage == null) {
-            throw new BaseException(ErrorCode.NODE_VALUE_NOT_EXIST);
+        if (outputMessage == null || outputMessage.trim().isEmpty()) {
+            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
         }
 
         String answerOutput = messageParseUtil.replace(outputMessage, chat.getId());
