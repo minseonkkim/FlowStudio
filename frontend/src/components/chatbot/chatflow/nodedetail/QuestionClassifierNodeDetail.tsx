@@ -112,22 +112,22 @@ export default function QuestionClassifierNodeDetail({
    * @param currentClass 
    * @param newValue 
    */
-  const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
-    const updatedLocalClasses = localClasses.map((cls) =>
-      cls.id === currentClass.id ? { ...cls, content: newValue } : cls
-    );
-    setLocalClasses(updatedLocalClasses);
+  // const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
+    // const updatedLocalClasses = localClasses.map((cls) =>
+    //   cls.id === currentClass.id ? { ...cls, content: newValue } : cls
+    // );
+    // setLocalClasses(updatedLocalClasses);
 
-    const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
-      cls.id === currentClass.id ? { ...cls, content: newValue } : cls
-    );
-    updateNodeDataQuestionClasses(updatedQuestionClasses);
+    // const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
+    //   cls.id === currentClass.id ? { ...cls, content: newValue } : cls
+    // );
+    // updateNodeDataQuestionClasses(updatedQuestionClasses);
 
-    // debouncedSave 호출
-    if (debouncedSaveRef.current) {
-      debouncedSaveRef.current(currentClass.id, newValue || "");
-    }
-  };
+    // // debouncedSave 호출
+    // if (debouncedSaveRef.current) {
+    //   debouncedSaveRef.current(currentClass.id, newValue || "");
+    // }
+  // };
 
 
   /**
