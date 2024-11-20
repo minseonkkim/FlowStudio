@@ -6,7 +6,6 @@ import ReactFlow, {
   Controls,
   MiniMap,
   applyNodeChanges,
-  OnNodesChange,
   ReactFlowProvider,
   Edge,
   Node,
@@ -14,7 +13,6 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   Connection,
-  useReactFlow,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
@@ -186,38 +184,38 @@ export default function Page({ params }: ChatflowPageProps) {
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
    */
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) =>
-      setNodes((nds) => {
-        nds = nds.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            coordinate: node.position
-          }
-        }));
+  // const onNodesChange: OnNodesChange = useCallback(
+  //   (changes) =>
+  //     setNodes((nds) => {
+  //       nds = nds.map((node) => ({
+  //         ...node,
+  //         data: {
+  //           ...node.data,
+  //           coordinate: node.position
+  //         }
+  //       }));
 
 
-        // 첫 번째 선택된 노드 찾기
-        const currentSelectNode = nds.find((node) => node.selected);
-        console.log("CURRENT Node:", currentSelectNode);
+  //       // 첫 번째 선택된 노드 찾기
+  //       const currentSelectNode = nds.find((node) => node.selected);
+  //       console.log("CURRENT Node:", currentSelectNode);
 
-        // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
-        if (currentSelectNode) {
-          console.log("PREV Node", selectedNode);
+  //       // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
+  //       if (currentSelectNode) {
+  //         console.log("PREV Node", selectedNode);
 
-          // 이미 선택된 노드와 다른 노드면 저장
-          if (selectedNode && selectedNode.id !== currentSelectNode.id) {
-            putNode(selectedNode.data.nodeId, selectedNode.data);
-          }
-          setSelectedNode(currentSelectNode);
-        }
+  //         // 이미 선택된 노드와 다른 노드면 저장
+  //         if (selectedNode && selectedNode.id !== currentSelectNode.id) {
+  //           putNode(selectedNode.data.nodeId, selectedNode.data);
+  //         }
+  //         setSelectedNode(currentSelectNode);
+  //       }
 
-        // ReactFlow 상태 업데이트
-        return applyNodeChanges(changes, nds);
-      }),
-    [nodes, setNodes, selectedNode]
-  );
+  //       // ReactFlow 상태 업데이트
+  //       return applyNodeChanges(changes, nds);
+  //     }),
+  //   [nodes, setNodes, selectedNode]
+  // );
 
   /**
    * 간선 연결
@@ -247,11 +245,11 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 간선 삭제
    */
-  const onEdgeDoubleClick = useCallback((event: MouseEvent, edge: Edge) => {
-    deleteEdge(params.id, +edge.id);
+  // const onEdgeDoubleClick = useCallback((event: MouseEvent, edge: Edge) => {
+  //   deleteEdge(params.id, +edge.id);
 
-    setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-  }, []);
+  //   setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+  // }, []);
 
 
   /**
