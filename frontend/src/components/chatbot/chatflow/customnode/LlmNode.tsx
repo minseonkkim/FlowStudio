@@ -37,7 +37,7 @@ export default function LlmNode({
                 <div
                   dangerouslySetInnerHTML={data.renderPromptSystem}
                   style={{ whiteSpace: "pre-wrap" }}
-                  className="rounded-[5px] p-0.5 bg-white"></div>
+                  className="rounded-[5px] p-0.5 bg-white break-words"></div>
               </div>
             }
             {data.promptUser && data.promptUser.length > 0 &&
@@ -46,7 +46,7 @@ export default function LlmNode({
                 <div
                   dangerouslySetInnerHTML={data.renderPromptUser}
                   style={{ whiteSpace: "pre-wrap" }}
-                  className="rounded-[5px] p-0.5 bg-white"></div>
+                  className="rounded-[5px] p-0.5 bg-white break-words"></div>
               </div>
             }
           </div>
