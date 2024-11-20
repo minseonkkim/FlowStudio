@@ -11,7 +11,10 @@ import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.secret.SecretKeyProperties;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
-import com.ssafy.flowstudio.domain.node.entity.*;
+import com.ssafy.flowstudio.domain.node.entity.Node;
+import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -28,9 +31,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import static dev.langchain4j.model.openai.OpenAiChatModelName.*;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O;
 
 @Slf4j
 @Component
@@ -53,7 +55,7 @@ public class QuestionClassifierExecutor extends NodeExecutor {
         List<QuestionClass> questionClasses = questionClassifierNode.getQuestionClasses();
 
         // 질문 분류 중 빈 값이 있는 질문 분류가 있다면 예외가 발생한다.
-        boolean hasBlankContent = questionClasses.stream().filter(questionClass -> questionClass.getContent() == null || questionClass.getContent().trim().isEmpty()).toList().isEmpty();
+        boolean hasBlankContent = !questionClasses.stream().filter(questionClass -> questionClass.getContent() == null || questionClass.getContent().trim().isEmpty()).toList().isEmpty();
         if (hasBlankContent) {
             throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
         }
