@@ -32,8 +32,10 @@ public enum ErrorCode {
     NODE_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "노드를 찾을 수 없습니다."),
     QUESTION_CLASS_NOT_FOUND(4002, HttpStatus.NOT_FOUND, "질문 클래스를 찾을 수 없습니다."),
     EDGE_NOT_FOUND(4003, HttpStatus.NOT_FOUND, "간선을 찾을 수 없습니다."),
-    REQUIRED_NODE_VALUE_NOT_EXIST(4004, HttpStatus.NOT_FOUND, "실행에 필요한 노드의 값이 존재하지 않습니다."),
-    QUESTION_CLASS_HAS_MULTIPLE_EDGES(4005, HttpStatus.NOT_FOUND, "질문 분류 클래스와 연결된 간선이 여러개입니다."),
+    REQUIRED_NODE_VALUE_NOT_EXIST(4004, HttpStatus.BAD_REQUEST, "실행에 필요한 노드의 값이 존재하지 않습니다."),
+    MULTIPLE_EDGE_FORBIDDEN(4005, HttpStatus.BAD_REQUEST, "여러개의 간선을 연결할 수 없는 노드이거나 질문 클래스입니다."),
+    MULTIPLE_EDGE_FOUND(4006, HttpStatus.INTERNAL_SERVER_ERROR, "질문 분류와 연결된 여러개의 간선이 발견되었습니다."),
+    DEFAULT_QUESTION_CLASSES_REMOVAL_NOT_ALLOWED(4007, HttpStatus.BAD_REQUEST, "질문 분류기에는 최소 2개의 질문 분류가 존재해야 합니다."),
 
     // Share
     CATEGORY_NOT_FOUND(5000, HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
