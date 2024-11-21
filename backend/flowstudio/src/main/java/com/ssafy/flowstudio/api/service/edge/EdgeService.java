@@ -9,6 +9,8 @@ import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Node;
+import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,11 @@ public class EdgeService {
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
 
+        if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
+            throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
+        }
+
+
         Edge savedEdge = Edge.create(sourceNode, targetNode, request.getSourceConditionId());
         edgeRepository.save(savedEdge);
 
@@ -62,6 +69,10 @@ public class EdgeService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
+            throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
+        }
 
         edge.update(
                 sourceNode,
@@ -88,17 +99,26 @@ public class EdgeService {
         return true;
     }
 
-    public Edge getEdgeBySourceConditionId(Long sourceConditionId) {
-        List<Edge> edgeList = edgeRepository.findAllBySourceConditionId(sourceConditionId);
-        if (edgeList.isEmpty()) {
-            return null;
-        }
-
-        if (edgeList.size() > 1) {
-            throw new BaseException(ErrorCode.QUESTION_CLASS_HAS_MULTIPLE_EDGES);
-        }
-
-        return edgeList.get(0);
+    public List<Edge> getEdgeBySourceConditionId(Long sourceConditionId) {
+        return edgeRepository.findAllBySourceConditionId(sourceConditionId);
     }
 
+    public boolean canConnect(Node sourceNode, Node targetNode, Long sourceConditionId) {
+        // Input Edge는 하나만 가질 수 있다.
+        if (!targetNode.getInputEdges().isEmpty()) {
+            return false;
+        }
+
+        // Source Condition을 가진 노드가 아니라면 OutputEdge는 하나만 가질 수 있다.
+        if (sourceConditionId == null && !sourceNode.getOutputEdges().isEmpty()) {
+            return false;
+        }
+
+        // 하나의 Source Condition당 하나의 Edge만 가질 수 있다.
+        if (sourceConditionId != null && !getEdgeBySourceConditionId(sourceConditionId).isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
 }
