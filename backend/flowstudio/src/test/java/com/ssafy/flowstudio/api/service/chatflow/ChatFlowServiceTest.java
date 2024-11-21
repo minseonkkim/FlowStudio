@@ -747,8 +747,8 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .build();
         nodeRepository.save(answerNode);
 
-        Edge edge1 = Edge.create(startNode, llmNode);
-        Edge edge2 = Edge.create(llmNode, answerNode);
+        Edge edge1 = Edge.create(startNode, llmNode, 0L);
+        Edge edge2 = Edge.create(llmNode, answerNode, 0L);
 
         edgeRepository.save(edge1);
         edgeRepository.save(edge2);

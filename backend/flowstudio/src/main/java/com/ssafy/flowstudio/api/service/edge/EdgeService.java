@@ -110,12 +110,12 @@ public class EdgeService {
         }
 
         // Source Condition을 가진 노드가 아니라면 OutputEdge는 하나만 가질 수 있다.
-        if (sourceConditionId == null && !sourceNode.getOutputEdges().isEmpty()) {
+        if (sourceConditionId == 0 && !sourceNode.getOutputEdges().isEmpty()) {
             return false;
         }
 
         // 하나의 Source Condition당 하나의 Edge만 가질 수 있다.
-        if (sourceConditionId != null && !getEdgeBySourceConditionId(sourceConditionId).isEmpty()) {
+        if (sourceConditionId != 0 && !getEdgeBySourceConditionId(sourceConditionId).isEmpty()) {
             return false;
         }
 
