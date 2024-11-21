@@ -80,6 +80,7 @@ class EdgeServiceTest extends IntegrationTestSupport {
         EdgeServiceRequest request = EdgeServiceRequest.builder()
                 .sourceNodeId(start.getId())
                 .targetNodeId(answer.getId())
+                .sourceConditionId(0L)
                 .build();
 
         // when
