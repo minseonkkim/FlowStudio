@@ -30,6 +30,8 @@ import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,8 +57,9 @@ public class ChatFlowService {
     private final VectorStoreService vectorStoreService;
     private final MessageParseUtil messageParseUtil;
 
-    public List<ChatFlowListResponse> getEveryoneChatFlows() {
-        List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue();
+    public List<ChatFlowListResponse> getEveryoneChatFlows(int page, int limit) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("shareCount").descending());
+        List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue(pageable);
 
         return chatFlows.stream()
                 .map(chatFlow -> {
@@ -72,13 +75,14 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test) {
+    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test, int page, int limit) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("shareCount").descending());
         List<ChatFlow> chatFlows;
 
         if (test) {
-            chatFlows = chatFlowRepository.findByOwnerWithTest(user.getId());
+            chatFlows = chatFlowRepository.findByOwnerWithTest(user.getId(), pageable);
         } else {
-            chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared);
+            chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared, pageable);
         }
 
         return chatFlows.stream()
