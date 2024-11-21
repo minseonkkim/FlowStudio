@@ -3,15 +3,13 @@ package com.ssafy.flowstudio.api.service.node;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassCreateRequest;
 import com.ssafy.flowstudio.api.controller.node.request.QuestionClassUpdateRequest;
 import com.ssafy.flowstudio.api.service.node.response.QuestionClassResponse;
+import com.ssafy.flowstudio.common.exception.BaseException;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
-import com.ssafy.flowstudio.domain.node.entity.Answer;
-import com.ssafy.flowstudio.domain.node.entity.Coordinate;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
-import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
-import com.ssafy.flowstudio.domain.node.entity.Start;
+import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -24,6 +22,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @Transactional
@@ -147,30 +146,104 @@ class QuestionClassServiceTest extends IntegrationTestSupport {
 
         Start start = Start.create(chatFlow, coordinate);
         QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+        Answer answer = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+
         chatFlow.addNode(questionClassifier);
         chatFlow.addNode(start);
-
+        chatFlow.addNode(answer);
         userRepository.save(user);
         chatFlowRepository.save(chatFlow);
 
-        QuestionClass questionClass = QuestionClass.empty();
-        questionClass.updateQuestionClassifier(questionClassifier);
-        questionClassRepository.save(questionClass);
+        QuestionClass questionClass1 = QuestionClass.empty();
+        QuestionClass questionClass2 = QuestionClass.empty();
+        QuestionClass questionClass3 = QuestionClass.empty();
 
-        Edge edge = Edge.builder()
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClass2.updateQuestionClassifier(questionClassifier);
+        questionClass3.updateQuestionClassifier(questionClassifier);
+
+        questionClassRepository.save(questionClass1);
+        questionClassRepository.save(questionClass2);
+        questionClassRepository.save(questionClass3);
+
+
+        Edge edge1 = Edge.builder()
                 .sourceNode(start)
                 .targetNode(questionClassifier)
-                .sourceConditionId(questionClass.getId())
                 .build();
 
-        edgeRepository.save(edge);
+        Edge edge2 = Edge.builder()
+                .sourceNode(questionClassifier)
+                .targetNode(answer)
+                .sourceConditionId(questionClass3.getId())
+                .build();
+
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
 
         // when
-        boolean result = questionClassService.deleteQuestionClass(questionClass.getId());
+        boolean result = questionClassService.deleteQuestionClass(questionClass3.getId());
 
         // then
         assertThat(result).isTrue();
-        assertThat(edgeRepository.existsById(edge.getId())).isFalse();
+        assertThat(edgeRepository.existsById(edge1.getId())).isTrue();
+        assertThat(edgeRepository.existsById(edge2.getId())).isFalse();
+    }
+
+    @DisplayName("질문 분류기에 질문 분류가 최소 기준인 2개를 가졌다면 삭제 시 예외가 발생한다.")
+    @Test
+    void deleteDefaultQuestionClass() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        Start start = Start.create(chatFlow, coordinate);
+        QuestionClassifier questionClassifier = QuestionClassifier.create(chatFlow, coordinate);
+        Answer answer = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(start);
+        chatFlow.addNode(answer);
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        QuestionClass questionClass1 = QuestionClass.empty();
+        QuestionClass questionClass2 = QuestionClass.empty();
+
+        questionClass1.updateQuestionClassifier(questionClassifier);
+        questionClass2.updateQuestionClassifier(questionClassifier);
+
+        questionClassRepository.save(questionClass1);
+        questionClassRepository.save(questionClass2);
+
+        // when & then
+        assertThatThrownBy(() -> questionClassService.deleteQuestionClass(questionClass2.getId()))
+                .isInstanceOf(BaseException.class)
+                .hasMessageContaining(ErrorCode.DEFAULT_QUESTION_CLASSES_REMOVAL_NOT_ALLOWED.getMessage());
     }
 
 }

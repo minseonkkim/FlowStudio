@@ -11,6 +11,7 @@ import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
 import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
+import com.ssafy.flowstudio.domain.node.repository.QuestionClassifierRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ public class QuestionClassService {
     private final NodeRepository nodeRepository;
     private final QuestionClassRepository questionClassRepository;
     private final EdgeRepository edgeRepository;
+    private final QuestionClassifierRepository questionClassifierRepository;
 
     @Transactional
     public QuestionClassResponse createQuestionClass(Long nodeId) {
@@ -58,7 +60,15 @@ public class QuestionClassService {
                 () -> new BaseException(ErrorCode.QUESTION_CLASS_NOT_FOUND)
         );
 
-        List<Edge> edge = edgeRepository.findAllSourceConditionId(questionClassId);
+        QuestionClassifier questionClassifier = questionClassifierRepository.findByQuestionClassId(questionClassId).orElseThrow(
+                () -> new BaseException(ErrorCode.NODE_NOT_FOUND)
+        );
+
+        if (questionClassifier.getQuestionClasses().size() <= 2) {
+            throw new BaseException(ErrorCode.DEFAULT_QUESTION_CLASSES_REMOVAL_NOT_ALLOWED);
+        }
+
+        List<Edge> edge = edgeRepository.findAllBySourceConditionId(questionClassId);
         edgeRepository.deleteAll(edge);
 
         questionClassRepository.delete(questionClass);
