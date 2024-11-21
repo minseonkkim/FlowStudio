@@ -41,5 +41,11 @@ services:
     ports:
       - "${REDIS_INSITE_PORT}:5540"
 
+  flowstudio-py:
+    image: flowstudio-python:latest
+    container_name: flowstudio-python
+    ports:
+      - "${LANGCHAIN_FASTAPI_PORT}:9700"
+
 volumes:
   flowstudio-db:
