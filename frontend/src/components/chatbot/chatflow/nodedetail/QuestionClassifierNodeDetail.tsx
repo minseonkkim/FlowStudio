@@ -41,15 +41,15 @@ export default function QuestionClassifierNodeDetail({
   const [localClasses, setLocalClasses] = useState<{ [key: number]: QuestionClass }>({});
   const textareaTimeRefs = useRef<{ [key: number]: (id: number, content: string) => void }>({});
   // const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const questionTimeRef = debounce((id: number, content: string) => {
-    putQuestionClassNode(id, { content });
-  }, 500);
+  // const questionTimeRef = debounce((id: number, content: string) => {
+  //   putQuestionClassNode(id, { content });
+  // }, 500);
   /**
    * 질문 클래스 관리
    */
   useEffect(() => {
 
-    let initQuestionClasses = {};
+    const initQuestionClasses = {};
     node.data.questionClasses.forEach((questionClass) => {
       initQuestionClasses[questionClass.id] = questionClass;
 
@@ -67,7 +67,7 @@ export default function QuestionClassifierNodeDetail({
    */
   useEffect(() => {
     Object.keys(textareaRefs).forEach((questionClassId) => {
-      let textarea = textareaRefs[questionClassId].current;
+      const textarea = textareaRefs[questionClassId].current;
       if (textarea) {
         textarea.style.height = "auto";
         textarea.style.height = `${textarea.scrollHeight}px`;
@@ -82,7 +82,7 @@ export default function QuestionClassifierNodeDetail({
     if (Object.keys(localClasses).length < 5) {
       postQuestionClassNode(node.data.nodeId, { content: "" }).then((data: QuestionClass) => {
         // localClasses 업데이트
-        let updatedLocalClasses = { ...localClasses };
+        const updatedLocalClasses = { ...localClasses };
         updatedLocalClasses[data.id] = data;
         setLocalClasses(updatedLocalClasses);
 
@@ -108,7 +108,7 @@ export default function QuestionClassifierNodeDetail({
       if (data) {
         // localClasses 업데이트
         // const updatedLocalClasses = localClasses.filter((cls) => cls.id !== currentClass.id);
-        let updatedLocalClasses = { ...localClasses };
+        const updatedLocalClasses = { ...localClasses };
         delete updatedLocalClasses[currentClassId];
         setLocalClasses(updatedLocalClasses);
 
@@ -142,7 +142,7 @@ export default function QuestionClassifierNodeDetail({
     // const updatedLocalClasses = localClasses.map((cls) =>
     //   cls.id === currentClass.id ? { ...cls, content: newValue } : cls
     // );
-    let updatedLocalClasses = { ...localClasses };
+    const updatedLocalClasses = { ...localClasses };
     updatedLocalClasses[questionClassId].content = newValue;
     setLocalClasses(updatedLocalClasses);
 
