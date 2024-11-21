@@ -18,6 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -51,7 +52,7 @@ class ChatControllerTest extends ControllerTestSupport {
                 .chats(List.of(chat1, chat2))
                 .build();
 
-        given(chatService.getChats(any(User.class), any(Long.class)))
+        given(chatService.getChats(any(User.class), any(Long.class), anyInt(), anyInt()))
                 .willReturn(response);
 
         // when

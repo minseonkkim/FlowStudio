@@ -79,7 +79,7 @@ class ChatServiceTest extends IntegrationTestSupport {
         chatFlowRepository.save(chatFlow);
 
         // when
-        ChatListResponse response = chatService.getChats(user, chatFlow.getId());
+        ChatListResponse response = chatService.getChats(user, chatFlow.getId(), 0, 20);
 
         // then
         assertThat(response).isNotNull()
