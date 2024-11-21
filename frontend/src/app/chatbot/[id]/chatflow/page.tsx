@@ -13,7 +13,11 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   Connection,
+<<<<<<< HEAD
   OnNodesChange,
+=======
+  // getConnectedEdges,
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
@@ -181,6 +185,11 @@ export default function Page({ params }: ChatflowPageProps) {
 
   }, [params.id, setNodes, setEdges, setSelectedNode]);
 
+  useEffect(() => {
+    console.log("전체 엣지 목록", edges);
+    
+  }, [edges])
+
   /**
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
@@ -221,7 +230,11 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 간선 연결
    */
+<<<<<<< HEAD
     const onConnect = useCallback((connection: Connection, edges : Edge[]) => {
+=======
+  const onConnect = useCallback((connection: Connection, edges : Edge[]) => {
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
     const edgeData: EdgeData = {
       edgeId: 0,
       sourceNodeId: +connection.source,
@@ -235,9 +248,17 @@ export default function Page({ params }: ChatflowPageProps) {
 
    const sourceFindEdge = edges.filter((edge) => (edge.source === edgeData.sourceNodeId.toString() && edge.sourceHandle == connection.sourceHandle) 
    || edge.source === edgeData.sourceNodeId.toString() && (!edge.sourceHandle || edge.sourceHandle == '0'));
+<<<<<<< HEAD
    
    if (sourceFindEdge.length > 0) return;
    if (targetFindEdge.length > 0  ) return;
+=======
+   console.log("넌 누구냐 ?", sourceFindEdge);
+   
+   if (sourceFindEdge.length > 0) return;
+   if (targetFindEdge.length > 0  ) return;
+
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
     postEdge(params.id, edgeData)
       .then((data) => {
         const newReactEdge: Edge = {
