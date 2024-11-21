@@ -13,7 +13,11 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   Connection,
+<<<<<<< HEAD
+  OnNodesChange,
+=======
   // getConnectedEdges,
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
@@ -190,43 +194,47 @@ export default function Page({ params }: ChatflowPageProps) {
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
    */
-  // const onNodesChange: OnNodesChange = useCallback(
-  //   (changes) =>
-  //     setNodes((nds) => {
-  //       nds = nds.map((node) => ({
-  //         ...node,
-  //         data: {
-  //           ...node.data,
-  //           coordinate: node.position
-  //         }
-  //       }));
+  const onNodesChange: OnNodesChange = useCallback(
+    (changes) =>
+      setNodes((nds) => {
+        nds = nds.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            coordinate: node.position
+          }
+        }));
 
 
-  //       // 첫 번째 선택된 노드 찾기
-  //       const currentSelectNode = nds.find((node) => node.selected);
-  //       console.log("CURRENT Node:", currentSelectNode);
+        // 첫 번째 선택된 노드 찾기
+        const currentSelectNode = nds.find((node) => node.selected);
+        console.log("CURRENT Node:", currentSelectNode);
 
-  //       // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
-  //       if (currentSelectNode) {
-  //         console.log("PREV Node", selectedNode);
+        // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
+        if (currentSelectNode) {
+          console.log("PREV Node", selectedNode);
 
-  //         // 이미 선택된 노드와 다른 노드면 저장
-  //         if (selectedNode && selectedNode.id !== currentSelectNode.id) {
-  //           putNode(selectedNode.data.nodeId, selectedNode.data);
-  //         }
-  //         setSelectedNode(currentSelectNode);
-  //       }
+          // 이미 선택된 노드와 다른 노드면 저장
+          if (selectedNode && selectedNode.id !== currentSelectNode.id) {
+            putNode(selectedNode.data.nodeId, selectedNode.data);
+          }
+          setSelectedNode(currentSelectNode);
+        }
 
-  //       // ReactFlow 상태 업데이트
-  //       return applyNodeChanges(changes, nds);
-  //     }),
-  //   [nodes, setNodes, selectedNode]
-  // );
+        // ReactFlow 상태 업데이트
+        return applyNodeChanges(changes, nds);
+      }),
+    [nodes, setNodes, selectedNode]
+  );
 
   /**
    * 간선 연결
    */
+<<<<<<< HEAD
+    const onConnect = useCallback((connection: Connection, edges : Edge[]) => {
+=======
   const onConnect = useCallback((connection: Connection, edges : Edge[]) => {
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
     const edgeData: EdgeData = {
       edgeId: 0,
       sourceNodeId: +connection.source,
@@ -240,11 +248,17 @@ export default function Page({ params }: ChatflowPageProps) {
 
    const sourceFindEdge = edges.filter((edge) => (edge.source === edgeData.sourceNodeId.toString() && edge.sourceHandle == connection.sourceHandle) 
    || edge.source === edgeData.sourceNodeId.toString() && (!edge.sourceHandle || edge.sourceHandle == '0'));
+<<<<<<< HEAD
+   
+   if (sourceFindEdge.length > 0) return;
+   if (targetFindEdge.length > 0  ) return;
+=======
    console.log("넌 누구냐 ?", sourceFindEdge);
    
    if (sourceFindEdge.length > 0) return;
    if (targetFindEdge.length > 0  ) return;
 
+>>>>>>> 3cc989483679af7d006dcbc24cb141031cbae91c
     postEdge(params.id, edgeData)
       .then((data) => {
         const newReactEdge: Edge = {
@@ -541,6 +555,7 @@ export default function Page({ params }: ChatflowPageProps) {
   const closeEdgeContextMenu = () => {
     setEdgeContextMenu(null);
   };
+  
 
   if(loading) return <Loading/>;
 
@@ -590,9 +605,9 @@ export default function Page({ params }: ChatflowPageProps) {
     <ReactFlow
       nodes={nodes}
       edges={edges}
-      onNodesChange={isEditable ? (changes) => setNodes(applyNodeChanges(changes, nodes)) : undefined}
+      onNodesChange={isEditable ? onNodesChange : undefined}
       onEdgesChange={isEditable ? onEdgesChange : undefined}
-      onConnect={isEditable ? onConnect : undefined}
+      onConnect={isEditable ? (connect) => onConnect(connect, edges) : undefined}
       onInit={onInit}
       onPaneContextMenu={handlePaneContextMenu}
       onPaneClick={() => {
