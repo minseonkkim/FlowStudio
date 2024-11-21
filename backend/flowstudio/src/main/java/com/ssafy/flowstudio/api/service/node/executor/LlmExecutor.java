@@ -95,12 +95,6 @@ public class LlmExecutor extends NodeExecutor {
                 Integer tokenUsage = response.tokenUsage().totalTokenCount();
                 tokenUsageLogRepository.save(TokenUsageLog.create(chat.getUser(), tokenUsage));
             }
-
-            if (chat.isTest()) {
-                redisService.saveTestValue(chat.getId(), llmOutputMessage);
-                sseEmitters.sendChatFlowTestLlm(chat, llmOutputMessage);
-            }
-
         } catch (OpenAiHttpException e) {
             log.error("API_KEY_INVALID: ", e);
             throw new BaseException(ErrorCode.API_KEY_INVALID);

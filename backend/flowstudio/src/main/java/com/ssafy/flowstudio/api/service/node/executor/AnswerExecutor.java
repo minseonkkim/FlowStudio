@@ -55,6 +55,8 @@ public class AnswerExecutor extends NodeExecutor {
         if(chat.isTest()) {
             ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
             publishEvent(event);
+            redisService.saveTestValue(chat.getId(), answerOutput);
+            sseEmitters.sendChatFlowTestLlm(chat, answerOutput);
         }
     }
 
