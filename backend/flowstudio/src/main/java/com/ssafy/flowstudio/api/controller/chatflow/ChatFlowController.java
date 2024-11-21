@@ -28,9 +28,11 @@ public class ChatFlowController {
      */
     @GetMapping(value = "/api/v1/chat-flows/shares")
     public ApiResponse<List<ChatFlowListResponse>> getEveryoneChatFlows(
-            @CurrentUser User user
+            @CurrentUser User user,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatFlowService.getEveryoneChatFlows());
+        return ApiResponse.ok(chatFlowService.getEveryoneChatFlows(page, limit));
     }
 
     /**
@@ -42,9 +44,11 @@ public class ChatFlowController {
     public ApiResponse<List<ChatFlowListResponse>> getChatFlows(
             @CurrentUser User user,
             @RequestParam(required = false, defaultValue = "false") boolean isShared,
-            @RequestParam(required = false, defaultValue = "false") boolean test
+            @RequestParam(required = false, defaultValue = "false") boolean test,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test));
+        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test, page, limit));
     }
 
     /**

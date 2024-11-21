@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.domain.chatflow.repository;
 
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.user.entity.User;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,9 +16,9 @@ public interface ChatFlowRepository extends JpaRepository<ChatFlow, Long>, Custo
             "WHERE c.id = :id and c.owner.id = :userId ")
     Optional<ChatFlow> findByIdAndUserId(Long id, Long userId);
 
-    List<ChatFlow> findByOwnerAndIsPublic(User owner, boolean isPublic);
+    List<ChatFlow> findByOwnerAndIsPublic(User owner, boolean isPublic, PageRequest pageable);
 
-    List<ChatFlow> findByIsPublicTrue();
+    List<ChatFlow> findByIsPublicTrue(PageRequest pageable);
 
     @Query("SELECT c FROM ChatFlow c " +
             "LEFT JOIN FETCH c.tests " +
@@ -32,5 +33,5 @@ public interface ChatFlowRepository extends JpaRepository<ChatFlow, Long>, Custo
     @Query("SELECT c FROM ChatFlow c " +
             "JOIN FETCH c.tests t " +
             "WHERE c.owner.id = :userId ")
-    List<ChatFlow> findByOwnerWithTest(Long userId);
+    List<ChatFlow> findByOwnerWithTest(Long userId, PageRequest pageable);
 }

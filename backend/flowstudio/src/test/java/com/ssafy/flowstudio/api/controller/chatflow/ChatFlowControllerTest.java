@@ -13,16 +13,18 @@ import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,7 +66,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
                 .willReturn(List.of(response));
 
         // when
@@ -459,7 +461,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getEveryoneChatFlows())
+        given(chatFlowService.getEveryoneChatFlows(0, 20))
                 .willReturn(List.of(response));
 
         // when

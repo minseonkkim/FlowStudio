@@ -27,6 +27,9 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,7 +105,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -152,7 +155,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -206,7 +209,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = true;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -256,7 +259,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test, 0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -1152,7 +1155,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2, chatFlow3));
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getEveryoneChatFlows();
+        List<ChatFlowListResponse> response = chatFlowService.getEveryoneChatFlows(0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(2);

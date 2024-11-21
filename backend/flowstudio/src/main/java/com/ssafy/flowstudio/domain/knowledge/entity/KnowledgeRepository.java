@@ -1,6 +1,7 @@
 package com.ssafy.flowstudio.domain.knowledge.entity;
 
 import feign.Param;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface KnowledgeRepository extends JpaRepository<Knowledge, Long> {
 
-    List<Knowledge> findByUserId(Long userId);
+    List<Knowledge> findByUserId(Long userId, PageRequest pageable);
 
     Optional<Knowledge> findByUserIdAndId(Long userId, Long id);
 
