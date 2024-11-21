@@ -53,10 +53,10 @@ public class AnswerExecutor extends NodeExecutor {
         updateChatHistory(chat, inputMessage, answerOutput);
 
         if(chat.isTest()) {
-            ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
-            publishEvent(event);
             redisService.saveTestValue(chat.getId(), answerOutput);
             sseEmitters.sendChatFlowTestLlm(chat, answerOutput);
+            ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
+            publishEvent(event);
         }
     }
 
