@@ -24,6 +24,10 @@ import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -34,8 +38,7 @@ import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -91,7 +94,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .shareCount(0)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
                 .willReturn(List.of(response));
 
         // when
@@ -111,7 +114,9 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                 .summary("챗플로우 목록 조회")
                                 .queryParameters(
                                         parameterWithName("isShared").optional().description("공유여부"),
-                                        parameterWithName("test").optional().description("테스트 존재 여부")
+                                        parameterWithName("test").optional().description("테스트 존재 여부"),
+                                        parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
+                                        parameterWithName("size").optional().description("사이즈, 입력 없으면 default 20")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
@@ -182,12 +187,14 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .shareCount(0)
                 .build();
 
-        given(chatFlowService.getEveryoneChatFlows())
+        given(chatFlowService.getEveryoneChatFlows(0, 20))
                 .willReturn(List.of(response));
 
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows/shares")
+                        .param("page", "0")
+                        .param("size", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -199,6 +206,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("ChatFlow")
                                 .summary("모두의 챗플로우 목록 조회")
+                                .queryParameters(
+                                        parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
+                                        parameterWithName("size").optional().description("사이즈, 입력 없으면 default 20")
+                                )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),

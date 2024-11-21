@@ -29,9 +29,11 @@ public class ChatController {
     @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/chats")
     public ApiResponse<ChatListResponse> getChats(
             @CurrentUser User user,
-            @PathVariable Long chatFlowId
+            @PathVariable Long chatFlowId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatService.getChats(user, chatFlowId));
+        return ApiResponse.ok(chatService.getChats(user, chatFlowId, page, limit));
     }
 
     /**
