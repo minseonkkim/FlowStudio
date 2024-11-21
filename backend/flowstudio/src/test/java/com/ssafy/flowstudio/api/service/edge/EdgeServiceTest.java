@@ -293,14 +293,24 @@ class EdgeServiceTest extends IntegrationTestSupport {
 
         entityManager.clear();
 
-        EdgeServiceRequest request = EdgeServiceRequest.builder()
+        EdgeServiceRequest request1 = EdgeServiceRequest.builder()
                 .sourceNodeId(questionClassifier.getId())
                 .targetNodeId(answer3.getId())
                 .sourceConditionId(questionClasses.get(0).getId())
                 .build();
 
+        EdgeServiceRequest request2 = EdgeServiceRequest.builder()
+                .sourceNodeId(questionClassifier.getId())
+                .targetNodeId(answer3.getId())
+                .sourceConditionId(questionClasses.get(1).getId())
+                .build();
+
         // when & then
-        assertThatThrownBy(() -> edgeService.create(user, chatFlow.getId(), request))
+        assertThatThrownBy(() -> edgeService.create(user, chatFlow.getId(), request1))
+                .isInstanceOf(BaseException.class)
+                .hasMessageContaining(ErrorCode.MULTIPLE_EDGE_FORBIDDEN.getMessage());
+
+        assertThatThrownBy(() -> edgeService.create(user, chatFlow.getId(), request2))
                 .isInstanceOf(BaseException.class)
                 .hasMessageContaining(ErrorCode.MULTIPLE_EDGE_FORBIDDEN.getMessage());
     }
