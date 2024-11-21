@@ -347,7 +347,6 @@ public class ChatFlowService {
 
             // 복제된 질문 분류를 DB에 저장 후 맵에 추가한다.
             questionClassRepository.save(clonedQuestionClass);
-            System.out.println("originalQuestionClass.getId() = " + originalQuestionClass.getId());
             questionClassMap.put(originalQuestionClass.getId(), clonedQuestionClass);
         }
 
@@ -357,17 +356,12 @@ public class ChatFlowService {
         for (Edge originalEdge : edges) {
             Long sourceNodeId = originalEdge.getSourceNode().getId();
             Long targetNodeId = originalEdge.getTargetNode().getId();
-            Long sourceConditionId = null;
-
-            // 간선의 출처 노드가 질문 분류기면 위에서 복제된 질문 분류의 ID로 sourceConditionId를 새롭게 매핑한다.
-            if (originalEdge.getSourceNode().getType() == NodeType.QUESTION_CLASSIFIER) {
-                sourceConditionId = questionClassMap.get(originalEdge.getSourceConditionId()).getId();
-            }
+            Long sourceConditionId = originalEdge.getSourceConditionId() ;
 
             Edge edge = Edge.create(
                     nodeMap.get(sourceNodeId),
                     nodeMap.get(targetNodeId),
-                    sourceConditionId
+                    sourceConditionId == 0 ? 0 : questionClassMap.get(sourceConditionId).getId()
             );
 
             edgeRepository.save(edge);
