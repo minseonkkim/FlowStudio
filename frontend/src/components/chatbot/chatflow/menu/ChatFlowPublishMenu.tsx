@@ -1,11 +1,12 @@
 import React, { Dispatch, forwardRef, SetStateAction, useImperativeHandle, useState } from "react";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
-import { publishChatFlow } from "@/api/chatbot";
+import { publishChatFlow, unPublishChatFlow } from "@/api/chatbot";
 import { PublishChatFlowData } from "@/types/workflow";
 import { timeDifferenceFromNow } from "@/utils/node";
 import { Bounce, toast } from 'react-toastify';
 import ModalIframe from "./ModalIframe";
 import { getApiKeys } from "@/api/profile";
+import { toastError, toastSuccess } from "@/utils/toast";
 
 const ChatFlowPublishMenu = forwardRef(
     ({ publishedChatFlowData,
@@ -39,17 +40,7 @@ const ChatFlowPublishMenu = forwardRef(
             });
 
             if (!isPublishPossible) {
-                toast.error(`API 키를 등록해야 합니다.`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: false,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    transition: Bounce,
-                });
+                toastError('API 키를 등록해야 합니다.');
                 return;
             }
 
@@ -59,19 +50,24 @@ const ChatFlowPublishMenu = forwardRef(
                 const msg = publishedChatFlowData.publishUrl && publishedChatFlowData.publishedAt
                     ? "업데이트"
                     : "발행";
-                toast.success(`챗봇 ${msg} 성공`, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: false,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                    transition: Bounce,
-                });
+                    toastSuccess(`챗봇 ${msg} 성공`);
             });
         };
+        
+        const handleUnPublishButtonClick = async () => {
+            unPublishChatFlow(publishedChatFlowData.chatFlowId).then((data) => {
+                console.log(data);
+                if (Boolean(data)) { 
+                    setPublishedChatFlowData({
+                        ...publishedChatFlowData,
+                        publishUrl: '',
+                        publishedAt: '',
+                    })
+                    setTimeDiff(null);
+                    toastSuccess('챗봇 발행이 취소되었습니다.');
+                }
+            })
+        }
 
         const handleImportModal = () => {
             setShowImportModal((prev) => !prev);
@@ -79,7 +75,7 @@ const ChatFlowPublishMenu = forwardRef(
 
         return (<>
             {showChatbotCreationModal && (
-                <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px] h-[200px]">
+                <div className="text-[14px] absolute top-[135px] right-[25px] p-4 bg-white shadow-lg rounded-[10px] flex flex-col justify-between gap-3 z-[100] w-[250px]">
                     <button
                         onClick={handlePublishButtonClick}
                         className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer"
@@ -88,6 +84,12 @@ const ChatFlowPublishMenu = forwardRef(
                             ? "업데이트"
                             : "발행"}
                     </button>
+                    {publishedChatFlowData.publishUrl && publishedChatFlowData.publishedAt &&<button
+                        onClick={handleUnPublishButtonClick}
+                        className="px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8D64B6] rounded-[8px] text-white font-bold cursor-pointer"
+                    >발행 취소
+                    </button>
+                    }
                     <div>
                         {timeDiff ? `${timeDiff} 발행` : "챗봇을 발행하세요"}
                     </div>
