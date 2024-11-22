@@ -13,11 +13,13 @@ import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
+import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import com.ssafy.flowstudio.support.IntegrationTestSupport;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,12 @@ class NodeServiceTest extends IntegrationTestSupport {
 
     @Autowired
     private NodeRepository nodeRepository;
+
+    @Autowired
+    private EdgeRepository edgeRepository;
+
+    @Autowired
+    private EntityManager entityManager;
 
 
     @DisplayName("Node를 생성하면 타입에 맞는 노드가 생성된다.")
@@ -394,11 +402,55 @@ class NodeServiceTest extends IntegrationTestSupport {
         chatFlowRepository.save(chatFlow);
 
         // when
-        List<Node> precedingNodes = nodeService.getPrecedingNodes(user, answer);
+        List<Node> precedingNodes = nodeService.getPrecedingNodes(answer);
 
         // then
         assertThat(precedingNodes)
                 .hasSize(2)
                 .contains(start, questionClassifier);
+    }
+
+    @DisplayName("노드 순회 시 사이클이 감지되면 예외를 발생한다.")
+    @Test
+    void getPrecedingNodesWithCycle() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        // Start와 Answer 노드 생성
+        Node start = Start.create(chatFlow, coordinate);
+        Answer answer = Answer.create(chatFlow, coordinate);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(answer);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // Start와 Answer, Answer과 Start를 잇는 간선을 생성하여 사이클 발생
+        Edge edge1 = Edge.create(start, answer);
+        Edge edge2 = Edge.create(answer, start);
+        edgeRepository.saveAll(List.of(edge1, edge2));
+        answer.getInputEdges().add(edge1);
+        start.getOutputEdges().add(edge1);
+        start.getInputEdges().add(edge2);
+        answer.getOutputEdges().add(edge2);
+
+        // when & then
+        assertThatThrownBy(() -> nodeService.getPrecedingNodes(answer))
+                .isInstanceOf(BaseException.class)
+                .hasMessage(ErrorCode.CHAT_FLOW_CYCLE_DETECTED.getMessage());
     }
 }
