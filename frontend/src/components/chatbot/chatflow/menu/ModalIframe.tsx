@@ -3,7 +3,6 @@
 import { toastSuccess } from '@/utils/toast';
 import { FaRegCopy } from '@react-icons/all-files/fa/FaRegCopy';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { Bounce, toast } from 'react-toastify';
 
 interface ModalIframeProps {
   chatFlowId: number;
