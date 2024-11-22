@@ -1,15 +1,16 @@
 package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
-import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
-import com.ssafy.flowstudio.api.service.node.response.detail.*;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponseMapper;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
-import com.ssafy.flowstudio.domain.node.entity.*;
+import com.ssafy.flowstudio.domain.node.entity.Coordinate;
+import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.factory.create.NodeFactory;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -66,25 +68,39 @@ public class NodeService {
         Node node = nodeRepository.findById(nodeId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
 
-        List<Node> precedingNodes = getPrecedingNodes(user, node);
+        ChatFlow chatFlow = chatFlowRepository.findById(node.getChatFlow().getId())
+                .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
+
+        List<Node> precedingNodes = getPrecedingNodes(node);
 
         return nodeDetailResponseMapper.getCorrespondNodeDetailResponse(node, precedingNodes);
     }
 
-    public List<Node> getPrecedingNodes(User user, Node node) {
-        // 영속성 컨텍스트에 해당 ChatFlow의 모든 Edge들을 로드한다.
+    public List<Node> getPrecedingNodes(Node node) {
+        // TODO : ChatFlow ID로 모든 Node, Edge 로드하는 쿼리 작성
+        // 영속성 컨텍스트에 해당 ChatFlow의 모든 Node와 Edge들을 로드한다.
         List<Edge> edges = edgeRepository.findByChatFlowId(node.getChatFlow().getId());
-        HashSet<Node> precedingNodes = new HashSet<>();
-        traverse(node, precedingNodes);
-        return precedingNodes.stream().toList();
+        List<Node> nodes = nodeRepository.findByChatFlowId(node.getChatFlow().getId());
+        HashSet<Long> nodeVisited = new HashSet<>();
+        List<Node> precedingNodes = new ArrayList<>();
+        traceBack(node, precedingNodes, nodeVisited);
+        Collections.reverse(precedingNodes);
+        return precedingNodes;
     }
 
-    public static void traverse(Node node, HashSet<Node> precedingNodes) {
+    public static void traceBack(Node node, List<Node> precedingNodes, HashSet<Long> nodeVisited) {
+        nodeVisited.add(node.getId());
+
         List<Edge> inputEdges = node.getInputEdges();
         for (Edge edge : inputEdges) {
             Node sourceNode = edge.getSourceNode();
             precedingNodes.add(sourceNode);
-            traverse(sourceNode, precedingNodes);
+
+            if (nodeVisited.contains(sourceNode.getId())) {
+                throw new BaseException(ErrorCode.CHAT_FLOW_CYCLE_DETECTED);
+            }
+
+            traceBack(sourceNode, precedingNodes, nodeVisited);
         }
     }
 }
