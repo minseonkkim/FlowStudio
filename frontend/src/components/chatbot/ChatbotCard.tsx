@@ -49,7 +49,7 @@ export default function ChatbotCard({
   };
 
   const handleConfirmDownload = () => {
-    downloadChatFlowMutation.mutate(chatbotId); 
+    downloadChatFlowMutation.mutate(chatbotId);
     router.push('/chatbots');
     setIsModalOpen(false);
   };
@@ -76,11 +76,11 @@ export default function ChatbotCard({
             <p className="mb-1 text-[16px] text-[#1D2939]">{title}</p>
             {type === "all" &&
               <p className="text-[12px] text-gray-400 flex flex-row items-center">
-                made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨
+                made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full" />&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨
               </p>
             }
-            
-            
+
+
           </div>
 
           <div className="flex justify-between items-center">
@@ -93,9 +93,12 @@ export default function ChatbotCard({
                   </span>
                 ))}
               </div>
-              
+
               {type === "all" && (
-                <button onClick={handleDownloadClick}>
+                <button onClick={(e) => {
+                  e.stopPropagation();
+                  handleDownloadClick();
+                }}>
                   <BsDownload
                     size={18}
                     className="ml-6 text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
@@ -115,13 +118,19 @@ export default function ChatbotCard({
             <div className="flex justify-end gap-4">
               <button
                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={handleCloseModal}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseModal();
+                }}
               >
                 취소
               </button>
               <button
                 className="px-4 py-2 bg-[#874aa5] text-white rounded hover:bg-[#6e3a85]"
-                onClick={handleConfirmDownload}
+                onClick={(e) => {
+                  e.stopPropagation();                  
+                  handleConfirmDownload();
+                }}
               >
                 확인
               </button>
