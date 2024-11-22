@@ -385,4 +385,8 @@ public class ChatFlowService {
                 .toList();
     }
 
+    public boolean isChattable(ChatFlow chatFlow) {
+        return true;
+    }
+
 }

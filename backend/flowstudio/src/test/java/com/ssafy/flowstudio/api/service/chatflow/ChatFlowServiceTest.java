@@ -1166,4 +1166,34 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                         tuple(chatFlow3.getId(), chatFlow3.getTitle())
                 );
     }
+
+    @DisplayName("시작 노드가 없으면 false를 반환한다.")
+    @Test
+    void notChattableWhenStartNotExist() {
+    }
+
+    @DisplayName("답변 노드가 없으면 false를 반환한다.")
+    @Test
+    void notChattableWhenAnswerNotExist() {
+    }
+
+    @DisplayName("플로우 분기의 흐름 끝에 Answer 노드가 존재하지 않으면 false를 반환한다.")
+    @Test
+    void notChattableWhenAnswerIsNotDestination() {
+    }
+
+    @DisplayName("Retriever 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void notChattableWhenRetrieverResourceNotEnough() {
+    }
+
+    @DisplayName("LLM 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void notChattableWhenLLMResourceNotEnough() {
+    }
+
+    @DisplayName("QuestionClassifier 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void notChattableWhenQuestionClassifierResourceNotEnough() {
+    }
 }
