@@ -30,21 +30,16 @@ public class LLM extends Node {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private ModelProvider modelProvider;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private ModelName modelName;
 
     @Builder
-    private LLM(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String promptSystem, String promptUser, String context, double temperature, int maxTokens, ModelProvider modelProvider, ModelName modelName) {
+    private LLM(Long id, ChatFlow chatFlow, String name, NodeType type, Coordinate coordinate, String promptSystem, String promptUser, String context, double temperature, int maxTokens, ModelName modelName) {
         super(id, chatFlow, name, type, coordinate);
         this.promptSystem = promptSystem;
         this.promptUser = promptUser;
         this.context = context;
         this.temperature = temperature;
         this.maxTokens = maxTokens;
-        this.modelProvider = modelProvider;
         this.modelName = modelName;
     }
 
@@ -58,7 +53,6 @@ public class LLM extends Node {
                 .maxTokens(512)
                 .promptSystem("")
                 .promptUser("")
-                .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O_MINI)
                 .build();
     }
@@ -73,7 +67,6 @@ public class LLM extends Node {
                 .maxTokens(512)
                 .promptSystem("")
                 .promptUser("")
-                .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O_MINI)
                 .build();
     }

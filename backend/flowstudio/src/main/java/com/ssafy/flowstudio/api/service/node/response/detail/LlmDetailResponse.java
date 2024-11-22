@@ -2,7 +2,6 @@ package com.ssafy.flowstudio.api.service.node.response.detail;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
-import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
 import com.ssafy.flowstudio.domain.node.entity.*;
 import lombok.Builder;
@@ -47,7 +46,7 @@ public class LlmDetailResponse extends NodeDetailResponse {
                 .context(llm.getContext())
                 .temperature(llm.getTemperature())
                 .maxTokens(llm.getMaxTokens())
-                .modelProvider(llm.getModelProvider())
+                .modelProvider(llm.getModelName().getProvider())
                 .modelName(llm.getModelName())
                 .build();
     }
@@ -63,7 +62,7 @@ public class LlmDetailResponse extends NodeDetailResponse {
                 .context(llm.getContext())
                 .temperature(llm.getTemperature())
                 .maxTokens(llm.getMaxTokens())
-                .modelProvider(llm.getModelProvider())
+                .modelProvider(llm.getModelName().getProvider())
                 .modelName(llm.getModelName())
                 .build();
     }
