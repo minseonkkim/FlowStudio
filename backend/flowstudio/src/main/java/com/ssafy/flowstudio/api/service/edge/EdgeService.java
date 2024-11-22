@@ -1,7 +1,9 @@
 package com.ssafy.flowstudio.api.service.edge;
 
+import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.edge.request.EdgeServiceRequest;
+import com.ssafy.flowstudio.api.service.node.NodeService;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
@@ -27,6 +29,7 @@ public class EdgeService {
     private final EdgeRepository edgeRepository;
     private final ChatFlowRepository chatFlowRepository;
     private final NodeRepository nodeRepository;
+    private final NodeService nodeService;
 
     @Transactional
     public EdgeResponse create(User user, Long chatFlowId, EdgeServiceRequest request) {
@@ -41,6 +44,10 @@ public class EdgeService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (nodeService.getPrecedingNodes(sourceNode).stream().anyMatch(node -> node.getId().equals(targetNode.getId()))) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_CYCLE_DETECTED);
+        }
 
         if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
             throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
@@ -69,6 +76,10 @@ public class EdgeService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (nodeService.getPrecedingNodes(sourceNode).stream().anyMatch(node -> node.getId().equals(targetNode.getId()))) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_CYCLE_DETECTED);
+        }
 
         if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
             throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
