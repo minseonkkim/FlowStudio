@@ -92,6 +92,53 @@ class EdgeServiceTest extends IntegrationTestSupport {
                 .containsExactly(start.getId(), answer.getId());
     }
 
+    @DisplayName("Cycle이 감지되면 간선을 생성할 수 없다.")
+    @Test
+    void createEdgeWithCycle() {
+        // given
+        User user = User.builder()
+                .username("test1")
+                .build();
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(1)
+                .y(1)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("title")
+                .build();
+
+        // Start와 Answer 노드 생성
+        Node start = Start.create(chatFlow, coordinate);
+        Answer answer = Answer.create(chatFlow, coordinate);
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(answer);
+
+        userRepository.save(user);
+        chatFlowRepository.save(chatFlow);
+
+        // Start와 Answer를 잇는 간선을 생성
+        Edge edge = Edge.create(start, answer);
+        edgeRepository.save(edge);
+        answer.getInputEdges().add(edge);
+        start.getOutputEdges().add(edge);
+
+        EdgeServiceRequest request = EdgeServiceRequest.builder()
+                .sourceConditionId(0L)
+                .sourceNodeId(answer.getId())
+                .targetNodeId(start.getId())
+                .build();
+
+        // when & then
+        assertThatThrownBy(() -> edgeService.create(user, chatFlow.getId(), request))
+                .isInstanceOf(BaseException.class)
+                .hasMessage(ErrorCode.CHAT_FLOW_CYCLE_DETECTED.getMessage());
+    }
+
     @DisplayName("간선을 수정하면 응답이 반환된다.")
     @Test
     void updateEdge() {
