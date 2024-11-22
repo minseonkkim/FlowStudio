@@ -102,3 +102,19 @@ export async function publishChatFlow(chatFlowId: number) {
     throw error
   }
 }
+
+export async function unPublishChatFlow(chatFlowId: number) {
+  try {
+    console.log(chatFlowId);
+    const response = await axiosInstance.delete(`chat-flows/${chatFlowId}/publish`)
+    console.log('챗플로우 발행 취소', response);
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to unPublish chat-flow');
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
