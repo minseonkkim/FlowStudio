@@ -10,6 +10,8 @@ import { UserInfo, ApiKeys } from '@/types/profile'
 import { AxiosError } from 'axios';
 import WhiteButton from '../common/whiteButton';
 import Loading from '../common/Loading';
+import { FaEyeSlash } from '@react-icons/all-files/fa/FaEyeSlash';
+import { FaEye } from '@react-icons/all-files/fa/FaEye';
 
 export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
@@ -22,12 +24,25 @@ export default function UserProfile() {
   const [claude, setClaude] = useState<string | null>(null)
   const [clova, setClova] = useState<string | null>(null)
   const queryClient = useQueryClient();
+  const [previewState, setPreviewState] = useState({
+    openAiKey: false,
+    claudeKey: false,
+    geminiKey: false,
+    clovaKey: false,
+  });
+
+  const [readonlyState, setReadonlyState] = useState({
+    openAiKey: false,
+    claudeKey: false,
+    geminiKey: false,
+    clovaKey: false,
+  });
 
   const { isLoading: isUserInfoLoading, isError: isUserInfoError, error: userInfoError, data: userInfo } = useQuery<UserInfo>({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
   });
-  
+
   const { isLoading: isApiKeysLoading, isError: isApiKeysError, error: apiKeysError, data: apiKeys } = useQuery<ApiKeys>({
     queryKey: ['apiKeys'],
     queryFn: getApiKeys,
@@ -38,7 +53,7 @@ export default function UserProfile() {
     mutationFn: getCheckNickName,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userInfo"] });
-      setNicknameStatus("사용 가능한 닉네임 입니다."); 
+      setNicknameStatus("사용 가능한 닉네임 입니다.");
     },
     onError: (error: AxiosError) => {
       if (error.response) {
@@ -89,7 +104,7 @@ export default function UserProfile() {
       alert("Api keys 수정에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
+
 
   useEffect(() => {
     if (userInfo) {
@@ -113,27 +128,27 @@ export default function UserProfile() {
   }, [isUserInfoError, userInfoError, isApiKeysError, apiKeysError]);
 
 
-  if (isUserInfoLoading || isApiKeysLoading) return <Loading/>;
+  if (isUserInfoLoading || isApiKeysLoading) return <Loading />;
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickName(e.target.value);
-    setNicknameStatus(null); 
+    setNicknameStatus(null);
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImage(file); 
-      setPreviewImage(URL.createObjectURL(file)); 
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
   const handleSave = () => {
     // 닉네임 수정
-    if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다." ) {
+    if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다.") {
       saveNickname.mutate(nickname);
       setIsEditing(false);
-    } else if ( nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요." ) {
+    } else if (nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요.") {
       alert("닉네임 중복 확인을 시도해 주세요.")
     }
 
@@ -164,31 +179,36 @@ export default function UserProfile() {
     }
   }
 
+
+  const togglePreview = (key: string) => {
+    setPreviewState((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <>
       <div className="w-full max-w-[900px] border-2 rounded-lg py-8 px-10">
         <h2 className="font-semibold text-[24px] text-gray-700 mb-5">내 정보</h2>
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
-          <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
-            {previewImage ? (
-              <Image 
-                src={previewImage} 
-                alt="프로필 이미지 미리보기" 
-                fill
-                className="object-cover"
-              />
-            ) : userInfo?.profileImage ? (
-              <Image 
-                src={userInfo.profileImage} 
-                alt="프로필 이미지" 
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
-            )}
-          </div>
+            <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
+              {previewImage ? (
+                <Image
+                  src={previewImage}
+                  alt="프로필 이미지 미리보기"
+                  fill
+                  className="object-cover"
+                />
+              ) : userInfo?.profileImage ? (
+                <Image
+                  src={userInfo.profileImage}
+                  alt="프로필 이미지"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
+              )}
+            </div>
 
             {isEditing && (
               <div className="ml-4 mb-4 md:ml-0 md:mt-2">
@@ -196,7 +216,7 @@ export default function UserProfile() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="hidden" 
+                  className="hidden"
                   id="image-upload"
                 />
                 <label
@@ -241,28 +261,39 @@ export default function UserProfile() {
               <p className="text-base text-gray-700">{userInfo?.username}</p>
             </div>
 
-            {[{ label: 'OpenAI', key: 'openAiKey' as const, value: openAi, setValue: setOpenAi },
-              { label: 'Claude', key: 'claudeKey' as const, value: claude, setValue: setClaude },
-              { label: 'Gemini', key: 'geminiKey' as const, value: gemini, setValue: setGemini },
-              { label: 'Clova', key: 'clovaKey' as const, value: clova, setValue: setClova }]
-              .map(({ label, key, value, setValue }) => (
-                <div key={label} className="flex items-center gap-x-4">
-                  <p className="mt-2 mb-2 w-[80px] font-semibold text-base text-gray-600">{label}</p>
-                  {isEditing ? (
+            {[
+              { label: "OpenAI", key: "openAiKey" as const, value: openAi, setValue: setOpenAi },
+              { label: "Claude", key: "claudeKey" as const, value: claude, setValue: setClaude },
+              { label: "Gemini", key: "geminiKey" as const, value: gemini, setValue: setGemini },
+              { label: "Clova", key: "clovaKey" as const, value: clova, setValue: setClova },
+            ].map(({ label, key, value, setValue }) => (
+              <div key={label} className="flex items-center gap-x-4">
+                <p className="mt-2 mb-2 w-[80px] font-semibold text-base text-gray-600">{label}</p>
+                {isEditing ? (
+                  <div className="relative w-full">
                     <input
-                      type="text"
-                      value={value || ''}  // 상태 값을 사용 (null인 경우 빈 문자열로 대체)
+                      type={previewState[key] ? "text" : "password"}
+                      value={value || ""}
+                      data-value={value}
                       onChange={(e) => setValue(e.target.value)}
                       className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                     />
-                  ) : (
-                    <p className="mt-2 mb-2 text-base text-gray-700 font-bold">
-                    {apiKeys?.[key] ? '****************************************' : ''}
+                    <button
+                      type="button"
+                      onClick={() => togglePreview(key)}
+                      className="absolute right-2 top-2 text-gray-600 hover:text-gray-800"
+                    >
+                      {previewState[key] ? <FaEye />
+                         : <FaEyeSlash />}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="mt-2 mb-2 text-base text-gray-700 font-bold">
+                    {apiKeys?.[key] ? "****************************************" : ""}
                   </p>
-                  
-                  )}
-                </div>
-              ))}
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
