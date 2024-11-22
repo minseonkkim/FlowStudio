@@ -3,25 +3,17 @@ package com.ssafy.flowstudio.docs.node;
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.ssafy.flowstudio.api.controller.node.NodeUpdateController;
 import com.ssafy.flowstudio.api.controller.node.request.CoordinateRequest;
-import com.ssafy.flowstudio.api.controller.node.request.update.AnswerUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.request.update.LlmUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.request.update.QuestionClassifierUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.request.update.RetrieverUpdateRequest;
-import com.ssafy.flowstudio.api.controller.node.request.update.StartUpdateRequest;
+import com.ssafy.flowstudio.api.controller.node.request.update.*;
 import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
 import com.ssafy.flowstudio.api.service.node.NodeUpdateService;
-import com.ssafy.flowstudio.api.service.node.request.update.AnswerUpdateServiceRequest;
-import com.ssafy.flowstudio.api.service.node.request.update.LlmUpdateServiceRequest;
-import com.ssafy.flowstudio.api.service.node.request.update.QuestionClassifierUpdateServiceRequest;
-import com.ssafy.flowstudio.api.service.node.request.update.RetrieverUpdateServiceRequest;
-import com.ssafy.flowstudio.api.service.node.request.update.StartUpdateServiceRequest;
+import com.ssafy.flowstudio.api.service.node.request.update.*;
 import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
-import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.QuestionClassifierResponse;
 import com.ssafy.flowstudio.api.service.node.response.RetrieverResponse;
 import com.ssafy.flowstudio.api.service.node.response.StartResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.LlmDetailResponse;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
@@ -225,6 +217,7 @@ public class NodeUpdateControllerDocsTest extends RestDocsSupport {
                 .temperature(0.5)
                 .maxTokens(100)
                 .context("context")
+                .modelName(ModelName.GPT_4_O_MINI)
                 .build();
 
         LlmDetailResponse response = LlmDetailResponse.builder()
@@ -275,7 +268,9 @@ public class NodeUpdateControllerDocsTest extends RestDocsSupport {
                                         fieldWithPath("temperature").type(JsonFieldType.NUMBER)
                                                 .description("temperature"),
                                         fieldWithPath("maxTokens").type(JsonFieldType.NUMBER)
-                                                .description("maxTokens")
+                                                .description("maxTokens"),
+                                        fieldWithPath("modelName").type(JsonFieldType.STRING)
+                                                .description("모델 이름")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
@@ -311,6 +306,8 @@ public class NodeUpdateControllerDocsTest extends RestDocsSupport {
                                                 .description("응답 생성 시의 다양성 설정 값 (예: 0.5는 중간 정도의 다양성)"),
                                         fieldWithPath("data.maxTokens").type(JsonFieldType.NUMBER)
                                                 .description("생성될 텍스트의 최대 토큰 수"),
+                                        fieldWithPath("data.modelMaxTokens").type(JsonFieldType.NUMBER)
+                                                .description("모델이 허용하는 최대 토큰 수"),
                                         fieldWithPath("data.modelProvider").type(JsonFieldType.STRING).optional()
                                                 .description("사용할 언어 모델의 제공자 (예: OpenAI)"),
                                         fieldWithPath("data.modelName").type(JsonFieldType.STRING).optional()

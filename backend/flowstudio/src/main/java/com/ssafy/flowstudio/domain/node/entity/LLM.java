@@ -76,7 +76,7 @@ public class LLM extends Node {
         visitor.visit(this, chat);
     }
 
-    public void update(String name, Coordinate coordinate, String promptSystem, String promptUser, String context, Double temperature, Integer maxTokens) {
+    public void update(String name, Coordinate coordinate, String promptSystem, String promptUser, String context, Double temperature, Integer maxTokens, ModelName modelName) {
         this.name = name;
         this.coordinate = coordinate;
         this.promptSystem = promptSystem;
@@ -84,6 +84,7 @@ public class LLM extends Node {
         this.context = context;
         this.temperature = temperature;
         this.maxTokens = maxTokens;
+        this.modelName = modelName;
     }
 
     public void updatePrompt(String systemPrompt, String userPrompt) {

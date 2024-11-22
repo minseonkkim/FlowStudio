@@ -3,6 +3,7 @@ package com.ssafy.flowstudio.api.controller.node.request.update;
 import com.ssafy.flowstudio.api.controller.node.request.CoordinateRequest;
 import com.ssafy.flowstudio.api.service.node.request.update.LlmUpdateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.request.update.QuestionClassifierUpdateServiceRequest;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotNull;
@@ -28,9 +29,11 @@ public class LlmUpdateRequest {
     private Double temperature;
     @NotNull(message = "maxTokens를 입력해주세요.")
     private Integer maxTokens;
+    @NotNull(message = "modelName을 입력해주세요.")
+    private ModelName modelName;
 
     @Builder
-    private LlmUpdateRequest(String name, CoordinateRequest coordinate, String promptSystem, String promptUser, String context, Double temperature, Integer maxTokens) {
+    private LlmUpdateRequest(String name, CoordinateRequest coordinate, String promptSystem, String promptUser, String context, Double temperature, Integer maxTokens, ModelName modelName) {
         this.name = name;
         this.coordinate = coordinate;
         this.promptSystem = promptSystem;
@@ -38,6 +41,7 @@ public class LlmUpdateRequest {
         this.context = context;
         this.temperature = temperature;
         this.maxTokens = maxTokens;
+        this.modelName = modelName;
     }
 
     public LlmUpdateServiceRequest toServiceRequest() {
@@ -49,6 +53,7 @@ public class LlmUpdateRequest {
                 .context(context)
                 .temperature(temperature)
                 .maxTokens(maxTokens)
+                .modelName(modelName)
                 .build();
     }
 }
