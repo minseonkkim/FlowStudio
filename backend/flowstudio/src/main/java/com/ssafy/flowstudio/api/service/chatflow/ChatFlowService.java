@@ -1,11 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflow;
 
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
@@ -360,7 +356,7 @@ public class ChatFlowService {
         for (Edge originalEdge : edges) {
             Long sourceNodeId = originalEdge.getSourceNode().getId();
             Long targetNodeId = originalEdge.getTargetNode().getId();
-            Long sourceConditionId = originalEdge.getSourceConditionId() ;
+            Long sourceConditionId = originalEdge.getSourceConditionId();
 
             Edge edge = Edge.create(
                     nodeMap.get(sourceNodeId),
@@ -385,8 +381,10 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public boolean isChattable(ChatFlow chatFlow) {
-        return true;
+    public PreCheckResponse precheck(Long chatFlowId) {
+        return PreCheckResponse.builder()
+                .isExecutable(true)
+                .malfunctionCause("none")
+                .build();
     }
-
 }

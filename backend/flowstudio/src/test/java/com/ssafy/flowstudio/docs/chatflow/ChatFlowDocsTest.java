@@ -5,12 +5,7 @@ import com.ssafy.flowstudio.api.controller.chatflow.ChatFlowController;
 import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.CoordinateResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
 import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
@@ -29,9 +24,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +38,7 @@ import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
@@ -51,6 +49,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ChatFlowDocsTest extends RestDocsSupport {
@@ -658,7 +657,6 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                 )
                                 .build())));
     }
-
 
 
     @DisplayName("예시 챗플로우를 생성한다")
@@ -1324,6 +1322,42 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("카테고리 아이디"),
                                         fieldWithPath("data[].name").type(JsonFieldType.STRING)
                                                 .description("카테고리 이름")
+                                )
+                                .build())));
+    }
+
+    @DisplayName("챗플로우 실행 가능 여부를 사전 점검한다.")
+    @Test
+    void precheckChatFlow() throws Exception {
+        // given
+        given(chatFlowService.precheck(1L))
+                .willReturn(PreCheckResponse.builder().isExecutable(false).malfunctionCause("Node Number 1 resources not enough").build());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/precheck", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andDo(document("precheck-chatflow",
+                        preprocessResponse(prettyPrint()),
+                        resource(ResourceSnippetParameters.builder()
+                                .tag("ChatFlow")
+                                .summary("챗플로우 실행여부 사전점검")
+                                .responseFields(
+                                        fieldWithPath("code").type(JsonFieldType.NUMBER)
+                                                .description("코드"),
+                                        fieldWithPath("status").type(JsonFieldType.STRING)
+                                                .description("상태"),
+                                        fieldWithPath("message").type(JsonFieldType.STRING)
+                                                .description("메시지"),
+                                        fieldWithPath("data.executable").type(JsonFieldType.BOOLEAN)
+                                                .description("실행가능 여부"),
+                                        fieldWithPath("data.malfunctionCause").type(JsonFieldType.STRING)
+                                                .description("해당 챗플로우가 실행이 불가능한 이유")
                                 )
                                 .build())));
     }

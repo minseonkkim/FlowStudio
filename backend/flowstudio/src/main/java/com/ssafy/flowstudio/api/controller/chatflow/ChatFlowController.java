@@ -2,10 +2,7 @@ package com.ssafy.flowstudio.api.controller.chatflow;
 
 import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -161,4 +158,14 @@ public class ChatFlowController {
         return ApiResponse.ok(chatFlowService.getCategories());
     }
 
+    /**
+     * 챗플로우 실행여부 조회
+     * @return PreCheckResponse
+     */
+    @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/precheck")
+    public ApiResponse<PreCheckResponse> precheckChatFlow(
+            @PathVariable Long chatFlowId
+    ) {
+        return ApiResponse.ok(chatFlowService.precheck(chatFlowId));
+    }
 }

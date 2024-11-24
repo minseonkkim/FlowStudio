@@ -511,4 +511,25 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data").exists());
     }
 
+    @DisplayName("챗플로우 실행 가능 여부를 사전 점검한다.")
+    @WithMockUser
+    @Test
+    void precheckChatFlow() throws Exception {
+        // given
+        given(chatFlowService.precheck(1L))
+                .willReturn(PreCheckResponse.builder().isExecutable(false).malfunctionCause("Node Number 1 resources not enough").build());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/precheck", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
 }
