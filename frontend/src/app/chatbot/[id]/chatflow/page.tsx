@@ -570,14 +570,6 @@ export default function Page({ params }: ChatflowPageProps) {
   }, []);
 
   
-  const onNodesDelete = (nodesToDelete: any) => {
-    console.log("노드 삭제 방지:", nodesToDelete);
-  };
-
-  const onEdgesDelete = (edgesToDelete: any) => {
-    console.log("엣지 삭제 방지:", edgesToDelete);
-  };
-  
 
   if(loading) return <Loading/>;
 
@@ -646,8 +638,6 @@ export default function Page({ params }: ChatflowPageProps) {
       maxZoom={2}
       nodeTypes={nodeTypes}
       fitView
-      onNodesDelete={onNodesDelete} // 노드 삭제 방지
-      onEdgesDelete={onEdgesDelete} // 엣지 삭제 방지
       deleteKeyCode={null} // Delete 키 삭제 방지
       selectionKeyCode={null} // Backspace 키 삭제 방지
     >

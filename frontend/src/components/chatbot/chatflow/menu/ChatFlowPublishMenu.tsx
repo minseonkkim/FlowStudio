@@ -1,6 +1,6 @@
 import React, { Dispatch, forwardRef, SetStateAction, useImperativeHandle, useState } from "react";
 import { BsArrowUpRight } from "@react-icons/all-files/bs/BsArrowUpRight";
-import { publishChatFlow, unPublishChatFlow } from "@/api/chatbot";
+import { getPrecheckPublish, publishChatFlow, unPublishChatFlow } from "@/api/chatbot";
 import { PublishChatFlowData } from "@/types/workflow";
 import { timeDifferenceFromNow } from "@/utils/node";
 import ModalIframe from "./ModalIframe";
@@ -32,26 +32,55 @@ const ChatFlowPublishMenu = forwardRef(
          * 발행 버튼
          */
         const handlePublishButtonClick = async () => {
-            let isPublishPossible = false;
+            try {
+                // 1. 발행 가능 여부를 확인
+                const precheckResult = await getPrecheckPublish(publishedChatFlowData.chatFlowId);
+                console.log('발행 가능?', precheckResult.executable);
+                if (!precheckResult.executable) {
+                    // 발행 불가능한 경우 오류 메시지 표시
+                    toastError(precheckResult.malfunctionCause || "발행할 수 없습니다.");
+                    return;
+                }
 
-            await getApiKeys().then((data) => {
-                isPublishPossible = (data.openAiKey && data.openAiKey?.length != 0);                
-            });
+                // 2. API 키 확인
+                let isPublishPossible = false;
+                await getApiKeys().then((data) => {
+                    isPublishPossible = (data.openAiKey && data.openAiKey?.length !== 0);
+                });
+                console.log('api 키 있음?', isPublishPossible);
 
-            if (!isPublishPossible) {
-                toastError('API 키를 등록해야 합니다.');
-                return;
+                if (!isPublishPossible) {
+                    toastError("마이페이지에서 해당 LLM의 API 키를 등록하세요.");
+                    return;
+                }
+
+                // 3. 발행 요청
+                await publishChatFlow(publishedChatFlowData.chatFlowId)
+                    .then((data: PublishChatFlowData) => {
+                        setPublishedChatFlowData(data);
+                        setTimeDiff(timeDifferenceFromNow(data.publishedAt));
+                        const msg = publishedChatFlowData.publishUrl && publishedChatFlowData.publishedAt
+                            ? "업데이트"
+                            : "발행";
+                        toastSuccess(`챗봇 ${msg} 성공`);
+                    })
+                    .catch((error) => {
+                        // 400 에러 처리
+                        if (error?.response?.status === 400) {
+                            toastError("마이페이지에서 해당 LLM의 API 키를 등록하세요.");
+                        } else {
+                            // 다른 에러는 일반 오류 메시지 표시
+                            toastError("발행 중 오류가 발생했습니다.");
+                        }
+                        console.error(error);
+                    });
+            } catch (error) {
+                console.error(error);
+                toastError("발행 중 오류가 발생했습니다.");
             }
-
-            publishChatFlow(publishedChatFlowData.chatFlowId).then((data: PublishChatFlowData) => {
-                setPublishedChatFlowData(data);
-                setTimeDiff(timeDifferenceFromNow(data.publishedAt));
-                const msg = publishedChatFlowData.publishUrl && publishedChatFlowData.publishedAt
-                    ? "업데이트"
-                    : "발행";
-                    toastSuccess(`챗봇 ${msg} 성공`);
-            });
         };
+
+
         
         const handleUnPublishButtonClick = async () => {
             unPublishChatFlow(publishedChatFlowData.chatFlowId).then((data) => {

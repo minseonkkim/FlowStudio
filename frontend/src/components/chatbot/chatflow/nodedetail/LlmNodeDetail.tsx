@@ -64,7 +64,7 @@ export default function LlmNodeDetail({
   const [selectedModel, setSelectedModel] = useState(node.data.modelName);
   console.log('selectedModel', selectedModel);
 
-  const { isLoading, isError, error, data: models } = useQuery<Model[]>({
+  const { data: models } = useQuery<Model[]>({
     queryKey: ['models'],
     queryFn: getModels,
   });
