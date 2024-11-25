@@ -569,7 +569,6 @@ export default function Page({ params }: ChatflowPageProps) {
     };
   }, []);
 
-
   
   const onNodesDelete = (nodesToDelete: any) => {
     console.log("노드 삭제 방지:", nodesToDelete);
