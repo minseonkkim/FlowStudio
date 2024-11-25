@@ -13,6 +13,7 @@ import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.factory.create.NodeFactory;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
