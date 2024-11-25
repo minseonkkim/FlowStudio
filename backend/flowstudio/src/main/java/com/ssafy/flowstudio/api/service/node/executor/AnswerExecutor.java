@@ -8,13 +8,17 @@ import com.ssafy.flowstudio.api.service.chatflowtest.event.ChatFlowTestEvent;
 import com.ssafy.flowstudio.common.constant.ChatEnvVariable;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
+import com.ssafy.flowstudio.common.secret.SecretKeyProperties;
 import com.ssafy.flowstudio.common.util.MessageParseUtil;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.api.service.node.RedisService;
 import com.ssafy.flowstudio.domain.chat.repository.ChatRepository;
 import com.ssafy.flowstudio.domain.node.entity.Answer;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.openai.OpenAiChatModel;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -24,12 +28,16 @@ public class AnswerExecutor extends NodeExecutor {
 
     private final MessageParseUtil messageParseUtil;
     private final ChatRepository chatRepository;
+    private final ChatTitleMaker chatTitleMaker;
+    private final SecretKeyProperties secretKeyProperties;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public AnswerExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, MessageParseUtil messageParseUtil, SseEmitters sseEmitters, ChatRepository chatRepository) {
+    public AnswerExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, MessageParseUtil messageParseUtil, SseEmitters sseEmitters, ChatRepository chatRepository, ChatTitleMaker chatTitleMaker, SecretKeyProperties secretKeyProperties) {
         super(redisService, eventPublisher, sseEmitters);
         this.messageParseUtil = messageParseUtil;
         this.chatRepository = chatRepository;
+        this.chatTitleMaker = chatTitleMaker;
+        this.secretKeyProperties = secretKeyProperties;
     }
 
     @Override
@@ -58,6 +66,18 @@ public class AnswerExecutor extends NodeExecutor {
             ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
             publishEvent(event);
         }
+
+        ChatLanguageModel chatModel = OpenAiChatModel.builder()
+                .apiKey(secretKeyProperties.getOpenAi())
+                .modelName(ModelName.GPT_4_O_MINI.getName())
+                .temperature(0.3)
+                .maxTokens(512)
+                .build();
+
+        if (chat.getMessageList().equals("[]") && !chat.isPreview()) {
+            chatTitleMaker.makeTitle(chat, chatModel, inputMessage);
+        }
+
     }
 
     private void updateChatHistory(Chat chat, String promptUser, String LlmOutputMessage) {
