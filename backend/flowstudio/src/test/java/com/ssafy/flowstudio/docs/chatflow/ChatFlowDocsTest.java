@@ -100,7 +100,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                         parameterWithName("isShared").optional().description("공유여부"),
                                         parameterWithName("test").optional().description("테스트 존재 여부"),
                                         parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
-                                        parameterWithName("size").optional().description("사이즈, 입력 없으면 default 20")
+                                        parameterWithName("limit").optional().description("사이즈, 입력 없으면 default 20")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
