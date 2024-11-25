@@ -100,6 +100,7 @@ export default function Page({ params }: ChatflowPageProps) {
           );
         })
       );
+      
 
       // ReactFlow에 필요한 노드 데이터로 변환
       const reactFlowNodes = newNodes.map((node) => ({
@@ -541,6 +542,42 @@ export default function Page({ params }: ChatflowPageProps) {
   const closeEdgeContextMenu = () => {
     setEdgeContextMenu(null);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Backspace 또는 Delete 키를 눌렀을 때 동작 방지
+      if (event.key === "Backspace" || event.key === "Delete") {
+        // 포커스가 input, textarea, 또는 다른 폼 요소가 아닐 때
+        const target = event.target as HTMLElement;
+        if (
+          target.tagName !== "INPUT" &&
+          target.tagName !== "TEXTAREA" &&
+          !target.isContentEditable
+        ) {
+          event.preventDefault(); // 기본 동작 방지
+          console.log("Backspace 또는 Delete 키 입력 방지");
+        }
+      }
+    };
+
+    // 이벤트 리스너 추가
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      // 이벤트 리스너 제거
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+
+  
+  const onNodesDelete = (nodesToDelete: any) => {
+    console.log("노드 삭제 방지:", nodesToDelete);
+  };
+
+  const onEdgesDelete = (edgesToDelete: any) => {
+    console.log("엣지 삭제 방지:", edgesToDelete);
+  };
   
 
   if(loading) return <Loading/>;
@@ -610,6 +647,10 @@ export default function Page({ params }: ChatflowPageProps) {
       maxZoom={2}
       nodeTypes={nodeTypes}
       fitView
+      onNodesDelete={onNodesDelete} // 노드 삭제 방지
+      onEdgesDelete={onEdgesDelete} // 엣지 삭제 방지
+      deleteKeyCode={null} // Delete 키 삭제 방지
+      selectionKeyCode={null} // Backspace 키 삭제 방지
     >
       <MiniMap
         style={{
