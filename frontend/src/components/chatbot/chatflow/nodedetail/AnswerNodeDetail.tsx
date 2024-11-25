@@ -205,7 +205,7 @@ export default function AnswerNodeDetail({
           contentEditable
           suppressContentEditableWarning
           onInput={handleAnswerChange}
-          className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]"
+          className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#34D399] focus:border-[#34D399]"
           style={{ minHeight: "50px", whiteSpace: "pre-wrap" }}
         >
           {localAnswer}

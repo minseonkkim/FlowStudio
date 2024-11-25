@@ -338,44 +338,53 @@ export default function QuestionClassifierNodeDetail({
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
           <div className="flex flex-col gap-2 z-[10] w-[218px]">
-            {Object.keys(localClasses).map((questionClassId, index) => (
-              <div key={index} className="flex flex-col gap-2 mb-4">
-                <div className="flex flex-row items-start">
-                  <div className="text-[14px] w-[74px]">클래스 {index + 1}</div>
-                  <div className="flex flex-col w-[185px] mt-[6px]">
-                    {connectedNodes?.map((node, edgeIndex) =>
-                      node.sourceConditionId == +questionClassId ? (
-                        <div
-                          key={edgeIndex}
-                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-                        >
-                          {nodeConfig[node.type]?.icon}
-                          <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
-                          <AiOutlineClose
-                            className="cursor-pointer ml-auto"
-                            style={{ color: deleteIconColors[node.type] || "gray" }}
-                            onClick={() => deleteConnectEdge(node)}
-                          />
-                        </div>
-                      ) : null
-                    )}
+            {Object.keys(localClasses).map((questionClassId, index) => {
+              const filteredNodes = connectedNodes?.filter(
+                (node) => node.sourceConditionId === +questionClassId
+              );
 
-                    <NodeAddMenu
-                      node={node}
-                      nodes={nodes}
-                      setNodes={setNodes}
-                      setEdges={setEdges}
-                      setSelectedNode={setSelectedNode}
-                      isDetail={true}
-                      questionClass={+questionClassId}
-                    />
+              return (
+                <div key={index} className="flex flex-col gap-2 mb-4">
+                  <div className="flex flex-row items-start">
+                    <div className="text-[14px] w-[74px]">클래스 {index + 1}</div>
+                    <div className="flex flex-col w-[185px] mt-[6px]">
+                      {filteredNodes?.length > 0 ? (
+                        filteredNodes.map((node, edgeIndex) => (
+                          <div
+                            key={edgeIndex}
+                            className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                          >
+                            {nodeConfig[node.type]?.icon}
+                            <span>
+                              {node.name || nodeConfig[node.type]?.label + node.nodeId}
+                            </span>
+                            <AiOutlineClose
+                              className="cursor-pointer ml-auto"
+                              style={{ color: deleteIconColors[node.type] || "gray" }}
+                              onClick={() => deleteConnectEdge(node)}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        <NodeAddMenu
+                          node={node}
+                          nodes={nodes}
+                          setNodes={setNodes}
+                          setEdges={setEdges}
+                          setSelectedNode={setSelectedNode}
+                          isDetail={true}
+                          questionClass={+questionClassId}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
+
     </div>
   );
 }
