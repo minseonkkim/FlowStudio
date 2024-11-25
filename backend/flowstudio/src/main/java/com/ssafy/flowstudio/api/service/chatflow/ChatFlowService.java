@@ -1,11 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflow;
 
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
@@ -27,6 +23,7 @@ import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import groovy.lang.Tuple;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -360,7 +357,7 @@ public class ChatFlowService {
         for (Edge originalEdge : edges) {
             Long sourceNodeId = originalEdge.getSourceNode().getId();
             Long targetNodeId = originalEdge.getTargetNode().getId();
-            Long sourceConditionId = originalEdge.getSourceConditionId() ;
+            Long sourceConditionId = originalEdge.getSourceConditionId();
 
             Edge edge = Edge.create(
                     nodeMap.get(sourceNodeId),
@@ -385,4 +382,23 @@ public class ChatFlowService {
                 .toList();
     }
 
+    public PreCheckResponse precheck(Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(() ->
+                new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND)
+        );
+
+        List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
+        List<Edge> edges = edgeRepository.findByChatFlowId(chatFlowId);
+
+        Start startNode = (Start) nodes.stream()
+                .filter(node -> node.getType().equals(NodeType.START))
+                .findFirst()
+                .orElse(null);
+
+        if (startNode == null) {
+            return PreCheckResponse.createFalse("시작 노드가 존재하지 않습니다.");
+        }
+
+        return PreCheckResponse.createTrue();
+    }
 }
