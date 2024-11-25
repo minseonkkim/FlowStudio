@@ -73,6 +73,8 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/knowledges")
+                        .param("page", "0")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then

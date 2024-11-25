@@ -85,6 +85,8 @@ public class ChatFlowDocsTest extends RestDocsSupport {
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows")
                         .param("isShared", "false")
+                        .param("page", "0")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -178,7 +180,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows/shares")
                         .param("page", "0")
-                        .param("size", "20")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
