@@ -6,29 +6,19 @@ import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.*;
-import com.ssafy.flowstudio.api.service.node.response.AnswerResponse;
-import com.ssafy.flowstudio.api.service.node.response.LlmResponse;
-import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
-import com.ssafy.flowstudio.api.service.node.response.QuestionClassifierResponse;
-import com.ssafy.flowstudio.api.service.node.response.RetrieverResponse;
-import com.ssafy.flowstudio.api.service.node.response.StartResponse;
+import com.ssafy.flowstudio.api.service.node.response.*;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
 import com.ssafy.flowstudio.api.service.user.response.UserResponse;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.docs.RestDocsSupport;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,17 +29,12 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ChatFlowDocsTest extends RestDocsSupport {
@@ -1331,7 +1316,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
     void precheckChatFlow() throws Exception {
         // given
         given(chatFlowService.precheck(1L))
-                .willReturn(PreCheckResponse.builder().isExecutable(false).build());
+                .willReturn(PreCheckResponse.createFalse(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST));
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -1356,8 +1341,10 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("메시지"),
                                         fieldWithPath("data.executable").type(JsonFieldType.BOOLEAN)
                                                 .description("실행가능 여부"),
-                                        fieldWithPath("data.malfunctionCause").type(JsonFieldType.NULL)
-                                                .description("해당 챗플로우가 실행이 불가능한 이유")
+                                        fieldWithPath("data.errorCode").type(JsonFieldType.NUMBER)
+                                                .description("해당 챗플로우가 실행 불가능할 시의 에러 코드"),
+                                        fieldWithPath("data.malfunctionCause").type(JsonFieldType.STRING)
+                                                .description("해당 챗플로우가 실행 불가능할 시의 에러 발생이유")
                                 )
                                 .build())));
     }

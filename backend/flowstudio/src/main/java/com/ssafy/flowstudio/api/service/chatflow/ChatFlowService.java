@@ -23,20 +23,15 @@ import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
-import groovy.lang.Tuple;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.hadoop.util.hash.Hash;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -397,30 +392,61 @@ public class ChatFlowService {
                 .findFirst()
                 .orElse(null);
 
+        Answer answerNode = (Answer) nodes.stream()
+                .filter(node -> node.getType().equals(NodeType.ANSWER))
+                .findFirst()
+                .orElse(null);
+
+        // 시작 노드가 없으면 실행할 수 없다.
         if (startNode == null) {
-            return PreCheckResponse.createFalse(ErrorCode.START_NODE_NOT_FOUND.getMessage());
+            return PreCheckResponse.createFalse(ErrorCode.START_NODE_NOT_FOUND);
         }
 
-        HashMap<Long, Boolean> visited = new HashMap<>();
-        nodes.forEach(node -> { visited.put(node.getId(), false); });
+        // 답변 노드가 없으면 실행할 수 없다.
+        if (answerNode == null) {
+            return PreCheckResponse.createFalse(ErrorCode.ANSWER_NODE_NOT_FOUND);
+        }
+
+        HashSet<Long> visited = new HashSet<>();
         ArrayDeque<Node> queue = new ArrayDeque<>();
 
         queue.add(startNode);
-        visited.put(startNode.getId(), true);
+        visited.add(startNode.getId());
 
         while (!queue.isEmpty()) {
-            Node currentNode = queue.poll();
+            Node currentNode = queue.pollFirst();
+
+            // 노드가 실행에 필요한 최소한의 자원을 보유하지 않으면 실행할 수 없다.
             if (!currentNode.hasRequiredResources()) {
-                return null;
+                return PreCheckResponse.createFalse(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST, currentNode);
             }
 
             List<Edge> currentEdges = currentNode.getOutputEdges();
-            for (Edge currentEdge : currentEdges) {
-                System.out.println("hi");
+
+            // 플로우 분기의 흐름 끝에 Answer 노드가 존재하지 않으면 실행할 수 없다.
+            if (currentEdges.isEmpty() && currentNode.getType() != NodeType.ANSWER) {
+                return PreCheckResponse.createFalse(ErrorCode.LEAF_NODE_NOT_ANSWER, currentNode);
             }
 
-        }
+            if (currentNode.getType() == NodeType.QUESTION_CLASSIFIER) {
+                QuestionClassifier questionClassifier = (QuestionClassifier) currentNode;
+                if (questionClassifier.getQuestionClasses().size() != currentEdges.size()) {
+                    return PreCheckResponse.createFalse(ErrorCode.UNHANDLED_CONDITIONAL_FLOW, currentNode);
+                }
+            }
 
+            for (Edge currentEdge : currentEdges) {
+                Node nextNode = currentEdge.getTargetNode();
+
+                // 간선이 이미 방문한 노드를 가리키고 있다면 사이클이 형성된 것이므로 실행될 수 없다.
+                if (visited.contains(nextNode.getId())) {
+                    return PreCheckResponse.createFalse(ErrorCode.CHAT_FLOW_CYCLE_DETECTED, nextNode);
+                } else {
+                    visited.add(nextNode.getId());
+                    queue.addLast(nextNode);
+                }
+            }
+        }
 
         return PreCheckResponse.createTrue();
     }

@@ -1,20 +1,20 @@
 package com.ssafy.flowstudio.api.service.chatflow.response;
 
-import com.ssafy.flowstudio.domain.chat.entity.Chat;
-import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
+import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.node.entity.Node;
-import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class PreCheckResponse {
     private final boolean isExecutable;
+    private final int errorCode;
     private final String malfunctionCause;
 
     @Builder
-    public PreCheckResponse(boolean isExecutable, String malfunctionCause) {
+    public PreCheckResponse(boolean isExecutable, int errorCode, String malfunctionCause) {
         this.isExecutable = isExecutable;
+        this.errorCode = errorCode;
         this.malfunctionCause = malfunctionCause;
     }
 
@@ -24,17 +24,19 @@ public class PreCheckResponse {
                 .build();
     }
 
-    public static PreCheckResponse createFalse(String malfunctionCause) {
+    public static PreCheckResponse createFalse(ErrorCode errorCode) {
         return PreCheckResponse.builder()
                 .isExecutable(false)
-                .malfunctionCause(malfunctionCause)
+                .errorCode(errorCode.getCode())
+                .malfunctionCause(errorCode.getMessage())
                 .build();
     }
 
-    public static PreCheckResponse createFalseWithNodeInfo(String malfunctionCause, Node node) {
+    public static PreCheckResponse createFalse(ErrorCode errorCode, Node node) {
         return PreCheckResponse.builder()
                 .isExecutable(false)
-                .malfunctionCause("오류 발생 노드: " + node.getName() + ", " + malfunctionCause)
+                .errorCode(errorCode.getCode())
+                .malfunctionCause("오류 발생 노드: " + node.getName() + ", " + errorCode.getMessage())
                 .build();
     }
 }
