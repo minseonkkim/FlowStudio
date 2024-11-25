@@ -1331,7 +1331,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
     void precheckChatFlow() throws Exception {
         // given
         given(chatFlowService.precheck(1L))
-                .willReturn(PreCheckResponse.builder().isExecutable(false).malfunctionCause("Node Number 1 resources not enough").build());
+                .willReturn(PreCheckResponse.builder().isExecutable(false).build());
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -1356,7 +1356,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                                                 .description("메시지"),
                                         fieldWithPath("data.executable").type(JsonFieldType.BOOLEAN)
                                                 .description("실행가능 여부"),
-                                        fieldWithPath("data.malfunctionCause").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.malfunctionCause").type(JsonFieldType.NULL)
                                                 .description("해당 챗플로우가 실행이 불가능한 이유")
                                 )
                                 .build())));

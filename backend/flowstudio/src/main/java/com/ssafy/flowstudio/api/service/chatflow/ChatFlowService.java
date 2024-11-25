@@ -23,6 +23,7 @@ import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.node.repository.QuestionClassRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import groovy.lang.Tuple;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -382,9 +383,22 @@ public class ChatFlowService {
     }
 
     public PreCheckResponse precheck(Long chatFlowId) {
-        return PreCheckResponse.builder()
-                .isExecutable(true)
-                .malfunctionCause("none")
-                .build();
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(() ->
+                new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND)
+        );
+
+        List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
+        List<Edge> edges = edgeRepository.findByChatFlowId(chatFlowId);
+
+        Start startNode = (Start) nodes.stream()
+                .filter(node -> node.getType().equals(NodeType.START))
+                .findFirst()
+                .orElse(null);
+
+        if (startNode == null) {
+            return PreCheckResponse.createFalse("시작 노드가 존재하지 않습니다.");
+        }
+
+        return PreCheckResponse.createTrue();
     }
 }
