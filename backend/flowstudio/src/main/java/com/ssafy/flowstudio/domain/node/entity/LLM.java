@@ -97,4 +97,12 @@ public class LLM extends Node {
         this.promptSystem = systemPrompt;
         this.promptUser = userPrompt;
     }
+
+    @Override
+    public boolean hasRequiredResources() {
+        if (getPromptSystem() == null || getPromptUser().trim().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
 }

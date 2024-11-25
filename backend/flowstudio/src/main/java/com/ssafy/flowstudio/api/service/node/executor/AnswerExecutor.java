@@ -40,7 +40,7 @@ public class AnswerExecutor extends NodeExecutor {
         String outputMessage = answerNode.getOutputMessage();
 
         // Answer 노드는 Output Message를 필수로 필요로 한다.
-        if (outputMessage == null || outputMessage.trim().isEmpty()) {
+        if (!answerNode.hasRequiredResources()) {
             throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
         }
 

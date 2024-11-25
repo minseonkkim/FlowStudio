@@ -55,8 +55,8 @@ public class LlmExecutor extends NodeExecutor {
         LLM llmNode = (LLM) node;
 
         // 유저 프롬프트가 비어있으면 예외 발생
-        if (llmNode.getPromptUser() == null || llmNode.getPromptUser().trim().isEmpty()) {
-            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
+        if (!llmNode.hasRequiredResources()) {
+            throw new BaseException(ErrorCode.USER_PROMPT_NOT_FOUND);
         }
 
         // 유저 프롬프트 파싱

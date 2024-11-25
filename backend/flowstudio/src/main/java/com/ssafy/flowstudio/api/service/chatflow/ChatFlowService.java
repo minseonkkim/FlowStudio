@@ -27,11 +27,13 @@ import groovy.lang.Tuple;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.hadoop.util.hash.Hash;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -362,7 +364,7 @@ public class ChatFlowService {
             Edge edge = Edge.create(
                     nodeMap.get(sourceNodeId),
                     nodeMap.get(targetNodeId),
-                    sourceConditionId == 0 ? 0 : questionClassMap.get(sourceConditionId).getId()
+                    sourceConditionId == 0L ? 0L : questionClassMap.get(sourceConditionId).getId()
             );
 
             edgeRepository.save(edge);
@@ -396,8 +398,29 @@ public class ChatFlowService {
                 .orElse(null);
 
         if (startNode == null) {
-            return PreCheckResponse.createFalse("시작 노드가 존재하지 않습니다.");
+            return PreCheckResponse.createFalse(ErrorCode.START_NODE_NOT_FOUND.getMessage());
         }
+
+        HashMap<Long, Boolean> visited = new HashMap<>();
+        nodes.forEach(node -> { visited.put(node.getId(), false); });
+        ArrayDeque<Node> queue = new ArrayDeque<>();
+
+        queue.add(startNode);
+        visited.put(startNode.getId(), true);
+
+        while (!queue.isEmpty()) {
+            Node currentNode = queue.poll();
+            if (!currentNode.hasRequiredResources()) {
+                return null;
+            }
+
+            List<Edge> currentEdges = currentNode.getOutputEdges();
+            for (Edge currentEdge : currentEdges) {
+                System.out.println("hi");
+            }
+
+        }
+
 
         return PreCheckResponse.createTrue();
     }

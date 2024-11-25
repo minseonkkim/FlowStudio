@@ -27,16 +27,20 @@ public enum ErrorCode {
     UPLOADED_CHAT_FLOW_CANNOT_BE_SHARED(3001, HttpStatus.NOT_FOUND, "게시된 상태의 챗플로우는 업로드할 수 없습니다"),
     CHAT_FLOW_NOT_PUBLISHED(3002, HttpStatus.SERVICE_UNAVAILABLE, "발행되지 않은 챗플로우입니다."),
     CHAT_FLOW_CYCLE_DETECTED(3003, HttpStatus.BAD_REQUEST, "챗플로우 내에 사이클이 감지되었습니다."),
+    LEAF_NODE_NOT_ANSWER(3004, HttpStatus.BAD_REQUEST, "챗플로우의 모든 분기점은 Answer 노드로 끝나야 합니다."),
 
     // Node
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
     NODE_NOT_FOUND(4001, HttpStatus.NOT_FOUND, "노드를 찾을 수 없습니다."),
     QUESTION_CLASS_NOT_FOUND(4002, HttpStatus.NOT_FOUND, "질문 클래스를 찾을 수 없습니다."),
+    QUESTION_CLASS_CONTENT_NOT_FOUND(4002, HttpStatus.NOT_FOUND, "질문 클래스에 내용을 입력해야 합니다."),
     EDGE_NOT_FOUND(4003, HttpStatus.NOT_FOUND, "간선을 찾을 수 없습니다."),
     REQUIRED_NODE_VALUE_NOT_EXIST(4004, HttpStatus.BAD_REQUEST, "실행에 필요한 노드의 값이 존재하지 않습니다."),
     MULTIPLE_EDGE_FORBIDDEN(4005, HttpStatus.BAD_REQUEST, "여러개의 간선을 연결할 수 없는 노드이거나 질문 클래스입니다."),
     MULTIPLE_EDGE_FOUND(4006, HttpStatus.INTERNAL_SERVER_ERROR, "질문 분류와 연결된 여러개의 간선이 발견되었습니다."),
     DEFAULT_QUESTION_CLASSES_REMOVAL_NOT_ALLOWED(4007, HttpStatus.BAD_REQUEST, "질문 분류기에는 최소 2개의 질문 분류가 존재해야 합니다."),
+    USER_PROMPT_NOT_FOUND(4008, HttpStatus.BAD_REQUEST, "LLM에 입력할 유저 프롬프트가 존재하지 않습니다."),
+    OUTPUT_MESSAGE_NOT_FOUND(4009, HttpStatus.BAD_REQUEST, "답변 노드에 답변 메시지가 존재하지 않습니다."),
 
     // Share
     CATEGORY_NOT_FOUND(5000, HttpStatus.NOT_FOUND, "카테고리를 찾을 수 없습니다."),
@@ -45,6 +49,7 @@ public enum ErrorCode {
     CHAT_NOT_FOUND(6000, HttpStatus.NOT_FOUND, "챗을 찾을 수 없습니다."),
     START_NODE_NOT_FOUND(6001, HttpStatus.NOT_FOUND, "시작 노드를 찾을 수 없습니다."),
     MESSAGE_TOO_LONG(6002, HttpStatus.BAD_REQUEST, "메시지 길이가 너무 깁니다."),
+    ANSWER_NODE_NOT_FOUND(6003, HttpStatus.BAD_REQUEST, "답변 노드를 찾을 수 없습니다."),
 
     // Knowledge
     KNOWLEDGE_NOT_FOUND(7000, HttpStatus.NOT_FOUND, "지식베이스를 찾을 수 없습니다."),
