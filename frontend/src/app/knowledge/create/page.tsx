@@ -12,27 +12,21 @@ import { useEffect } from 'react';
 import Loading from '@/components/common/Loading';
 
 export default function Page() {
-  const [currentStep,setCurrentPage] = useRecoilState(currentStepState); 
+  const [currentStep,] = useRecoilState(currentStepState); 
   const router = useRouter(); 
   const [, setfile] = useRecoilState(fileState); 
   const isLoading = useRecoilValue(isLoadingState);
 
-  const queryClient = useQueryClient();
 
 
   useEffect(()=>{
     console.log(isLoading)
 
   },[isLoading])
-  
+
   const goToListPage = () => {
     router.push('/knowledges');  
     setfile(null);
-
-    // setTimeout(() => {
-    //   setCurrentPage(1)
-    //   queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-    // }, 0);
   };
 
   useEffect(() => {
