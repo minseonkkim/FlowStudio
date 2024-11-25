@@ -78,7 +78,7 @@ public class ChatFlowDocsTest extends RestDocsSupport {
                 .shareCount(0)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt(), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when

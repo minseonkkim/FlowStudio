@@ -14,4 +14,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("SELECT c FROM Chat c WHERE c.chatFlow = :chatFlow AND c.user = :user AND c.isPreview = false")
     List<Chat> findByChatFlowAndUser(ChatFlow chatFlow, User user, PageRequest pageable);
 
+    @Query("SELECT count(c) FROM Chat c WHERE c.chatFlow = :chatFlow AND c.user = :user AND c.isPreview = false")
+    int findChatCountByChatFlowAndUser(ChatFlow chatFlow, User user);
 }

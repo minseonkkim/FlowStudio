@@ -103,6 +103,8 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 제목"),
                                         fieldWithPath("data.thumbnail").type(JsonFieldType.STRING)
                                                 .description("챗플로우 썸네일"),
+                                        fieldWithPath("data.totalCount").type(JsonFieldType.NUMBER)
+                                                .description("채팅 목록 총 갯수"),
                                         fieldWithPath("data.chats").type(JsonFieldType.ARRAY)
                                                 .description("채팅 목록"),
                                         fieldWithPath("data.chats[].id").type(JsonFieldType.NUMBER)

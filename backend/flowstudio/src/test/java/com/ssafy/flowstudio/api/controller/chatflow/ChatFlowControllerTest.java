@@ -13,10 +13,6 @@ import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.support.ControllerTestSupport;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -66,7 +62,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt(), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when

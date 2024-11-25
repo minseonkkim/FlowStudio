@@ -103,7 +103,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -153,7 +153,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -207,7 +207,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = true;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -257,7 +257,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test, 0, 20);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(1);
