@@ -38,6 +38,20 @@ public class QuestionClassifier extends Node {
         visitor.visit(this, chat);
     }
 
+    @Override
+    public boolean hasRequiredResources() {
+        if (getQuestionClasses().size() < 2) {
+            return false;
+        }
+
+        if (!getQuestionClasses().stream().filter(questionClass -> questionClass.getContent() == null
+                || questionClass.getContent().trim().isEmpty()).toList().isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public void addQuestionClass(QuestionClass questionClass) {
         getQuestionClasses().add(questionClass);
     }

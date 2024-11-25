@@ -54,9 +54,8 @@ public class QuestionClassifierExecutor extends NodeExecutor {
         QuestionClassifier questionClassifierNode = (QuestionClassifier) node;
         List<QuestionClass> questionClasses = questionClassifierNode.getQuestionClasses();
 
-        // 질문 분류 중 빈 값이 있는 질문 분류가 있다면 예외가 발생한다.
-        boolean hasBlankContent = !questionClasses.stream().filter(questionClass -> questionClass.getContent() == null || questionClass.getContent().trim().isEmpty()).toList().isEmpty();
-        if (hasBlankContent) {
+        // 실행에 필요한 자원이 충분하지 않다면 예외를 반환한다.
+        if (!questionClassifierNode.hasRequiredResources()) {
             throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
         }
 

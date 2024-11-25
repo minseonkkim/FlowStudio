@@ -32,7 +32,7 @@ public class RetrieverExecutor extends NodeExecutor {
     public void execute(Node node, Chat chat) {
         Retriever retrieverNode = (Retriever) node;
 
-        if (retrieverNode.getKnowledge() == null) {
+        if (!retrieverNode.hasRequiredResources()) {
             throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
         }
 

@@ -37,4 +37,9 @@ public class VariableAssigner extends Node {
     public void accept(NodeVisitor visitor, Chat chat) {
         visitor.visit(this, chat);
     }
+
+    @Override
+    public boolean hasRequiredResources() {
+        return true;
+    }
 }
