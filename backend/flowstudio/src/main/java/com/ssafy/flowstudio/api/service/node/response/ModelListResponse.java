@@ -11,19 +11,22 @@ public class ModelListResponse {
 
     private final String provider;
     private final String name;
+    private final String detailName;
     private final int maxTokens;
 
     @Builder
-    private ModelListResponse(String provider, String name, int maxTokens) {
+    private ModelListResponse(String provider, String name, String detailName, int maxTokens) {
         this.provider = provider;
         this.name = name;
+        this.detailName = detailName;
         this.maxTokens = maxTokens;
     }
 
     public static ModelListResponse from(ModelName modelName) {
         return ModelListResponse.builder()
                 .provider(modelName.getProvider().name())
-                .name(modelName.getName())
+                .name(modelName.name())
+                .detailName(modelName.getName())
                 .maxTokens(modelName.getMaxTokens())
                 .build();
     }
