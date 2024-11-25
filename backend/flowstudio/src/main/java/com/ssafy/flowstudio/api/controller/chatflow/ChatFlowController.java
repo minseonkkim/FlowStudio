@@ -42,10 +42,11 @@ public class ChatFlowController {
             @CurrentUser User user,
             @RequestParam(required = false, defaultValue = "false") boolean isShared,
             @RequestParam(required = false, defaultValue = "false") boolean test,
+            @RequestParam(required = false, defaultValue = "false") boolean executable,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test, page, limit));
+        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test, page, limit, executable));
     }
 
     /**

@@ -97,8 +97,9 @@ public class ChatService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
         List<Chat> chats = chatRepository.findByChatFlowAndUser(chatFlow, user, pageable);
+        int totalCount = chatRepository.findChatCountByChatFlowAndUser(chatFlow, user);
 
-        return ChatListResponse.of(chatFlow, chats);
+        return ChatListResponse.of(chatFlow, chats, totalCount);
     }
 
     public ChatDetailResponse getChat(User user, Long chatFlowId, Long chatId) {
