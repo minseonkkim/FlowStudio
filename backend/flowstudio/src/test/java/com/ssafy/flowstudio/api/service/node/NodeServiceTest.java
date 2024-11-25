@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.service.node.request.CoordinateServiceRequest;
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
+import com.ssafy.flowstudio.api.service.node.response.ModelListResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.api.service.node.response.SimpleNodeResponse;
@@ -408,6 +409,18 @@ class NodeServiceTest extends IntegrationTestSupport {
         assertThat(precedingNodes)
                 .hasSize(2)
                 .contains(start, questionClassifier);
+    }
+
+    @DisplayName("모델 목록을 조회한다")
+    @Test
+    void getModels() {
+        // given
+
+        // when
+        List<ModelListResponse> models = nodeService.getModels();
+
+        // then
+        assertThat(models).hasSize(5);
     }
 
     @DisplayName("노드 순회 시 사이클이 감지되면 예외를 발생한다.")

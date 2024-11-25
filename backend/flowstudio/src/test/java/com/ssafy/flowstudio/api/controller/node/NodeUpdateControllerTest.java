@@ -18,6 +18,7 @@ import com.ssafy.flowstudio.api.service.node.response.QuestionClassifierResponse
 import com.ssafy.flowstudio.api.service.node.response.RetrieverResponse;
 import com.ssafy.flowstudio.api.service.node.response.StartResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.LlmDetailResponse;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import com.ssafy.flowstudio.domain.node.entity.NodeType;
 import com.ssafy.flowstudio.domain.node.entity.Retriever;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -145,6 +146,7 @@ class NodeUpdateControllerTest extends ControllerTestSupport {
                 .temperature(0.5)
                 .maxTokens(100)
                 .context("context")
+                .modelName(ModelName.GPT_4_O_MINI)
                 .build();
 
         LlmDetailResponse response = LlmDetailResponse.builder()
