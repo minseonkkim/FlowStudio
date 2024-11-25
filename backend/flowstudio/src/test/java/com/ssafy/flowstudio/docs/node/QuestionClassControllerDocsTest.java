@@ -184,7 +184,7 @@ public class QuestionClassControllerDocsTest extends RestDocsSupport {
                         preprocessResponse(prettyPrint()),
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Node")
-                                .summary("질문 분류 (질문 클래스) 사겢")
+                                .summary("질문 분류 (질문 클래스) 삭제")
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),

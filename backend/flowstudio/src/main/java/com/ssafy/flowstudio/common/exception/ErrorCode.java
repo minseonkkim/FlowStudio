@@ -29,6 +29,7 @@ public enum ErrorCode {
     CHAT_FLOW_CYCLE_DETECTED(3003, HttpStatus.BAD_REQUEST, "챗플로우 내에 사이클이 감지되었습니다."),
     LEAF_NODE_NOT_ANSWER(3004, HttpStatus.BAD_REQUEST, "챗플로우의 모든 분기점은 Answer 노드로 끝나야 합니다."),
     UNHANDLED_CONDITIONAL_FLOW(3005, HttpStatus.BAD_REQUEST, "처리되지 않은 조건 분기가 있으니 간선을 추가해 경로를 완성하세요."),
+    CHAT_FLOW_NOT_RUNNABLE(3006, HttpStatus.SERVICE_UNAVAILABLE, "실행할 수 없는 챗플로우 입니다."),
 
     // Node
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),

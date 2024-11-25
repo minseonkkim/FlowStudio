@@ -93,7 +93,7 @@ public class LlmExecutor extends NodeExecutor {
             if (!chat.isPreview()) {
                 // 토큰 사용로그 기록
                 Integer tokenUsage = response.tokenUsage().totalTokenCount();
-                tokenUsageLogRepository.save(TokenUsageLog.create(chat.getUser(), tokenUsage));
+                tokenUsageLogRepository.save(TokenUsageLog.create(chat.getChatFlow().getOwner(), tokenUsage));
             }
         } catch (OpenAiHttpException e) {
             log.error("API_KEY_INVALID: ", e);

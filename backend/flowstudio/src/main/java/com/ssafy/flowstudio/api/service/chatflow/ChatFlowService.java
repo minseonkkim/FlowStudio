@@ -450,4 +450,14 @@ public class ChatFlowService {
 
         return PreCheckResponse.createTrue();
     }
+
+    public List<ModelProvider> getUseModelProviders(Long chatFlowId) {
+        List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
+    
+        return nodes.parallelStream()
+            .filter(node -> node.getType() == NodeType.LLM)
+            .map(node -> ((LLM) node).getModelName().getProvider()) // Node에서 ModelProvider 추출
+            .distinct() // 중복된 Provider 제거
+            .toList();
+    }    
 }

@@ -1,6 +1,9 @@
 package com.ssafy.flowstudio.api.service.node;
 
 import com.ssafy.flowstudio.api.service.node.request.NodeCreateServiceRequest;
+import com.ssafy.flowstudio.api.service.node.response.ModelListResponse;
+import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
+import com.ssafy.flowstudio.api.service.node.response.detail.*;
 import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponseMapper;
 import com.ssafy.flowstudio.common.exception.BaseException;
@@ -10,6 +13,7 @@ import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Coordinate;
+import com.ssafy.flowstudio.domain.node.entity.ModelName;
 import com.ssafy.flowstudio.domain.node.entity.Node;
 import com.ssafy.flowstudio.domain.node.factory.create.NodeFactory;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
@@ -19,9 +23,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -103,4 +109,11 @@ public class NodeService {
             traceBack(sourceNode, precedingNodes, nodeVisited);
         }
     }
+
+    public List<ModelListResponse> getModels() {
+        return Arrays.stream(ModelName.values())
+                .map(ModelListResponse::from)
+                .collect(Collectors.toList());
+    }
+
 }
