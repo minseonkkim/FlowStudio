@@ -69,7 +69,7 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test, int page, int limit) {
+    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test, int page, int limit, boolean executable) {
         PageRequest pageable = PageRequest.of(page, limit, Sort.by("shareCount").descending());
         List<ChatFlow> chatFlows;
 
@@ -78,6 +78,10 @@ public class ChatFlowService {
         } else {
             chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared, pageable);
         }
+
+//        if (executable) {
+//            chatFlows = chatFlows.parallelStream().filter(chatflows)
+//        }
 
         return chatFlows.stream()
                 .map(chatFlow -> {
