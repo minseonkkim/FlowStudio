@@ -86,7 +86,7 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                                 .summary("채팅 목록")
                                 .queryParameters(
                                         RequestDocumentation.parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
-                                        RequestDocumentation.parameterWithName("size").optional().description("사이즈, 입력 없으면 default 20")
+                                        RequestDocumentation.parameterWithName("limit").optional().description("사이즈, 입력 없으면 default 20")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)

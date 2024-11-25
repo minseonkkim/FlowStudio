@@ -86,7 +86,7 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                                 .summary("지식베이스 목록 가져오기")
                                 .queryParameters(
                                         RequestDocumentation.parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
-                                        RequestDocumentation.parameterWithName("size").optional().description("사이즈, 입력 없으면 default 20")
+                                        RequestDocumentation.parameterWithName("limit").optional().description("사이즈, 입력 없으면 default 20")
                                 )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("코드"),
