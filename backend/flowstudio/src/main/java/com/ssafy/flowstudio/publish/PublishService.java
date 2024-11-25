@@ -15,6 +15,9 @@ import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import com.ssafy.flowstudio.publish.repository.PublishChatFlowRepository;
+import com.ssafy.flowstudio.publish.repository.PublishEdgeRepository;
+import com.ssafy.flowstudio.publish.repository.PublishNodeRepository;
 import com.ssafy.flowstudio.publish.response.PublishChatFlowResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,7 +47,9 @@ public class PublishService {
     private final ChatFlowRepository chatFlowRepository;
     private final PublishChatFlowRepository publishChatFlowRepository;
     private final EdgeRepository edgeRepository;
+    private final PublishEdgeRepository publishEdgeRepository;
     private final NodeRepository nodeRepository;
+    private final PublishNodeRepository publishNodeRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
@@ -74,14 +80,37 @@ public class PublishService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
     }
 
-    @Transactional(transactionManager = "secondaryTransactionManager")
+    @Transactional(transactionManager = "multiTransactionManager")
     public Boolean unPublishChatFlow(User user, Long chatFlowId) {
-        ChatFlow publishChatFlow = publishChatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
+        ChatFlow publishChatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
-
         publishChatFlow.updatePublishUrl("");
-        ChatFlow updateChatFlow = publishChatFlowRepository.save(publishChatFlow);
+        publishChatFlow.updatePublishDate(null);
+        ChatFlow updateChatFlow = chatFlowRepository.save(publishChatFlow);
+
+        deletePublishChatFlow(updateChatFlow.getId());
+
         return updateChatFlow.getPublishUrl().isBlank();
+    }
+
+    @Transactional(transactionManager = "multiTransactionManager")
+    public Boolean deletePublishChatFlow(Long chatFlowId) {
+        Optional<ChatFlow> optionalChatFlow = publishChatFlowRepository.findById(chatFlowId);
+
+        // 데이터가 없으면 로직 실행 없이 true 반환
+        if (optionalChatFlow.isEmpty()) {
+            return true;
+        }
+
+        ChatFlow chatFlow = optionalChatFlow.get();
+
+        List<Node> nodes = publishNodeRepository.findByChatFlowId(chatFlow.getId());
+        List<Edge> edges = publishEdgeRepository.findByChatFlowId(chatFlow.getId());
+        publishNodeRepository.deleteAll(nodes);
+        publishEdgeRepository.deleteAll(edges);
+        publishChatFlowRepository.delete(chatFlow);
+
+        return true;
     }
 
     @Transactional(transactionManager = "multiTransactionManager")
@@ -106,8 +135,10 @@ public class PublishService {
 
         // 발행 날짜 업데이트
         chatFlow.updatePublishDate(LocalDateTime.now());
-        chatFlowRepository.save(chatFlow);
+        chatFlow = chatFlowRepository.save(chatFlow);
         chatFlowRepository.flush();
+
+        deletePublishChatFlow(chatFlow.getId());
 
         List<Node> nodes = nodeRepository.findByChatFlowId(chatFlow.getId());
         List<Edge> edges = edgeRepository.findByChatFlowId(chatFlow.getId());
