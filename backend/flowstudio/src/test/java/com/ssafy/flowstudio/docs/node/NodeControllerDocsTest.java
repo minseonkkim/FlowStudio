@@ -244,12 +244,14 @@ public class NodeControllerDocsTest extends RestDocsSupport {
         ModelListResponse response1 = ModelListResponse.builder()
                 .provider(ModelName.GPT_4_O.getProvider().name())
                 .name(ModelName.GPT_4_O.name())
+                .detailName(ModelName.GPT_4_O.getName())
                 .maxTokens(ModelName.GPT_4_O.getMaxTokens())
                 .build();
 
         ModelListResponse response2 = ModelListResponse.builder()
                 .provider(ModelName.CLAUDE_3_5_SONNET.getProvider().name())
                 .name(ModelName.CLAUDE_3_5_SONNET.name())
+                .detailName(ModelName.CLAUDE_3_5_SONNET.getName())
                 .maxTokens(ModelName.CLAUDE_3_5_SONNET.getMaxTokens())
                 .build();
 
@@ -280,6 +282,8 @@ public class NodeControllerDocsTest extends RestDocsSupport {
                                                 .description("모델 제공자"),
                                         fieldWithPath("data[].name").type(JsonFieldType.STRING)
                                                 .description("모델 이름"),
+                                        fieldWithPath("data[].detailName").type(JsonFieldType.STRING)
+                                                .description("모델 상세 이름"),
                                         fieldWithPath("data[].maxTokens").type(JsonFieldType.NUMBER)
                                                 .description("모델 최대 토큰수")
                                 )
