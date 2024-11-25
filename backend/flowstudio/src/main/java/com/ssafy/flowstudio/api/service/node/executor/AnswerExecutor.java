@@ -58,6 +58,18 @@ public class AnswerExecutor extends NodeExecutor {
         sseEmitters.send(chat.getUser(), answerNode, answerOutput);
 
         String inputMessage = redisService.get(chat.getId() + ":" + ChatEnvVariable.INPUT_MESSAGE);
+
+        if (chat.getMessageList().equals("[]") && !chat.isPreview()) {
+            ChatLanguageModel chatModel = OpenAiChatModel.builder()
+                    .apiKey(secretKeyProperties.getOpenAi())
+                    .modelName(ModelName.GPT_4_O_MINI.getName())
+                    .temperature(0.3)
+                    .maxTokens(512)
+                    .build();
+
+            chatTitleMaker.makeTitle(chat, chatModel, inputMessage);
+        }
+
         updateChatHistory(chat, inputMessage, answerOutput);
 
         if(chat.isTest()) {
@@ -65,17 +77,6 @@ public class AnswerExecutor extends NodeExecutor {
             sseEmitters.sendChatFlowTestLlm(chat, answerOutput);
             ChatFlowTestEvent event = ChatFlowTestEvent.of(this, chat);
             publishEvent(event);
-        }
-
-        ChatLanguageModel chatModel = OpenAiChatModel.builder()
-                .apiKey(secretKeyProperties.getOpenAi())
-                .modelName(ModelName.GPT_4_O_MINI.getName())
-                .temperature(0.3)
-                .maxTokens(512)
-                .build();
-
-        if (chat.getMessageList().equals("[]") && !chat.isPreview()) {
-            chatTitleMaker.makeTitle(chat, chatModel, inputMessage);
         }
 
     }
