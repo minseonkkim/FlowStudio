@@ -38,16 +38,14 @@ public class LlmExecutor extends NodeExecutor {
     private final TokenUsageLogRepository tokenUsageLogRepository;
     private final ChatModelFactory chatModelFactory;
     private final MessageParseUtil messageParseUtil;
-    private final ChatTitleMaker chatTitleMaker;
     private static final Logger log = LoggerFactory.getLogger(LlmExecutor.class);
 
-    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters, ChatTitleMaker chatTitleMaker) {
+    public LlmExecutor(RedisService redisService, ApplicationEventPublisher eventPublisher, TokenUsageLogRepository tokenUsageLogRepository, ChatRepository chatRepository, ChatModelFactory chatModelFactory, MessageParseUtil messageParseUtil, SseEmitters sseEmitters) {
         super(redisService, eventPublisher, sseEmitters);
         this.tokenUsageLogRepository = tokenUsageLogRepository;
         this.redisService = redisService;
         this.chatModelFactory = chatModelFactory;
         this.messageParseUtil = messageParseUtil;
-        this.chatTitleMaker = chatTitleMaker;
     }
 
     @Override
@@ -85,10 +83,6 @@ public class LlmExecutor extends NodeExecutor {
 
             // 결과 SSE로 전송
             sseEmitters.send(chat.getUser(), llmNode, llmOutputMessage);
-
-            if (chat.getMessageList().equals("[]") && !chat.isPreview()) {
-                chatTitleMaker.makeTitle(chat, chatModel, promptUser);
-            }
 
             if (!chat.isPreview()) {
                 // 토큰 사용로그 기록
