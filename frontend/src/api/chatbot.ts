@@ -118,3 +118,19 @@ export async function unPublishChatFlow(chatFlowId: number) {
     throw error
   }
 }
+
+// 챗플로우 실행여부 사전점검
+export async function getPrecheckPublish(chatFlowId: number){
+  try {
+    const response = await axiosInstance.get(`chat-flows/${chatFlowId}/precheck`)
+    console.log('실행여부 사전점검', response);
+    if (response.status === 200) {
+      return response.data.data;
+    } else {
+      throw new Error('Failed to delete chat-flow');
+    }
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
