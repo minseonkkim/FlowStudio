@@ -73,6 +73,8 @@ public class ChatControllerDocsTest extends RestDocsSupport {
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows/{chatFlowId}/chats", 1L)
+                        .param("page", "0")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
