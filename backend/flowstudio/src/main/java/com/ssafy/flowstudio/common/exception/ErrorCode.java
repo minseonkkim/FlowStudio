@@ -27,6 +27,7 @@ public enum ErrorCode {
     UPLOADED_CHAT_FLOW_CANNOT_BE_SHARED(3001, HttpStatus.NOT_FOUND, "게시된 상태의 챗플로우는 업로드할 수 없습니다"),
     CHAT_FLOW_NOT_PUBLISHED(3002, HttpStatus.SERVICE_UNAVAILABLE, "발행되지 않은 챗플로우입니다."),
     CHAT_FLOW_CYCLE_DETECTED(3003, HttpStatus.BAD_REQUEST, "챗플로우 내에 사이클이 감지되었습니다."),
+    CHAT_FLOW_NOT_RUNNABLE(3004, HttpStatus.SERVICE_UNAVAILABLE, "실행할 수 없는 챗플로우 입니다."),
 
     // Node
     INVALID_NODE_TYPE(4000, HttpStatus.BAD_REQUEST, "지원되지 않는 노드 타입입니다."),
