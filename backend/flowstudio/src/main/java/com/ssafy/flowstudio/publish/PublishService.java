@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.publish;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
+import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
+import com.ssafy.flowstudio.api.service.user.ApiKeyService;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -52,6 +54,9 @@ public class PublishService {
     private final PublishNodeRepository publishNodeRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+
+    private final ChatFlowService chatFlowService;
+    private final ApiKeyService apiKeyService;
 
     @Transactional(transactionManager = "multiTransactionManager")
     public List<ChatFlowListResponse> getPublishChatFlows(User user) {
@@ -121,9 +126,21 @@ public class PublishService {
         ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, findUser.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        // TODO: 챗플로우에 필요한 모델에 따라 다른 키 확인
-        if (findUser.getApiKey().getOpenAiKey() == null) {
-            throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
+        // API Key가 존재하는지 확인
+        for (ModelProvider provider : chatFlowService.getUseModelProviders(chatFlow.getId())) {
+            String key = switch (provider) {
+                case OPENAI -> findUser.getApiKey().getOpenAiKey();
+                case ANTHROPIC -> findUser.getApiKey().getClaudeKey();
+            };
+            key = apiKeyService.decrypt(key);
+            if (key == null || key.isBlank()) {
+                throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
+            }
+        }
+
+        // 챗플로우 실행 가능 여부 확인
+        if (!chatFlowService.precheck(chatFlowId).isExecutable()) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_NOT_RUNNABLE);
         }
 
         // 발행 url 업데이트
