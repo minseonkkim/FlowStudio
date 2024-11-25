@@ -261,11 +261,11 @@ public class PublishService {
                 case LLM -> {
                     LLM llmNode = (LLM) node;
                     em.createNativeQuery(
-                                    "INSERT INTO llm (node_id, prompt_system, prompt_user, context, temperature, max_tokens, model_provider, model_name) " +
-                                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
+                                    "INSERT INTO llm (node_id, prompt_system, prompt_user, context, temperature, max_tokens, model_name) " +
+                                            "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                                             "ON DUPLICATE KEY UPDATE prompt_system = VALUES(prompt_system), prompt_user = VALUES(prompt_user), " +
                                             "context = VALUES(context), temperature = VALUES(temperature), max_tokens = VALUES(max_tokens), " +
-                                            "model_provider = VALUES(model_provider), model_name = VALUES(model_name)"
+                                            "model_name = VALUES(model_name)"
                             )
                             .setParameter(1, llmNode.getId())
                             .setParameter(2, llmNode.getPromptSystem())
@@ -273,8 +273,7 @@ public class PublishService {
                             .setParameter(4, llmNode.getContext())
                             .setParameter(5, llmNode.getTemperature())
                             .setParameter(6, llmNode.getMaxTokens())
-                            .setParameter(7, llmNode.getModelProvider().name())
-                            .setParameter(8, llmNode.getModelName().name())
+                            .setParameter(7, llmNode.getModelName().name())
                             .executeUpdate();
                 }
                 case RETRIEVER -> {
