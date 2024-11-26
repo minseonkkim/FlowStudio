@@ -74,7 +74,6 @@ class LlmExecutorTest extends IntegrationTestSupport {
                 .promptUser(promptUser)
                 .temperature(1.0)
                 .maxTokens(512)
-                .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O_MINI)
                 .build();
 

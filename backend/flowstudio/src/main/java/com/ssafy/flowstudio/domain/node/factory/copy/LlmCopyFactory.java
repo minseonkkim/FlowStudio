@@ -22,7 +22,6 @@ public class LlmCopyFactory extends NodeCopyFactory {
                 .context(originalLlm.getContext())
                 .temperature(originalLlm.getTemperature())
                 .maxTokens(originalLlm.getMaxTokens())
-                .modelProvider(originalLlm.getModelProvider())
                 .modelName(originalLlm.getModelName())
                 .promptSystem(originalLlm.getPromptSystem())
                 .promptUser(originalLlm.getPromptUser())

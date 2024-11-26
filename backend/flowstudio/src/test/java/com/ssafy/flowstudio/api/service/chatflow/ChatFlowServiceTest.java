@@ -5,6 +5,7 @@ import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.PreCheckResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeResponse;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
@@ -102,7 +103,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -152,7 +153,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -206,7 +207,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = true;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, false, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -256,7 +257,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         boolean test = false;
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test);
+        List<ChatFlowListResponse> response = chatFlowService.getChatFlows(user, true, test, 0, 20, false);
 
         // then
         assertThat(response.size()).isEqualTo(1);
@@ -729,7 +730,6 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .promptUser("{{INPUT_MESSAGE}}")
                 .temperature(3.0)
                 .maxTokens(100)
-                .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O)
                 .chatFlow(chatFlow)
                 .name("llm")
@@ -747,8 +747,8 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .build();
         nodeRepository.save(answerNode);
 
-        Edge edge1 = Edge.create(startNode, llmNode);
-        Edge edge2 = Edge.create(llmNode, answerNode);
+        Edge edge1 = Edge.create(startNode, llmNode, 0L);
+        Edge edge2 = Edge.create(llmNode, answerNode, 0L);
 
         edgeRepository.save(edge1);
         edgeRepository.save(edge2);
@@ -893,7 +893,6 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                 .promptUser("{{INPUT_MESSAGE}}")
                 .temperature(3.0)
                 .maxTokens(100)
-                .modelProvider(ModelProvider.OPENAI)
                 .modelName(ModelName.GPT_4_O)
                 .chatFlow(chatFlow)
                 .name("llm")
@@ -1152,7 +1151,7 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
         chatFlowRepository.saveAll(List.of(chatFlow1, chatFlow2, chatFlow3));
 
         // when
-        List<ChatFlowListResponse> response = chatFlowService.getEveryoneChatFlows();
+        List<ChatFlowListResponse> response = chatFlowService.getEveryoneChatFlows(0, 20);
 
         // then
         assertThat(response.size()).isEqualTo(2);
@@ -1162,5 +1161,469 @@ class ChatFlowServiceTest extends IntegrationTestSupport {
                         tuple(chatFlow2.getId(), chatFlow2.getTitle()),
                         tuple(chatFlow3.getId(), chatFlow3.getTitle())
                 );
+    }
+
+    @DisplayName("PreCheck에서 시작 노드가 존재하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenStartNotExist() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        Knowledge knowledge = Knowledge.builder()
+                .user(user)
+                .title("my-knowledge")
+                .isPublic(false)
+                .totalToken(10)
+                .build();
+
+        knowledgeRepository.save(knowledge);
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Retriever retriever = Retriever.builder()
+                .name("my-name")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.RETRIEVER)
+                .knowledge(knowledge)
+                .build();
+
+        Answer answer = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+
+        chatFlow.addNode(retriever);
+        chatFlow.addNode(answer);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge = Edge.create(retriever, answer);
+        edgeRepository.save(edge);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo(ErrorCode.START_NODE_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("PreCheck에서 답변 노드가 존재하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenAnswerNotExist() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        Knowledge knowledge = Knowledge.builder()
+                .user(user)
+                .title("my-knowledge")
+                .isPublic(false)
+                .totalToken(10)
+                .build();
+
+        knowledgeRepository.save(knowledge);
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Start start = Start.create(chatFlow, Coordinate.create(870, 80));
+
+        Retriever retriever = Retriever.builder()
+                .name("my-name")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.RETRIEVER)
+                .knowledge(knowledge)
+                .build();
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(retriever);
+        chatFlowRepository.save(chatFlow);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo(ErrorCode.ANSWER_NODE_NOT_FOUND.getMessage());
+    }
+
+    @DisplayName("QuestionClass로부터 분기된 flow가 간선으로 처리되지 않았으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenQuestionClassNotCovered() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Start start = Start.create(chatFlow, Coordinate.create(870, 80));
+
+        QuestionClassifierFactory questionClassifierFactory = new QuestionClassifierFactory();
+        QuestionClassifier questionClassifier = (QuestionClassifier) questionClassifierFactory.createNode(chatFlow, coordinate);
+
+        List<QuestionClass> questionClasses = questionClassifier.getQuestionClasses();
+        questionClasses.get(0).update("question-class-1");
+        questionClasses.get(1).update("question-class-2");
+
+        Answer answer = Answer.builder()
+                .name("my-answer-1")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-1")
+                .build();
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(start, questionClassifier);
+        Edge edge2 = Edge.create(questionClassifier, answer, questionClasses.get(0).getId());
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+        System.out.println(preCheckResponse.getMalfunctionCause());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo("오류 발생 노드: " + questionClassifier.getName() + ", " + ErrorCode.UNHANDLED_CONDITIONAL_FLOW.getMessage());
+    }
+
+    @DisplayName("PreCheck에서 플로우 분기의 흐름 끝에 Answer 노드가 존재하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenAnswerIsNotDestination() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Start start = Start.create(chatFlow, Coordinate.create(870, 80));
+
+        QuestionClassifierFactory questionClassifierFactory = new QuestionClassifierFactory();
+        QuestionClassifier questionClassifier = (QuestionClassifier) questionClassifierFactory.createNode(chatFlow, coordinate);
+
+        List<QuestionClass> questionClasses = questionClassifier.getQuestionClasses();
+        questionClasses.get(0).update("question-class-1");
+        questionClasses.get(1).update("question-class-2");
+
+        Answer answer = Answer.builder()
+                .name("my-answer-1")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-1")
+                .build();
+
+        LLM llmNode = LLM.builder()
+                .promptSystem("prompt-system")
+                .promptUser("haha")
+                .temperature(3.0)
+                .maxTokens(100)
+                .modelName(ModelName.GPT_4_O)
+                .chatFlow(chatFlow)
+                .name("llm")
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .build();
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(llmNode);
+        chatFlow.addNode(answer);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(start, questionClassifier);
+        Edge edge2 = Edge.create(questionClassifier, answer, questionClasses.get(0).getId());
+        Edge edge3 = Edge.create(questionClassifier, llmNode, questionClasses.get(1).getId());
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+        edgeRepository.save(edge3);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo("오류 발생 노드: " + llmNode.getName() + ", " + ErrorCode.LEAF_NODE_NOT_ANSWER.getMessage());
+    }
+
+    @DisplayName("PreCheck에서 Retriever 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenRetrieverResourceNotEnough() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        Knowledge knowledge = Knowledge.builder()
+                .user(user)
+                .title("my-knowledge")
+                .isPublic(false)
+                .totalToken(10)
+                .build();
+
+        knowledgeRepository.save(knowledge);
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Start start = Start.create(chatFlow, Coordinate.create(870, 80));
+
+        Retriever retriever = Retriever.builder()
+                .name("my-name")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.RETRIEVER)
+                .build();
+
+        Answer answer = Answer.builder()
+                .name("my-answer-1")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-1")
+                .build();
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(retriever);
+        chatFlow.addNode(answer);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(start, retriever);
+        Edge edge2 = Edge.create(retriever, answer);
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo("오류 발생 노드: " + retriever.getName() + ", " + ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST.getMessage());
+    }
+
+    @DisplayName("PreCheck에서 LLM 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenLLMResourceNotEnough() {
+
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+
+        Start startNode = Start.create(chatFlow, coordinate);
+
+        LLM llmNode = LLM.builder()
+                .promptSystem("prompt-system")
+                .promptUser("")
+                .temperature(3.0)
+                .maxTokens(100)
+                .modelName(ModelName.GPT_4_O)
+                .chatFlow(chatFlow)
+                .name("llm")
+                .type(NodeType.LLM)
+                .coordinate(coordinate)
+                .build();
+
+        Answer answerNode = Answer.builder()
+                .name("my-answer")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer")
+                .build();
+
+        chatFlow.addNode(startNode);
+        chatFlow.addNode(llmNode);
+        chatFlow.addNode(answerNode);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(startNode, llmNode);
+        Edge edge2 = Edge.create(llmNode, answerNode);
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo("오류 발생 노드: " + llmNode.getName() + ", " + ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST.getMessage());
+    }
+
+    @DisplayName("PreCheck에서 QuestionClassifier 노드의 자원이 충분하지 않으면 false를 반환한다.")
+    @Test
+    void preCheckFailWhenQuestionClassifierResourceNotEnough() {
+        // given
+        User user = User.builder()
+                .username("test")
+                .build();
+
+        userRepository.save(user);
+
+        Coordinate coordinate = Coordinate.builder()
+                .x(777)
+                .y(777)
+                .build();
+
+        ChatFlow chatFlow = ChatFlow.builder()
+                .owner(user)
+                .author(user)
+                .title("my-chatflow")
+                .description("my-chatflow-description")
+                .build();
+
+        Start start = Start.create(chatFlow, Coordinate.create(870, 80));
+
+        QuestionClassifierFactory questionClassifierFactory = new QuestionClassifierFactory();
+        QuestionClassifier questionClassifier = (QuestionClassifier) questionClassifierFactory.createNode(chatFlow, coordinate);
+
+        List<QuestionClass> questionClasses = questionClassifier.getQuestionClasses();
+        questionClasses.get(0).update("");
+        questionClasses.get(1).update("question-class-2");
+
+        Answer answer1 = Answer.builder()
+                .name("my-answer-1")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-1")
+                .build();
+
+        Answer answer2 = Answer.builder()
+                .name("my-answer-2")
+                .chatFlow(chatFlow)
+                .coordinate(coordinate)
+                .type(NodeType.ANSWER)
+                .outputMessage("my-answer-2")
+                .build();
+
+        chatFlow.addNode(start);
+        chatFlow.addNode(questionClassifier);
+        chatFlow.addNode(answer1);
+        chatFlow.addNode(answer2);
+        chatFlowRepository.save(chatFlow);
+
+        Edge edge1 = Edge.create(start, questionClassifier, questionClasses.get(0).getId());
+        Edge edge2 = Edge.create(questionClassifier, answer1, questionClasses.get(0).getId());
+        Edge edge3 = Edge.create(questionClassifier, answer2, questionClasses.get(1).getId());
+        edgeRepository.save(edge1);
+        edgeRepository.save(edge2);
+        edgeRepository.save(edge3);
+
+        em.clear();
+
+        // when
+        PreCheckResponse preCheckResponse = chatFlowService.precheck(chatFlow.getId());
+
+        // then
+        assertThat(preCheckResponse).isNotNull();
+        assertThat(preCheckResponse.isExecutable()).isFalse();
+        assertThat(preCheckResponse.getMalfunctionCause()).isEqualTo("오류 발생 노드: " + questionClassifier.getName() + ", " + ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST.getMessage());
     }
 }

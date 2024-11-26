@@ -53,5 +53,8 @@ public abstract class Node extends BaseEntity {
     }
 
     public abstract void accept(NodeVisitor visitor, Chat chat);
+
+    public abstract boolean hasRequiredResources();
+
 }
 

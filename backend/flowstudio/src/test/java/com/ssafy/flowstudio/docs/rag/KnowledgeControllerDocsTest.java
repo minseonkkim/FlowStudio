@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -31,6 +32,7 @@ import java.util.Map;
 import static com.epages.restdocs.apispec.ResourceDocumentation.parameterWithName;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -65,12 +67,14 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                         .build()
         );
 
-        given(knowledgeService.getKnowledges(any(User.class)))
+        given(knowledgeService.getKnowledges(any(User.class), anyInt(), anyInt()))
                 .willReturn(response);
 
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/knowledges")
+                        .param("page", "0")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -82,6 +86,10 @@ public class KnowledgeControllerDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Knowledge")
                                 .summary("지식베이스 목록 가져오기")
+                                .queryParameters(
+                                        RequestDocumentation.parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
+                                        RequestDocumentation.parameterWithName("limit").optional().description("사이즈, 입력 없으면 default 20")
+                                )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER).description("코드"),
                                         fieldWithPath("status").type(JsonFieldType.STRING).description("상태"),

@@ -18,11 +18,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,7 +62,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean()))
+        given(chatFlowService.getChatFlows(any(User.class), anyBoolean(), anyBoolean(), anyInt(), anyInt(), anyBoolean()))
                 .willReturn(List.of(response));
 
         // when
@@ -459,7 +457,7 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .isPublic(false)
                 .build();
 
-        given(chatFlowService.getEveryoneChatFlows())
+        given(chatFlowService.getEveryoneChatFlows(0, 20))
                 .willReturn(List.of(response));
 
         // when
@@ -509,4 +507,25 @@ class ChatFlowControllerTest extends ControllerTestSupport {
                 .andExpect(jsonPath("$.data").exists());
     }
 
+    @DisplayName("챗플로우 실행 가능 여부를 사전 점검한다.")
+    @WithMockUser
+    @Test
+    void precheckChatFlow() throws Exception {
+        // given
+        given(chatFlowService.precheck(1L))
+                .willReturn(PreCheckResponse.builder().isExecutable(false).malfunctionCause("Node Number 1 resources not enough").build());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/chat-flows/{chatFlowId}/precheck", 1L)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        perform.andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value("200"))
+                .andExpect(jsonPath("$.status").value("OK"))
+                .andExpect(jsonPath("$.message").value("OK"))
+                .andExpect(jsonPath("$.data").exists());
+    }
 }

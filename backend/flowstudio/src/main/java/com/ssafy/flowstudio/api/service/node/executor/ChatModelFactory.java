@@ -20,11 +20,11 @@ public class ChatModelFactory {
 
     public ChatLanguageModel createChatModel(Chat chat, LLM node) {
         String apiKey = getApiKey(chat, node);
-        String modelName = node.getModelName().getStringValue();
+        String modelName = node.getModelName().getName();
         double temperature = node.getTemperature();
         int maxTokens = node.getMaxTokens();
 
-        return switch (node.getModelProvider()) {
+        return switch (node.getModelName().getProvider()) {
             case OPENAI -> OpenAiChatModel.builder()
                     .apiKey(apiKey)
                     .modelName(modelName)
@@ -42,7 +42,7 @@ public class ChatModelFactory {
 
     public String getApiKey(Chat chat, LLM node) {
         boolean isPreview = chat.isPreview();
-        ModelProvider provider = node.getModelProvider();
+        ModelProvider provider = node.getModelName().getProvider();
 
         if (isPreview) {
             return switch (provider) {

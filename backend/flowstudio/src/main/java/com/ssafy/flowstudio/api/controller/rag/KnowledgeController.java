@@ -33,9 +33,13 @@ public class KnowledgeController {
      * @return List<KnowledgeListResponse>
      */
     @GetMapping
-    public ApiResponse<List<KnowledgeListResponse>> getKnowledges(@CurrentUser User user) {
+    public ApiResponse<List<KnowledgeListResponse>> getKnowledges(
+            @CurrentUser User user,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
+    ) {
 
-        return ApiResponse.ok(knowledgeService.getKnowledges(user));
+        return ApiResponse.ok(knowledgeService.getKnowledges(user, page, limit));
     }
 
     /**

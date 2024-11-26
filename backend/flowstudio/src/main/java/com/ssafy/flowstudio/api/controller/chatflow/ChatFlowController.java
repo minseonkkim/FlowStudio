@@ -2,10 +2,7 @@ package com.ssafy.flowstudio.api.controller.chatflow;
 
 import com.ssafy.flowstudio.api.controller.chatflow.request.ChatFlowRequest;
 import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
 import com.ssafy.flowstudio.common.payload.ApiResponse;
 import com.ssafy.flowstudio.domain.user.entity.User;
@@ -28,9 +25,11 @@ public class ChatFlowController {
      */
     @GetMapping(value = "/api/v1/chat-flows/shares")
     public ApiResponse<List<ChatFlowListResponse>> getEveryoneChatFlows(
-            @CurrentUser User user
+            @CurrentUser User user,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatFlowService.getEveryoneChatFlows());
+        return ApiResponse.ok(chatFlowService.getEveryoneChatFlows(page, limit));
     }
 
     /**
@@ -42,9 +41,12 @@ public class ChatFlowController {
     public ApiResponse<List<ChatFlowListResponse>> getChatFlows(
             @CurrentUser User user,
             @RequestParam(required = false, defaultValue = "false") boolean isShared,
-            @RequestParam(required = false, defaultValue = "false") boolean test
+            @RequestParam(required = false, defaultValue = "false") boolean test,
+            @RequestParam(required = false, defaultValue = "false") boolean executable,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "20") int limit
     ) {
-        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test));
+        return ApiResponse.ok(chatFlowService.getChatFlows(user, isShared, test, page, limit, executable));
     }
 
     /**
@@ -157,4 +159,14 @@ public class ChatFlowController {
         return ApiResponse.ok(chatFlowService.getCategories());
     }
 
+    /**
+     * 챗플로우 실행여부 조회
+     * @return PreCheckResponse
+     */
+    @GetMapping(value = "/api/v1/chat-flows/{chatFlowId}/precheck")
+    public ApiResponse<PreCheckResponse> precheckChatFlow(
+            @PathVariable Long chatFlowId
+    ) {
+        return ApiResponse.ok(chatFlowService.precheck(chatFlowId));
+    }
 }
