@@ -80,7 +80,7 @@ public class ChatFlowService {
         }
 
         if (executable) {
-            chatFlows = chatFlows.parallelStream().filter(chatFlow -> precheck(chatFlow.getId()).isExecutable()).toList();
+            chatFlows = chatFlows.stream().filter(chatFlow -> precheck(chatFlow.getId()).isExecutable()).toList();
         }
 
         return chatFlows.stream()
@@ -391,12 +391,12 @@ public class ChatFlowService {
         List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
         List<Edge> edges = edgeRepository.findByChatFlowId(chatFlowId);
 
-        Start startNode = (Start) nodes.stream()
+        Node startNode = nodes.stream()
                 .filter(node -> node.getType().equals(NodeType.START))
                 .findFirst()
                 .orElse(null);
 
-        Answer answerNode = (Answer) nodes.stream()
+        Node answerNode = nodes.stream()
                 .filter(node -> node.getType().equals(NodeType.ANSWER))
                 .findFirst()
                 .orElse(null);
