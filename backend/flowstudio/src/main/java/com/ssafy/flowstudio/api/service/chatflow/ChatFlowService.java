@@ -70,7 +70,7 @@ public class ChatFlowService {
     }
 
     public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test, int page, int limit, boolean executable) {
-        PageRequest pageable = PageRequest.of(page, limit, Sort.by("shareCount").descending());
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         List<ChatFlow> chatFlows;
 
         if (test) {
