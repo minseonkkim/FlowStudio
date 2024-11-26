@@ -124,6 +124,18 @@ export default function Header() {
           </Link>
           <Link
             className={`cursor-pointer ${
+              pathname === "/demo" ||
+              pathname.startsWith("/demo")
+                ? "text-[#9A75BF] font-semibold"
+                : "hover:font-semibold"
+            } w-full py-2 border-b`}
+            href="/demo"
+            onClick={handleLinkClick}
+          >
+            Demo
+          </Link>
+          <Link
+            className={`cursor-pointer ${
               pathname === "/profile"
                 ? "text-[#9A75BF] font-semibold"
                 : "hover:font-semibold"
@@ -187,6 +199,17 @@ export default function Header() {
               href="/evaluations"
             >
               챗봇 평가
+            </Link>
+            <Link
+              className={`cursor-pointer ${
+                pathname === "/demo" ||
+                pathname.startsWith("/demo")
+                  ? "text-[#9A75BF] font-semibold"
+                  : "hover:font-semibold"
+              }`}
+              href="/demo"
+            >
+              Demo
             </Link>
           </>
         )}
