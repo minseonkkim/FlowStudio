@@ -2,19 +2,36 @@ import axiosInstance from '@/api/token/axiosInstance';
 import noAuthAxios from './token/noAuthAxios';
 
 // 채팅 목록 조회
-export async function getChattingList(chatFlowId: string) {
+
+export async function getChattingList({
+  chatFlowId,
+  page = "0",
+  limit = "10",
+}: {
+  chatFlowId: string;
+  page?: string;
+  limit?: string;
+}) {
   try {
-    const response = await axiosInstance.get(`/chat-flows/${chatFlowId}/chats`);
+    const response = await axiosInstance.get(`/chat-flows/${chatFlowId}/chats`, {
+      params: {
+        page,
+        limit,
+      },
+    });
+
     if (response.status === 200) {
-      return response.data.data;
+      return response.data.data; 
     } else {
-      throw new Error('Failed to fetch chat list');
+      throw new Error("Failed to get knowledges");
     }
   } catch (error) {
-    console.error(error);
+    console.error("Error while fetching knowledges:", error);
     throw error;
   }
 }
+
+
 
 // 채팅 상세 조회
 export async function getChatting(chatFlowId: string, chatId: string) {
@@ -86,10 +103,14 @@ export async function postMessage(chatId: string, data: { message: string }) {
       throw new Error('Failed to send message');
     }
   } catch (error) {
-    console.error(error);
-    throw error;
+    if (error.response && error.response.data) {
+      console.error("Server Error:", error.response.data);
+      throw error.response.data; // 서버에서 반환된 에러 데이터를 직접 던짐
+    }
+    throw new Error('Unexpected error occurred');
   }
 }
+
 
 // sse 연결여부
 export async function getSseConnect() {

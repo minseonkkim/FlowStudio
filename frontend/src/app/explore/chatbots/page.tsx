@@ -8,37 +8,69 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import { SharedChatFlow } from "@/types/chatbot";
 import { getSharedChatFlows } from "@/api/share";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import Loading from "@/components/common/Loading";
 import { categories } from "@/constants/chatbotCategories";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const { isLoading, data: chatFlows } = useQuery<SharedChatFlow[]>({
-    queryKey: ["sharedChatFlows"],
-    queryFn: () => getSharedChatFlows(),
-  });
-
   const [selectedCategory, setSelectedCategory] = useState<string>("모든 챗봇");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [activeSlide, setActiveSlide] = useState<number>(0);
-  const [itemsToLoad, setItemsToLoad] = useState<number>(8);
   const [isCategoryFixed, setIsCategoryFixed] = useState<boolean>(false); 
+  const router = useRouter();
+
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<SharedChatFlow[]>({
+    queryKey: ["sharedChatFlows"],
+    queryFn: ({ pageParam = 0 }) => {
+      // pageParam을 숫자로 강제 변환
+      const page = Number(pageParam);
+      return getSharedChatFlows(page, 6);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      // 페이지 끝에 도달하면 undefined를 반환하여 더 이상 로드하지 않도록 처리
+      return lastPage.length > 0 ? allPages.length : undefined;
+    },
+    initialPageParam: 0,
+  });
 
   const popularChatbots = useMemo(() => {
-    return chatFlows ? [...chatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4) : [];
-  }, [chatFlows]);
+    if (!data) return [];
+    const allChatFlows = data.pages.flat();
+    return [...allChatFlows].sort((a, b) => b.shareCount - a.shareCount).slice(0, 4);
+  }, [data]);
 
   const filteredChatFlows = useMemo(() => {
-    return chatFlows
-      ? chatFlows.filter((bot) => {
-          const matchesCategory =
-            selectedCategory === "모든 챗봇" ||
-            bot.categories.some((category) => category.name === selectedCategory);
-          const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
-          return matchesCategory && matchesSearch;
-        })
-      : [];
-  }, [chatFlows, selectedCategory, searchTerm]);
+    if (!data) return [];
+    const allChatFlows = data.pages.flat();
+    return allChatFlows.filter((bot) => {
+      const matchesCategory =
+        selectedCategory === "모든 챗봇" ||
+        bot.categories.some((category) => category.name === selectedCategory);
+      const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [data, selectedCategory, searchTerm]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 100) {
+        // 페이지 하단에 가까워졌을 때
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,29 +85,20 @@ export default function Page() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop >=
-        document.documentElement.offsetHeight - 100
-      ) {
-        setItemsToLoad((prev) => prev + 8);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const handleCategoryClick = (label: string) => {
     setSelectedCategory(label);
   };
 
-  if (isLoading) 
-  return <Loading/>;
+  // const loadMore = () => {
+  //   if (hasNextPage && !isFetchingNextPage) {
+  //     fetchNextPage();
+  //   }
+  // };
+
+  if (isLoading) return <Loading />;
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div>
         <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
         <div className="md:hidden">
@@ -122,6 +145,10 @@ export default function Page() {
               type="all"
               authorNickName={chatbot.author.nickname}
               authorProfile={chatbot.author.profileImage}
+              onCardClick={() => {
+                router.push(`/chatbot/${chatbot.chatFlowId}/chatflow?isEditable=false`);
+
+              }}
               shareNum={chatbot.shareCount}
               category={chatbot.categories.map((cat) => cat.name)}
             />
@@ -129,7 +156,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-16">
+      <div className="mt-12">
         <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
 
         <div
@@ -169,7 +196,7 @@ export default function Page() {
         </div>
 
         <div className="hidden md:flex flex-col gap-1">
-          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
+          {filteredChatFlows?.map((bot) => (
             <ChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
@@ -178,6 +205,10 @@ export default function Page() {
               iconId={bot.thumbnail}
               authorNickName={bot.author.nickname}
               authorProfile={bot.author.profileImage}
+              onCardClick={() => {
+                router.push(`/chatbot/${bot.chatFlowId}/chatflow?isEditable=false`);
+
+              }}
               shareNum={bot.shareCount}
               category={bot.categories.map((cat) => cat.name)}
               type="all"
@@ -186,7 +217,7 @@ export default function Page() {
         </div>
 
         <div className="md:hidden flex flex-col gap-4">
-          {filteredChatFlows?.reverse().slice(0, itemsToLoad).map((bot) => (
+          {filteredChatFlows?.map((bot) => (
             <PopularChatbotCard
               key={bot.chatFlowId}
               chatbotId={bot.chatFlowId}
@@ -201,6 +232,24 @@ export default function Page() {
             />
           ))}
         </div>
+
+        {/* 무한 스크롤 트리거 */}
+        {/* <div className="flex justify-center mt-4">
+          {isFetchingNextPage ? (
+            <div>Loading...</div>
+          )
+           : (
+            hasNextPage && (
+              <button
+                onClick={loadMore}
+                className="px-4 py-2 text-white rounded-md"
+              >
+                더 보기
+              </button>
+            )
+          )
+          }
+        </div> */}
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ export default function RetrieverNodeDetail({
    * 지식 선택 모달 열기
    */
   const openModal = () => {
-    getAllKnowledges()
+    getAllKnowledges({})
       .then((data) => {
         setKnowledges(data);
       });
@@ -199,7 +199,6 @@ export default function RetrieverNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -254,7 +253,7 @@ export default function RetrieverNodeDetail({
             </div>
           </div>
 
-          <div className="h-auto rounded-[5px] p-2 bg-white flex items-center">
+          <div className="h-[36px] rounded-[5px] p-2 bg-white flex items-center border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             {selectedKnowledge.title}
           </div>
         </div>
@@ -317,42 +316,46 @@ export default function RetrieverNodeDetail({
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <div className="text-[16px]">다음 노드를 추가하세요.</div>
-          <div className="flex flex-row justify-between w-full">
-            <div className="aspect-square bg-[#FFD3B5] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
-              <FiBookOpen className="text-[#F97316] size-8" />
-            </div>
-            <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
+            <div className="text-[16px]">다음 노드를 추가하세요.</div>
+            <div className="flex flex-row justify-between w-full">
+              <div className="aspect-square bg-[#FFD3B5] rounded-[360px] w-[50px] h-[50px] flex justify-center items-center z-[10]">
+                <FiBookOpen className="text-[#F97316] size-8" />
+              </div>
+              <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
-            <div className="z-[10] w-[160px] mt-[6px]">
-              {connectedNodes.map((node, index) => (
-                <div
-                  key={index}
-                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-                >
-                  {nodeConfig[node.type]?.icon}
-                  <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
-                  <AiOutlineClose
-                    className="cursor-pointer ml-auto"
-                    style={{
-                      color: deleteIconColors[node.type] || "gray",
-                    }}
-                    onClick={() => deleteConnectEdge(node)}
+              <div className="z-[10] w-[160px] mt-[6px]">
+                {connectedNodes.length > 0 ? (
+                  connectedNodes.map((node, index) => (
+                    <div
+                      key={index}
+                      className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                    >
+                      {nodeConfig[node.type]?.icon}
+                      <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
+                      <AiOutlineClose
+                        className="cursor-pointer ml-auto"
+                        style={{
+                          color: deleteIconColors[node.type] || "gray",
+                        }}
+                        onClick={() => deleteConnectEdge(node)}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <NodeAddMenu
+                    node={node}
+                    nodes={nodes}
+                    setNodes={setNodes}
+                    setEdges={setEdges}
+                    setSelectedNode={setSelectedNode}
+                    isDetail={true}
+                    questionClass={0}
                   />
-                </div>
-              ))}
-              <NodeAddMenu
-                node={node}
-                nodes={nodes}
-                setNodes={setNodes}
-                setEdges={setEdges}
-                setSelectedNode={setSelectedNode}
-                isDetail={true}
-                questionClass={0}
-              />
+                )}
+              </div>
             </div>
           </div>
-        </div>
+
       </div>
 
       {/* 지식 선택 모달 */}

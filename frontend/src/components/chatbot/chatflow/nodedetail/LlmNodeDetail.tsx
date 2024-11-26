@@ -14,18 +14,9 @@ import { IoPencil } from "@react-icons/all-files/io5/IoPencil";
 import { IoCheckmark } from "@react-icons/all-files/io5/IoCheckmark";
 import { Tooltip } from "react-tooltip";
 import { IoIosInformationCircleOutline } from "@react-icons/all-files/io/IoIosInformationCircleOutline";
-
-
-// interface Model {
-//   id: string;
-//   name: string;
-// }
-
-// const models: Model[] = [
-//   { id: "gpt-4o", name: "GPT-4o" },
-//   { id: "gpt-4o-mini", name: "GPT-4o mini" },
-//   { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-// ];
+import { getModels } from "@/api/model";
+import { useQuery } from "@tanstack/react-query";
+import { Model } from "@/types/model";
 
 export default function LlmNodeDetail({
   chatFlowId,
@@ -50,6 +41,7 @@ export default function LlmNodeDetail({
 }) {
   // const [isOpen, setIsOpen] = useState(false);
   // const [modalOpen, setModalOpen] = useState(false);
+  const [maxTokenLimit, setMaxTokenLimit] = useState(4096);
   const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>(initialConnectedNodes);
   const [localPromptSystem] = useState(node.data.promptSystem);
   const [localPromptUser] = useState(node.data.promptUser);
@@ -64,9 +56,77 @@ export default function LlmNodeDetail({
   const temperatureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const promptSystemTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const promptUserTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const modelRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const promptSystemTextareaRef = useRef<(HTMLDivElement | null)>(null);
   const promptUserTextareaRef = useRef<(HTMLDivElement | null)>(null);
+
+  const [selectedModel, setSelectedModel] = useState(node.data.modelName);
+
+  const { data: models } = useQuery<Model[]>({
+    queryKey: ['models'],
+    queryFn: getModels,
+  });
+
+  /**
+   * 모델 변경 핸들러
+   * @param value 
+   */
+  const handleModelChange = (value: string) => {
+    setSelectedModel(value);
+
+    // 선택된 모델의 maxToken 값을 가져옴
+    const selectedModelData = models?.find((model) => model.name === value);
+    const selectedMaxToken = selectedModelData?.maxTokens || 0; // 기본값 설정
+
+    // 노드 상태 업데이트
+    setNodes((prevNodes) =>
+      prevNodes.map((n) =>
+        n.id === node.id
+          ? {
+            ...n,
+            data: {
+              ...n.data,
+              modelName: value,
+              maxTokens: selectedMaxToken,
+            },
+          }
+          : n
+      )
+    );
+
+    setMaxTokens(selectedMaxToken); // 슬라이더 값 업데이트
+
+    if (modelRef.current) {
+      clearTimeout(modelRef.current);
+    }
+
+    // 모델 및 maxToken 업데이트 API 호출
+    modelRef.current = setTimeout(() => {
+      const updatedData = {
+        ...node.data,
+        modelName: value,
+        maxTokens: selectedMaxToken,
+      };
+      putNode(node.data.nodeId, updatedData);
+    }, 500);
+  };
+
+
+
+  useEffect(() => {
+    setSelectedModel(node.data.modelName);
+  }, [node]);
+
+  useEffect(() => {
+    const selectedModelData = models?.find((model) => model.name === selectedModel);
+    if (selectedModelData) {
+      setMaxTokenLimit(selectedModelData.maxTokens);
+      if (maxTokens > selectedModelData.maxTokens) {
+        setMaxTokens(selectedModelData.maxTokens); // 현재 maxTokens 값이 초과하면 조정
+      }
+    }
+  }, [selectedModel, models]);
 
 
   /**
@@ -143,7 +203,6 @@ export default function LlmNodeDetail({
         ...node.data,
         promptSystem: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -183,7 +242,6 @@ export default function LlmNodeDetail({
         ...node.data,
         promptUser: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -193,30 +251,37 @@ export default function LlmNodeDetail({
    * @param value 
    */
   const handleMaxTokensChange = (value: number) => {
-    setMaxTokens(value);
-    maxTokensRef.current = value;
+  const selectedModelData = models?.find((model) => model.name === selectedModel);
+  const selectedMaxToken = selectedModelData?.maxTokens || 16384;
 
-    if (maxTokensTimerRef.current) {
-      clearTimeout(maxTokensTimerRef.current); // Reset the timer on each input
-    }
+  // 입력된 값이 maxToken을 초과하지 않도록 보정
+  const adjustedValue = Math.min(value, selectedMaxToken);
 
-    maxTokensTimerRef.current = setTimeout(() => {
-      // Update the node data only after user stops typing
-      const updatedNode = {
-        ...node,
-        data: {
-          ...node.data,
-          maxTokens: maxTokensRef.current,
-        },
-      };
+  setMaxTokens(adjustedValue);
+  maxTokensRef.current = adjustedValue;
 
-      setNodes((prevNodes) =>
-        prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
-      );
+  if (maxTokensTimerRef.current) {
+    clearTimeout(maxTokensTimerRef.current); // Reset the timer on each input
+  }
 
-      putNode(node.data.nodeId, updatedNode.data);
-    }, 500); // Wait for 500ms of inactivity
-  };
+  maxTokensTimerRef.current = setTimeout(() => {
+    // Update the node data only after user stops typing
+    const updatedNode = {
+      ...node,
+      data: {
+        ...node.data,
+        maxTokens: maxTokensRef.current,
+      },
+    };
+
+    setNodes((prevNodes) =>
+      prevNodes.map((n) => (n.id === node.id ? updatedNode : n))
+    );
+
+    putNode(node.data.nodeId, updatedNode.data);
+  }, 500); // Wait for 500ms of inactivity
+};
+
 
   /**
    * Temperature 수정 함수
@@ -257,7 +322,6 @@ export default function LlmNodeDetail({
 
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
     setParentNodes(updateParentNodes);
-    console.log("parent Nodes:", updateParentNodes);
     // setVariables(parentNodes);
   }, [node.id, nodes.length, edges.length]);
 
@@ -317,7 +381,6 @@ export default function LlmNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -335,6 +398,7 @@ export default function LlmNodeDetail({
       return !prev; // 상태 토글
     });
   };
+
 
   return (
     <>
@@ -366,25 +430,19 @@ export default function LlmNodeDetail({
         </div>
 
         <div className="flex flex-col gap-2">
-          {/* <div className="text-[16px]">모델을 선택하세요.</div> */}
-          <div className="text-[16px]">모델</div>
-          <div
-            className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6] sm:text-sm"
-          >
-            gpt-4o-mini
-          </div>
-          {/* <select
+          <div className="text-[16px]">모델을 선택하세요.</div>
+           <select
             id="model"
-            // value={selectedModel}
-            // onChange={handleChangeModel}
-            className="cursor-pointer mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6] sm:text-sm"
+            value={selectedModel}
+            onChange={(e) => handleModelChange(e.target.value)} 
+            className="cursor-pointer mt-1 block w-full px-1 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6] sm:text-sm"
           >
-            {models.map((model: Model) => (
-              <option key={model.id} value={model.id}>
+            {models?.map((model: Model) => (
+              <option key={model.name} value={model.name}>
                 {model.name}
               </option>
             ))}
-          </select> */}
+          </select>
         </div>
         <div className="flex flex-col items-start gap-2">
           <label htmlFor="top-k-range" className="text-sm font-semibold text-gray-700">
@@ -395,7 +453,7 @@ export default function LlmNodeDetail({
             <input
               type="number"
               value={maxTokens}
-              max={16384}
+              max={maxTokenLimit}
               min={1}
               step={1}
               onChange={(e) => handleMaxTokensChange(Number(e.target.value))}
@@ -405,7 +463,7 @@ export default function LlmNodeDetail({
             <input
               id="top-k-range"
               type="range"
-              max={16384}
+              max={maxTokenLimit}
               min={1}
               step={1}
               value={maxTokens}
@@ -465,7 +523,7 @@ export default function LlmNodeDetail({
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-[16px]">프롬프트를 입력하세요.</div>
-          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between items-center">
               <div
                 className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
@@ -495,7 +553,7 @@ export default function LlmNodeDetail({
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 rounded-[10px] bg-white">
+          <div className="flex flex-col gap-1 rounded-[10px] bg-white border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between items-center">
               <div
                 className="w-full flex flex-row justify-between mt-1 block w-[90px] px-2 py-1 bg-white rounded-md outline-none focus:outline-none sm:text-sm cursor-pointer font-bold border-none shadow-none"
@@ -539,34 +597,38 @@ export default function LlmNodeDetail({
             <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
             <div className="z-[10] w-[160px] mt-[6px]">
-              {connectedNodes.map((node, index) => (
-                <div
-                  key={index}
-                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#3B82F6]`}
-                >
-                  {nodeConfig[node.type]?.icon}
-                  <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
-                  <AiOutlineClose
-                    className="cursor-pointer ml-auto"
-                    style={{
-                      color: deleteIconColors[node.type] || "gray",
-                    }}
-                    onClick={() => deleteConnectEdge(node)}
-                  />
-                </div>
-              ))}
-              <NodeAddMenu
-                node={node}
-                nodes={nodes}
-                setNodes={setNodes}
-                setEdges={setEdges}
-                setSelectedNode={setSelectedNode}
-                isDetail={true}
-                questionClass={0}
-              />
+              {connectedNodes.length > 0 ? (
+                connectedNodes.map((node, index) => (
+                  <div
+                    key={index}
+                    className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#3B82F6]`}
+                  >
+                    {nodeConfig[node.type]?.icon}
+                    <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
+                    <AiOutlineClose
+                      className="cursor-pointer ml-auto"
+                      style={{
+                        color: deleteIconColors[node.type] || "gray",
+                      }}
+                      onClick={() => deleteConnectEdge(node)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <NodeAddMenu
+                  node={node}
+                  nodes={nodes}
+                  setNodes={setNodes}
+                  setEdges={setEdges}
+                  setSelectedNode={setSelectedNode}
+                  isDetail={true}
+                  questionClass={0}
+                />
+              )}
             </div>
           </div>
         </div>
+
 
       </div>
     </>

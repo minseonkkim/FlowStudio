@@ -10,6 +10,9 @@ import { UserInfo, ApiKeys } from '@/types/profile'
 import { AxiosError } from 'axios';
 import WhiteButton from '../common/whiteButton';
 import Loading from '../common/Loading';
+import { FaEyeSlash } from '@react-icons/all-files/fa/FaEyeSlash';
+import { FaEye } from '@react-icons/all-files/fa/FaEye';
+import { FaTrashAlt } from '@react-icons/all-files/fa/FaTrashAlt';
 
 export default function UserProfile() {
   const [nickname, setNickName] = useState<string | null>(null)
@@ -18,16 +21,32 @@ export default function UserProfile() {
   const [profileImage, setProfileImage] = useState<File | string | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [openAi, setOpenAi] = useState<string | null>(null)
-  const [gemini, setGemini] = useState<string | null>(null)
   const [claude, setClaude] = useState<string | null>(null)
-  const [clova, setClova] = useState<string | null>(null)
+  // const [gemini, setGemini] = useState<string | null>(null)
+  // const [clova, setClova] = useState<string | null>(null)
   const queryClient = useQueryClient();
+  const [previewState, setPreviewState] = useState({
+    openAiKey: false,
+    claudeKey: false,
+    // geminiKey: false,
+    // clovaKey: false,
+  });
+
+  // 초기 데이터 저장 상태
+  const [initialData, setInitialData] = useState({
+    nickname: "",
+    profileImage: null as string | null,
+    openAiKey: null as string | null,
+    claudeKey: null as string | null,
+    // geminiKey: null as string | null,
+    // clovaKey: null as string | null,
+  });
 
   const { isLoading: isUserInfoLoading, isError: isUserInfoError, error: userInfoError, data: userInfo } = useQuery<UserInfo>({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
   });
-  
+
   const { isLoading: isApiKeysLoading, isError: isApiKeysError, error: apiKeysError, data: apiKeys } = useQuery<ApiKeys>({
     queryKey: ['apiKeys'],
     queryFn: getApiKeys,
@@ -38,7 +57,7 @@ export default function UserProfile() {
     mutationFn: getCheckNickName,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userInfo"] });
-      setNicknameStatus("사용 가능한 닉네임 입니다."); 
+      setNicknameStatus("사용 가능한 닉네임 입니다.");
     },
     onError: (error: AxiosError) => {
       if (error.response) {
@@ -89,18 +108,31 @@ export default function UserProfile() {
       alert("Api keys 수정에 실패했습니다. 다시 시도해 주세요.");
     },
   });
-  
+
 
   useEffect(() => {
     if (userInfo) {
       setNickName(userInfo.nickname);
       setPreviewImage(userInfo.profileImage);
+      setInitialData((prev) => ({
+        ...prev,
+        nickname: userInfo.nickname,
+        profileImage: userInfo.profileImage,
+      }));
     }
+
     if (apiKeys) {
       setOpenAi(apiKeys.openAiKey);
-      setGemini(apiKeys.geminiKey);
       setClaude(apiKeys.claudeKey);
-      setClova(apiKeys.clovaKey);
+      // setGemini(apiKeys.geminiKey);
+      // setClova(apiKeys.clovaKey);
+      setInitialData((prev) => ({
+        ...prev,
+        openAiKey: apiKeys.openAiKey,
+        claudeKey: apiKeys.claudeKey,
+        // geminiKey: apiKeys.geminiKey,
+        // clovaKey: apiKeys.clovaKey,
+      }));
     }
   }, [userInfo, apiKeys]);
 
@@ -113,27 +145,27 @@ export default function UserProfile() {
   }, [isUserInfoError, userInfoError, isApiKeysError, apiKeysError]);
 
 
-  if (isUserInfoLoading || isApiKeysLoading) return <Loading/>;
+  if (isUserInfoLoading || isApiKeysLoading) return <Loading />;
 
   const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNickName(e.target.value);
-    setNicknameStatus(null); 
+    setNicknameStatus(null);
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImage(file); 
-      setPreviewImage(URL.createObjectURL(file)); 
+      setProfileImage(file);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
   const handleSave = () => {
     // 닉네임 수정
-    if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다." ) {
+    if (nickname && nicknameStatus === "사용 가능한 닉네임 입니다.") {
       saveNickname.mutate(nickname);
       setIsEditing(false);
-    } else if ( nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요." ) {
+    } else if (nickname != userInfo?.nickname || nicknameStatus === "중복된 닉네임입니다. 다른 닉네임으로 변경하세요.") {
       alert("닉네임 중복 확인을 시도해 주세요.")
     }
 
@@ -143,15 +175,30 @@ export default function UserProfile() {
       setProfileImage(null)
     }
 
-    // api key 수정
-    if (apiKeys?.claudeKey !== claude || apiKeys.clovaKey !== clova || apiKeys.geminiKey !== gemini || apiKeys.openAiKey !== openAi) {
-      const apiKeys = {
-        openAiKey: openAi || "",
-        claudeKey: claude || "",
-        geminiKey: gemini || "",
-        clovaKey: clova || ""
-      }
-      updateApiKeys.mutate(apiKeys);
+    // API 키 수정
+    const updatedKeys = {
+      openAiKey: openAi || "",
+      claudeKey: claude || "",
+      // geminiKey: gemini || "",
+      // clovaKey: clova || "",
+    };
+
+    // 공백으로 업데이트하려는 경우 경고 메시지
+    const emptyKeys = Object.entries(updatedKeys).filter(([key, value]) => {
+      return apiKeys?.[key as keyof ApiKeys] !== value && value === "";
+    });
+
+    if (emptyKeys.length > 0) {
+      if (!confirm("API Key를 공백으로 업데이트시 발행한 챗봇에 문제가 발생할 수 있습니다. 그래도 수정하시겠습니까?")) return;
+    }
+    // API 키 변경이 있는 경우 업데이트
+    if (
+      apiKeys.openAiKey !== openAi || 
+      apiKeys?.claudeKey !== claude
+      // apiKeys.clovaKey !== clova ||
+      // apiKeys.geminiKey !== gemini
+    ) {
+      updateApiKeys.mutate(updatedKeys);
       setIsEditing(false);
     }
   }
@@ -164,31 +211,66 @@ export default function UserProfile() {
     }
   }
 
+
+  const togglePreview = (key: string) => {
+    setPreviewState((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleRemoveKey = (key: string) => {
+    switch (key) {
+      case "openAiKey":
+        setOpenAi(null);
+        break;
+      case "claudeKey":
+        setClaude(null);
+        break;
+      // case "geminiKey":
+        // setGemini(null);
+        // break;
+      // case "clovaKey":
+        // setClova(null);
+        // break;
+      default:
+        break;
+    }
+  };
+
+  const handleCancel = () => {
+    // 원래 데이터로 복구
+    setNickName(initialData.nickname);
+    setPreviewImage(initialData.profileImage);
+    setOpenAi(initialData.openAiKey);
+    setClaude(initialData.claudeKey);
+    // setGemini(initialData.geminiKey);
+    // setClova(initialData.clovaKey);
+    setIsEditing(false); // 편집 모드 종료
+  };
+
   return (
     <>
       <div className="w-full max-w-[900px] border-2 rounded-lg py-8 px-10">
         <h2 className="font-semibold text-[24px] text-gray-700 mb-5">내 정보</h2>
         <div className="flex flex-col md:flex-row md:space-x-16">
           <div className="flex flex-row md:flex-col md:items-center items-end mt-1">
-          <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
-            {previewImage ? (
-              <Image 
-                src={previewImage} 
-                alt="프로필 이미지 미리보기" 
-                fill
-                className="object-cover"
-              />
-            ) : userInfo?.profileImage ? (
-              <Image 
-                src={userInfo.profileImage} 
-                alt="프로필 이미지" 
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
-            )}
-          </div>
+            <div className="relative w-[108px] h-[108px] mb-2 border rounded-xl overflow-hidden">
+              {previewImage ? (
+                <Image
+                  src={previewImage}
+                  alt="프로필 이미지 미리보기"
+                  fill
+                  className="object-cover"
+                />
+              ) : userInfo?.profileImage ? (
+                <Image
+                  src={userInfo.profileImage}
+                  alt="프로필 이미지"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <BsFillPersonFill className="w-full h-full p-4 text-gray-400 bg-gray-300" />
+              )}
+            </div>
 
             {isEditing && (
               <div className="ml-4 mb-4 md:ml-0 md:mt-2">
@@ -196,7 +278,7 @@ export default function UserProfile() {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="hidden" 
+                  className="hidden"
                   id="image-upload"
                 />
                 <label
@@ -241,35 +323,53 @@ export default function UserProfile() {
               <p className="text-base text-gray-700">{userInfo?.username}</p>
             </div>
 
-            {[{ label: 'OpenAI', key: 'openAiKey' as const, value: openAi, setValue: setOpenAi },
-              { label: 'Claude', key: 'claudeKey' as const, value: claude, setValue: setClaude },
-              { label: 'Gemini', key: 'geminiKey' as const, value: gemini, setValue: setGemini },
-              { label: 'Clova', key: 'clovaKey' as const, value: clova, setValue: setClova }]
-              .map(({ label, key, value, setValue }) => (
-                <div key={label} className="flex items-center gap-x-4">
-                  <p className="mt-2 mb-2 w-[80px] font-semibold text-base text-gray-600">{label}</p>
-                  {isEditing ? (
+            {[
+              { label: "OpenAI", key: "openAiKey" as const, value: openAi, setValue: setOpenAi },
+              { label: "Claude", key: "claudeKey" as const, value: claude, setValue: setClaude },
+              // { label: "Gemini", key: "geminiKey" as const, value: gemini, setValue: setGemini },
+              // { label: "Clova", key: "clovaKey" as const, value: clova, setValue: setClova },
+            ].map(({ label, key, value, setValue }) => (
+              <div key={key} className="flex items-center gap-x-4 mb-4">
+                <p className="w-[80px] font-semibold text-base text-gray-600">{label}</p>
+                {isEditing ? (
+                  <div className="relative w-full">
                     <input
-                      type="text"
-                      value={value || ''}  // 상태 값을 사용 (null인 경우 빈 문자열로 대체)
+                      type={previewState[key] ? "text" : "password"}
+                      value={value || ""}
+                      placeholder="API Key 입력"
                       onChange={(e) => setValue(e.target.value)}
                       className="border rounded-md w-full px-[10px] py-1 text-base text-gray-700 leading-normal focus:border-2 focus:border-[#9A75BF] focus:outline-none"
                     />
-                  ) : (
-                    <p className="mt-2 mb-2 text-base text-gray-700 font-bold">
-                    {apiKeys?.[key] ? '****************************************' : ''}
+                    <button
+                      type="button"
+                      onClick={() => togglePreview(key)}
+                      className="absolute right-10 top-2 text-gray-600 hover:text-gray-800"
+                    >
+                      {previewState[key] ? <FaEye /> : <FaEyeSlash />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKey(key)}
+                      className="absolute right-2 top-2 text-gray-600 hover:text-red-600"
+                      title={`${label} API Key 제거`}
+                    >
+                      <FaTrashAlt />
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-base text-gray-700 font-bold">
+                    {value ? "****************************************" : "입력된 키 없음"}
                   </p>
-                  
-                  )}
-                </div>
-              ))}
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="flex justify-end mt-4 gap-2">
           {isEditing ? (
             <>
-              <WhiteButton text="취소" onHandelButton={() => setIsEditing(false)} />
+              <WhiteButton text="취소" onHandelButton={handleCancel} />
               <PurpleButton text="저장" onHandelButton={handleSave} />
             </>
           ) : (

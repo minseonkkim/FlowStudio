@@ -64,7 +64,7 @@ export default function PopularChatbotCard({
     setIsModalOpen(false);
   }, [chatbotId, downloadChatFlowMutation, router]);
 
-  
+
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
@@ -86,12 +86,11 @@ export default function PopularChatbotCard({
   return (
     <div
       onClick={onCardClick}
-      className={`w-full h-[194px] px-6 py-5 rounded-xl border-2 cursor-pointer hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 ${
-        type === "all" ? "group" : ""
-      }`}
+      className={`w-full h-[194px] px-6 py-5 rounded-xl border-2 cursor-pointer hover:border-[#9A75BF] hover:bg-[#B99AD9] hover:bg-opacity-10 ${type === "all" ? "group" : ""
+        }`}
     >
       <div className="flex flex-row justify-between items-center mb-3">
-        <div className={`${type === "all" ? "w-[64%]": "w-auto"} flex items-center gap-3`}>
+        <div className={`${type === "all" ? "w-[64%]" : "w-auto"} flex items-center gap-3`}>
           <Image
             src={`/chatbot-icon/${iconId}.jpg`}
             alt="Selected Icon"
@@ -100,16 +99,16 @@ export default function PopularChatbotCard({
             className="rounded-lg border border-gray-300"
           />
           <p className="text-[16px] line-clamp-1 overflow-hidden">{title}</p>
-          
-          
+
+
         </div>
-        {type === "all" && 
+        {type === "all" &&
           <p className="text-[12px] text-gray-400 flex flex-col items-end gap-1">
-              <div className="flex flex-row items-center whitespace-nowrap">made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full"/>&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span></div>
-              <div className="whitespace-nowrap"><span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨</div>
+            <div className="flex flex-row items-center whitespace-nowrap">made by&nbsp;<Image src={authorProfile} width={19} height={19} alt="author profile" className="rounded-full" />&nbsp;<span className="text-[#242426] font-semibold text-[13px]">{authorNickName}</span></div>
+            <div className="whitespace-nowrap"><span className="text-[#242426] font-semibold text-[13px]">{shareNum}</span>번 공유됨</div>
           </p>
         }
-        
+
       </div>
       <div className="flex flex-col h-[108px] justify-between">
         <p className="text-[14px] text-[#667085] line-clamp-3 overflow-hidden">{description}</p>
@@ -125,8 +124,13 @@ export default function PopularChatbotCard({
           </div>
 
           {type === "all" && (
-            <div className="flex items-center p-2" onClick={handleDownloadClick}>
-              <button>
+            <div className="flex items-center p-2 "
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadClick();
+              }}
+            >
+              <button aria-label="Download">
                 <BsDownload
                   size={18}
                   className="text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
@@ -143,7 +147,7 @@ export default function PopularChatbotCard({
               }}
               className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
             >
-              <button>
+              <button aria-label="Outspread">
                 <BsThreeDots size={18} className="text-[#667085]" />
               </button>
 
@@ -198,7 +202,7 @@ export default function PopularChatbotCard({
               }}
               className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
             >
-              <button>
+              <button aria-label="Outspread">
                 <BsThreeDots size={18} className="text-[#667085]" />
               </button>
               {/* Dropdown menu */}
@@ -232,13 +236,19 @@ export default function PopularChatbotCard({
             <div className="flex justify-end gap-4">
               <button
                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-                onClick={handleCloseModal}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCloseModal();
+                }}
               >
                 취소
               </button>
               <button
                 className="px-4 py-2 bg-[#874aa5] text-white rounded hover:bg-[#6e3a85]"
-                onClick={handleConfirmDownload}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleConfirmDownload();
+                }}
               >
                 확인
               </button>

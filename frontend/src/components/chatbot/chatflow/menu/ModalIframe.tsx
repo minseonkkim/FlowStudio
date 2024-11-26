@@ -1,8 +1,8 @@
 'use client';
 
+import { toastSuccess } from '@/utils/toast';
 import { FaRegCopy } from '@react-icons/all-files/fa/FaRegCopy';
 import { FiX } from '@react-icons/all-files/fi/FiX';
-import { Bounce, toast } from 'react-toastify';
 
 interface ModalIframeProps {
   chatFlowId: number;
@@ -15,17 +15,7 @@ export default function ModalIframe({
 }: ModalIframeProps) {
   const handleCopy = () => {
     navigator.clipboard.writeText(iframeCode);
-    toast.success(`iframe 코드가 복사되었습니다.`, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: false,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      transition: Bounce,
-    });
+    toastSuccess('iframe 코드가 복사되었습니다.');
   };
 
   const iframeCode = `

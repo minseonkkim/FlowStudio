@@ -113,13 +113,8 @@ export default function TestCaseInput({
         withCredentials: true,
       });
   
-      sse.onopen = () => {
-        console.log("SSE 연결이 성공적으로 열렸습니다.");
-      };
-  
       sse.addEventListener("prediction", (event) => {
         const predictionData = JSON.parse((event as MessageEvent).data);
-        console.log(predictionData);
       
         setParsedTestData((prev) => {
           const updatedData = [...prev];
@@ -152,7 +147,6 @@ export default function TestCaseInput({
 
       sse.addEventListener("testCase", (event) => {
         const testCaseData = JSON.parse((event as MessageEvent).data);
-        console.log(testCaseData)
       
         setParsedTestData((prev) => {
           const updatedData = [...prev];
@@ -207,64 +201,64 @@ export default function TestCaseInput({
   return (
     <>
     <div className="flex justify-between mb-10 h-[15px] ">
-    <p className="text-[22px]">{selectedTab}</p>
-  </div>
-  <div className="relative">
-    <>
-      {items.map((item, index) => (
-        <div key={index} className="border-2 rounded-xl mb-4">
-          <details open className="py-4 px-6">
-            <summary className="font-semibold">테스트 케이스 {index + 1}</summary>
-            <div className="mt-4">
-              <label className="block mb-2">테스트 질문 (Test Question)</label>
-              <input
-                type="text"
-                value={item.testQuestion}
-                onChange={(e) =>
-                  updateItem(index, "testQuestion", e.target.value)
-                }
-                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
-                placeholder="Enter test question"
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block mb-2">정답 (Ground Truth)</label>
-              <textarea
-                value={item.groundTruth}
-                onChange={(e) =>
-                  updateItem(index, "groundTruth", e.target.value)
-                }
-                className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
-                placeholder="Enter ground truth"
-              />
-            </div>
-            <div className="flex items-center justify-end">
-              <button
-                onClick={() => deleteItem(index)}
-                className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
-              >
-                삭제
-              </button>
-            </div>
-          </details>
-        </div>
-      ))}
+      <p className="text-[22px]">{selectedTab}</p>
+    </div>
+    <div className="relative">
+      <>
+        {items.map((item, index) => (
+          <div key={index} className="border-2 rounded-xl mb-4">
+            <details open className="py-4 px-6">
+              <summary className="font-semibold">테스트 케이스 {index + 1}</summary>
+              <div className="mt-4">
+                <label className="block mb-2">테스트 질문 (Test Question)</label>
+                <input
+                  type="text"
+                  value={item.testQuestion}
+                  onChange={(e) =>
+                    updateItem(index, "testQuestion", e.target.value)
+                  }
+                  className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                  placeholder="Enter test question"
+                />
+              </div>
+              <div className="mt-4">
+                <label className="block mb-2">정답 (Ground Truth)</label>
+                <textarea
+                  value={item.groundTruth}
+                  onChange={(e) =>
+                    updateItem(index, "groundTruth", e.target.value)
+                  }
+                  className="w-full p-2 border rounded-md bg-gray-100 focus:border-2 focus:border-[#9A75BF] focus:outline-none"
+                  placeholder="Enter ground truth"
+                />
+              </div>
+              <div className="flex items-center justify-end">
+                <button
+                  onClick={() => deleteItem(index)}
+                  className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
+                >
+                  삭제
+                </button>
+              </div>
+            </details>
+          </div>
+        ))}
 
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={addItem}
-          className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
-        >
-          추가
-        </button>
-        <div className="flex gap-4">
-          <WhiteButton text="이전" onHandelButton={() => onPrevious()} />
-          <PurpleButton text="테스트 시작" onHandelButton={handleSubmit} />
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={addItem}
+            className="mt-4 px-4 py-2 bg-[#E1D5F2] text-[#9A75BF] font-semibold rounded-md"
+          >
+            추가
+          </button>
+          <div className="flex gap-4">
+            <WhiteButton text="이전" onHandelButton={() => onPrevious()} />
+            <PurpleButton text="테스트 시작" onHandelButton={handleSubmit} />
+          </div>
         </div>
-      </div>
-    </>
-  </div>
-</>
+      </>
+    </div>
+  </>
 
   );
 }

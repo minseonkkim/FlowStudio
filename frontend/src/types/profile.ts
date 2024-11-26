@@ -9,8 +9,8 @@ export interface UserInfo {
 export interface ApiKeys {
   openAiKey: string;
   claudeKey: string;
-  geminiKey: string;
-  clovaKey: string;
+  // geminiKey: string;
+  // clovaKey: string;
 }
 
 export interface TokenUsage {

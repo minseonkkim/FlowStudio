@@ -66,6 +66,7 @@ export default function NodeAddMenu({
                 const newNode = createNodeData(
                     nodeDetail,
                     node.data.chatFlowId,
+                    true,
                     setNodes,
                     setEdges,
                     setSelectedNode

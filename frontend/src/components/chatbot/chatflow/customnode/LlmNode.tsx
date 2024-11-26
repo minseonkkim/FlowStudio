@@ -30,14 +30,18 @@ export default function LlmNode({
         </div>
         {data.modelName && data.modelName.length > 0 &&
           <div className="flex flex-col gap-1 text-[8px]">
-            <div className="rounded-[5px] p-0.5 bg-white">gpt-4o-mini</div>
+            {data.modelName && (
+              <div className="flex flex-col gap-1 text-[8px]">
+                <div className="rounded-[5px] p-0.5 bg-white">{data.modelName}</div>
+              </div>
+            )}
             {data.promptSystem && data.promptSystem.length > 0 &&
               <div className="flex flex-col gap-0.5">
                 <div>시스템 프롬프트</div>
                 <div
                   dangerouslySetInnerHTML={data.renderPromptSystem}
                   style={{ whiteSpace: "pre-wrap" }}
-                  className="rounded-[5px] p-0.5 bg-white"></div>
+                  className="rounded-[5px] p-0.5 bg-white break-words"></div>
               </div>
             }
             {data.promptUser && data.promptUser.length > 0 &&
@@ -46,7 +50,7 @@ export default function LlmNode({
                 <div
                   dangerouslySetInnerHTML={data.renderPromptUser}
                   style={{ whiteSpace: "pre-wrap" }}
-                  className="rounded-[5px] p-0.5 bg-white"></div>
+                  className="rounded-[5px] p-0.5 bg-white break-words"></div>
               </div>
             }
           </div>

@@ -8,6 +8,7 @@ import { deleteIconColors, nodeConfig } from "./nodeConfig";
 export const createNodeData = (
   params: Omit<NodeData, "onDelete" | "chatFlowId">, // onDelete와 chatFlowId를 제외
   chatFlowId: number, // chatFlowId를 외부에서 전달받음
+  isEditable: boolean,
   setNodes: Dispatch<SetStateAction<Node<NodeData, string | undefined>[]>>, // 노드 상태 업데이트 함수
   setEdges: Dispatch<SetStateAction<Edge<EdgeData>[]>>, // 엣지 상태 업데이트 함수
   setSelectedNode: Dispatch<SetStateAction<Node<NodeData, string | undefined> | null>>
@@ -21,6 +22,9 @@ export const createNodeData = (
     outputEdges: params.outputEdges || [],
     inputEdges: params.inputEdges || [],
     onDelete: (nodeId: string) => {
+      // 공유 미리보기로 들어오면 노드 삭제 불가
+      if (isEditable == false) return;
+
       // 1. 연결된 엣지 삭제
       setEdges((eds) =>
         eds.filter((edge) => {
@@ -89,10 +93,6 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
     },
     type: type,
   };
-
-  console.log(currentNode);
-  console.log(newNode);
-  
 
   return postNode(newNode);
 }

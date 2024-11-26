@@ -1,5 +1,4 @@
 'use client';
-import { useQueryClient } from '@tanstack/react-query';
 import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';
@@ -8,7 +7,6 @@ import { currentStepState, fileState, isLoadingState } from '@/store/knoweldgeAt
 import { useRouter } from 'next/navigation'; 
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import PurpleButton from '@/components/common/PurpleButton';
-import { useEffect } from 'react';
 import Loading from '@/components/common/Loading';
 
 export default function Page() {
@@ -17,25 +15,11 @@ export default function Page() {
   const [, setfile] = useRecoilState(fileState); 
   const isLoading = useRecoilValue(isLoadingState);
 
-  const queryClient = useQueryClient();
 
-
-  useEffect(()=>{
-    console.log(isLoading)
-
-  },[isLoading])
   const goToListPage = () => {
     router.push('/knowledges');  
-
-    setTimeout(() => {
-      setfile(null);
-      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-    }, 0);
+    setfile(null);
   };
-
-  useEffect(() => {
-    console.log('커런트 스텝: ' + currentStep);
-  }, [currentStep]);
 
   return (
     <>
@@ -44,7 +28,7 @@ export default function Page() {
           <CreateStep />
         </div>
 
-        <div className="mx-[270px]">
+        <div className="ml-[270px] w-full">
           {currentStep !== 1 ? <CreateSecond /> : <CreateFirst />}
         </div>
 

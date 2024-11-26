@@ -33,9 +33,15 @@ export async function postDownloadChatFlow(chatFlowId: number){
 }
 
 // 공유된 챗플로우 전체 목록 조회
-export async function getSharedChatFlows(){
+export async function getSharedChatFlows(page = 0, limit = 20) {
   try {
-    const response = await axiosInstance.get('chat-flows/shares');
+    const response = await axiosInstance.get('chat-flows/shares', {
+      params: {
+        page: page.toString(), 
+        limit: limit.toString(), 
+      },
+    });
+
     if (response.status === 200) {
       console.log(response.data);
       return response.data.data;
@@ -43,7 +49,7 @@ export async function getSharedChatFlows(){
       throw new Error('Failed to get shared chatflows');
     }
   } catch (error) {
-    console.error(error)
-    throw error
+    console.error(error);
+    throw error;
   }
 }
