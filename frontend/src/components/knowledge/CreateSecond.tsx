@@ -232,6 +232,7 @@ const onChange3Step = () => {
             <WhiteButton text='이전' onHandelButton={onChangeBack}/>
             <PurpleButton text='저장하고 처리' onHandelButton={onChange3Step}/>
           </div>
+          <div className='h-10'></div>
         </div>
 
         {isPreviewOpen && (

@@ -156,7 +156,9 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
       );
       return postMessage(data.chatId, { message: data.message });
     },
-    onError: () => {
+    onError: (error) => {
+      const serverErrorMessage = error?.message || error?.message || "메시지를 보낼 수 없습니다. 다시 확인해주세요.";
+
       const prevEventNode = nodes.find((n) => n.id == currentEventNodeId);
       const errorEventNodeId = prevEventNode.data?.outputEdges[0]?.targetNodeId.toString(); // 연결 노드가 1개라는 가정
       
@@ -185,17 +187,23 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
         );
       }, 5000);
 
-      toast.error(`메시지 전송에 실패했습니다. 다시 시도해 주세요.`, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
+      toast.error(
+        <>
+          {serverErrorMessage}
+        </>,
+        {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: false,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        }
+      );
+      
     },
   });
 

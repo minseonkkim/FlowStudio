@@ -51,7 +51,7 @@ export default function RetrieverNodeDetail({
    * 지식 선택 모달 열기
    */
   const openModal = () => {
-    getAllKnowledges()
+    getAllKnowledges({})
       .then((data) => {
         setKnowledges(data);
       });

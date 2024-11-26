@@ -7,6 +7,7 @@ export interface getChatListData {
   id: number;
   title: string;
   thumbnail: number;
+  totalCount: number;
   chats: ChatList[]; 
 }
 

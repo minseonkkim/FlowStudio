@@ -1,5 +1,4 @@
 'use client';
-import { useQueryClient } from '@tanstack/react-query';
 import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';
@@ -17,15 +16,10 @@ export default function Page() {
   const [, setfile] = useRecoilState(fileState); 
   const isLoading = useRecoilValue(isLoadingState);
 
-  const queryClient = useQueryClient();
 
   const goToListPage = () => {
     router.push('/knowledges');  
-
-    setTimeout(() => {
-      setfile(null);
-      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-    }, 0);
+    setfile(null);
   };
 
   return (

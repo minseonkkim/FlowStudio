@@ -7,7 +7,7 @@ import { FiX } from "@react-icons/all-files/fi/FiX";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { postMessage, postChatting, getChatting, getChattingList } from "@/api/chat";
-import { getChatDetailList, getChatListData, Message } from "@/types/chat";
+import { getChatDetailList, Message } from "@/types/chat";
 import SideBar from "@/components/chat/SideBar";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -34,7 +34,6 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("새 대화");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [, setChatlist] = useState<getChatListData | undefined>();
   const profileImage = useRecoilValue(profileImageAtom);
   const [isLogin, setIsLogin] = useState<boolean>(false)
 
@@ -84,16 +83,45 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     sse.addEventListener("title", async (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       setTitle(data.title);
-
+    
       const accessToken = localStorage.getItem("accessToken");
       if (accessToken) {
-        const updatedChatlist = await queryClient.fetchQuery<getChatListData>({
-          queryKey: ["chatlist", chatFlowId],
-          queryFn: () => getChattingList(chatFlowId),
+       
+        const updatedChatlist = await getChattingList({
+          chatFlowId,
+          page: "0",
+          limit: "1",
         });
-        setChatlist(updatedChatlist);
+            
+        queryClient.setQueryData(["chatlist", chatFlowId], (oldData: { 
+          pages: { chats: []; totalCount: number }[]; 
+          pageParams: []; 
+        }) => {
+          if (!oldData) {
+            return {
+              pageParams: [0],
+              pages: [updatedChatlist],
+            };
+          }
+    
+          return {
+            ...oldData,
+            pages: [
+              {
+                ...oldData.pages[0],
+                chats: [
+                  ...updatedChatlist.chats, 
+                  ...oldData.pages[0].chats, 
+                ],
+                totalCount: updatedChatlist.totalCount, 
+              },
+              ...oldData.pages.slice(1), 
+            ],
+          };
+        });
       }
     });
+    
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
