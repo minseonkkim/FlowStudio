@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import { useRecoilValue } from "recoil";
 import { parsedTestDataState,  } from "@/store/evaluationAtoms";
 
