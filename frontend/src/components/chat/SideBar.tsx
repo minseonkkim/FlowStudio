@@ -41,9 +41,9 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
       getChattingList({
         chatFlowId,
         page: pageParam.toString(), 
-        limit: '5',
+        limit: '10',
       }),
-    getNextPageParam: (lastPage: { totalCount: number }, allPages: any[]) => {
+    getNextPageParam: (lastPage, allPages) => {
       const totalPages = Math.ceil(lastPage.totalCount / limitCnt); // 총 페이지 수 계산
       const currentPage = allPages.length - 1; // 현재 불러온 페이지 수
       return currentPage < totalPages ? currentPage + 1 : undefined; // 다음 페이지 번호 반환
@@ -52,6 +52,10 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
   });
   
 
+useEffect(()=>{
+
+  console.log(chatlist)
+},[chatlist])
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
