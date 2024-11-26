@@ -165,7 +165,7 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
       );
       return postMessage(data.chatId, { message: data.message });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       const serverErrorMessage = error?.message || error?.message || "메시지를 보낼 수 없습니다. 다시 확인해주세요.";
 
       const prevEventNode = nodes.find((n) => n.id == currentEventNodeId);

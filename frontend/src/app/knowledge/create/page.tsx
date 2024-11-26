@@ -1,5 +1,4 @@
 'use client';
-import { useQueryClient } from '@tanstack/react-query';
 import CreateStep from '@/components/knowledge/CreateStep';
 import CreateFirst from '@/components/knowledge/CreateFirst';
 import CreateSecond from '@/components/knowledge/CreateSecond';

@@ -35,7 +35,7 @@ export default function Page() {
         );
         return [...prev, ...newData];
       });
-      if (response.length < 20) setHasMore(false); // 추가 데이터 없음
+      if (response.length < 15) setHasMore(false); // 추가 데이터 없음
     } catch (error) {
       console.error("Error fetching knowledge list:", error);
     } finally {
