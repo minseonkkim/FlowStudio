@@ -6,7 +6,6 @@ import ReactFlow, {
   Controls,
   MiniMap,
   applyNodeChanges,
-  OnNodesChange,
   ReactFlowProvider,
   Edge,
   Node,
@@ -14,6 +13,8 @@ import ReactFlow, {
   useEdgesState,
   addEdge,
   Connection,
+  OnNodesChange,
+  // getConnectedEdges,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import StartNode from "@/components/chatbot/chatflow/customnode/StartNode";
@@ -38,6 +39,7 @@ import ChatFlowPublishMenu from "@/components/chatbot/chatflow/menu/ChatFlowPubl
 import { ConnectedNode, PublishChatFlowData } from "@/types/workflow";
 import { RiPlayMiniLine } from "@react-icons/all-files/ri/RiPlayMiniLine";
 import Loading from "@/components/common/Loading";
+import { useSearchParams } from 'next/navigation';
 
 interface ChatflowPageProps {
   params: {
@@ -59,12 +61,16 @@ export default function Page({ params }: ChatflowPageProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedNode, setSelectedNode] = useState<Node<NodeData, string | undefined> | null>(null);
   const [menuPosition, setMenuPosition] = useState<{ x: number; y: number; } | null>(null);
+  const [newNodePosition, setNewNodePosition] = useState<{ x: number; y: number; } | null>(null);
   const [publishedChatFlowData, setPublishedChatFlowData] = useState<PublishChatFlowData>(null);
   const [loading, setLoading] = useState<boolean>(true);
   // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const searchParams = useSearchParams();
+  const isEditable = searchParams.get('isEditable') == 'false' ? false : true;
 
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
+    
     setLoading(true);
     try {
       setLoading(true);
@@ -86,12 +92,14 @@ export default function Page({ params }: ChatflowPageProps) {
           return createNodeData(
             nodeDetail,
             params.id, // chatFlowId 전달
+            isEditable,
             setNodes,
             setEdges,
             setSelectedNode
           );
         })
       );
+      
 
       // ReactFlow에 필요한 노드 데이터로 변환
       const reactFlowNodes = newNodes.map((node) => ({
@@ -192,11 +200,9 @@ export default function Page({ params }: ChatflowPageProps) {
 
         // 첫 번째 선택된 노드 찾기
         const currentSelectNode = nds.find((node) => node.selected);
-        console.log("CURRENT Node:", currentSelectNode);
 
         // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
         if (currentSelectNode) {
-          console.log("PREV Node", selectedNode);
 
           // 이미 선택된 노드와 다른 노드면 저장
           if (selectedNode && selectedNode.id !== currentSelectNode.id) {
@@ -214,13 +220,23 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 간선 연결
    */
-  const onConnect = useCallback((connection: Connection) => {
+  const onConnect = useCallback((connection: Connection, edges : Edge[]) => {
     const edgeData: EdgeData = {
       edgeId: 0,
       sourceNodeId: +connection.source,
       targetNodeId: +connection.target,
       sourceConditionId: +connection.sourceHandle,
     };
+    
+   //엣지 배열에서 이미 연결되어있는지 if 문 검사
+   const targetFindEdge = edges.filter((edge) => edge.target === edgeData.targetNodeId.toString());
+
+   const sourceFindEdge = edges.filter((edge) => (edge.source === edgeData.sourceNodeId.toString() && edge.sourceHandle == connection.sourceHandle) 
+   || edge.source === edgeData.sourceNodeId.toString() && (!edge.sourceHandle || edge.sourceHandle == '0'));
+
+   if (sourceFindEdge.length > 0) return;
+   if (targetFindEdge.length > 0  ) return;
+
     postEdge(params.id, edgeData)
       .then((data) => {
         const newReactEdge: Edge = {
@@ -239,11 +255,11 @@ export default function Page({ params }: ChatflowPageProps) {
   /**
    * 간선 삭제
    */
-  const onEdgeDoubleClick = useCallback((event: MouseEvent, edge: Edge) => {
-    deleteEdge(params.id, +edge.id);
+  // const onEdgeDoubleClick = useCallback((event: MouseEvent, edge: Edge) => {
+  //   deleteEdge(params.id, +edge.id);
 
-    setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-  }, []);
+  //   setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+  // }, []);
 
 
   /**
@@ -266,26 +282,62 @@ export default function Page({ params }: ChatflowPageProps) {
     setSelectedNode(null);
   }
 
-
   /**
   * 마우스 우클릭 메뉴
   * @param event 
   */
-  const handlePaneContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault(); // 기본 우클릭 메뉴 비활성화
-    console.log("page", event.pageX, event.pageY);
-    console.log("clientX", event.clientX, event.clientY);
-    console.log("screen", event.screenX, event.screenY);
+  const reactFlowInstanceRef = useRef(null);
 
-    setMenuPosition({ x: event.clientX + 180, y: event.clientY - 80 }); // 클릭 위치 저장
-  };
+  const handlePaneContextMenu = useCallback(
+  (event: MouseEvent) => {
+    event.preventDefault();
+
+    // 메뉴가 이미 열려있으면 메뉴를 닫고 종료
+    if (menuPosition !== null) {
+      closeMenu();
+      return;
+    }
+
+    if (reactFlowInstanceRef.current) {
+      const reactFlowInstance = reactFlowInstanceRef.current;
+
+      // 화면 좌표를 Flow 좌표로 변환
+      const flowCoordinates = reactFlowInstance.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      setNewNodePosition({ x: flowCoordinates.x, y: flowCoordinates.y });
+
+      // 메뉴 위치 설정 (화면 좌표 기준)
+      setMenuPosition({ x: event.clientX + 180, y: event.clientY - 80 });
+    }
+  },
+  [menuPosition] // menuPosition을 종속성으로 추가
+);
+
+
+
+  /**
+   * ReactFlow 컴포넌트가 초기화될 때 reactFlowInstance 저장
+   */
+  const onInit = useCallback((instance) => {
+    reactFlowInstanceRef.current = instance;
+  }, []);
 
   /**
    * 메뉴 닫기
    */
-  const closeMenu = () => {
+   const closeMenu = useCallback(() => {
     setMenuPosition(null); // 메뉴 위치 초기화
-  };
+  }, []);
+
+  useEffect(() => {
+    // 메뉴 상태가 업데이트될 때마다 리셋해주기
+    if (!menuPosition) {
+      closeMenu();
+    }
+  }, [menuPosition, closeMenu]);
 
 
   /**
@@ -314,6 +366,7 @@ export default function Page({ params }: ChatflowPageProps) {
    */
   const renderNodeDetail = useMemo(() => {
     if (selectedNode == null) return null;
+    if (isEditable == false) return null;
 
     if (selectedNode.data.type == "START") {
       return (
@@ -396,6 +449,13 @@ export default function Page({ params }: ChatflowPageProps) {
     return null;
   }, [selectedNode, nodes, edges, connectedNodes]);
 
+  const onNodeClick = useCallback(
+  (event, node) => {
+    setSelectedNode(node);
+  },
+  []
+);
+
   /**
    * 드래그가 멈춘 노드는 위치정보를 업데이트
    * @param event 
@@ -444,100 +504,193 @@ export default function Page({ params }: ChatflowPageProps) {
     setShowPreviewChat(false);
   }
 
+  const [edgeContextMenu, setEdgeContextMenu] = useState<{
+    x: number;
+    y: number;
+    edge: Edge | null;
+  } | null>(null);
+
+  // Function to handle right-click on an edge
+  const onEdgeContextMenu = (event: MouseEvent, edge: Edge) => {
+    event.preventDefault(); // Prevent the default context menu
+    setEdgeContextMenu({
+      x: event.clientX - 40,
+      y: event.clientY - 40,
+      edge,
+    });
+  };
+
+  // Function to handle deleting an edge
+  const handleDeleteEdge = () => {
+    if (edgeContextMenu && edgeContextMenu.edge) {
+      deleteEdge(params.id, +edgeContextMenu.edge.id);
+      setEdges((eds) => eds.filter((e) => e.id !== edgeContextMenu.edge.id));
+    }
+    setEdgeContextMenu(null); // Hide the context menu
+  };
+
+  // Function to close the context menu
+  const closeEdgeContextMenu = () => {
+    setEdgeContextMenu(null);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Backspace 또는 Delete 키를 눌렀을 때 동작 방지
+      if (event.key === "Backspace" || event.key === "Delete") {
+        // 포커스가 input, textarea, 또는 다른 폼 요소가 아닐 때
+        const target = event.target as HTMLElement;
+        if (
+          target.tagName !== "INPUT" &&
+          target.tagName !== "TEXTAREA" &&
+          !target.isContentEditable
+        ) {
+          event.preventDefault(); // 기본 동작 방지
+        }
+      }
+    };
+
+    // 이벤트 리스너 추가
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      // 이벤트 리스너 제거
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  
+
   if(loading) return <Loading/>;
 
   else return (
-    <>
-      <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
-        {/* <button
-          className="px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-          onClick={handleVariableMenuModal}
-        >
-          변수
-        </button> */}
-        <button
-          className="flex flex-row items-center gap-1 px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-          onClick={handlePreviewChatButtonClick}
-        >
-          <RiPlayMiniLine className="w-6 h-6"/>
-          미리보기
-        </button>
-        <button
-          className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
-          onClick={handleChatFlowPublishModal}
-        >
-          챗봇 생성 <MdKeyboardArrowDown className="size-4" />
-        </button>
-      </div>
-      <ReactFlowProvider>
-      <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
-        {renderNodeDetail}
-        <VariableMenu ref={variableMenuRef} />
-        {showPreviewChat && <PreviewChat onClose={handlePreviewClose} chatFlowId={String(params.id)} nodes={nodes} setNodes={setNodes} />}
-      </div>
-      <ChatFlowPublishMenu publishedChatFlowData={publishedChatFlowData} setPublishedChatFlowData={setPublishedChatFlowData} ref={publishMenuRef} />
-        <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
+    <><ReactFlowProvider>
+  <div className="absolute top-[80px] right-[30px] flex flex-row gap-3 z-[10]">
+    {/* 미리보기 버튼 */}
+    <button
+      className="flex flex-row items-center gap-1 px-3 py-2.5 bg-white hover:bg-[#F3F3F3] rounded-[10px] text-[#9A75BF] font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+      onClick={handlePreviewChatButtonClick}
+    >
+      <RiPlayMiniLine className="w-6 h-6" />
+      미리보기
+    </button>
 
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            // onNodeClick={onNodeClick}
-            onEdgeDoubleClick={onEdgeDoubleClick}
-            onConnect={onConnect}
-            onPaneContextMenu={handlePaneContextMenu}
-            onPaneClick={() => setMenuPosition(null)}
-            onNodeDragStop={handleNodeDragStop}
-            zoomOnScroll={true}
-            zoomOnPinch={true}
-            panOnScroll={true}
-            minZoom={0.5}
-            maxZoom={2}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <MiniMap
-              style={{
-                bottom: 5,
-                left: 40,
-                width: 150,
-                height: 100,
-              }}
+    {/* 챗봇 생성 버튼 */}
+    {isEditable && (
+      <button
+        className="flex flex-row gap-1 items-center px-3 py-2.5 bg-[#9A75BF] hover:bg-[#8A64B1] rounded-[10px] text-white font-bold shadow-[0px_2px_8px_rgba(0,0,0,0.25)] cursor-pointer"
+        onClick={handleChatFlowPublishModal}
+      >
+        챗봇 생성 <MdKeyboardArrowDown className="size-4" />
+      </button>
+    )}
+  </div>
+
+  <div className="absolute top-[140px] right-[30px] z-[10] flex flex-row">
+    {renderNodeDetail}
+    <VariableMenu ref={variableMenuRef} />
+    {showPreviewChat && (
+      <PreviewChat
+        onClose={handlePreviewClose}
+        chatFlowId={String(params.id)}
+        nodes={nodes}
+        setNodes={setNodes}
+      />
+    )}
+  </div>
+
+  <ChatFlowPublishMenu
+    publishedChatFlowData={publishedChatFlowData}
+    setPublishedChatFlowData={setPublishedChatFlowData}
+    ref={publishMenuRef}
+  />
+
+  <div style={{ height: "calc(100vh - 60px)", backgroundColor: "#F0EFF1" }}>
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={isEditable ? onNodesChange : undefined}
+      onEdgesChange={isEditable ? onEdgesChange : undefined}
+      onConnect={isEditable ? (connect) => onConnect(connect, edges) : undefined}
+      onInit={onInit}
+      onPaneContextMenu={handlePaneContextMenu}
+      onPaneClick={() => {
+        setMenuPosition(null);
+        closeEdgeContextMenu();
+      }}
+      onNodeClick={onNodeClick}
+      onNodeDragStop={isEditable ? handleNodeDragStop : undefined}
+      onEdgeContextMenu={isEditable ? onEdgeContextMenu : undefined}
+      zoomOnScroll
+      zoomOnPinch
+      panOnScroll
+      minZoom={0.5}
+      maxZoom={2}
+      nodeTypes={nodeTypes}
+      fitView
+      deleteKeyCode={null} // Delete 키 삭제 방지
+      selectionKeyCode={null} // Backspace 키 삭제 방지
+    >
+      <MiniMap
+        style={{
+          bottom: 5,
+          left: 40,
+          width: 150,
+          height: 100,
+        }}
+      />
+      <Controls />
+      <Background />
+      {menuPosition && (
+        <div
+          style={{
+            position: "absolute",
+            top: menuPosition.y,
+            left: menuPosition.x,
+            zIndex: 1000,
+          }}
+          onClick={closeMenu}
+        >
+          {isEditable && (
+            <NodeAddMenu
+              node={{
+                position: { x: newNodePosition.x, y: newNodePosition.y },
+                data: { chatFlowId: params.id },
+              } as Node<NodeData, string | undefined>}
+              nodes={nodes}
+              setNodes={setNodes}
+              setEdges={setEdges}
+              setSelectedNode={setSelectedNode}
+              isDetail={false}
+              questionClass={0}
             />
-            <Controls />
-            <Background />
-            {menuPosition && (
-              <div
-                style={{
-                  position: "relative",
-                  top: menuPosition.y,
-                  left: menuPosition.x,
-                  zIndex: 1000
-                }}
-                onClick={closeMenu} // 메뉴 클릭 시 닫기
-              >
-                <NodeAddMenu
-                  node={{
-                    position: { x: menuPosition.x, y: menuPosition.y },
-                    data: { chatFlowId: params.id }
-                  } as Node<NodeData, string | undefined>
-                  }
-                  nodes={nodes}
-                  setNodes={setNodes}
-                  setEdges={setEdges}
-                  setSelectedNode={setSelectedNode}
-                  isDetail={false} // 세부 메뉴인지 여부
-                  questionClass={0}
-                />
-              </div>
-            )}
-          </ReactFlow>
+          )}
         </div>
-      </ReactFlowProvider>
+      )}
+      {edgeContextMenu && (
+        <div
+          style={{
+            position: "absolute",
+            top: edgeContextMenu.y,
+            left: edgeContextMenu.x,
+            backgroundColor: "white",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            padding: "5px",
+            zIndex: 1000,
+          }}
+          onMouseLeave={closeEdgeContextMenu}
+        >
+          <button onClick={handleDeleteEdge}>간선 삭제</button>
+        </div>
+      )}
+    </ReactFlow>
+  </div>
+</ReactFlowProvider>
+
       {/* {showConfirmationModal && (
         <ConfirmationModal
-          message={`${nodeTypeToDelete} 노드를 삭제하시겠습니까?`}
+          message={${nodeTypeToDelete} 노드를 삭제하시겠습니까?}
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
         />

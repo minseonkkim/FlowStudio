@@ -33,7 +33,6 @@ export default function AnswerNodeDetail({
 
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
     setParentNodes(updateParentNodes);
-    console.log("parent Nodes:", updateParentNodes);
   }, [node.id, nodes.length, edges.length]);
 
   // Adjust height of textarea dynamically
@@ -104,7 +103,6 @@ export default function AnswerNodeDetail({
         ...node.data,
         outputMessage: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -144,7 +142,6 @@ export default function AnswerNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -205,7 +202,7 @@ export default function AnswerNodeDetail({
           contentEditable
           suppressContentEditableWarning
           onInput={handleAnswerChange}
-          className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none shadow-none border-none"
+          className="p-2 bg-white rounded-[5px] w-full resize-none overflow-hidden mt-2 focus:outline-none border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#34D399] focus:border-[#34D399]"
           style={{ minHeight: "50px", whiteSpace: "pre-wrap" }}
         >
           {localAnswer}

@@ -41,7 +41,7 @@ export default function SectionOne() {
   ]);
 
   return (
-    <section className="h-[calc(100vh-54px)] relative min-w-[400px] bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
+    <section className="h-[calc(100vh-57px)] relative min-w-[400px] bg-gradient-to-b from-white to-[#9A75BF] overflow-hidden">
       <div className="h-full content-container flex flex-col justify-start" ref={ref}>
         <div className="mt-[4vh] text-[22px] md:text-[27px] text-center font-semibold leading-relaxed">
           <motion.p

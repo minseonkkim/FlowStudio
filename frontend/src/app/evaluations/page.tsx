@@ -76,7 +76,7 @@ export default function Page() {
   if(isLoading) return <Loading/>;
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div className="flex items-center mb-2">
         <p className="font-semibold text-[24px] text-gray-700 mr-6">
           챗봇 평가 결과
@@ -119,7 +119,7 @@ export default function Page() {
       </div>
 
       <div className="hidden md:flex flex-col gap-1">
-        {filteredChatFlows.reverse().slice(0, itemsToLoad).map((bot) => (
+        {filteredChatFlows.slice().reverse().slice(0, itemsToLoad).map((bot) => (
           <ChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}
@@ -134,7 +134,7 @@ export default function Page() {
       </div>
 
       <div className="md:hidden flex flex-col gap-4">
-        {filteredChatFlows.reverse().slice(0, itemsToLoad).map((bot) => (
+        {filteredChatFlows.slice().reverse().slice(0, itemsToLoad).map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}

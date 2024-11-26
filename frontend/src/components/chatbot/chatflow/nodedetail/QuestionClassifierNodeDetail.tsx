@@ -35,38 +35,62 @@ export default function QuestionClassifierNodeDetail({
   onClose: () => void
   connectedNodes: ConnectedNode[];
 }) {
-  const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
-  const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>([]);
-  const [localClasses, setLocalClasses] = useState<QuestionClass[]>([]);
 
+  const textareaRefs = useRef<{ [key: number]: HTMLTextAreaElement | null }>({});
+  const [connectedNodes, setConnectedNodes] = useState<ConnectedNode[]>([]);
+  const [localClasses, setLocalClasses] = useState<{ [key: number]: QuestionClass }>({});
+  const textareaTimeRefs = useRef<{ [key: number]: (id: number, content: string) => void }>({});
+  // const answerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // const questionTimeRef = debounce((id: number, content: string) => {
+  //   putQuestionClassNode(id, { content });
+  // }, 500);
   /**
    * 질문 클래스 관리
    */
   useEffect(() => {
-    setLocalClasses(node.data.questionClasses);
+
+    const initQuestionClasses = {};
+    node.data.questionClasses.forEach((questionClass) => {
+      initQuestionClasses[questionClass.id] = questionClass;
+
+      const questionTimeRef = debounce((id: number, content: string) => {
+        putQuestionClassNode(id, { content });
+      }, 500);
+      textareaTimeRefs.current[questionClass.id] = questionTimeRef;
+
+    })
+    setLocalClasses(initQuestionClasses);
   }, [node.data.questionClasses]);
 
   /**
    * 각 클래스별 높이 자동 수정
    */
   useEffect(() => {
-    textareaRefs.current.forEach((textarea) => {
+    Object.keys(textareaRefs).forEach((questionClassId) => {
+      const textarea = textareaRefs[questionClassId].current;
       if (textarea) {
         textarea.style.height = "auto";
         textarea.style.height = `${textarea.scrollHeight}px`;
       }
-    });
+    })
   }, [localClasses]);
 
   /**
    * 클래스 추가 함수
    */
   const handleAddClass = () => {
-    if (localClasses.length < 5) {
+    if (Object.keys(localClasses).length < 5) {
       postQuestionClassNode(node.data.nodeId, { content: "" }).then((data: QuestionClass) => {
         // localClasses 업데이트
-        const updatedLocalClasses = [...localClasses, data];
+        const updatedLocalClasses = { ...localClasses };
+        updatedLocalClasses[data.id] = data;
         setLocalClasses(updatedLocalClasses);
+
+        const questionTimeRef = debounce((id: number, content: string) => {
+          putQuestionClassNode(id, { content });
+        }, 500);
+
+        textareaTimeRefs.current[data.id] = questionTimeRef;
 
         // node.data.questionClasses 업데이트
         const updatedQuestionClasses = [...node.data.questionClasses, data];
@@ -79,16 +103,18 @@ export default function QuestionClassifierNodeDetail({
    * 클래스 삭제 함수
    * @param currentClass 
    */
-  const handleDeleteClass = (currentClass: QuestionClass) => {
-    deleteQuestionClassNode(currentClass.id).then((data) => {
+  const handleDeleteClass = (currentClassId: number) => {
+    deleteQuestionClassNode(currentClassId).then((data) => {
       if (data) {
         // localClasses 업데이트
-        const updatedLocalClasses = localClasses.filter((cls) => cls.id !== currentClass.id);
+        // const updatedLocalClasses = localClasses.filter((cls) => cls.id !== currentClass.id);
+        const updatedLocalClasses = { ...localClasses };
+        delete updatedLocalClasses[currentClassId];
         setLocalClasses(updatedLocalClasses);
 
         // node.data.questionClasses 업데이트
         const updatedQuestionClasses = node.data.questionClasses.filter(
-          (cls: QuestionClass) => cls.id !== currentClass.id
+          (cls: QuestionClass) => cls.id !== currentClassId
         );
         updateNodeDataQuestionClasses(updatedQuestionClasses);
       }
@@ -112,22 +138,24 @@ export default function QuestionClassifierNodeDetail({
    * @param currentClass 
    * @param newValue 
    */
-  const handleClassContentChange = (currentClass: QuestionClass, newValue?: string) => {
-    const updatedLocalClasses = localClasses.map((cls) =>
-      cls.id === currentClass.id ? { ...cls, content: newValue } : cls
-    );
+  const handleClassContentChange = (questionClassId: number, newValue?: string) => {
+    // const updatedLocalClasses = localClasses.map((cls) =>
+    //   cls.id === currentClass.id ? { ...cls, content: newValue } : cls
+    // );
+    const updatedLocalClasses = { ...localClasses };
+    updatedLocalClasses[questionClassId].content = newValue;
     setLocalClasses(updatedLocalClasses);
 
     const updatedQuestionClasses = node.data.questionClasses.map((cls: QuestionClass) =>
-      cls.id === currentClass.id ? { ...cls, content: newValue } : cls
+      cls.id === questionClassId ? { ...cls, content: newValue } : cls
     );
     updateNodeDataQuestionClasses(updatedQuestionClasses);
 
-    // debouncedSave 호출
-    if (debouncedSaveRef.current) {
-      debouncedSaveRef.current(currentClass.id, newValue || "");
+
+    if (textareaTimeRefs.current[questionClassId]) {
+      textareaTimeRefs.current[questionClassId](questionClassId, newValue ?? "");
     }
-  };
+    };
 
 
   /**
@@ -142,8 +170,6 @@ export default function QuestionClassifierNodeDetail({
         questionClasses: updatedQuestionClasses,
       },
     };
-
-    console.log("Updated node data:", updatedNode.data.questionClasses);
 
     // 상태 업데이트
     setNodes((prevNodes: Node[]) =>
@@ -210,7 +236,6 @@ export default function QuestionClassifierNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -256,19 +281,19 @@ export default function QuestionClassifierNodeDetail({
         </div>
         <CgClose className="size-6 cursor-pointer" onClick={onClose} />
       </div>
-      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center">gpt-4o</div>
+      <div className="h-[36px] rounded-[5px] p-3 bg-white flex items-center border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">gpt-4o</div>
 
       <div className="flex flex-col gap-2">
         <div className="text-[16px]">클래스를 추가하세요.</div>
 
-        {localClasses.map((cls, index) => (
-          <div key={index} className="flex flex-col gap-2 rounded-[10px] bg-white p-2">
+        {Object.keys(localClasses).map((questionClassId, index) => (
+          <div data-value={questionClassId} key={questionClassId} className="flex flex-col gap-2 rounded-[10px] bg-white p-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-[#3B82F6] focus:border-[#3B82F6]">
             <div className="flex flex-row justify-between">
               <div className="text-[13px] font-bold">클래스 {index + 1}</div>
-              {localClasses.length > 2 && (
+              {Object.keys(localClasses).length > 2 && (
                 <IoMdTrash
                   className="size-4 m-2 cursor-pointer text-[#9B9B9B]"
-                  onClick={() => handleDeleteClass(cls)}
+                  onClick={() => handleDeleteClass(+questionClassId)}
                 />
               )}
             </div>
@@ -276,9 +301,10 @@ export default function QuestionClassifierNodeDetail({
               ref={(el) => {
                 textareaRefs.current[index] = el;
               }}
-              value={cls?.content || ""}
+              value={localClasses[questionClassId]?.content || ""}
               onChange={(e) => {
-                handleClassContentChange(cls, e.target.value);
+                
+                handleClassContentChange(+questionClassId, e.target.value);
                 e.target.style.height = "auto";
                 e.target.style.height = `${e.target.scrollHeight}px`;
               }}
@@ -289,7 +315,7 @@ export default function QuestionClassifierNodeDetail({
           </div>
         ))}
 
-        {localClasses.length < 5 && (
+        {Object.keys(localClasses).length < 5 && (
           <div
             className="bg-[#E0E0E0] hover:bg-[#DADADA] rounded-[5px] flex justify-center items-center py-1.5 cursor-pointer text-[14px]"
             onClick={handleAddClass}
@@ -308,44 +334,53 @@ export default function QuestionClassifierNodeDetail({
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
           <div className="flex flex-col gap-2 z-[10] w-[218px]">
-            {localClasses.map((cls, index) => (
-              <div key={index} className="flex flex-col gap-2 mb-4">
-                <div className="flex flex-row items-start">
-                  <div className="text-[14px] w-[74px]">클래스 {index + 1}</div>
-                  <div className="flex flex-col w-[185px] mt-[6px]">
-                    {connectedNodes?.map((node, edgeIndex) =>
-                      node.sourceConditionId == cls.id ? (
-                        <div
-                          key={edgeIndex}
-                          className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-                        >
-                          {nodeConfig[node.type]?.icon}
-                          <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
-                          <AiOutlineClose
-                            className="cursor-pointer ml-auto"
-                            style={{ color: deleteIconColors[node.type] || "gray" }}
-                            onClick={() => deleteConnectEdge(node)}
-                          />
-                        </div>
-                      ) : null
-                    )}
+            {Object.keys(localClasses).map((questionClassId, index) => {
+              const filteredNodes = connectedNodes?.filter(
+                (node) => node.sourceConditionId === +questionClassId
+              );
 
-                    <NodeAddMenu
-                      node={node}
-                      nodes={nodes}
-                      setNodes={setNodes}
-                      setEdges={setEdges}
-                      setSelectedNode={setSelectedNode}
-                      isDetail={true}
-                      questionClass={cls.id}
-                    />
+              return (
+                <div key={index} className="flex flex-col gap-2 mb-4">
+                  <div className="flex flex-row items-start">
+                    <div className="text-[14px] w-[74px]">클래스 {index + 1}</div>
+                    <div className="flex flex-col w-[185px] mt-[6px]">
+                      {filteredNodes?.length > 0 ? (
+                        filteredNodes.map((node, edgeIndex) => (
+                          <div
+                            key={edgeIndex}
+                            className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                          >
+                            {nodeConfig[node.type]?.icon}
+                            <span>
+                              {node.name || nodeConfig[node.type]?.label + node.nodeId}
+                            </span>
+                            <AiOutlineClose
+                              className="cursor-pointer ml-auto"
+                              style={{ color: deleteIconColors[node.type] || "gray" }}
+                              onClick={() => deleteConnectEdge(node)}
+                            />
+                          </div>
+                        ))
+                      ) : (
+                        <NodeAddMenu
+                          node={node}
+                          nodes={nodes}
+                          setNodes={setNodes}
+                          setEdges={setEdges}
+                          setSelectedNode={setSelectedNode}
+                          isDetail={true}
+                          questionClass={+questionClassId}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
+
     </div>
   );
 }

@@ -117,7 +117,7 @@ const onChange3Step = () => {
 
   return (
     <>
-      <div className="pl-10 flex">
+      <div className="pl-10 flex flex-row justify-between w-full h-[calc(100vh-57px)]">
         <div>
           <p className="text-2xl font-medium pt-14 pb-8">텍스트 전처리 및 클리닝</p>
           <div className="border border-[#5D2973] w-[640px] h-[425px] rounded-xl">
@@ -211,17 +211,17 @@ const onChange3Step = () => {
               </div>
             </div>
           </div>
-          <div className='w-[640px] h-[72px] rounded-lg mt-10 bg-[rgba(217,217,217,0.2)] shadow-md flex items-center justify-between p-4'>
+          <div className='w-[640px] h-auto rounded-lg mt-10 bg-[rgba(217,217,217,0.2)] shadow-md flex items-center justify-between p-4'>
             <div className="flex items-center">
-              <div className='py-3'>
+              <div>
                 <p className="text-[#757575]">문서 전처리</p>
                 <div className='flex gap-2 mt-2'>
                   <FaFile className='text-[#757575]' />
-                  <p className="text-sm text-[#757575]"> - {fileName}</p> 
+                  <p className="text-sm text-[#757575]">{fileName}</p> 
                 </div>
               </div>
             </div>
-            <div className="flex items-center border-l pl-4">
+            <div className="flex items-center border-l pl-4 w-[120px]">
               <div>
                 <p className="text-sm text-[#757575]">예상 청크 수</p> 
                 <p className="text-lg font-semibold text-[#757575]">{predictedChunkCount}</p> 
@@ -232,11 +232,12 @@ const onChange3Step = () => {
             <WhiteButton text='이전' onHandelButton={onChangeBack}/>
             <PurpleButton text='저장하고 처리' onHandelButton={onChange3Step}/>
           </div>
+          <div className='h-10'></div>
         </div>
 
         {isPreviewOpen && (
-          <div className="w-[520px] bg-white shadow-lg absolute top-0 right-0 p-4 overflow-hidden">
-            <div className="p-4 flex justify-between items-center">
+          <div className="w-[520px] bg-white shadow-[-4px_0_10px_rgba(0,0,0,0.1)] p-4 overflow-hidden">
+            <div className="pl-4 py-3 flex justify-between items-center">
               <p className="font-bold">미리보기</p>
               <TiDeleteOutline className='w-6 h-6' onClick={() => setIsPreviewOpen(false)}/>
             </div>
@@ -247,8 +248,9 @@ const onChange3Step = () => {
                   <div className='border border-gray-400 w-[60px] h-[24px] rounded-lg text-center'>
                     <p># {String(chunk.chunkId).padStart(3, '0')}</p>
                   </div>
-                  <p className="mt-4">{chunk.content}</p>
+                  <p className="mt-4 break-words">{chunk.content}</p>
                 </div>
+
               ))} 
             </div>
           </div>

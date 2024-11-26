@@ -129,7 +129,6 @@ export default function StartNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -196,34 +195,38 @@ export default function StartNodeDetail({
           <div className="bg-black h-[2px] w-[230px] flex-grow my-[24px]"></div>
 
           <div className="z-[10] w-[160px] mt-[6px]">
-            {connectedNodes.map((node, index) => (
-              <div
-                key={index}
-                className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
-              >
-                {nodeConfig[node.type]?.icon}
-                <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
-                <AiOutlineClose
-                  className="cursor-pointer ml-auto"
-                  style={{
-                    color: deleteIconColors[node.type] || "gray",
-                  }}
-                  onClick={() => deleteConnectEdge(node)}
-                />
-              </div>
-            ))}
-            <NodeAddMenu
-              node={node}
-              nodes={nodes}
-              setNodes={setNodes}
-              setEdges={setEdges}
-              setSelectedNode={setSelectedNode}
-              isDetail={true}
-              questionClass={0}
-            />
+            {connectedNodes.length > 0 ? (
+              connectedNodes.map((node, index) => (
+                <div
+                  key={index}
+                  className={`inline-flex items-center gap-2 w-[160px] rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-[#${nodeConfig[node.type]?.color}] text-sm font-medium focus:outline-none focus:ring-1 focus:ring-[#95C447]`}
+                >
+                  {nodeConfig[node.type]?.icon}
+                  <span>{node.name || nodeConfig[node.type]?.label + node.nodeId}</span>
+                  <AiOutlineClose
+                    className="cursor-pointer ml-auto"
+                    style={{
+                      color: deleteIconColors[node.type] || "gray",
+                    }}
+                    onClick={() => deleteConnectEdge(node)}
+                  />
+                </div>
+              ))
+            ) : (
+              <NodeAddMenu
+                node={node}
+                nodes={nodes}
+                setNodes={setNodes}
+                setEdges={setEdges}
+                setSelectedNode={setSelectedNode}
+                isDetail={true}
+                questionClass={0}
+              />
+            )}
           </div>
         </div>
       </div>
+
     </div>
   );
 }
