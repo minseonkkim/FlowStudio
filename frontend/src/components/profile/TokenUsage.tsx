@@ -17,27 +17,53 @@ import {
   Tooltip,
   Legend,
   ChartOptions,
+  Filler,
 } from 'chart.js';
 import Loading from '../common/Loading';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 export default function Page() {
-  const { isLoading, isError, error, data: TokenUsageResponse } = useQuery<TokenUsage[]>({
+  const { isLoading, isError, isSuccess, error, data: TokenUsageResponse } = useQuery<TokenUsage[]>({
     queryKey: ['TokenUsageResponse'],
     queryFn: getTokenUsage,
   });
 
-  const data = TokenUsageResponse || [];
-
+  // const data = TokenUsageResponse || [];
+  const [data, setData] = useState<TokenUsage[]>([]);
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily');
-  const [currentDayIndex, setCurrentDayIndex] = useState(Math.max(0, Math.ceil((data.length - 14) / 14)));
+  const [currentDayIndex, setCurrentDayIndex] = useState(0);
 
   useEffect(() => {
     if (isError && error) {
       alert("토큰 사용량을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
     }
   }, [isError, error]);
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    
+    const initData = [] as TokenUsage[];
+    
+    const today = new Date();
+    for (let i = 89; i >= 0; i--) {
+      const prevDay = new Date(today);
+      prevDay.setDate(today.getDate() - i)
+      // const prevDay = today.getDate() - i
+      const parseDay = prevDay.toISOString().split("T")[0];
+      const findTokenUsage = TokenUsageResponse.find((data) => data.date == parseDay);
+      initData.push({
+        id: 90 - i,
+        date: parseDay,
+        tokenUsage: findTokenUsage ? findTokenUsage.tokenUsage : 0,
+      });
+    }
+
+    console.log(initData);
+    setData(initData);
+    setCurrentDayIndex(Math.max(0, Math.ceil((initData.length - 14) / 14)));
+    
+  }, [isSuccess]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,8 +86,8 @@ export default function Page() {
     const weeklyData = [];
     for (let i = 0; i < data.length; i += 7) {
       const weekData = data.slice(i, i + 7);
-      const avgUsage = weekData.reduce((sum, day) => sum + day.tokenUsage, 0) / weekData.length;
-      weeklyData.push({ Date: formatDate(weekData[0].date), Usage: Math.round(avgUsage) });
+      const sumUsage = weekData.reduce((sum, day) => sum + day.tokenUsage, 0);
+      weeklyData.push({ Date: formatDate(weekData[0].date), Usage: Math.round(sumUsage) });
     }
     return weeklyData;
   };
@@ -74,6 +100,7 @@ export default function Page() {
       ? getDailyData().map(d => d.date.slice(5)) 
       : getWeeklyData().map(d => d.Date.slice(5)),
     datasets: [{
+      fill: true,
       label: '토큰 사용량',
       data: viewMode === 'daily' ? getDailyData().map(d => d.tokenUsage) : getWeeklyData().map(d => d.Usage),
       borderColor: '#874aa5',
