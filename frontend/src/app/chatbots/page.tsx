@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRecoilState, useSetRecoilState } from "recoil";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { CgArrowsExchangeAltV } from "@react-icons/all-files/cg/CgArrowsExchangeAltV";
 
@@ -13,7 +13,7 @@ import Search from "@/components/common/Search";
 import PurpleButton from "@/components/common/PurpleButton";
 import { selectedChatbotState } from "@/store/chatbotAtoms";
 import { ChatFlow } from "@/types/chatbot";
-import { getAllChatFlows, deleteChatFlow } from "@/api/chatbot";
+import { deleteChatFlow, getAllChatFlows } from "@/api/chatbot";
 import Loading from "@/components/common/Loading";
 import { chatbotThumbnailState } from "@/store/chatbotAtoms";
 import { debounce } from "@/utils/node";
@@ -26,7 +26,6 @@ export default function Page() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isViewingShared, setIsViewingShared] = useState(false);
   const [selectedChatbot, setSelectedChatbot] = useRecoilState(selectedChatbotState);
-  const [itemsToLoad, setItemsToLoad] = useState(20);
   const [isCategoryFixed, setIsCategoryFixed] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [chatFlowIdToDelete, setChatFlowIdToDelete] = useState<number | null>(null);
@@ -37,10 +36,24 @@ export default function Page() {
 
   const setChatbotThumbnail = useSetRecoilState(chatbotThumbnailState);
 
-  const { isLoading, isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+    isError,
+    error,
+  } = useInfiniteQuery<ChatFlow[]>({
     queryKey: ["chatFlows", isViewingShared],
-    queryFn: () => getAllChatFlows(isViewingShared),
+    queryFn: ({ pageParam = 0 }) => getAllChatFlows(isViewingShared, pageParam.toString(), "20"), // 페이지 번호와 limit 설정
+    getNextPageParam: (lastPage, allPages) => {
+      // 마지막 페이지에 데이터가 있으면 다음 페이지 번호를 반환하고, 없으면 undefined 반환
+      return lastPage.length > 0 ? allPages.length : undefined;
+    },
+    initialPageParam: 0, // 초기 페이지 파라미터 설정
   });
+  
 
   useEffect(() => {
     if (isError && error) {
@@ -64,7 +77,9 @@ export default function Page() {
         window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 100
       ) {
-        setItemsToLoad((prev) => prev + 16);
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage(); // 무한 스크롤을 위한 다음 페이지 데이터 로드
+        }
       }
 
       if (window.scrollY >= 57) {
@@ -76,24 +91,23 @@ export default function Page() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Move useCallback and useMemo hooks here
   const handleCategoryClick = useCallback((label: string) => {
     setSelectedCategory(label);
   }, []);
 
   const filteredChatFlows = useMemo(() => {
-    return chatFlows
-      ? chatFlows.filter((bot) => {
-          const matchesCategory =
-            selectedCategory === "모든 챗봇" ||
-            bot.categories.some((category) => category.name === selectedCategory);
-          const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
-          return matchesCategory && matchesSearch;
-        })
-      : [];
-  }, [chatFlows, selectedCategory, searchTerm]);
+    if (!data) return [];
+    const allChatFlows = data.pages.flat();
+    return allChatFlows.filter((bot) => {
+      const matchesCategory =
+        selectedCategory === "모든 챗봇" ||
+        bot.categories.some((category) => category.name === selectedCategory);
+      const matchesSearch = bot.title.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [data, selectedCategory, searchTerm]);
 
   if (isLoading) return <Loading />;
 
@@ -176,18 +190,14 @@ export default function Page() {
         </div>
 
         <div
-          className={`flex justify-between items-center mb-6 ${
-            isCategoryFixed ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2" : ""
-          }`}
+          className={`flex justify-between items-center mb-6 ${isCategoryFixed ? "fixed top-[57px] left-0 right-0 bg-white z-10 px-4 md:px-12 py-2" : ""}`}
         >
           <div className="hidden md:flex">
             {categories.map((label) => (
               <button
                 key={label}
                 onClick={() => handleCategoryClick(label)}
-                className={`mr-6 ${
-                  selectedCategory === label ? "font-semibold" : "text-gray-600"
-                }`}
+                className={`mr-6 ${selectedCategory === label ? "font-semibold" : "text-gray-600"}`}
               >
                 {label}
               </button>
@@ -211,7 +221,7 @@ export default function Page() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 w-full gap-4">
-        {filteredChatFlows.slice().reverse().slice(0, itemsToLoad).map((bot) => (
+        {filteredChatFlows.map((bot) => (
           <PopularChatbotCard
             key={bot.chatFlowId}
             chatbotId={bot.chatFlowId}
@@ -260,6 +270,11 @@ export default function Page() {
       )}
 
       {isDeleteModalOpen && <ConfirmDeleteModal onConfirm={confirmDelete} onCancel={cancelDelete} />}
+      
+      {/* 무한 스크롤 로딩 표시 */}
+      {/* {isFetchingNextPage && (
+        <div className="text-center py-4">로딩 중...</div>
+      )} */}
     </div>
   );
 }

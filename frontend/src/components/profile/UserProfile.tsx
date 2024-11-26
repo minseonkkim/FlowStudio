@@ -21,15 +21,15 @@ export default function UserProfile() {
   const [profileImage, setProfileImage] = useState<File | string | null>(null)
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [openAi, setOpenAi] = useState<string | null>(null)
-  const [gemini, setGemini] = useState<string | null>(null)
   const [claude, setClaude] = useState<string | null>(null)
-  const [clova, setClova] = useState<string | null>(null)
+  // const [gemini, setGemini] = useState<string | null>(null)
+  // const [clova, setClova] = useState<string | null>(null)
   const queryClient = useQueryClient();
   const [previewState, setPreviewState] = useState({
     openAiKey: false,
     claudeKey: false,
-    geminiKey: false,
-    clovaKey: false,
+    // geminiKey: false,
+    // clovaKey: false,
   });
 
   // 초기 데이터 저장 상태
@@ -37,9 +37,9 @@ export default function UserProfile() {
     nickname: "",
     profileImage: null as string | null,
     openAiKey: null as string | null,
-    geminiKey: null as string | null,
     claudeKey: null as string | null,
-    clovaKey: null as string | null,
+    // geminiKey: null as string | null,
+    // clovaKey: null as string | null,
   });
 
   const { isLoading: isUserInfoLoading, isError: isUserInfoError, error: userInfoError, data: userInfo } = useQuery<UserInfo>({
@@ -123,15 +123,15 @@ export default function UserProfile() {
 
     if (apiKeys) {
       setOpenAi(apiKeys.openAiKey);
-      setGemini(apiKeys.geminiKey);
       setClaude(apiKeys.claudeKey);
-      setClova(apiKeys.clovaKey);
+      // setGemini(apiKeys.geminiKey);
+      // setClova(apiKeys.clovaKey);
       setInitialData((prev) => ({
         ...prev,
         openAiKey: apiKeys.openAiKey,
-        geminiKey: apiKeys.geminiKey,
         claudeKey: apiKeys.claudeKey,
-        clovaKey: apiKeys.clovaKey,
+        // geminiKey: apiKeys.geminiKey,
+        // clovaKey: apiKeys.clovaKey,
       }));
     }
   }, [userInfo, apiKeys]);
@@ -179,8 +179,8 @@ export default function UserProfile() {
     const updatedKeys = {
       openAiKey: openAi || "",
       claudeKey: claude || "",
-      geminiKey: gemini || "",
-      clovaKey: clova || "",
+      // geminiKey: gemini || "",
+      // clovaKey: clova || "",
     };
 
     // 공백으로 업데이트하려는 경우 경고 메시지
@@ -189,14 +189,14 @@ export default function UserProfile() {
     });
 
     if (emptyKeys.length > 0) {
-      if (!confirm("API Key를 공백으로 업데이트할 수 없습니다. 입력을 확인해 주세요.")) return;
+      if (!confirm("API Key를 공백으로 업데이트시 발행한 챗봇에 문제가 발생할 수 있습니다. 그래도 수정하시겠습니까?")) return;
     }
     // API 키 변경이 있는 경우 업데이트
     if (
-      apiKeys?.claudeKey !== claude ||
-      apiKeys.clovaKey !== clova ||
-      apiKeys.geminiKey !== gemini ||
-      apiKeys.openAiKey !== openAi
+      apiKeys.openAiKey !== openAi || 
+      apiKeys?.claudeKey !== claude
+      // apiKeys.clovaKey !== clova ||
+      // apiKeys.geminiKey !== gemini
     ) {
       updateApiKeys.mutate(updatedKeys);
       setIsEditing(false);
@@ -224,12 +224,12 @@ export default function UserProfile() {
       case "claudeKey":
         setClaude(null);
         break;
-      case "geminiKey":
-        setGemini(null);
-        break;
-      case "clovaKey":
-        setClova(null);
-        break;
+      // case "geminiKey":
+        // setGemini(null);
+        // break;
+      // case "clovaKey":
+        // setClova(null);
+        // break;
       default:
         break;
     }
@@ -240,9 +240,9 @@ export default function UserProfile() {
     setNickName(initialData.nickname);
     setPreviewImage(initialData.profileImage);
     setOpenAi(initialData.openAiKey);
-    setGemini(initialData.geminiKey);
     setClaude(initialData.claudeKey);
-    setClova(initialData.clovaKey);
+    // setGemini(initialData.geminiKey);
+    // setClova(initialData.clovaKey);
     setIsEditing(false); // 편집 모드 종료
   };
 
@@ -326,8 +326,8 @@ export default function UserProfile() {
             {[
               { label: "OpenAI", key: "openAiKey" as const, value: openAi, setValue: setOpenAi },
               { label: "Claude", key: "claudeKey" as const, value: claude, setValue: setClaude },
-              { label: "Gemini", key: "geminiKey" as const, value: gemini, setValue: setGemini },
-              { label: "Clova", key: "clovaKey" as const, value: clova, setValue: setClova },
+              // { label: "Gemini", key: "geminiKey" as const, value: gemini, setValue: setGemini },
+              // { label: "Clova", key: "clovaKey" as const, value: clova, setValue: setClova },
             ].map(({ label, key, value, setValue }) => (
               <div key={key} className="flex items-center gap-x-4 mb-4">
                 <p className="w-[80px] font-semibold text-base text-gray-600">{label}</p>
