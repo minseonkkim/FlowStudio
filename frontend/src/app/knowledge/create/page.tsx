@@ -8,7 +8,6 @@ import { currentStepState, fileState, isLoadingState } from '@/store/knoweldgeAt
 import { useRouter } from 'next/navigation'; 
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import PurpleButton from '@/components/common/PurpleButton';
-import { useEffect } from 'react';
 import Loading from '@/components/common/Loading';
 
 export default function Page() {
