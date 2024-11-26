@@ -2,12 +2,12 @@ import axiosInstance from '@/api/token/axiosInstance';
 import { KnowledgeData, ChunkData, ChunkList } from "@/types/knowledge";
 
 // 지식 목록 조회
-export async function getAllKnowledges({ page = '0', size = '20' }: { page?: string; size?: string }) {
+export async function getAllKnowledges({ page = '0', limit = '15' }: { page?: string; limit?: string }) {
   try {
     const response = await axiosInstance.get('knowledges', {
       params: {
         page,
-        size,
+        limit,
       },
     });
 

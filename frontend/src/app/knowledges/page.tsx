@@ -28,7 +28,7 @@ export default function Page() {
   const fetchKnowledgeList = async (page: number) => {
     setIsLoading(true);
     try {
-      const response = await getAllKnowledges({ page: page.toString(), size: "20" });
+      const response = await getAllKnowledges({ page: page.toString(), limit: "15" });
       setDisplayedData((prev) => {
         const newData = response.filter(
           (newItem) => !prev.some((existingItem) => existingItem.knowledgeId === newItem.knowledgeId)

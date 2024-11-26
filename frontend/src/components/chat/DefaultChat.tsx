@@ -52,8 +52,10 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
- 
-
+//   const [currentPage, setCurrentPage] = useState(1); 
+//   const changePage = ()=>{
+//     setCurrentPage((prev) => prev+1);
+// }
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     setIsLogin(!!token); 
@@ -89,16 +91,47 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     sse.addEventListener("title", async (event) => {
       const data = JSON.parse((event as MessageEvent).data);
       setTitle(data.title);
-
+    
       const accessToken = localStorage.getItem("accessToken");
       if (accessToken) {
-        const updatedChatlist = await queryClient.fetchQuery<getChatListData>({
-          queryKey: ["chatlist", chatFlowId],
-          queryFn: () => getChattingList(chatFlowId),
+        // 현재 React Query 캐시에서 데이터를 가져옵니다.
+        const currentCache = queryClient.getQueryData(["chatlist", chatFlowId]);
+    
+        // 첫 페이지 데이터를 새로 가져옵니다.
+        const updatedChatlist = await getChattingList({
+          chatFlowId,
+          page: "0",
+          limit: "10",
         });
-        setChatlist(updatedChatlist);
+    
+        queryClient.setQueryData(["chatlist", chatFlowId], (oldData: any) => {
+          if (!oldData) {
+            // 기존 데이터가 없는 경우 초기화
+            return {
+              pageParams: [0],
+              pages: [updatedChatlist],
+            };
+          }
+    
+          // 기존 캐시에서 병합된 데이터를 재구성
+          return {
+            ...oldData,
+            pages: [
+              {
+                ...oldData.pages[0], // 기존 첫 번째 페이지
+                chats: [
+                  ...updatedChatlist.chats, // 새로 가져온 데이터를 가장 앞에 추가
+                  ...oldData.pages[0].chats, // 기존 첫 번째 페이지 데이터
+                ],
+                totalCount: updatedChatlist.totalCount, // 최신 totalCount 반영
+              },
+              ...oldData.pages.slice(1), // 나머지 페이지 유지
+            ],
+          };
+        });
       }
     });
+
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
@@ -286,6 +319,8 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
             onSelectChat={handleSelectChat}
             onDeleteNewChat={onDeleteNewChat}
             selectedChatId={defaultChatId}
+            // currentPage={currentPage}
+            // changePage= {changePage}
           />
         
 
