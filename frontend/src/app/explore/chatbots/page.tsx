@@ -98,7 +98,7 @@ export default function Page() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div>
         <p className="mb-4 font-semibold text-[24px] text-gray-700">가장 인기있는 챗봇</p>
         <div className="md:hidden">
@@ -156,7 +156,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-16">
+      <div className="mt-12">
         <p className="mb-2 font-semibold text-[24px] text-gray-700">챗봇 라운지</p>
 
         <div

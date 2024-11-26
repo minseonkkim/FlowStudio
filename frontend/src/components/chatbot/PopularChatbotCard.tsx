@@ -131,7 +131,7 @@ export default function PopularChatbotCard({
                 handleDownloadClick();
               }}
             >
-              <button>
+              <button aria-label="Download">
                 <BsDownload
                   size={18}
                   className="text-[#667085] group-hover:scale-125 group-hover:text-[#9A75BF]"
@@ -148,7 +148,7 @@ export default function PopularChatbotCard({
               }}
               className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
             >
-              <button>
+              <button aria-label="Outspread">
                 <BsThreeDots size={18} className="text-[#667085]" />
               </button>
 
@@ -203,7 +203,7 @@ export default function PopularChatbotCard({
               }}
               className="relative flex items-center p-2 rounded-lg hover:bg-[#B99AD9] hover:bg-opacity-40"
             >
-              <button>
+              <button aria-label="Outspread">
                 <BsThreeDots size={18} className="text-[#667085]" />
               </button>
               {/* Dropdown menu */}

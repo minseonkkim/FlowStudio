@@ -112,7 +112,7 @@ export default function Page() {
   );
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div className="flex gap-2 mb-4">
         <p className="font-semibold text-[24px] text-gray-700 mr-6">문서</p>
         <PurpleButton text="파일 추가" onHandelButton={goToCreatePage} />

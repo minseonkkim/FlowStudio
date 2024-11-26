@@ -174,7 +174,7 @@ export default function Page() {
   );
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div className="flex flex-col">
         <div className="mb-2 flex items-center gap-4">
           <div className="flex flex-row items-center">

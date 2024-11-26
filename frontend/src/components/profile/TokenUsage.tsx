@@ -160,6 +160,7 @@ export default function Page() {
 
       <div className="flex justify-center items-center md:space-x-4">
         <button
+          aria-label="LeftArrow"
           onClick={handlePrevious}
           disabled={currentDayIndex === 0}
           className={`rounded-full p-1 mb-16 transition-colors duration-200 ${
@@ -178,6 +179,7 @@ export default function Page() {
         </div>
 
         <button
+          aria-label="RightArrow"
           onClick={handleNext}
           disabled={(currentDayIndex + 1) * 14 >= data.length}
           className={`rounded-full p-1 mb-16 transition-colors duration-200 ${
