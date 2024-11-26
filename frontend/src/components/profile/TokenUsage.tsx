@@ -59,7 +59,6 @@ export default function Page() {
       });
     }
 
-    console.log(initData);
     setData(initData);
     setCurrentDayIndex(Math.max(0, Math.ceil((initData.length - 14) / 14)));
     

@@ -11,11 +11,6 @@ export default function TestResult({ selectedTab }: TestResulttProps) {
   
   const items = useRecoilValue(parsedTestDataState)
 
-
-  useEffect(()=>{
-    console.log(items)
-
-  },[items])
   const calculateMeanAndVariance = (key: keyof typeof items[0]) => {
     const values = items.map((item) => item[key] as number);
     const mean = values.reduce((sum, val) => sum + val, 0) / values.length;

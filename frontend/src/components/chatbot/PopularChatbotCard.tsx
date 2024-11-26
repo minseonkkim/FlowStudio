@@ -126,7 +126,6 @@ export default function PopularChatbotCard({
           {type === "all" && (
             <div className="flex items-center p-2 "
               onClick={(e) => {
-                console.log("asdfaskdjlfhasdkljfhasdlkjf");
                 e.stopPropagation();
                 handleDownloadClick();
               }}

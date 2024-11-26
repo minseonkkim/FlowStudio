@@ -76,9 +76,6 @@ export default function CreateFirst() {
     setCurrentStep(2);
   };
 
-  useEffect(() => {
-    console.log(file);
-  }, [file]);
 
   return (
     <div className="pl-10">

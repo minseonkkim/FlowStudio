@@ -37,7 +37,6 @@ export async function getNodeDetail(nodeId: number){
 export async function deleteNode(nodeId: number){
   try {
     const response = await axiosInstance.delete(`chat-flows/nodes/${nodeId}`)
-    console.log(response)
     if (response.status === 200) {
       return response.data;
     } else {
@@ -52,7 +51,6 @@ export async function deleteNode(nodeId: number){
 // 노드 수정
 export async function putNode(nodeId: number, data: NodeData){
   try {
-    console.log("CALL NODE UPDATE : "+ {...data});
     const response = await axiosInstance.put(`chat-flows/nodes/${nodeId}/${data.type.toLowerCase()}`, data)
     if (response.status === 200) {
       return response.data.data;
@@ -67,8 +65,6 @@ export async function putNode(nodeId: number, data: NodeData){
 
 // 질문 분류 클래스 수정
 export async function putQuestionClassNode(questionClassId: number, data: {"content" : string}){
-  console.log("질문 분류 클래스 수정",questionClassId, data);
-  
   try {
     const response = await axiosInstance.put(`chat-flows/nodes/question-classes/${questionClassId}`, data)
     if (response.status === 200) {
@@ -116,7 +112,6 @@ export async function deleteQuestionClassNode(questionClassId: number){
 export async function postEdge(chatFlowId: number, data: EdgeData): Promise<EdgeData>{
   try {
     const response = await axiosInstance.post(`chat-flows/${chatFlowId}/edges`, data)
-    console.log("CALL EDGE CREATE");
     
     if (response.status === 200) {
       
@@ -147,7 +142,6 @@ export async function putEdge(chatFlowId: number, edgeId: number, data: EdgeData
 
 // 간선 삭제
 export async function deleteEdge(chatFlowId: number, edgeId: number){
-  console.log("chatFlowId", chatFlowId, "edgeId", edgeId)
   try {
     const response = await axiosInstance.delete(`chat-flows/${chatFlowId}/edges/${edgeId}`)
     if (response.status === 200) {

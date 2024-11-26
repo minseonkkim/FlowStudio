@@ -70,7 +70,6 @@ export default function Page({ params }: ChatflowPageProps) {
 
   // 노드와 엣지를 초기화하는 비동기 함수
   const initializeFlow = async () => {
-    console.log("수정 가능하니? ", isEditable);
     
     setLoading(true);
     try {
@@ -183,11 +182,6 @@ export default function Page({ params }: ChatflowPageProps) {
 
   }, [params.id, setNodes, setEdges, setSelectedNode]);
 
-  useEffect(() => {
-    console.log("전체 엣지 목록", edges);
-    
-  }, [edges])
-
   /**
    * 노드에 변화가 있을 때 처리
    * 선택, 드래그, 값수정
@@ -206,11 +200,9 @@ export default function Page({ params }: ChatflowPageProps) {
 
         // 첫 번째 선택된 노드 찾기
         const currentSelectNode = nds.find((node) => node.selected);
-        console.log("CURRENT Node:", currentSelectNode);
 
         // 선택된 노드가 있을 때 처리, 선택을 취소하기만 하면 이전 선택 노드가 유지됨!!
         if (currentSelectNode) {
-          console.log("PREV Node", selectedNode);
 
           // 이미 선택된 노드와 다른 노드면 저장
           if (selectedNode && selectedNode.id !== currentSelectNode.id) {
@@ -235,7 +227,6 @@ export default function Page({ params }: ChatflowPageProps) {
       targetNodeId: +connection.target,
       sourceConditionId: +connection.sourceHandle,
     };
-    console.log(edges);
     
    //엣지 배열에서 이미 연결되어있는지 if 문 검사
    const targetFindEdge = edges.filter((edge) => edge.target === edgeData.targetNodeId.toString());
@@ -555,7 +546,6 @@ export default function Page({ params }: ChatflowPageProps) {
           !target.isContentEditable
         ) {
           event.preventDefault(); // 기본 동작 방지
-          console.log("Backspace 또는 Delete 키 입력 방지");
         }
       }
     };

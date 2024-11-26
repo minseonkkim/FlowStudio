@@ -19,11 +19,6 @@ export default function Page() {
 
   const queryClient = useQueryClient();
 
-
-  useEffect(()=>{
-    console.log(isLoading)
-
-  },[isLoading])
   const goToListPage = () => {
     router.push('/knowledges');  
 
@@ -32,10 +27,6 @@ export default function Page() {
       queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
     }, 0);
   };
-
-  useEffect(() => {
-    console.log('커런트 스텝: ' + currentStep);
-  }, [currentStep]);
 
   return (
     <>

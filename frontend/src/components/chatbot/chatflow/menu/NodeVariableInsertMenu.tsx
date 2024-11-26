@@ -64,7 +64,7 @@ export const NodeVariableInsertMenu = ({
 
   return (
     <div className="relative inline-block w-[130px] flex flex-end justify-end">
-      <CgInsertAfterR className="w-5 h-5" onClick={() => setSelectedNode((prev) => (prev ? null : parentNodes[0]))} />
+      <CgInsertAfterR className="w-5 h-5 cursor-pointer" onClick={() => setSelectedNode((prev) => (prev ? null : parentNodes[0]))} />
 
       {selectedNode && (
         <div ref={menuRef} className="absolute z-10 bg-white border rounded mt-2 w-full shadow-lg w-full">

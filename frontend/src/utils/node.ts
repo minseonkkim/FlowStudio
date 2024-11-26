@@ -94,10 +94,6 @@ export const addNode = ((type: string, currentNode: Node, nodes: Node[], isDetai
     type: type,
   };
 
-  console.log(currentNode);
-  console.log(newNode);
-  
-
   return postNode(newNode);
 }
 );
