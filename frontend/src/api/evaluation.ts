@@ -1,11 +1,12 @@
 import axiosInstance from '@/api/token/axiosInstance';
 
+
 // 테스트 완료한 챗플로우 목록 조회
-export async function getChatFlowTestList(test:boolean) {
+export async function getChatFlowTestList(executable:boolean) {
   try {
     let url = 'chat-flows';
-    if (test) {
-      url += '?test=true';
+    if (executable) {
+      url += '?executable=true';
     }
     const response = await axiosInstance.get(url);
     if (response.status === 200) {
