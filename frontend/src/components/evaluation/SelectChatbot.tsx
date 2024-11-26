@@ -1,10 +1,12 @@
 'use client'
 import { useState, useEffect } from "react";
 import PopularChatbotCard from "@/components/chatbot/PopularChatbotCard";
+import { IoIosInformationCircleOutline } from '@react-icons/all-files/io/IoIosInformationCircleOutline';
+import { Tooltip } from 'react-tooltip';
 import Search from "../common/Search";
 import { ChatFlow } from "@/types/chatbot";
 import { useQuery } from '@tanstack/react-query';
-import { getAllChatFlows } from "@/api/chatbot";
+import { getChatFlowTestList } from "@/api/evaluation";
 import { useSetRecoilState } from "recoil";
 import { chatbotIdState } from "@/store/evaluationAtoms";
 import { categories } from "@/constants/chatbotCategories";
@@ -21,8 +23,8 @@ export default function SelectChatbot({ onNext, selectedTab }: SelectChatbotProp
 
   // 챗 플로우 목록 조회
   const { isError, error, data: chatFlows } = useQuery<ChatFlow[]>({
-    queryKey: ['chatFlows', { isShared: false }], 
-    queryFn: () => getAllChatFlows(false), 
+    queryKey: ['chatFlows', { executable: true }], 
+    queryFn: () => getChatFlowTestList(true), 
   });
 
   useEffect(() => {
@@ -53,7 +55,28 @@ export default function SelectChatbot({ onNext, selectedTab }: SelectChatbotProp
   return (
     <div>
       <div className="flex justify-between mb-8 h-[15px]">
-        <p className="text-[22px]">{selectedTab}</p>
+        <div className="flex gap-2">
+          <p className="text-[22px]">{selectedTab}</p>
+          <IoIosInformationCircleOutline 
+            data-tooltip-id="info-tooltip1" 
+            className="w-4 h-4 text-[#4F4F4F] mt-2" 
+          />
+        </div>
+        <Tooltip 
+          id="info-tooltip1" 
+          content="평가 가능한 챗봇만 보여집니다." 
+          place="right"
+          style={{
+            backgroundColor: 'white',
+            color: 'black',
+            border: '1px solid #D1D5DB', 
+            boxShadow: '0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05)', 
+            borderRadius: '0.375rem',  
+            padding: '0.5rem 0.75rem', 
+            width: '22rem',
+            zIndex: 50          
+          }}
+        />
       </div>
       <div className="flex justify-between items-center mb-6">
         <div>
