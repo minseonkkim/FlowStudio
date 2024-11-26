@@ -1,20 +1,28 @@
 import axiosInstance from '@/api/token/axiosInstance';
 import { KnowledgeData, ChunkData, ChunkList } from "@/types/knowledge";
 
-// 지식베이스 전체 목록 조회
-export async function getAllKnowledges() {
+// 지식 목록 조회
+export async function getAllKnowledges({ page = '0', limit = '15' }: { page?: string; limit?: string }) {
   try {
-    const response = await axiosInstance.get('knowledges');
+    const response = await axiosInstance.get('knowledges', {
+      params: {
+        page,
+        limit,
+      },
+    });
+
     if (response.status === 200) {
       return response.data.data as KnowledgeData[];
     } else {
       throw new Error('Failed to get knowledges');
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error while fetching knowledges:', error);
     throw error;
   }
 }
+
+
 
 // 지식베이스 문서공개 여부 수정
 export async function putDocKnowledge(knowledgeId: number, data: { title: string; isPublic: boolean }) {

@@ -109,55 +109,62 @@ export default function ChunkDetailModal({
   if (isLoading) return <></>;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
-      <div className="relative bg-white w-[450px] h-[530px] p-6 rounded-lg shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-          <div className="border border-gray-400 w-[55px] h-[24px] rounded-lg text-center"># {formattedContentId}</div>
-          <div className='flex gap-3'>
-            {isEditing ? (
-              <>
-                <button 
-                  className='py-1 px-2 border border-[#9A75BF] text-[#9A75BF] hover:bg-[#f3e8ff] active:bg-[#e3d1f7] rounded-md text-sm'
-                  onClick={handleCancelClick}>
-                  취소
-                </button>
-                <button
-                  className='py-1 px-2 border rounded-md text-sm bg-[#9A75BF] text-white hover:bg-[#874aa5] active:bg-[#733d8a]'
-                  onClick={handleUpdateClick}>
-                  수정
-                </button>
-              </>
-            ) : (
-              <button onClick={handleEditClick} className="text-gray-500 hover:text-gray-700">
-                <HiOutlinePencilAlt className='w-5 h-5'/>
-              </button>
-            )}
-            <div className="text-gray-500">|</div>
-            <TiDeleteOutline className="text-gray-500 w-6 h-6" onClick={onClose}/>
-          </div>
-        </div>
-        {!isEditing ? (
-          <p className="text-base pt-4 w-full h-[400px]">{chunkContent}</p>
+<div className="fixed inset-0 flex items-center justify-center z-50">
+  <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
+  <div className="relative bg-white w-[450px] h-[530px] p-6 rounded-lg shadow-lg">
+    <div className="flex justify-between items-center mb-4">
+      <div className="border border-gray-400 w-[55px] h-[24px] rounded-lg text-center"># {formattedContentId}</div>
+      <div className="flex gap-3">
+        {isEditing ? (
+          <>
+            <button 
+              className="py-1 px-2 border border-[#9A75BF] text-[#9A75BF] hover:bg-[#f3e8ff] active:bg-[#e3d1f7] rounded-md text-sm"
+              onClick={handleCancelClick}>
+              취소
+            </button>
+            <button
+              className="py-1 px-2 border rounded-md text-sm bg-[#9A75BF] text-white hover:bg-[#874aa5] active:bg-[#733d8a]"
+              onClick={handleUpdateClick}>
+              수정
+            </button>
+          </>
         ) : (
-          <textarea
-            ref={textareaRef}
-            value={chunkContent}
-            spellCheck="false"
-            onChange={(e) => {
-              setChunkContent(e.target.value);
-            }}
-            className="text-base pt-4 w-full h-[400px] resize-none focus:outline-none overflow-y-auto"
-          />
-        )}        
-        <hr />
-        <div className='flex gap-3 items-center mt-2'>
-          <div className='flex gap-2 items-center'>
-            <BsTextareaT className='text-gray-500 w-4 h-4'/>
-            <p className='text-gray-500 text-[15px]'>{textLength} 문자</p> 
-          </div>
-        </div>
+          <button onClick={handleEditClick} className="text-gray-500 hover:text-gray-700">
+            <HiOutlinePencilAlt className="w-5 h-5"/>
+          </button>
+        )}
+        <div className="text-gray-500">|</div>
+        <TiDeleteOutline className="text-gray-500 w-6 h-6" onClick={onClose}/>
       </div>
     </div>
+
+    {/* 콘텐츠 영역 */}
+    <div className="overflow-y-auto h-[400px] mb-4">
+      {!isEditing ? (
+        <p className="text-base pt-4 w-full">{chunkContent}</p>
+      ) : (
+        <textarea
+          ref={textareaRef}
+          value={chunkContent}
+          spellCheck="false"
+          onChange={(e) => {
+            setChunkContent(e.target.value);
+          }}
+          className="text-base pt-4 w-full h-full resize-none focus:outline-none overflow-y-auto"
+        />
+      )}
+    </div>
+
+    {/* 하단 정보 영역 */}
+    <hr />
+    <div className="flex gap-3 items-center mt-2">
+      <div className="flex gap-2 items-center">
+        <BsTextareaT className="text-gray-500 w-4 h-4"/>
+        <p className="text-gray-500 text-[15px]">{textLength} 문자</p>
+      </div>
+    </div>
+  </div>
+</div>
+
   );
 }

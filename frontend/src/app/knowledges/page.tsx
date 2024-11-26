@@ -1,76 +1,61 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Search from '@/components/common/Search';
-import PurpleButton from '@/components/common/PurpleButton';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Search from "@/components/common/Search";
+import PurpleButton from "@/components/common/PurpleButton";
 import { getAllKnowledges, putDocKnowledge, deleteKnowledge } from "@/api/knowledge";
 import { KnowledgeData, KnowledgeIsPublic } from "@/types/knowledge";
-import { useRecoilState } from 'recoil';
-import { chunkFileNameState } from '@/store/knoweldgeAtoms';
-import { currentStepState } from '@/store/knoweldgeAtoms'; 
-import Loading from '@/components/common/Loading';
+import { useRecoilState } from "recoil";
+import { chunkFileNameState } from "@/store/knoweldgeAtoms";
+import { currentStepState } from "@/store/knoweldgeAtoms";
+import Loading from "@/components/common/Loading";
 
 export default function Page() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [, setKnowledgeTitle] = useRecoilState(chunkFileNameState);
   const [, setCurrentStepState] = useRecoilState(currentStepState);
   const router = useRouter();
   const queryClient = useQueryClient();
   const observerTarget = useRef(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
-  const [displayedData, setDisplayedData] = useState<KnowledgeData[]>([]);
+  const [currentPage, setCurrentPage] = useState(0); // 현재 페이지 관리
+  const [displayedData, setDisplayedData] = useState<KnowledgeData[]>([]); // 표시할 데이터
+  const [hasMore, setHasMore] = useState(true); // 더 많은 데이터가 있는지 여부
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { isLoading, isError, error, data: knowledgeList } = useQuery<KnowledgeData[]>({
-    queryKey: ['knowledgeList'],
-    queryFn: getAllKnowledges,
-  });
-
-  useEffect(() => {
-    if (isError && error) {
-      alert("지식목록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.");
+  const fetchKnowledgeList = async (page: number) => {
+    setIsLoading(true);
+    try {
+      const response = await getAllKnowledges({ page: page.toString(), limit: "15" });
+      setDisplayedData((prev) => {
+        const newData = response.filter(
+          (newItem) => !prev.some((existingItem) => existingItem.knowledgeId === newItem.knowledgeId)
+        );
+        return [...prev, ...newData];
+      });
+      if (response.length < 15) setHasMore(false); // 추가 데이터 없음
+    } catch (error) {
+      console.error("Error fetching knowledge list:", error);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isError, error]);
+  };
 
   useEffect(() => {
-    if (knowledgeList) {
-      const newItems = knowledgeList.slice(0, currentPage * itemsPerPage);
-      setDisplayedData(newItems);
-    }
-  }, [knowledgeList, currentPage]);
-
-  const putMutation = useMutation({
-    mutationFn: ({ knowledgeId, data }: { knowledgeId: number; data: KnowledgeIsPublic }) =>
-      putDocKnowledge(knowledgeId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-    },
-    onError: () => {
-      alert("문서 수정에 실패했습니다. 다시 시도해 주세요.");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteKnowledge,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
-    },
-    onError: () => {
-      alert("문서 삭제에 실패했습니다. 다시 시도해 주세요.");
-    },
-  });
+    fetchKnowledgeList(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && knowledgeList && displayedData.length < knowledgeList.length) {
-        setCurrentPage((prev) => prev + 1);
-      }
-    }, {
-      threshold: 1.0,
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          setCurrentPage((prev) => prev + 1); // 페이지 증가
+        }
+      },
+      { threshold: 1.0 }
+    );
 
     if (observerTarget.current) {
       observer.observe(observerTarget.current);
@@ -81,20 +66,27 @@ export default function Page() {
         observer.unobserve(observerTarget.current);
       }
     };
-  }, [observerTarget, knowledgeList, displayedData]);
+  }, [observerTarget, hasMore, isLoading]);
 
-  if (isLoading) return <Loading/>;
-
-  const goToCreatePage = (): void => {
-    setCurrentStepState(1)
-    router.push('/knowledge/create');
-  };
-
-  const goToKnowledgeDetail = (knowledgeId: string, title: string): void => {
-    setKnowledgeTitle(title);
-    router.push(`/knowledge/${knowledgeId}`);
-  };
-
+// 지식 수정
+  const putMutation = useMutation({
+    mutationFn: ({ knowledgeId, data }: { knowledgeId: number; data: KnowledgeIsPublic }) =>
+      putDocKnowledge(knowledgeId, data),
+    onSuccess: (updatedData) => {
+      setDisplayedData((prevData) =>
+        prevData.map((item) =>
+          item.knowledgeId === updatedData.knowledgeId
+            ? { ...item, isPublic: updatedData.isPublic } 
+            : item
+        )
+      );
+    },
+    onError: (error) => {
+      console.error("수정 실패:", error);
+      alert("문서 수정에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+  
   const togglePublicStatus = (file: KnowledgeData) => {
     const knowledgeData = {
       title: file.title,
@@ -103,11 +95,37 @@ export default function Page() {
     putMutation.mutate({ knowledgeId: file.knowledgeId, data: knowledgeData });
   };
 
+  // 지식 삭제 
+  const deleteMutation = useMutation({
+    mutationFn: deleteKnowledge,
+    onSuccess: () => {
+      setDisplayedData((prev) =>
+        prev.filter((item) => item.knowledgeId !== deleteMutation.variables)
+      );
+      queryClient.invalidateQueries({ queryKey: ["knowledgeList"] });
+    },
+    onError: () => {
+      alert("문서 삭제에 실패했습니다. 다시 시도해 주세요.");
+    },
+  });
+
   const handleDeleteClick = (knowledgeId: number) => {
     deleteMutation.mutate(knowledgeId);
   };
 
-  const filteredData = displayedData?.filter((file) =>
+  if (isLoading && currentPage === 0) return <Loading />;
+
+  const goToCreatePage = (): void => {
+    setCurrentStepState(1);
+    router.push("/knowledge/create");
+  };
+
+  const goToKnowledgeDetail = (knowledgeId: string, title: string): void => {
+    setKnowledgeTitle(title);
+    router.push(`/knowledge/${knowledgeId}`);
+  };
+
+  const filteredData = displayedData.filter((file) =>
     file.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -138,8 +156,8 @@ export default function Page() {
             </tr>
           </thead>
           <tbody>
-            {filteredData?.slice().reverse().map((file, index) => (
-              <tr key={file.knowledgeId} className="border-b cursor-pointer hover:bg-gray-100">
+            {filteredData.map((file, index) => (
+              <tr key={`${file.knowledgeId}-${index}`} className="border-b cursor-pointer hover:bg-gray-100">
                 <td className="p-1 sm:p-2 lg:p-4 text-[10px] sm:text-xs lg:text-base">{index+1}</td>
                 <td
                   className="p-1 sm:p-2 lg:p-4 max-w-[150px] w-full md:max-w-none md:w-auto"
@@ -157,12 +175,12 @@ export default function Page() {
                   <div
                     onClick={() => togglePublicStatus(file)}
                     className={`relative w-8 sm:w-10 lg:w-12 h-4 sm:h-5 lg:h-6 flex items-center cursor-pointer ${
-                      file.isPublic ? 'bg-[#9A75BF]' : 'bg-gray-400'
+                      file.isPublic ? "bg-[#9A75BF]" : "bg-gray-400"
                     } rounded-full p-1 transition-colors duration-300 ease-in-out`}
                   >
                     <div
                       className={`h-3 sm:h-4 w-3 sm:w-4 bg-white rounded-full shadow-md transform ${
-                        file.isPublic ? 'translate-x-4 sm:translate-x-5 lg:translate-x-6' : 'translate-x-0'
+                        file.isPublic ? "translate-x-4 sm:translate-x-5 lg:translate-x-6" : "translate-x-0"
                       } transition-transform duration-300 ease-in-out`}
                     />
                   </div>
@@ -170,7 +188,9 @@ export default function Page() {
                 <td className="p-1 sm:p-2 lg:p-4">
                   <button
                     className="text-[10px] sm:text-xs lg:text-[13px] w-[36px] sm:w-[40px] lg:w-[50px] h-[24px] sm:h-[28px] lg:h-[32px] bg-[#9A75BF] text-white rounded-lg shadow-sm hover:bg-[#874aa5] active:bg-[#733d8a] transition-all duration-200 ease-in-out"
-                    onClick={() => { handleDeleteClick(file.knowledgeId); }}
+                    onClick={() => {
+                      handleDeleteClick(file.knowledgeId);
+                    }}
                   >
                     삭제
                   </button>
