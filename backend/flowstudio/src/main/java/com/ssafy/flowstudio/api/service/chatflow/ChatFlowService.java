@@ -79,9 +79,9 @@ public class ChatFlowService {
             chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared, pageable);
         }
 
-//        if (executable) {
-//            chatFlows = chatFlows.parallelStream().filter(chatflows)
-//        }
+        if (executable) {
+            chatFlows = chatFlows.parallelStream().filter(chatFlow -> precheck(chatFlow.getId()).isExecutable()).toList();
+        }
 
         return chatFlows.stream()
                 .map(chatFlow -> {
