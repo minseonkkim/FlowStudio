@@ -17,7 +17,6 @@ export async function getAllChatFlows(shared: boolean, page: string = '0', limit
     }
 
     const response = await axiosInstance.get(url);
-    console.log(response);
     
     if (response.status === 200) {
       return response.data.data;
@@ -50,7 +49,6 @@ export async function postChatFlow(data: ChatFlowData){
 export async function deleteChatFlow(chatFlowId: number){
   try {
     const response = await axiosInstance.delete(`chat-flows/${chatFlowId}`)
-    console.log(response)
     if (response.status === 200) {
       return response.data;
     } else {
@@ -80,9 +78,7 @@ export async function patchChatFlow(chatFlowId: number, data: ChatFlowData){
 // 챗플로우 상세 조회
 export async function getChatFlow(chatFlowId: number){
   try {
-    console.log(chatFlowId);
     const response = await axiosInstance.get(`chat-flows/${chatFlowId}`)
-    console.log('챗플로우 상세 조회', response);
     if (response.status === 200) {
       return response.data.data;
     } else {
@@ -97,9 +93,7 @@ export async function getChatFlow(chatFlowId: number){
 // 챗플로우 발행
 export async function publishChatFlow(chatFlowId: number) {
   try {
-    console.log(chatFlowId);
     const response = await axiosInstance.post(`chat-flows/${chatFlowId}/publish`)
-    console.log('챗플로우 발행', response);
     if (response.status === 200) {
       return response.data.data;
     } else {
@@ -113,9 +107,7 @@ export async function publishChatFlow(chatFlowId: number) {
 
 export async function unPublishChatFlow(chatFlowId: number) {
   try {
-    console.log(chatFlowId);
     const response = await axiosInstance.delete(`chat-flows/${chatFlowId}/publish`)
-    console.log('챗플로우 발행 취소', response);
     if (response.status === 200) {
       return response.data.data;
     } else {
@@ -131,7 +123,6 @@ export async function unPublishChatFlow(chatFlowId: number) {
 export async function getPrecheckPublish(chatFlowId: number){
   try {
     const response = await axiosInstance.get(`chat-flows/${chatFlowId}/precheck`)
-    console.log('실행여부 사전점검', response);
     if (response.status === 200) {
       return response.data.data;
     } else {

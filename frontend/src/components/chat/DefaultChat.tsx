@@ -77,13 +77,8 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
     });
 
     sse.onopen = () => {
-      console.log("SSE 연결이 성공적으로 열렸습니다.");
       setIsSSEConnected(true);
     };
-
-    sse.addEventListener("heartbeat", (event) => {
-      console.log("Received heartbeat:", (event as MessageEvent).data);
-    });
 
     sse.addEventListener("title", async (event) => {
       const data = JSON.parse((event as MessageEvent).data);
@@ -130,7 +125,6 @@ export default function DefaultChat({ chatFlowId }: DefaultChatProps) {
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      console.log(data)
       if (data.type === "ANSWER") {
         setMessages((prev) => [...prev.slice(0, -1), { text: data.message, sender: "server" }]);
       }

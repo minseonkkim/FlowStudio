@@ -35,7 +35,6 @@ const ChatFlowPublishMenu = forwardRef(
             try {
                 // 1. 발행 가능 여부를 확인
                 const precheckResult = await getPrecheckPublish(publishedChatFlowData.chatFlowId);
-                console.log('발행 가능?', precheckResult.executable);
                 if (!precheckResult.executable) {
                     // 발행 불가능한 경우 오류 메시지 표시
                     toastError(precheckResult.malfunctionCause || "발행할 수 없습니다.");
@@ -47,7 +46,6 @@ const ChatFlowPublishMenu = forwardRef(
                 await getApiKeys().then((data) => {
                     isPublishPossible = (data.openAiKey && data.openAiKey?.length !== 0);
                 });
-                console.log('api 키 있음?', isPublishPossible);
 
                 if (!isPublishPossible) {
                     toastError("마이페이지에서 해당 LLM의 API 키를 등록하세요.");
@@ -84,7 +82,6 @@ const ChatFlowPublishMenu = forwardRef(
         
         const handleUnPublishButtonClick = async () => {
             unPublishChatFlow(publishedChatFlowData.chatFlowId).then((data) => {
-                console.log(data);
                 if (Boolean(data)) { 
                     setPublishedChatFlowData({
                         ...publishedChatFlowData,

@@ -95,7 +95,7 @@ export default function ChatbotCard({
               </div>
 
               {type === "all" && (
-                <button onClick={(e) => {
+                <button aria-label="Download" onClick={(e) => {
                   e.stopPropagation();
                   handleDownloadClick();
                 }}>

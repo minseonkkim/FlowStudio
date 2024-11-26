@@ -62,14 +62,11 @@ export default function LlmNodeDetail({
   const promptUserTextareaRef = useRef<(HTMLDivElement | null)>(null);
 
   const [selectedModel, setSelectedModel] = useState(node.data.modelName);
-  console.log('selectedModel', selectedModel);
 
   const { data: models } = useQuery<Model[]>({
     queryKey: ['models'],
     queryFn: getModels,
   });
-
-  console.log('selectednodeid', node.id);
 
   /**
    * 모델 변경 핸들러
@@ -81,8 +78,6 @@ export default function LlmNodeDetail({
     // 선택된 모델의 maxToken 값을 가져옴
     const selectedModelData = models?.find((model) => model.name === value);
     const selectedMaxToken = selectedModelData?.maxTokens || 0; // 기본값 설정
-    console.log('셀렉티드노드데이타', selectedModelData);
-    console.log('selectedMaxToken', selectedMaxToken);
 
     // 노드 상태 업데이트
     setNodes((prevNodes) =>
@@ -113,7 +108,6 @@ export default function LlmNodeDetail({
         modelName: value,
         maxTokens: selectedMaxToken,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -209,7 +203,6 @@ export default function LlmNodeDetail({
         ...node.data,
         promptSystem: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -249,7 +242,6 @@ export default function LlmNodeDetail({
         ...node.data,
         promptUser: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -330,7 +322,6 @@ export default function LlmNodeDetail({
 
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
     setParentNodes(updateParentNodes);
-    console.log("parent Nodes:", updateParentNodes);
     // setVariables(parentNodes);
   }, [node.id, nodes.length, edges.length]);
 
@@ -390,7 +381,6 @@ export default function LlmNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
