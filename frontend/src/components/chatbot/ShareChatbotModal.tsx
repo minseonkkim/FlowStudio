@@ -58,14 +58,12 @@ export default function ShareChatbotModal({ onClose, chatFlowId }: ShareChatbotM
         .map((node: NodeData) => node.knowledge)
         .filter((knowledge): knowledge is KnowledgeData => knowledge !== undefined);
 
-      console.log('지식리스트', knowledgeArray);
       setKnowledgeArray(knowledgeArray);
     }
   }, [chatFlow, chatFlowId]);
 
 
   const handleTogglePublic = (id: number, title: string, isPublic: boolean) => {
-    console.log(isPublic)
     updateKnowledgeMutation.mutate({
       knowledgeId: id,
       data: {

@@ -171,8 +171,6 @@ export default function QuestionClassifierNodeDetail({
       },
     };
 
-    console.log("Updated node data:", updatedNode.data.questionClasses);
-
     // 상태 업데이트
     setNodes((prevNodes: Node[]) =>
       prevNodes.map((n) =>
@@ -238,7 +236,6 @@ export default function QuestionClassifierNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>
@@ -306,7 +303,6 @@ export default function QuestionClassifierNodeDetail({
               }}
               value={localClasses[questionClassId]?.content || ""}
               onChange={(e) => {
-                console.log("현재 클래스 아이디는 ? ", questionClassId);
                 
                 handleClassContentChange(+questionClassId, e.target.value);
                 e.target.style.height = "auto";

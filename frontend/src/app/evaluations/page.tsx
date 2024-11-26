@@ -76,7 +76,7 @@ export default function Page() {
   if(isLoading) return <Loading/>;
 
   return (
-    <div className="px-4 md:px-12 py-10">
+    <div className="px-4 md:px-12 py-8">
       <div className="flex items-center mb-2">
         <p className="font-semibold text-[24px] text-gray-700 mr-6">
           챗봇 평가 결과

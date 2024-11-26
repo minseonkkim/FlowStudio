@@ -33,7 +33,6 @@ export default function AnswerNodeDetail({
 
     const updateParentNodes = findAllParentNodes(node.id, nodes, edges);
     setParentNodes(updateParentNodes);
-    console.log("parent Nodes:", updateParentNodes);
   }, [node.id, nodes.length, edges.length]);
 
   // Adjust height of textarea dynamically
@@ -104,7 +103,6 @@ export default function AnswerNodeDetail({
         ...node.data,
         outputMessage: actualValue,
       };
-      console.log("CALL NODE UPDATE:", updatedData);
       putNode(node.data.nodeId, updatedData);
     }, 500);
   };
@@ -144,7 +142,6 @@ export default function AnswerNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>

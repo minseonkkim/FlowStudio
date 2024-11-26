@@ -55,7 +55,6 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
   // SSE 연결 초기화 함수
   const initializeSSE = (token: string) => {
     if (sseRef.current) {
-      console.log("이미 연결된 SSE");
       sseRef.current.close(); // 기존 연결 닫기
     }
 
@@ -64,17 +63,10 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
       withCredentials: true,
     });
 
-    sse.onopen = () => console.log("SSE 연결이 성공적으로 열렸습니다.");
-
-    sse.addEventListener("heartbeat", (event) => {
-      console.log("Received heartbeat:", (event as MessageEvent).data);
-    });
 
     sse.addEventListener("node", (event) => {
       const data = JSON.parse((event as MessageEvent).data);
-      console.log("Node Event Received:", data);
       setCurrentEventNodeId(data.nodeId);
-      console.log(data.nodeId);
 
       setNodes((prevNodes) => {
         return prevNodes.map((n) =>
@@ -124,7 +116,6 @@ export default function PreviewChat({ chatFlowId, onClose, nodes, setNodes }: Pr
       setPreviewChatId(newChatId);
 
       const accessToken = response.headers["authorization"] || localStorage.getItem("accessToken");
-      console.log("Access Token:", accessToken);
       if (accessToken) {
         initializeSSE(accessToken);
       } else {

@@ -17,20 +17,10 @@ export default function Page() {
   const isLoading = useRecoilValue(isLoadingState);
 
 
-
-  useEffect(()=>{
-    console.log(isLoading)
-
-  },[isLoading])
-
   const goToListPage = () => {
     router.push('/knowledges');  
     setfile(null);
   };
-
-  useEffect(() => {
-    console.log('커런트 스텝: ' + currentStep);
-  }, [currentStep]);
 
   return (
     <>

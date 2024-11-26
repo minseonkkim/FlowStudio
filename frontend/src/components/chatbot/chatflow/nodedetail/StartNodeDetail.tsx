@@ -129,7 +129,6 @@ export default function StartNodeDetail({
               name: updatedName,
             },
           };
-          console.log(updatedNodeData);
 
           setTimeout(() => {
             setNodes((prevNodes) =>

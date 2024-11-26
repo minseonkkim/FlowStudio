@@ -57,8 +57,6 @@ export async function deleteKnowledge(knowledgeId: number) {
 // 지식베이스 청크 목록 조회
 export async function getAllChunks(knowledgeId: number) {
   try {
-    console.log("axios : " + knowledgeId);
-    
     const response = await axiosInstance.get(`knowledges/${knowledgeId}/chunks`);
     if (response.status === 200) {
       return response.data.data as ChunkData;
