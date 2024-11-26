@@ -69,7 +69,6 @@ public class Chat extends BaseEntity {
                 .chatFlow(chatFlow)
                 .isPreview(isPreview)
                 .messageList("[]")
-                .title("새 대화")
                 .build();
     }
 
