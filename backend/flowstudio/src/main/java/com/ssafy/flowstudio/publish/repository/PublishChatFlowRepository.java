@@ -1,4 +1,4 @@
-package com.ssafy.flowstudio.publish;
+package com.ssafy.flowstudio.publish.repository;
 
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
 import org.springframework.data.jpa.repository.JpaRepository;

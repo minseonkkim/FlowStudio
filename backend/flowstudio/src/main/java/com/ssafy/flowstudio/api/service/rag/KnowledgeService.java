@@ -15,6 +15,8 @@ import com.ssafy.flowstudio.domain.node.entity.Retriever;
 import com.ssafy.flowstudio.domain.node.repository.RetrieverRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +31,10 @@ public class KnowledgeService {
     private final VectorStoreService vectorStoreService;
     private final MilvusUtils milvusUtils;
 
-    public List<KnowledgeListResponse> getKnowledges(User user) {
-        List<Knowledge> knowledgeList = knowledgeRepository.findByUserId(user.getId());
+    public List<KnowledgeListResponse> getKnowledges(User user, int page, int limit) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+
+        List<Knowledge> knowledgeList = knowledgeRepository.findByUserId(user.getId(), pageable);
 
         return knowledgeList.stream()
                 .map(KnowledgeListResponse::from)

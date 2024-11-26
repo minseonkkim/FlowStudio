@@ -20,6 +20,8 @@ import com.ssafy.flowstudio.publish.PublishService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -88,13 +90,16 @@ public class ChatService {
         return ChatCreateResponse.from(savedChat);
     }
 
-    public ChatListResponse getChats(User user, Long chatFlowId) {
+    public ChatListResponse getChats(User user, Long chatFlowId, int page, int limit) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
+
         ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId)
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        List<Chat> chats = chatRepository.findByChatFlowAndUser(chatFlow, user);
+        List<Chat> chats = chatRepository.findByChatFlowAndUser(chatFlow, user, pageable);
+        int totalCount = chatRepository.findChatCountByChatFlowAndUser(chatFlow, user);
 
-        return ChatListResponse.of(chatFlow, chats);
+        return ChatListResponse.of(chatFlow, chats, totalCount);
     }
 
     public ChatDetailResponse getChat(User user, Long chatFlowId, Long chatId) {

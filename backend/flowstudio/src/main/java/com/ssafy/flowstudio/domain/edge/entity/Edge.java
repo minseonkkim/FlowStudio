@@ -48,6 +48,7 @@ public class Edge extends BaseEntity {
         return Edge.builder()
                 .sourceNode(sourceNode)
                 .targetNode(targetNode)
+                .sourceConditionId(0L)
                 .build();
     }
 

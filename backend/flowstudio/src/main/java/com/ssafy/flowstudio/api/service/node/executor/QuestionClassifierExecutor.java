@@ -11,7 +11,10 @@ import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.common.secret.SecretKeyProperties;
 import com.ssafy.flowstudio.domain.chat.entity.Chat;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
-import com.ssafy.flowstudio.domain.node.entity.*;
+import com.ssafy.flowstudio.domain.node.entity.Node;
+import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClass;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -28,9 +31,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import static dev.langchain4j.model.openai.OpenAiChatModelName.*;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O;
 
 @Slf4j
 @Component
@@ -51,6 +53,11 @@ public class QuestionClassifierExecutor extends NodeExecutor {
         // 질문 분류기 노드를 참조하는 질문 분류(QuestionClass)들의 리스트를 불러온다.
         QuestionClassifier questionClassifierNode = (QuestionClassifier) node;
         List<QuestionClass> questionClasses = questionClassifierNode.getQuestionClasses();
+
+        // 실행에 필요한 자원이 충분하지 않다면 예외를 반환한다.
+        if (!questionClassifierNode.hasRequiredResources()) {
+            throw new BaseException(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST);
+        }
 
         // GPT 모델을 빌드한다.
         ChatLanguageModel model = OpenAiChatModel.builder()
@@ -90,7 +97,6 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             log.info("AI response: {}, found ID: {}", responseText, foundId);
 
             // AI가 반환한 ID로 QuestionClass를 찾는다.
-            System.out.println(questionClasses);
             QuestionClass chosenQuestionClass = questionClasses.stream()
                     .filter(qc -> qc.getId().longValue() == foundId.longValue())
                     .findFirst()
@@ -103,14 +109,22 @@ public class QuestionClassifierExecutor extends NodeExecutor {
             sseEmitters.send(chat.getUser(), questionClassifierNode, chosenQuestionClass.getContent());
 
             // QuestionClass와 연결된 간선과 타겟 노드를 가져온다.
-            Edge edge = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
-            Node targetNode = edge.getTargetNode();
+            List<Edge> edgeList = edgeService.getEdgeBySourceConditionId(chosenQuestionClass.getId());
 
-            // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
-            NodeEvent event = NodeEvent.of(this, targetNode, chat);
+            if (edgeList.size() > 1) {
+                throw new BaseException(ErrorCode.MULTIPLE_EDGE_FOUND);
+            }
 
-            // event를 발행한다.
-            publishEvent(event);
+            // 연결된 간선이 있을 시 다음 노드를 실행하는 Event를 발행한다.
+            if (!edgeList.isEmpty()) {
+                Node targetNode = edgeList.get(0).getTargetNode();
+
+                // 타겟 노드와 chat 정보를 담은 Event를 생성한다.
+                NodeEvent event = NodeEvent.of(this, targetNode, chat);
+
+                // Event를 발행한다.
+                publishEvent(event);
+            }
         } catch (NumberFormatException e) {
             log.error("AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA: ", e);
             throw new BaseException(ErrorCode.AI_RESPONSE_NOT_MATCH_GIVEN_SCHEMA);

@@ -1,7 +1,9 @@
 package com.ssafy.flowstudio.api.service.edge;
 
+import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
 import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
 import com.ssafy.flowstudio.api.service.edge.request.EdgeServiceRequest;
+import com.ssafy.flowstudio.api.service.node.NodeService;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.ChatFlow;
@@ -9,11 +11,15 @@ import com.ssafy.flowstudio.domain.chatflow.repository.ChatFlowRepository;
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import com.ssafy.flowstudio.domain.edge.repository.EdgeRepository;
 import com.ssafy.flowstudio.domain.node.entity.Node;
+import com.ssafy.flowstudio.domain.node.entity.NodeType;
+import com.ssafy.flowstudio.domain.node.entity.QuestionClassifier;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ public class EdgeService {
     private final EdgeRepository edgeRepository;
     private final ChatFlowRepository chatFlowRepository;
     private final NodeRepository nodeRepository;
+    private final NodeService nodeService;
 
     @Transactional
     public EdgeResponse create(User user, Long chatFlowId, EdgeServiceRequest request) {
@@ -37,6 +44,15 @@ public class EdgeService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (nodeService.getPrecedingNodes(sourceNode).stream().anyMatch(node -> node.getId().equals(targetNode.getId()))) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_CYCLE_DETECTED);
+        }
+
+        if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
+            throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
+        }
+
 
         Edge savedEdge = Edge.create(sourceNode, targetNode, request.getSourceConditionId());
         edgeRepository.save(savedEdge);
@@ -60,6 +76,14 @@ public class EdgeService {
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
         Node targetNode = nodeRepository.findById(request.getTargetNodeId())
                 .orElseThrow(() -> new BaseException(ErrorCode.NODE_NOT_FOUND));
+
+        if (nodeService.getPrecedingNodes(sourceNode).stream().anyMatch(node -> node.getId().equals(targetNode.getId()))) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_CYCLE_DETECTED);
+        }
+
+        if (!canConnect(sourceNode, targetNode, request.getSourceConditionId())) {
+            throw new BaseException(ErrorCode.MULTIPLE_EDGE_FORBIDDEN);
+        }
 
         edge.update(
                 sourceNode,
@@ -86,10 +110,26 @@ public class EdgeService {
         return true;
     }
 
-    public Edge getEdgeBySourceConditionId(Long sourceConditionId) {
-        return edgeRepository.findBySourceConditionId(sourceConditionId)
-                .orElseThrow(() -> new BaseException(ErrorCode.EDGE_NOT_FOUND));
+    public List<Edge> getEdgeBySourceConditionId(Long sourceConditionId) {
+        return edgeRepository.findAllBySourceConditionId(sourceConditionId);
     }
 
+    public boolean canConnect(Node sourceNode, Node targetNode, Long sourceConditionId) {
+        // Input Edge는 하나만 가질 수 있다.
+        if (!targetNode.getInputEdges().isEmpty()) {
+            return false;
+        }
 
+        // Source Condition을 가진 노드가 아니라면 OutputEdge는 하나만 가질 수 있다.
+        if (sourceConditionId == 0 && !sourceNode.getOutputEdges().isEmpty()) {
+            return false;
+        }
+
+        // 하나의 Source Condition당 하나의 Edge만 가질 수 있다.
+        if (sourceConditionId != 0 && !getEdgeBySourceConditionId(sourceConditionId).isEmpty()) {
+            return false;
+        }
+
+        return true;
+    }
 }

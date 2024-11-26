@@ -15,12 +15,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -65,12 +67,14 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                 .chats(List.of(chat1, chat2))
                 .build();
 
-        given(chatService.getChats(any(User.class), any(Long.class)))
+        given(chatService.getChats(any(User.class), any(Long.class), anyInt(), anyInt()))
                 .willReturn(response);
 
         // when
         ResultActions perform = mockMvc.perform(
                 get("/api/v1/chat-flows/{chatFlowId}/chats", 1L)
+                        .param("page", "0")
+                        .param("limit", "20")
                         .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -82,6 +86,10 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                         resource(ResourceSnippetParameters.builder()
                                 .tag("Chat")
                                 .summary("채팅 목록")
+                                .queryParameters(
+                                        RequestDocumentation.parameterWithName("page").optional().description("조회할 페이지, 입력 없으면 default 0"),
+                                        RequestDocumentation.parameterWithName("limit").optional().description("사이즈, 입력 없으면 default 20")
+                                )
                                 .responseFields(
                                         fieldWithPath("code").type(JsonFieldType.NUMBER)
                                                 .description("코드"),
@@ -95,6 +103,8 @@ public class ChatControllerDocsTest extends RestDocsSupport {
                                                 .description("챗플로우 제목"),
                                         fieldWithPath("data.thumbnail").type(JsonFieldType.STRING)
                                                 .description("챗플로우 썸네일"),
+                                        fieldWithPath("data.totalCount").type(JsonFieldType.NUMBER)
+                                                .description("채팅 목록 총 갯수"),
                                         fieldWithPath("data.chats").type(JsonFieldType.ARRAY)
                                                 .description("채팅 목록"),
                                         fieldWithPath("data.chats[].id").type(JsonFieldType.NUMBER)

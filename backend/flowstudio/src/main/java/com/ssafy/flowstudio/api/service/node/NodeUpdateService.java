@@ -97,7 +97,8 @@ public class NodeUpdateService {
                 request.getPromptUser(),
                 request.getContext(),
                 request.getTemperature(),
-                request.getMaxTokens()
+                request.getMaxTokens(),
+                request.getModelName()
         );
 
 

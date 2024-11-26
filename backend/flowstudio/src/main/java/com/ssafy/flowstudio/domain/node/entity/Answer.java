@@ -55,4 +55,9 @@ public class Answer extends Node {
     public void updateOutputMessage(String message) {
         this.outputMessage = message;
     }
+
+    @Override
+    public boolean hasRequiredResources() {
+        return getOutputEdges() != null && !getOutputMessage().trim().isEmpty();
+    }
 }

@@ -1,4 +1,4 @@
-package com.ssafy.flowstudio.domain.edge.repository;
+package com.ssafy.flowstudio.publish.repository;
 
 import com.ssafy.flowstudio.domain.edge.entity.Edge;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -6,9 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface EdgeRepository extends JpaRepository<Edge, Long> {
+public interface PublishEdgeRepository extends JpaRepository<Edge, Long> {
     @Query(
             "select e from Edge e"
             + " join e.sourceNode n"

@@ -2,6 +2,7 @@ package com.ssafy.flowstudio.api.controller.node;
 
 import com.ssafy.flowstudio.api.controller.node.request.NodeCreateRequest;
 import com.ssafy.flowstudio.api.service.node.NodeService;
+import com.ssafy.flowstudio.api.service.node.response.ModelListResponse;
 import com.ssafy.flowstudio.api.service.node.response.NodeCreateResponse;
 import com.ssafy.flowstudio.api.service.node.response.detail.NodeDetailResponse;
 import com.ssafy.flowstudio.common.annotation.CurrentUser;
@@ -10,6 +11,8 @@ import com.ssafy.flowstudio.domain.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -59,5 +62,13 @@ public class NodeController {
             @PathVariable Long nodeId
     ) {
         return ApiResponse.ok(nodeService.getNode(user, nodeId));
+    }
+
+    /**
+     * 모델 목록 조회
+     */
+    @GetMapping("/api/v1/chat-flows/nodes/models")
+    public ApiResponse<List<ModelListResponse>> getModels() {
+        return ApiResponse.ok(nodeService.getModels());
     }
 }

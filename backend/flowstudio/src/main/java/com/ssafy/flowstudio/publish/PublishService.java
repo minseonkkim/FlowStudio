@@ -1,6 +1,8 @@
 package com.ssafy.flowstudio.publish;
 
 import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
+import com.ssafy.flowstudio.api.service.chatflow.ChatFlowService;
+import com.ssafy.flowstudio.api.service.user.ApiKeyService;
 import com.ssafy.flowstudio.common.exception.BaseException;
 import com.ssafy.flowstudio.common.exception.ErrorCode;
 import com.ssafy.flowstudio.domain.chatflow.entity.Category;
@@ -15,6 +17,9 @@ import com.ssafy.flowstudio.domain.node.entity.*;
 import com.ssafy.flowstudio.domain.node.repository.NodeRepository;
 import com.ssafy.flowstudio.domain.user.entity.User;
 import com.ssafy.flowstudio.domain.user.repository.UserRepository;
+import com.ssafy.flowstudio.publish.repository.PublishChatFlowRepository;
+import com.ssafy.flowstudio.publish.repository.PublishEdgeRepository;
+import com.ssafy.flowstudio.publish.repository.PublishNodeRepository;
 import com.ssafy.flowstudio.publish.response.PublishChatFlowResponse;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -27,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -43,9 +49,14 @@ public class PublishService {
     private final ChatFlowRepository chatFlowRepository;
     private final PublishChatFlowRepository publishChatFlowRepository;
     private final EdgeRepository edgeRepository;
+    private final PublishEdgeRepository publishEdgeRepository;
     private final NodeRepository nodeRepository;
+    private final PublishNodeRepository publishNodeRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+
+    private final ChatFlowService chatFlowService;
+    private final ApiKeyService apiKeyService;
 
     @Transactional(transactionManager = "multiTransactionManager")
     public List<ChatFlowListResponse> getPublishChatFlows(User user) {
@@ -74,14 +85,37 @@ public class PublishService {
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
     }
 
-    @Transactional(transactionManager = "secondaryTransactionManager")
+    @Transactional(transactionManager = "multiTransactionManager")
     public Boolean unPublishChatFlow(User user, Long chatFlowId) {
-        ChatFlow publishChatFlow = publishChatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
+        ChatFlow publishChatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, user.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_PUBLISHED));
-
         publishChatFlow.updatePublishUrl("");
-        ChatFlow updateChatFlow = publishChatFlowRepository.save(publishChatFlow);
+        publishChatFlow.updatePublishDate(null);
+        ChatFlow updateChatFlow = chatFlowRepository.save(publishChatFlow);
+
+        deletePublishChatFlow(updateChatFlow.getId());
+
         return updateChatFlow.getPublishUrl().isBlank();
+    }
+
+    @Transactional(transactionManager = "multiTransactionManager")
+    public Boolean deletePublishChatFlow(Long chatFlowId) {
+        Optional<ChatFlow> optionalChatFlow = publishChatFlowRepository.findById(chatFlowId);
+
+        // 데이터가 없으면 로직 실행 없이 true 반환
+        if (optionalChatFlow.isEmpty()) {
+            return true;
+        }
+
+        ChatFlow chatFlow = optionalChatFlow.get();
+
+        List<Node> nodes = publishNodeRepository.findByChatFlowId(chatFlow.getId());
+        List<Edge> edges = publishEdgeRepository.findByChatFlowId(chatFlow.getId());
+        publishNodeRepository.deleteAll(nodes);
+        publishEdgeRepository.deleteAll(edges);
+        publishChatFlowRepository.delete(chatFlow);
+
+        return true;
     }
 
     @Transactional(transactionManager = "multiTransactionManager")
@@ -92,9 +126,21 @@ public class PublishService {
         ChatFlow chatFlow = chatFlowRepository.findByIdAndUserId(chatFlowId, findUser.getId())
                 .orElseThrow(() -> new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND));
 
-        // TODO: 챗플로우에 필요한 모델에 따라 다른 키 확인
-        if (findUser.getApiKey().getOpenAiKey() == null) {
-            throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
+        // API Key가 존재하는지 확인
+        for (ModelProvider provider : chatFlowService.getUseModelProviders(chatFlow.getId())) {
+            String key = switch (provider) {
+                case OPENAI -> findUser.getApiKey().getOpenAiKey();
+                case ANTHROPIC -> findUser.getApiKey().getClaudeKey();
+            };
+            key = apiKeyService.decrypt(key);
+            if (key == null || key.isBlank()) {
+                throw new BaseException(ErrorCode.API_KEY_NOT_REGISTERED);
+            }
+        }
+
+        // 챗플로우 실행 가능 여부 확인
+        if (!chatFlowService.precheck(chatFlowId).isExecutable()) {
+            throw new BaseException(ErrorCode.CHAT_FLOW_NOT_RUNNABLE);
         }
 
         // 발행 url 업데이트
@@ -106,8 +152,10 @@ public class PublishService {
 
         // 발행 날짜 업데이트
         chatFlow.updatePublishDate(LocalDateTime.now());
-        chatFlowRepository.save(chatFlow);
+        chatFlow = chatFlowRepository.save(chatFlow);
         chatFlowRepository.flush();
+
+        deletePublishChatFlow(chatFlow.getId());
 
         List<Node> nodes = nodeRepository.findByChatFlowId(chatFlow.getId());
         List<Edge> edges = edgeRepository.findByChatFlowId(chatFlow.getId());
@@ -230,11 +278,11 @@ public class PublishService {
                 case LLM -> {
                     LLM llmNode = (LLM) node;
                     em.createNativeQuery(
-                                    "INSERT INTO llm (node_id, prompt_system, prompt_user, context, temperature, max_tokens, model_provider, model_name) " +
-                                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
+                                    "INSERT INTO llm (node_id, prompt_system, prompt_user, context, temperature, max_tokens, model_name) " +
+                                            "VALUES (?, ?, ?, ?, ?, ?, ?) " +
                                             "ON DUPLICATE KEY UPDATE prompt_system = VALUES(prompt_system), prompt_user = VALUES(prompt_user), " +
                                             "context = VALUES(context), temperature = VALUES(temperature), max_tokens = VALUES(max_tokens), " +
-                                            "model_provider = VALUES(model_provider), model_name = VALUES(model_name)"
+                                            "model_name = VALUES(model_name)"
                             )
                             .setParameter(1, llmNode.getId())
                             .setParameter(2, llmNode.getPromptSystem())
@@ -242,8 +290,7 @@ public class PublishService {
                             .setParameter(4, llmNode.getContext())
                             .setParameter(5, llmNode.getTemperature())
                             .setParameter(6, llmNode.getMaxTokens())
-                            .setParameter(7, llmNode.getModelProvider().name())
-                            .setParameter(8, llmNode.getModelName().name())
+                            .setParameter(7, llmNode.getModelName().name())
                             .executeUpdate();
                 }
                 case RETRIEVER -> {

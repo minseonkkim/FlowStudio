@@ -1,11 +1,7 @@
 package com.ssafy.flowstudio.api.service.chatflow;
 
 import com.ssafy.flowstudio.api.service.chatflow.request.ChatFlowServiceRequest;
-import com.ssafy.flowstudio.api.service.chatflow.response.CategoryResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowListResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.ChatFlowUpdateResponse;
-import com.ssafy.flowstudio.api.service.chatflow.response.EdgeResponse;
+import com.ssafy.flowstudio.api.service.chatflow.response.*;
 import com.ssafy.flowstudio.api.service.node.NodeCopyFactoryProvider;
 import com.ssafy.flowstudio.api.service.rag.VectorStoreService;
 import com.ssafy.flowstudio.api.service.rag.response.KnowledgeResponse;
@@ -30,12 +26,12 @@ import com.ssafy.flowstudio.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -55,8 +51,9 @@ public class ChatFlowService {
     private final VectorStoreService vectorStoreService;
     private final MessageParseUtil messageParseUtil;
 
-    public List<ChatFlowListResponse> getEveryoneChatFlows() {
-        List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue();
+    public List<ChatFlowListResponse> getEveryoneChatFlows(int page, int limit) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("shareCount").descending());
+        List<ChatFlow> chatFlows = chatFlowRepository.findByIsPublicTrue(pageable);
 
         return chatFlows.stream()
                 .map(chatFlow -> {
@@ -72,13 +69,18 @@ public class ChatFlowService {
                 .toList();
     }
 
-    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test) {
+    public List<ChatFlowListResponse> getChatFlows(User user, boolean isShared, boolean test, int page, int limit, boolean executable) {
+        PageRequest pageable = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         List<ChatFlow> chatFlows;
 
         if (test) {
-            chatFlows = chatFlowRepository.findByOwnerWithTest(user.getId());
+            chatFlows = chatFlowRepository.findByOwnerWithTest(user.getId(), pageable);
         } else {
-            chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared);
+            chatFlows = chatFlowRepository.findByOwnerAndIsPublic(user, isShared, pageable);
+        }
+
+        if (executable) {
+            chatFlows = chatFlows.stream().filter(chatFlow -> precheck(chatFlow.getId()).isExecutable()).toList();
         }
 
         return chatFlows.stream()
@@ -347,7 +349,6 @@ public class ChatFlowService {
 
             // 복제된 질문 분류를 DB에 저장 후 맵에 추가한다.
             questionClassRepository.save(clonedQuestionClass);
-            System.out.println("originalQuestionClass.getId() = " + originalQuestionClass.getId());
             questionClassMap.put(originalQuestionClass.getId(), clonedQuestionClass);
         }
 
@@ -357,17 +358,12 @@ public class ChatFlowService {
         for (Edge originalEdge : edges) {
             Long sourceNodeId = originalEdge.getSourceNode().getId();
             Long targetNodeId = originalEdge.getTargetNode().getId();
-            Long sourceConditionId = null;
-
-            // 간선의 출처 노드가 질문 분류기면 위에서 복제된 질문 분류의 ID로 sourceConditionId를 새롭게 매핑한다.
-            if (originalEdge.getSourceNode().getType() == NodeType.QUESTION_CLASSIFIER) {
-                sourceConditionId = questionClassMap.get(originalEdge.getSourceConditionId()).getId();
-            }
+            Long sourceConditionId = originalEdge.getSourceConditionId();
 
             Edge edge = Edge.create(
                     nodeMap.get(sourceNodeId),
                     nodeMap.get(targetNodeId),
-                    sourceConditionId
+                    sourceConditionId == 0L ? 0L : questionClassMap.get(sourceConditionId).getId()
             );
 
             edgeRepository.save(edge);
@@ -387,4 +383,85 @@ public class ChatFlowService {
                 .toList();
     }
 
+    public PreCheckResponse precheck(Long chatFlowId) {
+        ChatFlow chatFlow = chatFlowRepository.findById(chatFlowId).orElseThrow(() ->
+                new BaseException(ErrorCode.CHAT_FLOW_NOT_FOUND)
+        );
+
+        List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
+        List<Edge> edges = edgeRepository.findByChatFlowId(chatFlowId);
+
+        Node startNode = nodes.stream()
+                .filter(node -> node.getType().equals(NodeType.START))
+                .findFirst()
+                .orElse(null);
+
+        Node answerNode = nodes.stream()
+                .filter(node -> node.getType().equals(NodeType.ANSWER))
+                .findFirst()
+                .orElse(null);
+
+        // 시작 노드가 없으면 실행할 수 없다.
+        if (startNode == null) {
+            return PreCheckResponse.createFalse(ErrorCode.START_NODE_NOT_FOUND);
+        }
+
+        // 답변 노드가 없으면 실행할 수 없다.
+        if (answerNode == null) {
+            return PreCheckResponse.createFalse(ErrorCode.ANSWER_NODE_NOT_FOUND);
+        }
+
+        HashSet<Long> visited = new HashSet<>();
+        ArrayDeque<Node> queue = new ArrayDeque<>();
+
+        queue.add(startNode);
+        visited.add(startNode.getId());
+
+        while (!queue.isEmpty()) {
+            Node currentNode = queue.pollFirst();
+
+            // 노드가 실행에 필요한 최소한의 자원을 보유하지 않으면 실행할 수 없다.
+            if (!currentNode.hasRequiredResources()) {
+                return PreCheckResponse.createFalse(ErrorCode.REQUIRED_NODE_VALUE_NOT_EXIST, currentNode);
+            }
+
+            List<Edge> currentEdges = currentNode.getOutputEdges();
+
+            // 플로우 분기의 흐름 끝에 Answer 노드가 존재하지 않으면 실행할 수 없다.
+            if (currentEdges.isEmpty() && currentNode.getType() != NodeType.ANSWER) {
+                return PreCheckResponse.createFalse(ErrorCode.LEAF_NODE_NOT_ANSWER, currentNode);
+            }
+
+            if (currentNode.getType() == NodeType.QUESTION_CLASSIFIER) {
+                QuestionClassifier questionClassifier = (QuestionClassifier) currentNode;
+                if (questionClassifier.getQuestionClasses().size() != currentEdges.size()) {
+                    return PreCheckResponse.createFalse(ErrorCode.UNHANDLED_CONDITIONAL_FLOW, currentNode);
+                }
+            }
+
+            for (Edge currentEdge : currentEdges) {
+                Node nextNode = currentEdge.getTargetNode();
+
+                // 간선이 이미 방문한 노드를 가리키고 있다면 사이클이 형성된 것이므로 실행될 수 없다.
+                if (visited.contains(nextNode.getId())) {
+                    return PreCheckResponse.createFalse(ErrorCode.CHAT_FLOW_CYCLE_DETECTED, nextNode);
+                } else {
+                    visited.add(nextNode.getId());
+                    queue.addLast(nextNode);
+                }
+            }
+        }
+
+        return PreCheckResponse.createTrue();
+    }
+
+    public List<ModelProvider> getUseModelProviders(Long chatFlowId) {
+        List<Node> nodes = nodeRepository.findByChatFlowId(chatFlowId);
+    
+        return nodes.parallelStream()
+            .filter(node -> node.getType() == NodeType.LLM)
+            .map(node -> ((LLM) node).getModelName().getProvider()) // Node에서 ModelProvider 추출
+            .distinct() // 중복된 Provider 제거
+            .toList();
+    }    
 }

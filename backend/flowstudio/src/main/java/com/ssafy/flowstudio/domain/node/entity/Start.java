@@ -44,4 +44,8 @@ public class Start extends Node {
         this.maxLength = maxLength.intValue();
     }
 
+    @Override
+    public boolean hasRequiredResources() {
+        return true;
+    }
 }
