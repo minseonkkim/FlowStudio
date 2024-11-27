@@ -5,6 +5,7 @@ export async function postUploadChatFlow(chatFlowId: number){
   try {
     const response = await axiosInstance.post(`chat-flows/${chatFlowId}/upload`);
     if (response.status === 200) {
+      console.log(response);
       return response.data.data;
     } else {
       throw new Error('Failed to upload chatflow');
@@ -18,6 +19,7 @@ export async function postUploadChatFlow(chatFlowId: number){
 // 챗플로우 다운로드
 export async function postDownloadChatFlow(chatFlowId: number){
   try {
+    console.log('다운로드')
     const response = await axiosInstance.post(`chat-flows/${chatFlowId}/download`);
     if (response.status === 200) {
       return response.data.data;
@@ -41,6 +43,7 @@ export async function getSharedChatFlows(page = 0, limit = 20) {
     });
 
     if (response.status === 200) {
+      console.log(response.data);
       return response.data.data;
     } else {
       throw new Error('Failed to get shared chatflows');
