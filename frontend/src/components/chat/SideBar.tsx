@@ -51,11 +51,6 @@ export default function Sidebar({ onNewChat, chatFlowId, onSelectChat, onDeleteN
     initialPageParam: 0,
   });
   
-
-useEffect(()=>{
-
-  console.log(chatlist)
-},[chatlist])
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
