@@ -78,7 +78,6 @@ export async function patchProfileImage(imageFile: File) {
 export async function getApiKeys() {
   try {
     const response = await axiosInstance.get('users/keys');
-    console.log('api 키', response);
     if (response.status === 200) {
       return response.data.data;
     } else {
