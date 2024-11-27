@@ -31,7 +31,7 @@ export default function Page() {
     queryFn: ({ pageParam = 0 }) => {
       // pageParam을 숫자로 강제 변환
       const page = Number(pageParam);
-      return getSharedChatFlows(page, 10);
+      return getSharedChatFlows(page, 6);
     },
     getNextPageParam: (lastPage, allPages) => {
       // 페이지 끝에 도달하면 undefined를 반환하여 더 이상 로드하지 않도록 처리
